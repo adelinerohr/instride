@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["vite/client"],
+    "rootDirs": ["."],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@instride/shared": ["../../packages/shared/src/index.ts"],
+      "@instride/shared/*": ["../../packages/shared/src/*"],
+      "@instride/api": ["../../packages/api/src/index.ts"]
+    }
+  }
+}

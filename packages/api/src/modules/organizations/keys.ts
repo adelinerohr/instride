@@ -1,0 +1,13 @@
+const ROOT_KEY = "organizations";
+
+export const organizationKeys = {
+  all: [ROOT_KEY] as const,
+  bySlug: (slug: string) => [ROOT_KEY, slug] as const,
+  byId: (id: string) => [ROOT_KEY, id] as const,
+  checkSlug: (slug: string) => [ROOT_KEY, "check", slug] as const,
+
+  // Levels
+  listLevels: () => ["levels"] as const,
+  levelById: (levelId: string) =>
+    [...organizationKeys.listLevels(), levelId] as const,
+};

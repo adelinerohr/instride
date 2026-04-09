@@ -1,0 +1,23 @@
+{
+  "name": "@instride/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#client": "./src/client/index.ts",
+    "#_internal": "./src/_internal/index.ts",
+    "#_internal/*": "./src/_internal/*.ts",
+    "#modules/*": "./src/modules/*.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@instride/shared": "workspace:*",
+    "@tanstack/react-query": "^5.95.2"
+  },
+  "devDependencies": {
+    "@instride/config": "workspace:*",
+    "typescript": "^5"
+  }
+}

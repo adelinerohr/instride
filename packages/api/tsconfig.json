@@ -1,0 +1,14 @@
+{
+  "extends": "@instride/config/tsconfig.base.json",
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "paths": {
+      "#client": ["./src/client/index.ts"],
+      "#_internal": ["./src/_internal/index.ts"],
+      "#_internal/*": ["./src/_internal/*.ts"],
+      "#modules/*": ["./src/modules/*.ts"],
+      "@instride/shared": ["../../packages/shared/src/index.ts"],
+      "@instride/shared/*": ["../../packages/shared/src/*"]
+    }
+  }
+}

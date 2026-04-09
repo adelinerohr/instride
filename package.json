@@ -1,0 +1,35 @@
+{
+  "name": "instride",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo dev --filter=web --filter=backend",
+    "check": "ultracite check",
+    "gen:client": "encore gen client instride-zeai --output=./packages/api/src/client/encore-client.ts --env=local",
+    "fix": "ultracite fix"
+  },
+  "dependencies": {
+    "@instride/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@instride/config": "workspace:*",
+    "@types/node": "^25.5.0",
+    "lefthook": "latest",
+    "oxfmt": "latest",
+    "oxlint": "latest",
+    "turbo": "^2.8.12",
+    "typescript": "^5",
+    "ultracite": "7.4.0"
+  },
+  "packageManager": "pnpm@10.12.1"
+}
