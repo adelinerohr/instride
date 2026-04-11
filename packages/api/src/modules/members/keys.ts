@@ -9,6 +9,8 @@
  *   ["members", orgId, "trainers", trainerId]        ← one trainer
  */
 
+import type { members } from "#client";
+
 const getMemberRootKey = ["members"] as const;
 const getRiderRootKey = [...getMemberRootKey, "riders"] as const;
 const getTrainerRootKey = [...getMemberRootKey, "trainers"] as const;
@@ -19,7 +21,8 @@ export const memberKeys = {
   me: () => [...getMemberRootKey, "me"] as const,
 
   // Trainers
-  trainers: () => getTrainerRootKey,
+  trainers: (params?: members.ListTrainersRequest) =>
+    [getTrainerRootKey, params] as const,
   trainerById: (trainerId: string) =>
     [...getTrainerRootKey, trainerId] as const,
 

@@ -9,6 +9,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { PencilIcon, XIcon, CircleIcon } from "lucide-react";
 import * as React from "react";
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -28,8 +33,9 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { Separator } from "@/shared/components/ui/separator";
+import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
 import { withForm } from "@/shared/hooks/form";
+import { getInitials } from "@/shared/lib/utils/format";
 
 import { lessonFormOpts } from "../../lib/new-lesson.form";
 
@@ -48,14 +54,13 @@ export const LessonChoicesFormSection = withForm({
     const { data: services, isLoading: isLoadingServices } = useSuspenseQuery(
       servicesOptions.all()
     );
-    const { data: levels, isLoading: isLoadingLevels } = useSuspenseQuery(
-      levelOptions.list()
-    );
+    const { data: levels } = useSuspenseQuery(levelOptions.list());
 
     const [isOpen, setIsOpen] = React.useState(true);
 
     const boardId = useStore(form.store, (state) => state.values.boardId);
     const trainerId = useStore(form.store, (state) => state.values.trainerId);
+    const serviceId = useStore(form.store, (state) => state.values.serviceId);
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -94,12 +99,9 @@ export const LessonChoicesFormSection = withForm({
                       className="w-full"
                       emptyPlaceholder="No boards available"
                       disabled={isLoadingBoards}
-                      items={
-                        boards?.map((board) => ({
-                          label: board.name,
-                          value: board.id,
-                        })) ?? []
-                      }
+                      items={boards}
+                      itemToValue={(board) => board?.id ?? null}
+                      renderValue={(value) => value?.name}
                     />
                   )}
                 />
@@ -111,12 +113,27 @@ export const LessonChoicesFormSection = withForm({
                       placeholder="Select a trainer"
                       fieldClassName="w-full"
                       disabled={!boardId || isLoadingTrainers}
-                      items={
-                        trainers?.map((trainer) => ({
-                          label: trainer.member?.authUser?.name ?? "",
-                          value: trainer.member?.id ?? "",
-                        })) ?? []
-                      }
+                      items={trainers}
+                      itemToValue={(trainer) => trainer?.id ?? null}
+                      renderValue={(value) => (
+                        <Item size="xs" className="w-full p-0">
+                          <ItemMedia>
+                            <Avatar className="size-4">
+                              <AvatarImage
+                                src={
+                                  value?.member?.authUser?.image ?? undefined
+                                }
+                              />
+                              <AvatarFallback className="text-[8px]">
+                                {getInitials(value?.member?.authUser?.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                          </ItemMedia>
+                          <ItemContent>
+                            {value?.member?.authUser?.name}
+                          </ItemContent>
+                        </Item>
+                      )}
                     />
                   )}
                 />
@@ -146,12 +163,9 @@ export const LessonChoicesFormSection = withForm({
                       emptyPlaceholder="No services available"
                       fieldClassName="w-full"
                       disabled={!boardId || !trainerId || isLoadingServices}
-                      items={
-                        services?.map((service) => ({
-                          label: service.name ?? "",
-                          value: service.id,
-                        })) ?? []
-                      }
+                      items={services}
+                      itemToValue={(service) => service?.id}
+                      renderValue={(value) => value?.name}
                     />
                   )}
                 />
@@ -174,33 +188,35 @@ export const LessonChoicesFormSection = withForm({
                   <form.AppField
                     name="levelId"
                     children={(field) => (
-                      <field.SelectField
+                      <field.ClearableSelectField
                         label="Level"
                         placeholder="Unrestricted"
-                        clearable
                         clearableLabel="Unrestricted"
                         fieldClassName="w-full"
-                        disabled={isLoadingLevels}
-                        items={
-                          levels?.map((level) => ({
-                            label: level.name ?? "",
-                            value: level.id,
-                            icon: (
-                              <CircleIcon
-                                className="size-3"
-                                fill={level.color}
-                                stroke={level.color}
-                              />
-                            ),
-                          })) ?? []
+                        disabled={true}
+                        disabledHint={
+                          serviceId
+                            ? "Levels are restricted to the selected service"
+                            : "Select a service first"
                         }
+                        items={levels}
+                        itemToValue={(level) => level?.id ?? null}
+                        renderValue={(value) => (
+                          <div className="flex items-center gap-2">
+                            <CircleIcon
+                              className="size-3"
+                              fill={value?.color}
+                              stroke={value?.color}
+                            />
+                            {value?.name}
+                          </div>
+                        )}
                       />
                     )}
                   />
                 </div>
               </FieldGroup>
             </CardContent>
-            <Separator />
             <CardFooter>
               <Button
                 onClick={() => setIsOpen(false)}

@@ -1,93 +1,70 @@
-import {
-  addDays,
-  addMonths,
-  addWeeks,
-  formatDate,
-  subMonths,
-  subDays,
-  subWeeks,
-} from "date-fns";
+import { formatDate } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import * as React from "react";
 
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 
-import { useCalendarSearch } from "../../hooks/use-calendar-search";
-import { CalendarView } from "../../lib/types";
-import { rangeText } from "../../utils/date";
+import { useCalendar } from "../../hooks/use-calendar";
+import { navigateDate, rangeText } from "../../utils/date";
 
-export interface DateNavigatorProps {
-  date: Date;
-  view: CalendarView;
-}
+export function DateNavigator() {
+  const { selectedDate, setSelectedDate, lessons, selectedView } =
+    useCalendar();
 
-export function DateNavigator({ date, view }: DateNavigatorProps) {
-  const { setDate } = useCalendarSearch(false);
+  const month = formatDate(selectedDate, "MMMM");
+  const year = selectedDate.getFullYear();
 
-  const today = new Date();
+  const lessonCount = React.useMemo(() => lessons.length, [lessons]);
 
-  const handleToday = () => setDate(new Date().toISOString());
+  const handlePrevious = React.useCallback(
+    () => setSelectedDate(navigateDate(selectedDate, selectedView, "previous")),
+    [selectedDate, setSelectedDate, selectedView]
+  );
 
-  const handlePrevious = () => {
-    const nextDate =
-      view === CalendarView.DAY
-        ? subDays(date, 1)
-        : view === CalendarView.WEEK
-          ? subWeeks(date, 1)
-          : subMonths(date, 1);
-
-    setDate(nextDate.toISOString());
-  };
-
-  const handleNext = () => {
-    const nextDate =
-      view === CalendarView.DAY
-        ? addDays(date, 1)
-        : view === CalendarView.WEEK
-          ? addWeeks(date, 1)
-          : addMonths(date, 1);
-
-    setDate(nextDate.toISOString());
-  };
-
-  const month = formatDate(date, "MMMM");
-  const year = date.getFullYear();
+  const handleNext = React.useCallback(
+    () => setSelectedDate(navigateDate(selectedDate, selectedView, "next")),
+    [selectedDate, setSelectedDate, selectedView]
+  );
 
   return (
     <div className="flex items-center gap-3">
-      <Button
-        variant="outline"
-        className="flex size-14 flex-col items-center justify-between p-0 text-center overflow-hidden"
-        onClick={handleToday}
+      <button
+        className="flex size-14 flex-col items-start overflow-hidden rounded-lg border focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        onClick={() => setSelectedDate(new Date())}
       >
-        <span className="w-full bg-primary py-1 leading-none text-xs font-semibold text-primary-foreground">
-          {formatDate(today, "MMM").toUpperCase()}
-        </span>
-        <span className="text-lg font-bold leading-none flex-1">
-          {today.getDate()}
-        </span>
-      </Button>
+        <p className="flex h-6 w-full items-center justify-center bg-primary text-center text-xs font-semibold text-primary-foreground">
+          {formatDate(new Date(), "MMM").toUpperCase()}
+        </p>
+        <p className="flex w-full items-center justify-center text-lg font-bold">
+          {new Date().getDate()}
+        </p>
+      </button>
       <div className="space-y-0.5">
         <div className="flex items-center gap-2">
           <span className="text-lg font-semibold">
             {month} {year}
           </span>
+          <Badge variant="outline" className="px-1.5">
+            {lessonCount} lessons
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
-            className="size-6"
+            className="size-6.5 px-0 [&_svg]:size-4.5"
             onClick={handlePrevious}
           >
             <ChevronLeftIcon />
           </Button>
           <span className="text-sm text-muted-foreground">
-            {rangeText(view, date)}
+            {rangeText(selectedView, selectedDate)}
           </span>
           <Button
             variant="outline"
             size="icon"
-            className="size-6"
+            className="size-6.5 px-0 [&_svg]:size-4.5"
             onClick={handleNext}
           >
             <ChevronRightIcon />

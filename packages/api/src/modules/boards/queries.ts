@@ -10,7 +10,7 @@ import { boardAssignmentKeys, boardKeys } from "./keys";
 export const boardsOptions = {
   list: (params?: boards.ListBoardsRequest) =>
     queryOptions({
-      queryKey: boardKeys.list(),
+      queryKey: boardKeys.list(params),
       queryFn: async () => {
         const { boards } = await apiClient.boards.listBoards(params ?? {});
         return boards;

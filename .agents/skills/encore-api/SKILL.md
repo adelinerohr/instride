@@ -45,12 +45,12 @@ export const createUser = api(
 
 ## API Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `method` | string | HTTP method: GET, POST, PUT, PATCH, DELETE |
-| `path` | string | URL path, supports `:param` and `*wildcard` |
-| `expose` | boolean | If true, accessible from outside (default: false) |
-| `auth` | boolean | If true, requires authentication |
+| Option      | Type    | Description                                            |
+| ----------- | ------- | ------------------------------------------------------ |
+| `method`    | string  | HTTP method: GET, POST, PUT, PATCH, DELETE             |
+| `path`      | string  | URL path, supports `:param` and `*wildcard`            |
+| `expose`    | boolean | If true, accessible from outside (default: false)      |
+| `auth`      | boolean | If true, requires authentication                       |
 | `sensitive` | boolean | If true, redacts request/response payloads from traces |
 
 ## Request/Response Patterns
@@ -99,7 +99,7 @@ export const create = api(
   { method: "POST", path: "/items", expose: true },
   async (req: CreateRequest): Promise<CreateResponse> => {
     const item = await createItem(req);
-    return { id: item.id, status: HttpStatus.Created };  // Returns 201
+    return { id: item.id, status: HttpStatus.Created }; // Returns 201
   }
 );
 ```
@@ -111,7 +111,7 @@ export const create = api(
 ```typescript
 // Path: "/users/:id"
 interface GetUserRequest {
-  id: string;  // Automatically mapped from :id
+  id: string; // Automatically mapped from :id
 }
 ```
 
@@ -157,10 +157,10 @@ import { api } from "encore.dev/api";
 import { Min, Max, MinLen, MaxLen, IsEmail, IsURL } from "encore.dev/validate";
 
 interface CreateUserRequest {
-  email: string & IsEmail;                    // Must be valid email
-  username: string & MinLen<3> & MaxLen<20>;  // 3-20 characters
-  age: number & Min<13> & Max<120>;           // Between 13 and 120
-  website?: string & IsURL;                   // Optional, must be URL if provided
+  email: string & IsEmail; // Must be valid email
+  username: string & MinLen<3> & MaxLen<20>; // 3-20 characters
+  age: number & Min<13> & Max<120>; // Between 13 and 120
+  website?: string & IsURL; // Optional, must be URL if provided
 }
 ```
 
@@ -181,17 +181,17 @@ interface ContactRequest {
 
 ### Available Validators
 
-| Validator | Applies To | Example |
-|-----------|-----------|---------|
-| `Min<N>` | number | `age: number & Min<18>` |
-| `Max<N>` | number | `count: number & Max<100>` |
-| `MinLen<N>` | string, array | `name: string & MinLen<1>` |
-| `MaxLen<N>` | string, array | `tags: string[] & MaxLen<10>` |
-| `IsEmail` | string | `email: string & IsEmail` |
-| `IsURL` | string | `link: string & IsURL` |
-| `StartsWith<S>` | string | `id: string & StartsWith<"usr_">` |
-| `EndsWith<S>` | string | `file: string & EndsWith<".json">` |
-| `MatchesRegexp<R>` | string | `code: string & MatchesRegexp<"^[A-Z]{3}$">` |
+| Validator          | Applies To    | Example                                      |
+| ------------------ | ------------- | -------------------------------------------- |
+| `Min<N>`           | number        | `age: number & Min<18>`                      |
+| `Max<N>`           | number        | `count: number & Max<100>`                   |
+| `MinLen<N>`        | string, array | `name: string & MinLen<1>`                   |
+| `MaxLen<N>`        | string, array | `tags: string[] & MaxLen<10>`                |
+| `IsEmail`          | string        | `email: string & IsEmail`                    |
+| `IsURL`            | string        | `link: string & IsURL`                       |
+| `StartsWith<S>`    | string        | `id: string & StartsWith<"usr_">`            |
+| `EndsWith<S>`      | string        | `file: string & EndsWith<".json">`           |
+| `MatchesRegexp<R>` | string        | `code: string & MatchesRegexp<"^[A-Z]{3}$">` |
 
 ### Validation Error Response
 
@@ -239,13 +239,13 @@ throw APIError.unauthenticated("invalid token");
 
 ## Common Error Codes
 
-| Code | HTTP Status | Usage |
-|------|-------------|-------|
-| `NotFound` | 404 | Resource doesn't exist |
-| `InvalidArgument` | 400 | Bad input |
-| `Unauthenticated` | 401 | Missing/invalid auth |
-| `PermissionDenied` | 403 | Not allowed |
-| `AlreadyExists` | 409 | Duplicate resource |
+| Code               | HTTP Status | Usage                  |
+| ------------------ | ----------- | ---------------------- |
+| `NotFound`         | 404         | Resource doesn't exist |
+| `InvalidArgument`  | 400         | Bad input              |
+| `Unauthenticated`  | 401         | Missing/invalid auth   |
+| `PermissionDenied` | 403         | Not allowed            |
+| `AlreadyExists`    | 409         | Duplicate resource     |
 
 ## Static Assets
 
@@ -255,19 +255,26 @@ Serve static files (HTML, CSS, JS, images) with `api.static`:
 import { api } from "encore.dev/api";
 
 // Serve files from ./assets under /static/*
-export const assets = api.static(
-  { expose: true, path: "/static/*path", dir: "./assets" }
-);
+export const assets = api.static({
+  expose: true,
+  path: "/static/*path",
+  dir: "./assets",
+});
 
 // Serve at root (use !path for fallback routing)
-export const frontend = api.static(
-  { expose: true, path: "/!path", dir: "./dist" }
-);
+export const frontend = api.static({
+  expose: true,
+  path: "/!path",
+  dir: "./dist",
+});
 
 // Custom 404 page
-export const app = api.static(
-  { expose: true, path: "/!path", dir: "./public", notFound: "./404.html" }
-);
+export const app = api.static({
+  expose: true,
+  path: "/!path",
+  dir: "./public",
+  notFound: "./404.html",
+});
 ```
 
 ### Path Syntax

@@ -18,6 +18,7 @@ export const businessHoursKeys = {
 
 export const timeBlockKeys = {
   all: () => getTimeBlocksRootKey,
+  byId: (id: string) => [...getTimeBlocksRootKey, id] as const,
   inRange: (from: Date, to: Date) =>
     [
       ...getTimeBlocksRootKey,

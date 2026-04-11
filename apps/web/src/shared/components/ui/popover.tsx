@@ -79,6 +79,7 @@ function PopoverDescription({
 }
 
 export {
+  PopoverPrimitive as PopoverHandler,
   Popover,
   PopoverContent,
   PopoverDescription,

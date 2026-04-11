@@ -1,4 +1,3 @@
-import type { types } from "@instride/api";
 import * as React from "react";
 
 import {
@@ -18,32 +17,27 @@ import {
 } from "@/shared/components/ui/select";
 import { getInitials } from "@/shared/lib/utils/format";
 
-import { useCalendarSearch } from "../../hooks/use-calendar-search";
+import { useCalendar } from "../../hooks/use-calendar";
 
-export interface CalendarFiltersProps {
-  allowedBoards: types.Board[];
-  selectedBoardId?: string;
-  selectedTrainerIds: string[];
-  trainers: types.Trainer[];
-}
-
-export function CalendarFilters({
-  allowedBoards,
-  selectedBoardId,
-  selectedTrainerIds,
-  trainers,
-}: CalendarFiltersProps) {
-  const { setBoardId, setTrainerIds } = useCalendarSearch(false);
+export function CalendarFilters() {
+  const {
+    setSelectedBoardId,
+    setSelectedTrainerIds,
+    trainers,
+    selectedBoardId,
+    selectedTrainerIds,
+    boards,
+  } = useCalendar();
 
   React.useEffect(() => {
     // Initialize selected trainer ids with all trainer ids if no selected trainer ids are provided
     if (trainers && trainers.length > 0) {
       if (!selectedTrainerIds || selectedTrainerIds.length === 0) {
         const allTrainerIds = trainers.map((trainer) => trainer.id);
-        setTrainerIds(allTrainerIds);
+        setSelectedTrainerIds(allTrainerIds);
       }
     }
-  }, [trainers, selectedBoardId, selectedTrainerIds, setTrainerIds]);
+  }, [trainers, selectedBoardId, selectedTrainerIds, setSelectedTrainerIds]);
 
   if (!trainers) return null;
 
@@ -51,13 +45,13 @@ export function CalendarFilters({
     <div className="flex items-center gap-2">
       <Select
         value={selectedBoardId}
-        onValueChange={(value) => setBoardId(value ?? undefined)}
+        onValueChange={(value) => setSelectedBoardId(value ?? undefined)}
       >
         <SelectTrigger>
           <SelectValue>
             {(value) => {
               if (value) {
-                return allowedBoards.find((board) => board.id === value)?.name;
+                return boards.find((board) => board.id === value)?.name;
               }
               return "Select board";
             }}
@@ -65,14 +59,18 @@ export function CalendarFilters({
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>
           <SelectItem value={null}>Select board</SelectItem>
-          {allowedBoards.map((board) => (
+          {boards.map((board) => (
             <SelectItem key={board.id} value={board.id}>
               {board.name}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <Select multiple value={selectedTrainerIds} onValueChange={setTrainerIds}>
+      <Select
+        multiple
+        value={selectedTrainerIds}
+        onValueChange={setSelectedTrainerIds}
+      >
         <SelectTrigger className="w-56">
           <SelectValue>
             {(value: string[]) => {

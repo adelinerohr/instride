@@ -22,6 +22,7 @@ import { Route as OrgSlugauthenticatedRouteRouteImport } from './routes/org/$slu
 import { Route as OrgSlugauthenticatedIndexRouteImport } from './routes/org/$slug/(authenticated)/index'
 import { Route as OrgSlugunauthenticatedRegisterRouteImport } from './routes/org/$slug/(unauthenticated)/register'
 import { Route as OrgSlugunauthenticatedLoginRouteImport } from './routes/org/$slug/(unauthenticated)/login'
+import { Route as OrgSlugauthenticatedOnboardingRouteImport } from './routes/org/$slug/(authenticated)/onboarding'
 import { Route as OrgSlugauthenticatedSettingsRouteRouteImport } from './routes/org/$slug/(authenticated)/settings/route'
 import { Route as OrgSlugauthenticatedPortalRouteRouteImport } from './routes/org/$slug/(authenticated)/portal/route'
 import { Route as OrgSlugauthenticatedAdminRouteRouteImport } from './routes/org/$slug/(authenticated)/admin/route'
@@ -42,16 +43,17 @@ import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from './route
 import { Route as OrgSlugauthenticatedAdminCalendarNewRouteImport } from './routes/org/$slug/(authenticated)/admin/calendar/new'
 import { Route as OrgSlugauthenticatedAdminBoardsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/new'
 import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/waivers/index'
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/index'
 import { Route as OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/general/index'
 import { Route as OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/account/profile/index'
 import { Route as OrgSlugauthenticatedAdminServicesIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/services/$id.index'
 import { Route as OrgSlugauthenticatedAdminMembersIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/$id.index'
 import { Route as OrgSlugauthenticatedAdminBoardsIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversNewRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/waivers/new'
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/new'
 import { Route as OrgSlugauthenticatedAdminServicesIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/services/$id.edit'
 import { Route as OrgSlugauthenticatedAdminMembersIdRiderRouteImport } from './routes/org/$slug/(authenticated)/admin/members/$id/rider'
 import { Route as OrgSlugauthenticatedAdminBoardsIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.edit'
-import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/waivers/$waiverId.edit'
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/$id.edit'
 
 const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
   id: '/(unauthenticated)',
@@ -120,6 +122,12 @@ const OrgSlugunauthenticatedLoginRoute =
     id: '/login',
     path: '/login',
     getParentRoute: () => OrgSlugunauthenticatedRouteRoute,
+  } as any)
+const OrgSlugauthenticatedOnboardingRoute =
+  OrgSlugauthenticatedOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => OrgSlugauthenticatedRouteRoute,
   } as any)
 const OrgSlugauthenticatedSettingsRouteRoute =
   OrgSlugauthenticatedSettingsRouteRouteImport.update({
@@ -241,6 +249,14 @@ const OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute =
     path: '/organization/waivers/',
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
   } as any)
+const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute =
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport.update(
+    {
+      id: '/organization/questionnaires/',
+      path: '/organization/questionnaires/',
+      getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
+    } as any,
+  )
 const OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute =
   OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport.update({
     id: '/organization/general/',
@@ -271,10 +287,10 @@ const OrgSlugauthenticatedAdminBoardsIdIndexRoute =
     path: '/boards/$id/',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
-const OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute =
-  OrgSlugauthenticatedSettingsOrganizationWaiversNewRouteImport.update({
-    id: '/organization/waivers/new',
-    path: '/organization/waivers/new',
+const OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute =
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport.update({
+    id: '/organization/questionnaires/new',
+    path: '/organization/questionnaires/new',
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
   } as any)
 const OrgSlugauthenticatedAdminServicesIdEditRoute =
@@ -295,11 +311,11 @@ const OrgSlugauthenticatedAdminBoardsIdEditRoute =
     path: '/boards/$id/edit',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
-const OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute =
-  OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRouteImport.update(
+const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute =
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport.update(
     {
-      id: '/organization/waivers/$waiverId/edit',
-      path: '/organization/waivers/$waiverId/edit',
+      id: '/organization/questionnaires/$id/edit',
+      path: '/organization/questionnaires/$id/edit',
       getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
     } as any,
   )
@@ -314,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/org/$slug/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
+  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
   '/org/$slug/login': typeof OrgSlugunauthenticatedLoginRoute
   '/org/$slug/register': typeof OrgSlugunauthenticatedRegisterRoute
   '/org/$slug/': typeof OrgSlugauthenticatedIndexRoute
@@ -336,14 +353,15 @@ export interface FileRoutesByFullPath {
   '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
   '/org/$slug/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
   '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/settings/organization/waivers/new': typeof OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute
+  '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
   '/org/$slug/admin/members/$id/': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
   '/org/$slug/admin/services/$id/': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
   '/org/$slug/settings/account/profile/': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
   '/org/$slug/settings/organization/general/': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
+  '/org/$slug/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/settings/organization/waivers/$waiverId/edit': typeof OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute
+  '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -352,6 +370,7 @@ export interface FileRoutesByTo {
   '/login': typeof unauthenticatedLoginRoute
   '/register': typeof unauthenticatedRegisterRoute
   '/org/$slug': typeof OrgSlugauthenticatedIndexRoute
+  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
   '/org/$slug/login': typeof OrgSlugunauthenticatedLoginRoute
   '/org/$slug/register': typeof OrgSlugunauthenticatedRegisterRoute
   '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
@@ -373,14 +392,15 @@ export interface FileRoutesByTo {
   '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
   '/org/$slug/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
   '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/settings/organization/waivers/new': typeof OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute
+  '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/admin/boards/$id': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
   '/org/$slug/admin/members/$id': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
   '/org/$slug/admin/services/$id': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
   '/org/$slug/settings/account/profile': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
   '/org/$slug/settings/organization/general': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
+  '/org/$slug/settings/organization/questionnaires': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/settings/organization/waivers': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/settings/organization/waivers/$waiverId/edit': typeof OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute
+  '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -397,6 +417,7 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/(authenticated)/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/(authenticated)/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
+  '/org/$slug/(authenticated)/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
   '/org/$slug/(unauthenticated)/login': typeof OrgSlugunauthenticatedLoginRoute
   '/org/$slug/(unauthenticated)/register': typeof OrgSlugunauthenticatedRegisterRoute
   '/org/$slug/(authenticated)/': typeof OrgSlugauthenticatedIndexRoute
@@ -419,14 +440,15 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
   '/org/$slug/(authenticated)/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
   '/org/$slug/(authenticated)/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/(authenticated)/settings/organization/waivers/new': typeof OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute
+  '/org/$slug/(authenticated)/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/(authenticated)/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
   '/org/$slug/(authenticated)/admin/members/$id/': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
   '/org/$slug/(authenticated)/admin/services/$id/': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
   '/org/$slug/(authenticated)/settings/account/profile/': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
   '/org/$slug/(authenticated)/settings/organization/general/': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
+  '/org/$slug/(authenticated)/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/(authenticated)/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/(authenticated)/settings/organization/waivers/$waiverId/edit': typeof OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute
+  '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -440,6 +462,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin'
     | '/org/$slug/portal'
     | '/org/$slug/settings'
+    | '/org/$slug/onboarding'
     | '/org/$slug/login'
     | '/org/$slug/register'
     | '/org/$slug/'
@@ -462,14 +485,15 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/boards/$id/edit'
     | '/org/$slug/admin/members/$id/rider'
     | '/org/$slug/admin/services/$id/edit'
-    | '/org/$slug/settings/organization/waivers/new'
+    | '/org/$slug/settings/organization/questionnaires/new'
     | '/org/$slug/admin/boards/$id/'
     | '/org/$slug/admin/members/$id/'
     | '/org/$slug/admin/services/$id/'
     | '/org/$slug/settings/account/profile/'
     | '/org/$slug/settings/organization/general/'
+    | '/org/$slug/settings/organization/questionnaires/'
     | '/org/$slug/settings/organization/waivers/'
-    | '/org/$slug/settings/organization/waivers/$waiverId/edit'
+    | '/org/$slug/settings/organization/questionnaires/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -478,6 +502,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/org/$slug'
+    | '/org/$slug/onboarding'
     | '/org/$slug/login'
     | '/org/$slug/register'
     | '/org/$slug/admin/feed'
@@ -499,14 +524,15 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/boards/$id/edit'
     | '/org/$slug/admin/members/$id/rider'
     | '/org/$slug/admin/services/$id/edit'
-    | '/org/$slug/settings/organization/waivers/new'
+    | '/org/$slug/settings/organization/questionnaires/new'
     | '/org/$slug/admin/boards/$id'
     | '/org/$slug/admin/members/$id'
     | '/org/$slug/admin/services/$id'
     | '/org/$slug/settings/account/profile'
     | '/org/$slug/settings/organization/general'
+    | '/org/$slug/settings/organization/questionnaires'
     | '/org/$slug/settings/organization/waivers'
-    | '/org/$slug/settings/organization/waivers/$waiverId/edit'
+    | '/org/$slug/settings/organization/questionnaires/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -522,6 +548,7 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/admin'
     | '/org/$slug/(authenticated)/portal'
     | '/org/$slug/(authenticated)/settings'
+    | '/org/$slug/(authenticated)/onboarding'
     | '/org/$slug/(unauthenticated)/login'
     | '/org/$slug/(unauthenticated)/register'
     | '/org/$slug/(authenticated)/'
@@ -544,14 +571,15 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/admin/boards/$id/edit'
     | '/org/$slug/(authenticated)/admin/members/$id/rider'
     | '/org/$slug/(authenticated)/admin/services/$id/edit'
-    | '/org/$slug/(authenticated)/settings/organization/waivers/new'
+    | '/org/$slug/(authenticated)/settings/organization/questionnaires/new'
     | '/org/$slug/(authenticated)/admin/boards/$id/'
     | '/org/$slug/(authenticated)/admin/members/$id/'
     | '/org/$slug/(authenticated)/admin/services/$id/'
     | '/org/$slug/(authenticated)/settings/account/profile/'
     | '/org/$slug/(authenticated)/settings/organization/general/'
+    | '/org/$slug/(authenticated)/settings/organization/questionnaires/'
     | '/org/$slug/(authenticated)/settings/organization/waivers/'
-    | '/org/$slug/(authenticated)/settings/organization/waivers/$waiverId/edit'
+    | '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -653,6 +681,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/org/$slug/login'
       preLoaderRoute: typeof OrgSlugunauthenticatedLoginRouteImport
       parentRoute: typeof OrgSlugunauthenticatedRouteRoute
+    }
+    '/org/$slug/(authenticated)/onboarding': {
+      id: '/org/$slug/(authenticated)/onboarding'
+      path: '/onboarding'
+      fullPath: '/org/$slug/onboarding'
+      preLoaderRoute: typeof OrgSlugauthenticatedOnboardingRouteImport
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute
     }
     '/org/$slug/(authenticated)/settings': {
       id: '/org/$slug/(authenticated)/settings'
@@ -794,6 +829,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
     }
+    '/org/$slug/(authenticated)/settings/organization/questionnaires/': {
+      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/'
+      path: '/organization/questionnaires'
+      fullPath: '/org/$slug/settings/organization/questionnaires/'
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
+    }
     '/org/$slug/(authenticated)/settings/organization/general/': {
       id: '/org/$slug/(authenticated)/settings/organization/general/'
       path: '/organization/general'
@@ -829,11 +871,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
-    '/org/$slug/(authenticated)/settings/organization/waivers/new': {
-      id: '/org/$slug/(authenticated)/settings/organization/waivers/new'
-      path: '/organization/waivers/new'
-      fullPath: '/org/$slug/settings/organization/waivers/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversNewRouteImport
+    '/org/$slug/(authenticated)/settings/organization/questionnaires/new': {
+      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/new'
+      path: '/organization/questionnaires/new'
+      fullPath: '/org/$slug/settings/organization/questionnaires/new'
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
     }
     '/org/$slug/(authenticated)/admin/services/$id/edit': {
@@ -857,11 +899,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
-    '/org/$slug/(authenticated)/settings/organization/waivers/$waiverId/edit': {
-      id: '/org/$slug/(authenticated)/settings/organization/waivers/$waiverId/edit'
-      path: '/organization/waivers/$waiverId/edit'
-      fullPath: '/org/$slug/settings/organization/waivers/$waiverId/edit'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRouteImport
+    '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': {
+      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
+      path: '/organization/questionnaires/$id/edit'
+      fullPath: '/org/$slug/settings/organization/questionnaires/$id/edit'
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
     }
   }
@@ -975,11 +1017,12 @@ interface OrgSlugauthenticatedSettingsRouteRouteChildren {
   OrgSlugauthenticatedSettingsIndexRoute: typeof OrgSlugauthenticatedSettingsIndexRoute
   OrgSlugauthenticatedSettingsAccountGuardianRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
-  OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   OrgSlugauthenticatedSettingsAccountProfileIndexRoute: typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
   OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
 }
 
 const OrgSlugauthenticatedSettingsRouteRouteChildren: OrgSlugauthenticatedSettingsRouteRouteChildren =
@@ -990,16 +1033,18 @@ const OrgSlugauthenticatedSettingsRouteRouteChildren: OrgSlugauthenticatedSettin
       OrgSlugauthenticatedSettingsAccountGuardianRoute,
     OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute:
       OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute,
-    OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute:
-      OrgSlugauthenticatedSettingsOrganizationWaiversNewRoute,
+    OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute:
+      OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute,
     OrgSlugauthenticatedSettingsAccountProfileIndexRoute:
       OrgSlugauthenticatedSettingsAccountProfileIndexRoute,
     OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute:
       OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute,
+    OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute:
+      OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute,
     OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute:
       OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute,
-    OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute:
-      OrgSlugauthenticatedSettingsOrganizationWaiversWaiverIdEditRoute,
+    OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute:
+      OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute,
   }
 
 const OrgSlugauthenticatedSettingsRouteRouteWithChildren =
@@ -1011,6 +1056,7 @@ interface OrgSlugauthenticatedRouteRouteChildren {
   OrgSlugauthenticatedAdminRouteRoute: typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   OrgSlugauthenticatedPortalRouteRoute: typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   OrgSlugauthenticatedSettingsRouteRoute: typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
+  OrgSlugauthenticatedOnboardingRoute: typeof OrgSlugauthenticatedOnboardingRoute
   OrgSlugauthenticatedIndexRoute: typeof OrgSlugauthenticatedIndexRoute
 }
 
@@ -1022,6 +1068,7 @@ const OrgSlugauthenticatedRouteRouteChildren: OrgSlugauthenticatedRouteRouteChil
       OrgSlugauthenticatedPortalRouteRouteWithChildren,
     OrgSlugauthenticatedSettingsRouteRoute:
       OrgSlugauthenticatedSettingsRouteRouteWithChildren,
+    OrgSlugauthenticatedOnboardingRoute: OrgSlugauthenticatedOnboardingRoute,
     OrgSlugauthenticatedIndexRoute: OrgSlugauthenticatedIndexRoute,
   }
 

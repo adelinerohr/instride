@@ -1,266 +1,222 @@
-import type { TimeBlock, Trainer } from "@instride/shared";
+import {
+  useCreateTimeBlock,
+  useDeleteTimeBlock,
+  useUpdateTimeBlock,
+  type types,
+} from "@instride/api";
 import { format } from "date-fns";
 import * as React from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogFooter,
+  DialogHandler,
+  DialogHeader,
   DialogPortal,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { FieldGroup } from "@/shared/components/ui/field";
+import { useAppForm } from "@/shared/hooks/form";
 
-import { useCalendarSearch } from "../../hooks/use-calendar-search";
-import {
-  useCreateTimeBlock,
-  useDeleteTimeBlock,
-} from "../../hooks/use-time-blocks";
-
-interface TimeBlockFormModalProps {
-  existingBlock?: TimeBlock;
-  organizationId: string;
-  defaultStart?: Date;
-  defaultEnd?: Date;
-  trainers: Trainer[];
-  open: boolean;
-}
+import { useCalendar } from "../../hooks/use-calendar";
 
 function toLocalInputValue(date: Date) {
   return format(date, "yyyy-MM-dd'T'HH:mm");
 }
 
-export function TimeBlockFormModal({
-  existingBlock,
-  open,
-  organizationId,
+export const timeBlockModalHandler = DialogHandler.createHandle<{
+  timeBlock: types.TimeBlock;
+  defaultStart?: Date;
+  defaultEnd?: Date;
+  defaultTrainerId?: string;
+}>();
+
+export function TimeBlockModal() {
+  return (
+    <Dialog handle={timeBlockModalHandler}>
+      {({ payload }) => (
+        <DialogPortal>
+          {payload && <TimeBlockModalForm {...payload} />}
+        </DialogPortal>
+      )}
+    </Dialog>
+  );
+}
+
+interface TimeBlockModalFormProps {
+  timeBlock?: types.TimeBlock;
+  defaultStart?: Date;
+  defaultEnd?: Date;
+  defaultTrainerId?: string;
+}
+
+export function TimeBlockModalForm({
+  timeBlock,
   defaultStart,
   defaultEnd,
-  trainers,
-}: TimeBlockFormModalProps) {
-  const { closeModals } = useCalendarSearch(false);
-  const createTimeBlock = useCreateTimeBlock(organizationId);
-  const deleteTimeBlock = useDeleteTimeBlock();
-  const isEdit = !!existingBlock;
+  defaultTrainerId,
+}: TimeBlockModalFormProps) {
+  const { trainers } = useCalendar();
+  const createTimeBlock = useCreateTimeBlock();
+  const updateTimeBlock = useUpdateTimeBlock({ timeBlock });
+  const deleteTimeBlock = useDeleteTimeBlock({ timeBlock });
+  const isEdit = !!timeBlock;
 
-  const initialTrainerId =
-    existingBlock?.trainerMemberId ?? trainers[0]?.id ?? "";
-
-  const initialStart = existingBlock?.start
-    ? toLocalInputValue(new Date(existingBlock.start))
+  const initialStart = timeBlock?.start
+    ? toLocalInputValue(new Date(timeBlock.start))
     : defaultStart
       ? toLocalInputValue(defaultStart)
       : "";
 
-  const initialEnd = existingBlock?.end
-    ? toLocalInputValue(new Date(existingBlock.end))
+  const initialEnd = timeBlock?.end
+    ? toLocalInputValue(new Date(timeBlock.end))
     : defaultEnd
       ? toLocalInputValue(defaultEnd)
       : "";
 
-  const [trainerMemberId, setTrainerMemberId] =
-    React.useState(initialTrainerId);
-  const [start, setStart] = React.useState(initialStart);
-  const [end, setEnd] = React.useState(initialEnd);
-  const [reason, setReason] = React.useState("");
-  const [formError, setFormError] = React.useState<string | null>(null);
+  const form = useAppForm({
+    defaultValues: {
+      trainerId: timeBlock?.trainerId ?? defaultTrainerId ?? "",
+      start: initialStart,
+      end: initialEnd,
+      reason: timeBlock?.reason ?? null,
+    },
+    validators: {
+      onSubmit: z
+        .object({
+          trainerId: z.string().min(1, "Please select a trainer."),
+          start: z.string().min(1),
+          end: z.string().min(1),
+          reason: z.string().nullable(),
+        })
+        .refine((data) => {
+          const startDate = new Date(data.start);
+          const endDate = new Date(data.end);
 
-  React.useEffect(() => {
-    if (!open) return;
+          if (
+            Number.isNaN(startDate.getTime()) ||
+            Number.isNaN(endDate.getTime())
+          ) {
+            return "Please enter valid dates.";
+          }
 
-    setTrainerMemberId(initialTrainerId);
-    setStart(initialStart);
-    setEnd(initialEnd);
-    setReason("");
-    setFormError(null);
-  }, [open, initialTrainerId, initialStart, initialEnd]);
+          if (endDate <= startDate) {
+            return "End time must be after start time.";
+          }
 
-  const isSubmitting = createTimeBlock.isPending || deleteTimeBlock.isPending;
-
-  function handleOpenChange(open: boolean) {
-    if (!open) {
-      closeModals();
-    }
-  }
-
-  function validate() {
-    if (!trainerMemberId) {
-      return "Please select a trainer.";
-    }
-
-    if (!start || !end) {
-      return "Please enter both a start and end time.";
-    }
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-
-    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-      return "Please enter valid dates.";
-    }
-
-    if (endDate <= startDate) {
-      return "End time must be after start time.";
-    }
-
-    return null;
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const validationError = validate();
-    if (validationError) {
-      setFormError(validationError);
-      return;
-    }
-
-    setFormError(null);
-
-    const payload = {
-      organizationId,
-      trainerMemberId,
-      reason: reason.trim() || null,
-      start: new Date(start).toISOString(),
-      end: new Date(end).toISOString(),
-    };
-
-    if (isEdit && existingBlock) {
-      // TODO: Implement update time block
-    }
-
-    createTimeBlock.mutate(
-      {
-        request: payload,
-        trainerMemberId,
-      },
-      {
-        onSuccess: () => handleOpenChange(false),
+          return true;
+        }),
+    },
+    onSubmit: ({ value }) => {
+      if (isEdit && timeBlock) {
+        updateTimeBlock.mutateAsync(
+          { id: timeBlock.id, request: value },
+          {
+            onSuccess: () => {
+              toast.success("Time block updated successfully.");
+              timeBlockModalHandler.close();
+            },
+            onError: (error) => {
+              toast.error("Failed to update time block.");
+              console.error(error);
+            },
+          }
+        );
+      } else {
+        createTimeBlock.mutateAsync(value, {
+          onSuccess: () => {
+            toast.success("Time block created successfully.");
+            timeBlockModalHandler.close();
+          },
+          onError: (error) => {
+            toast.error("Failed to create time block.");
+            console.error(error);
+          },
+        });
       }
-    );
-  }
+    },
+  });
 
-  function handleDelete() {
-    if (!existingBlock) return;
+  const handleDelete = React.useCallback(() => {
+    if (!timeBlock) return;
 
-    deleteTimeBlock.mutate(existingBlock.id, {
-      onSuccess: () => handleOpenChange(false),
+    deleteTimeBlock.mutate(timeBlock.id, {
+      onSuccess: () => {
+        toast.success("Time block deleted successfully.");
+        timeBlockModalHandler.close();
+      },
+      onError: (error) => {
+        toast.error("Failed to delete time block.");
+        console.error(error);
+      },
     });
-  }
+  }, [timeBlock, deleteTimeBlock]);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogPortal>
-        <DialogContent className="max-w-md">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <DialogTitle className="text-base font-semibold">
-                {isEdit ? "Edit Time Block" : "New Time Block"}
-              </DialogTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {isEdit
-                  ? "Update unavailable time for a trainer"
-                  : "Block off unavailable time for a trainer"}
-              </p>
-            </div>
-
-            <DialogClose className="shrink-0" />
-          </div>
-
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Trainer</label>
-              <select
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                value={trainerMemberId}
-                onChange={(e) => setTrainerMemberId(e.target.value)}
-                disabled={isSubmitting}
-              >
-                <option value="">Select trainer</option>
-                {trainers.map((trainer) => (
-                  <option key={trainer.id} value={trainer.id}>
-                    {trainer.member.authUser.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Start</label>
-                <input
-                  type="datetime-local"
-                  className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                  value={start}
-                  onChange={(e) => setStart(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">End</label>
-                <input
-                  type="datetime-local"
-                  className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Reason</label>
-              <input
-                type="text"
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Optional"
-                disabled={isSubmitting}
+    <DialogContent className="max-w-md">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <DialogHeader>
+          <DialogTitle>
+            {isEdit ? "Edit Time Block" : "New Time Block"}
+          </DialogTitle>
+        </DialogHeader>
+        <FieldGroup>
+          <form.AppField
+            name="trainerId"
+            children={(field) => (
+              <field.SelectField
+                label="Trainer"
+                description="Select the trainer for this time block"
+                items={trainers.map((trainer) => ({
+                  label: trainer.member?.authUser?.name ?? "",
+                  value: trainer.id,
+                }))}
               />
-            </div>
-
-            {formError && (
-              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                {formError}
-              </div>
             )}
-
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                {isEdit && (
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={isSubmitting}
-                    className="rounded-md border border-destructive px-3 py-2 text-sm text-destructive hover:bg-destructive/5 disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenChange(false)}
-                  disabled={isSubmitting}
-                  className="rounded-md border px-3 py-2 text-sm hover:bg-muted disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {isEdit ? "Save Changes" : "Create Block"}
-                </button>
-              </div>
-            </div>
-          </form>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
+          />
+          <form.AppField
+            name="start"
+            children={(field) => <field.DatetimeField label="Start" />}
+          />
+          <form.AppField
+            name="end"
+            children={(field) => <field.DatetimeField label="End" />}
+          />
+          <form.AppField
+            name="reason"
+            children={(field) => <field.TextareaField label="Reason" />}
+          />
+        </FieldGroup>
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline" />}>
+            Cancel
+          </DialogClose>
+          {isEdit && (
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteTimeBlock.isPending}
+            >
+              Delete
+            </Button>
+          )}
+          <form.AppForm>
+            <form.SubmitButton label="Save changes" loadingLabel="Saving..." />
+          </form.AppForm>
+        </DialogFooter>
+      </form>
+    </DialogContent>
   );
 }

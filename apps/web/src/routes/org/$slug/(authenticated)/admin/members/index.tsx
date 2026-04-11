@@ -35,18 +35,13 @@ export const Route = createFileRoute(
     ],
   },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      membersOptions(context.organization.id).all()
-    );
+    await context.queryClient.ensureQueryData(membersOptions.all());
   },
 });
 
 function RouteComponent() {
-  const { organization } = Route.useRouteContext();
   const search = Route.useSearch();
-  const { data, isLoading } = useSuspenseQuery(
-    membersOptions(organization.id).all()
-  );
+  const { data, isLoading } = useSuspenseQuery(membersOptions.all());
 
   const columns = React.useMemo(() => getMembersTableColumns(), []);
   const pageCount = React.useMemo(() => {

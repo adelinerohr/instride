@@ -21,7 +21,6 @@ import {
   InputGroupButton,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { Separator } from "@/shared/components/ui/separator";
 import { withForm } from "@/shared/hooks/form";
 
 import { lessonFormOpts } from "../../lib/new-lesson.form";
@@ -141,7 +140,6 @@ export const LessonInformationFormSection = withForm({
                 )}
               </FieldGroup>
             </CardContent>
-            <Separator />
             <CardFooter>
               <Button
                 onClick={() => setIsOpen(false)}

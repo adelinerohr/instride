@@ -15,6 +15,14 @@ export const timeBlockOptions = {
         return timeBlocks;
       },
     }),
+  byId: (id: string) =>
+    queryOptions({
+      queryKey: timeBlockKeys.byId(id),
+      queryFn: async () => {
+        const { timeBlock } = await apiClient.availability.getTimeBlock(id);
+        return timeBlock;
+      },
+    }),
   inRange: (from: Date, to: Date) =>
     queryOptions({
       queryKey: timeBlockKeys.inRange(from, to),
@@ -42,6 +50,10 @@ export const timeBlockOptions = {
 
 export function useTimeBlocks() {
   return useQuery(timeBlockOptions.all());
+}
+
+export function useTimeBlock(id: string) {
+  return useQuery(timeBlockOptions.byId(id));
 }
 
 export function useTimeBlocksInRange(from: Date, to: Date) {

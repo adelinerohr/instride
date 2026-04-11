@@ -1,4 +1,5 @@
-import { MembershipRole, type MemberWithUser } from "@instride/shared";
+import type { types } from "@instride/api";
+import { MembershipRole } from "@instride/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   EllipsisVerticalIcon,
@@ -30,7 +31,7 @@ import {
   ROLE_VARIANTS,
 } from "@/shared/lib/utils/format";
 
-export function getMembersTableColumns(): ColumnDef<MemberWithUser>[] {
+export function getMembersTableColumns(): ColumnDef<types.Member>[] {
   return [
     {
       id: "select",
@@ -60,7 +61,7 @@ export function getMembersTableColumns(): ColumnDef<MemberWithUser>[] {
     {
       id: "name",
       accessorKey: "name",
-      accessorFn: (row) => row.authUser.name,
+      accessorFn: (row) => row.authUser?.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Name" />
       ),
@@ -69,7 +70,7 @@ export function getMembersTableColumns(): ColumnDef<MemberWithUser>[] {
     {
       id: "email",
       accessorKey: "email",
-      accessorFn: (row) => row.authUser.email,
+      accessorFn: (row) => row.authUser?.email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Email" />
       ),
@@ -105,13 +106,13 @@ export function getMembersTableColumns(): ColumnDef<MemberWithUser>[] {
     {
       id: "createdAt",
       accessorKey: "createdAt",
-      accessorFn: (row) => row.authUser.createdAt,
+      accessorFn: (row) => row.createdAt,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Joined At" />
       ),
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {formatDate(row.original.authUser.createdAt)}
+          {formatDate(row.original.createdAt)}
         </div>
       ),
       enableColumnFilter: true,

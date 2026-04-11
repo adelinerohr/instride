@@ -16,11 +16,8 @@ import {
   addWeeks,
 } from "date-fns";
 
-import { CalendarPage } from "@/features/calendar/components/calendar";
-import { useAgendaView } from "@/features/calendar/hooks/use-agenda-view";
-import { useDayView } from "@/features/calendar/hooks/use-day-view";
-import { useFilteredData } from "@/features/calendar/hooks/use-filtered-data";
-import { useWeekView } from "@/features/calendar/hooks/use-week-view";
+import { Calendar } from "@/features/calendar/components";
+import { CalendarProvider } from "@/features/calendar/hooks/use-calendar";
 import { calendarSearchSchema } from "@/features/calendar/lib/search-params";
 import { CalendarView } from "@/features/calendar/lib/types";
 
@@ -29,6 +26,22 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   validateSearch: calendarSearchSchema,
+  beforeLoad: async ({ context, search }) => {
+    if (search.boardId.trim() !== "") return;
+
+    const boards = await context.queryClient.ensureQueryData(
+      boardsOptions.list()
+    );
+    const defaultBoard = boards[0];
+
+    if (defaultBoard) {
+      throw Route.redirect({
+        to: ".",
+        search: (prev) => ({ ...prev, boardId: defaultBoard.id }),
+        replace: true,
+      });
+    }
+  },
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context, deps }) => {
     const from =
@@ -60,97 +73,40 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
-  const { slug } = Route.useParams();
-  const search = Route.useSearch();
-  const { data: lessons, isLoading: isLoadingLessons } = useSuspenseQuery(
-    instanceOptions.inRange(from, to)
-  );
-  const { data: timeBlocks, isLoading: isLoadingTimeBlocks } = useSuspenseQuery(
-    timeBlockOptions.inRange(from, to)
-  );
+
   const { data: trainers, isLoading: isLoadingTrainers } = useSuspenseQuery(
     membersOptions.trainers()
   );
   const { data: boards, isLoading: isLoadingBoards } = useSuspenseQuery(
     boardsOptions.list()
   );
-  const { data: services, isLoading: isLoadingServices } = useSuspenseQuery(
-    servicesOptions.all()
+  const { data: lessons, isLoading: isLoadingLessons } = useSuspenseQuery(
+    instanceOptions.inRange(from, to)
+  );
+  const { data: timeBlocks, isLoading: isLoadingTimeBlocks } = useSuspenseQuery(
+    timeBlockOptions.inRange(from, to)
   );
 
   const isLoading =
-    isLoadingLessons ||
-    isLoadingTimeBlocks ||
     isLoadingTrainers ||
     isLoadingBoards ||
-    isLoadingServices;
+    isLoadingLessons ||
+    isLoadingTimeBlocks;
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Loading calendar…
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
-  const filtered = useFilteredData({
-    lessons,
-    timeBlocks,
-    selectedTrainerIds: search.trainerIds,
-    selectedBoardId: search.boardId,
-  });
-
-  const weekModel = useWeekView({
-    date: new Date(search.date),
-    lessons: filtered.lessons,
-    timeBlocks: filtered.timeBlocks,
-  });
-
-  const dayModel = useDayView({
-    date: new Date(search.date),
-    lessons: filtered.lessons,
-    timeBlocks: filtered.timeBlocks,
-    trainers,
-    selectedTrainerIds: search.trainerIds,
-  });
-
-  const agendaModel = useAgendaView({
-    date: new Date(search.date),
-    lessons: filtered.lessons,
-    timeBlocks: filtered.timeBlocks,
-    hideEmptyDays: true,
-  });
-
-  const trainersById = Object.fromEntries(
-    trainers.map((trainer) => [trainer.id, trainer] as const)
-  );
-
   return (
-    <div className="flex h-full flex-col">
-      <CalendarPage
-        view={search.view}
-        headerProps={{
-          slug,
-          date: new Date(search.date),
-          view: search.view,
-          boards,
-          trainers,
-          selectedTrainerIds: search.trainerIds ?? [],
-          selectedBoardId: search.boardId,
-        }}
-        weekViewProps={{
-          ...weekModel,
-          trainersById,
-        }}
-        dayViewProps={{
-          ...dayModel,
-          date: new Date(search.date),
-        }}
-        agendaViewProps={{
-          ...agendaModel,
-          trainersById,
-        }}
-      />
-    </div>
+    <CalendarProvider
+      trainers={trainers}
+      boards={boards}
+      lessons={lessons}
+      timeBlocks={timeBlocks}
+      isPortal={false}
+      isLoading={isLoading}
+    >
+      <Calendar />
+    </CalendarProvider>
   );
 }

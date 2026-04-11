@@ -150,7 +150,7 @@ function RiderPicker({ riders, value, onChange }: RiderPickerProps) {
           Search and add riders to this lesson
           <SearchIcon />
         </PopoverTrigger>
-        <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+        <PopoverContent className="w-(--anchor-width) p-0">
           <Command>
             <CommandInput placeholder="Search for a rider" />
             <CommandList>

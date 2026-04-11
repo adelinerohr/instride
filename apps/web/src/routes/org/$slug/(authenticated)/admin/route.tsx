@@ -18,11 +18,11 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin")({
 
 function RouteComponent() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="max-h-screen min-h-0 overflow-hidden">
       <AppSidebar type="admin" />
       <SidebarInset className="max-h-screen min-h-0 overflow-hidden">
         <AppHeader type="admin" />
-        <main className="flex flex-col flex-1 min-h-0">
+        <main className="flex flex-col flex-1 min-h-0 h-full">
           <Outlet />
         </main>
       </SidebarInset>

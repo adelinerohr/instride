@@ -21,9 +21,18 @@ export function TextField({
   className,
   ...props
 }: TextFieldProps) {
-  const field = useFieldContext<string>();
+  const field = useFieldContext<string | number | undefined | null>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   const errors = field.state.meta.errors;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (props.type === "number") {
+      const value = e.target.value === "" ? undefined : e.target.valueAsNumber;
+      field.handleChange(value);
+    } else {
+      field.handleChange(e.target.value);
+    }
+  };
 
   return (
     <Field data-invalid={isInvalid} className={className}>
@@ -34,7 +43,7 @@ export function TextField({
           name={field.name}
           value={field.state.value ?? ""}
           onBlur={field.handleBlur}
-          onChange={(e) => field.handleChange(e.target.value)}
+          onChange={handleChange}
           aria-invalid={isInvalid}
           placeholder={placeholder ?? label}
           {...props}

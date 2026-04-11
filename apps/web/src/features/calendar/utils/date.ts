@@ -1,134 +1,67 @@
-import {
-  addDays,
-  format,
-  isSameDay,
-  startOfDay,
-  startOfWeek,
-  max as dfMax,
-  min as dfMin,
-  endOfMonth,
-  startOfMonth,
-  eachDayOfInterval,
-  isValid,
-  parseISO,
-  endOfWeek,
-} from "date-fns";
+import type { types } from "@instride/api";
+import * as dateFns from "date-fns";
+import { parseISO } from "date-fns";
 
-import { END_HOUR, SLOT_HEIGHT, START_HOUR } from "../lib/constants";
-import { CalendarView, type TimeRange } from "../lib/types";
+import { END_HOUR, START_HOUR } from "../lib/constants";
+import type { CalendarView } from "../lib/types";
 
-export const VIEW_LABELS: Record<CalendarView, string> = {
-  [CalendarView.WEEK]: "Week",
-  [CalendarView.DAY]: "Day",
-  [CalendarView.AGENDA]: "Month",
-};
-
-const FORMAT_STRING = "MMM d, yyyy";
-
-export function rangeText(view: CalendarView, date: Date): string {
+export function rangeText(view: CalendarView, date: Date) {
+  const formatString = "MMM d, yyyy";
   let start: Date;
   let end: Date;
 
   switch (view) {
-    case CalendarView.DAY:
-      return format(date, FORMAT_STRING);
-    case CalendarView.WEEK:
-      start = startOfWeek(date);
-      end = endOfWeek(date);
+    case "agenda":
+      start = dateFns.startOfMonth(date);
+      end = dateFns.endOfMonth(date);
       break;
-    case CalendarView.AGENDA:
-      start = startOfMonth(date);
-      end = endOfMonth(date);
+    case "week":
+      start = dateFns.startOfWeek(date);
+      end = dateFns.endOfWeek(date);
       break;
+    case "day":
+      return dateFns.format(date, formatString);
     default:
-      return "Error generating range text";
+      return "Error while formatting ";
   }
 
-  return `${format(start, FORMAT_STRING)} - ${format(end, FORMAT_STRING)}`;
+  return `${dateFns.format(start, formatString)} - ${dateFns.format(end, formatString)}`;
 }
 
-export function formatTime(date: Date | string): string {
-  const parsedDate = typeof date === "string" ? parseISO(date) : date;
-  if (!isValid(parsedDate)) return "";
-  return format(parsedDate, "h:mm a");
-}
-
-export function formatDateLabel(date: Date, view: CalendarView) {
-  return {
-    [CalendarView.WEEK]: format(date, "MMMM yyyy"),
-    [CalendarView.DAY]: format(date, "EEEE, MMMM d, yyyy"),
-    [CalendarView.AGENDA]: format(date, "MMMM yyyy"),
-  }[view];
-}
-
-export function toDate(date: string | Date): Date {
-  return date instanceof Date ? date : new Date(date);
-}
-
-export function getMonthDays(date: Date): Date[] {
-  return eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
-}
-
-export function getWeekDays(date: Date) {
-  const start = startOfWeek(date, { weekStartsOn: 1 });
-  return Array.from({ length: 7 }, (_, i) => addDays(start, i));
-}
-
-export function getVisibleDayRange(date: Date): TimeRange {
-  const start = new Date(date);
-  start.setHours(START_HOUR, 0, 0, 0);
-
-  const end = new Date(date);
-  end.setHours(END_HOUR, 0, 0, 0);
-
-  return { start, end };
-}
-
-export function overlapsRange(
-  start: Date,
-  end: Date,
-  range: TimeRange
-): boolean {
-  return start < range.end && end > range.start;
-}
-
-export function overlapsDay(start: Date, end: Date, day: Date): boolean {
-  const dayStart = startOfDay(day);
-  const dayEnd = addDays(dayStart, 1);
-
-  return start < dayEnd && end > dayStart;
-}
-
-export function clampToVisibleRange(
-  start: Date,
-  end: Date,
-  day: Date
-): TimeRange {
-  const visible = getVisibleDayRange(day);
-  return {
-    start: dfMax([start, visible.start]),
-    end: dfMin([end, visible.end]),
+export function navigateDate(
+  date: Date,
+  view: CalendarView,
+  direction: "previous" | "next"
+): Date {
+  const operations = {
+    agenda: direction === "next" ? dateFns.addMonths : dateFns.subMonths,
+    year: direction === "next" ? dateFns.addYears : dateFns.subYears,
+    month: direction === "next" ? dateFns.addMonths : dateFns.subMonths,
+    week: direction === "next" ? dateFns.addWeeks : dateFns.subWeeks,
+    day: direction === "next" ? dateFns.addDays : dateFns.subDays,
   };
+
+  return operations[view](date, 1);
 }
 
-export function isTodayWithinVisibleHours(
-  day: Date,
-  now: Date = new Date()
-): boolean {
-  if (!isSameDay(day, now)) return false;
-  const hour = now.getHours() + now.getMinutes() / 60;
-  return hour >= START_HOUR && hour < END_HOUR;
-}
+export function getVisibleHours(lessons: types.LessonInstance[]) {
+  let earliestEventHour = START_HOUR;
+  let latestEventHour = END_HOUR;
 
-export function getCurrentTimeTop(now: Date = new Date()) {
-  const hourOffset =
-    now.getHours() -
-    START_HOUR +
-    now.getMinutes() / 60 +
-    now.getSeconds() / 3600;
+  lessons.forEach((lesson) => {
+    const startHour = parseISO(lesson.start).getHours();
+    const endTime = parseISO(lesson.end);
+    const endHour = endTime.getHours() + (endTime.getMinutes() > 0 ? 1 : 0);
+    if (startHour < earliestEventHour) earliestEventHour = startHour;
+    if (endHour > latestEventHour) latestEventHour = endHour;
+  });
 
-  return hourOffset * SLOT_HEIGHT;
+  latestEventHour = Math.min(latestEventHour, 24);
+
+  const hours = Array.from(
+    { length: latestEventHour - earliestEventHour },
+    (_, i) => i + earliestEventHour
+  );
+
+  return { hours, earliestEventHour, latestEventHour };
 }

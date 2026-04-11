@@ -5,3 +5,4 @@ export * from "./waivers";
 export * from "./lessons";
 export * from "./users";
 export * from "./availability";
+export * from "./questionnaire";

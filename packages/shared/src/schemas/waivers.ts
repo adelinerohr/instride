@@ -32,6 +32,12 @@ export const waiverSignatureSchema = z.object({
 
 // --- Contract Schemas ------------------------------------------------------------
 
+export const signWaiverInputSchema = waiverSignatureSchema.pick({
+  signerMemberId: true,
+  onBehalfOfMemberId: true,
+  waiverId: true,
+});
+
 export const waiverInputSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),

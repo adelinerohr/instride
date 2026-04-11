@@ -1,20 +1,20 @@
 import { FieldGroup } from "@/shared/components/ui/field";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
-import { withForm } from "@/shared/hooks/form";
+import { withFieldGroup } from "@/shared/hooks/form";
 
-import { organizationOnboardingFormOpts } from "../../lib/organization/form";
+import { defaultMemberOnboardingValues } from "../../lib/member/form";
 
-export const PersonalDetailsStep = withForm({
-  ...organizationOnboardingFormOpts,
-  render: ({ form }) => {
+export const PersonalDetailsStep = withFieldGroup({
+  defaultValues: defaultMemberOnboardingValues.personalDetails,
+  render: function Render({ group }) {
     return (
       <FieldGroup>
         <div className="flex justify-center">
-          <form.Field
-            name="personalDetails.imageFile"
+          <group.Field
+            name="imageFile"
             children={(fileField) => (
-              <form.Field
-                name="personalDetails.image"
+              <group.Field
+                name="image"
                 children={(field) => (
                   <AvatarUpload
                     shape="circle"
@@ -32,7 +32,7 @@ export const PersonalDetailsStep = withForm({
                     onRemove={async () => {
                       fileField.handleChange(null);
                       field.handleChange(null);
-                      form.setFieldValue("personalDetails.removeImage", true);
+                      group.setFieldValue("removeImage", true);
                     }}
                   />
                 )}
@@ -40,14 +40,14 @@ export const PersonalDetailsStep = withForm({
             )}
           />
         </div>
-        <form.AppField
-          name="personalDetails.name"
+        <group.AppField
+          name="name"
           children={(field) => (
             <field.TextField label="Name" placeholder="John Doe" />
           )}
         />
-        <form.AppField
-          name="personalDetails.email"
+        <group.AppField
+          name="email"
           children={(field) => (
             <field.TextField
               label="Email"
@@ -57,8 +57,8 @@ export const PersonalDetailsStep = withForm({
             />
           )}
         />
-        <form.AppField
-          name="personalDetails.phone"
+        <group.AppField
+          name="phone"
           children={(field) => (
             <field.TextField
               label="Phone"

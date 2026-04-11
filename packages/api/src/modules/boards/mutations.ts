@@ -110,14 +110,14 @@ export function useAssignToBoard({
   return useWrappedMutation(boardAssignmentsMutations.assignToBoard, {
     ...config,
     onSuccess: (assignment, ...args) => {
-      if (assignment.isTrainer) {
+      if (assignment.trainerId) {
         queryClient.setQueryData(
-          boardKeys.assignedToTrainer(assignment.memberId),
+          boardKeys.assignedToTrainer(assignment.trainerId),
           assignment
         );
-      } else {
+      } else if (assignment.riderId) {
         queryClient.setQueryData(
-          boardKeys.assignedToRider(assignment.memberId),
+          boardKeys.assignedToRider(assignment.riderId),
           assignment
         );
       }

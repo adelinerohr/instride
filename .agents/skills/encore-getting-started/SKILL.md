@@ -101,6 +101,7 @@ encore run
 ```
 
 The dashboard shows:
+
 - All your services and endpoints
 - Request/response logs
 - Database queries
@@ -108,13 +109,13 @@ The dashboard shows:
 
 ### Common CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `encore run` | Start the local development server |
-| `encore test` | Run tests |
-| `encore db shell <db>` | Open a psql shell to a database |
-| `encore gen client` | Generate API client code |
-| `encore app link` | Link to an existing Encore Cloud app |
+| Command                | Description                          |
+| ---------------------- | ------------------------------------ |
+| `encore run`           | Start the local development server   |
+| `encore test`          | Run tests                            |
+| `encore db shell <db>` | Open a psql shell to a database      |
+| `encore gen client`    | Generate API client code             |
+| `encore app link`      | Link to an existing Encore Cloud app |
 
 ### Add a Database
 

@@ -5,8 +5,6 @@ import * as React from "react";
 import { getSettingsNavItems } from "@/shared/lib/navigation/settings";
 import { cn } from "@/shared/lib/utils";
 
-import { ScrollArea } from "../ui/scroll-area";
-
 export function SettingsPage({
   children,
   className,
@@ -23,7 +21,8 @@ export function SettingsPage({
 
   for (const section of navItems) {
     for (const link of section.links) {
-      if (pathname.endsWith(link.to.split("/").pop() ?? "")) {
+      const resolvedPath = link.to.replace("$slug", organization.slug);
+      if (pathname.startsWith(resolvedPath)) {
         currentNavItem = link;
         break;
       }
@@ -36,9 +35,9 @@ export function SettingsPage({
 
   const Icon = currentNavItem.icon;
 
-  const segments = pathname.split("/");
-  const currentSegment = segments[segments.length - 1];
-  const parentSegment = segments[segments.length - 2];
+  const navSegments = currentNavItem.to.split("/");
+  const currentSegment = navSegments[navSegments.length - 1];
+  const parentSegment = navSegments[navSegments.length - 2];
 
   return (
     <div className={cn("flex h-full flex-col", className)} {...props}>
@@ -61,7 +60,7 @@ export function SettingsPage({
         </div>
       </div>
       <div className="grow overflow-hidden">
-        <ScrollArea className="h-full">{children}</ScrollArea>
+        <div className="h-full overflow-y-auto">{children}</div>
       </div>
     </div>
   );

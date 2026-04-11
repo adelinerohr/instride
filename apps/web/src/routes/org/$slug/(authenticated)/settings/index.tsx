@@ -1,22 +1,11 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-
-import { isAdmin } from "@/shared/lib/roles";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/settings/")({
-  component: RouteComponent,
-  beforeLoad: async ({ context }) => {
-    const canViewAdminSettings = isAdmin(context.membership);
-
-    return {
-      isAdmin: canViewAdminSettings,
-    };
+  component: () => null,
+  beforeLoad: async ({ params }) => {
+    throw redirect({
+      to: "/org/$slug/settings/account/profile",
+      params: { slug: params.slug },
+    });
   },
 });
-
-function RouteComponent() {
-  const { slug } = Route.useParams();
-
-  return (
-    <Navigate to="/org/$slug/settings/account/profile" params={{ slug }} />
-  );
-}

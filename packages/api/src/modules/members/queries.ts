@@ -1,7 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { STALE } from "#_internal/constants";
-import { apiClient } from "#client";
+import { apiClient, type members } from "#client";
 
 import { memberKeys } from "./keys";
 
@@ -15,7 +14,6 @@ export const membersOptions = {
         const { members } = await apiClient.organizations.listMembers();
         return members;
       },
-      staleTime: STALE.MINUTES.FIVE,
     }),
   me: () =>
     queryOptions({
@@ -34,11 +32,13 @@ export const membersOptions = {
         return member;
       },
     }),
-  trainers: () =>
+  trainers: (params?: members.ListTrainersRequest) =>
     queryOptions({
-      queryKey: memberKeys.trainers(),
+      queryKey: memberKeys.trainers(params),
       queryFn: async () => {
-        const { trainers } = await apiClient.organizations.listTrainers();
+        const { trainers } = await apiClient.organizations.listTrainers(
+          params ?? {}
+        );
         return trainers;
       },
     }),

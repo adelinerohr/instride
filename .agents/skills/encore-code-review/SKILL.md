@@ -17,12 +17,16 @@ When reviewing Encore.ts code, check for these common issues:
 // WRONG: Infrastructure declared inside function
 async function setup() {
   const db = new SQLDatabase("mydb", { migrations: "./migrations" });
-  const topic = new Topic<Event>("events", { deliveryGuarantee: "at-least-once" });
+  const topic = new Topic<Event>("events", {
+    deliveryGuarantee: "at-least-once",
+  });
 }
 
 // CORRECT: Package level declaration
 const db = new SQLDatabase("mydb", { migrations: "./migrations" });
-const topic = new Topic<Event>("events", { deliveryGuarantee: "at-least-once" });
+const topic = new Topic<Event>("events", {
+  deliveryGuarantee: "at-least-once",
+});
 ```
 
 ### 2. Using require() Instead of import
@@ -86,8 +90,14 @@ export const getUser = api(
 );
 
 // BETTER: Explicit request/response types
-interface GetUserRequest { id: string; }
-interface User { id: string; email: string; name: string; }
+interface GetUserRequest {
+  id: string;
+}
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
 
 export const getUser = api(
   { method: "GET", path: "/users/:id", expose: true },
@@ -102,8 +112,10 @@ export const getUser = api(
 ```typescript
 // CHECK: Should this cron endpoint be exposed?
 export const cleanupJob = api(
-  { expose: true },  // Probably should be false
-  async () => { /* ... */ }
+  { expose: true }, // Probably should be false
+  async () => {
+    /* ... */
+  }
 );
 ```
 
@@ -113,7 +125,7 @@ export const cleanupJob = api(
 // RISKY: Not idempotent (pubsub has at-least-once delivery)
 const _ = new Subscription(orderCreated, "process-order", {
   handler: async (event) => {
-    await chargeCustomer(event.orderId);  // Could charge twice!
+    await chargeCustomer(event.orderId); // Could charge twice!
   },
 });
 
@@ -121,7 +133,7 @@ const _ = new Subscription(orderCreated, "process-order", {
 const _ = new Subscription(orderCreated, "process-order", {
   handler: async (event) => {
     const order = await getOrder(event.orderId);
-    if (order.status !== "pending") return;  // Already processed
+    if (order.status !== "pending") return; // Already processed
     await chargeCustomer(event.orderId);
   },
 });
@@ -132,13 +144,13 @@ const _ = new Subscription(orderCreated, "process-order", {
 ```typescript
 // WRONG: Secret accessed at startup
 const stripeKey = secret("StripeKey");
-const client = new Stripe(stripeKey());  // Called during import
+const client = new Stripe(stripeKey()); // Called during import
 
 // CORRECT: Access inside functions
 const stripeKey = secret("StripeKey");
 
 async function charge() {
-  const client = new Stripe(stripeKey());  // Called at runtime
+  const client = new Stripe(stripeKey()); // Called at runtime
 }
 ```
 
@@ -161,6 +173,6 @@ When reviewing, report issues as:
 
 ```
 [CRITICAL] [file:line] Description of issue
-[WARNING] [file:line] Description of concern  
+[WARNING] [file:line] Description of concern
 [GOOD] Notable good practice observed
 ```

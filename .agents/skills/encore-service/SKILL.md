@@ -112,14 +112,14 @@ export const getOrderWithUser = api(
 
 Split when you have:
 
-| Signal | Action |
-|--------|--------|
-| Different scaling needs | Split (e.g., auth vs analytics) |
-| Different deployment cycles | Split |
-| Clear domain boundaries | Split |
-| Shared database tables | Keep together |
-| Tightly coupled logic | Keep together |
-| Just organizing code | Use folders, not services |
+| Signal                      | Action                          |
+| --------------------------- | ------------------------------- |
+| Different scaling needs     | Split (e.g., auth vs analytics) |
+| Different deployment cycles | Split                           |
+| Clear domain boundaries     | Split                           |
+| Shared database tables      | Keep together                   |
+| Tightly coupled logic       | Keep together                   |
+| Just organizing code        | Use folders, not services       |
 
 ## Service with Middleware
 
@@ -173,7 +173,7 @@ const myMiddleware = middleware(
   { target: { all: true } },
   async (req, next) => {
     // For typed and streaming APIs
-    const meta = req.requestMeta;  // { method, path, pathParams }
+    const meta = req.requestMeta; // { method, path, pathParams }
 
     // For raw endpoints
     const rawReq = req.rawRequest;

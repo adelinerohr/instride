@@ -7,7 +7,6 @@ import serverClient from "@instride/server-client";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { OrganizationDetailsStep } from "@/features/onboarding/components/steps/organization-details";
 import { OrganizationSetupStep } from "@/features/onboarding/components/steps/organization-setup";
@@ -19,6 +18,7 @@ import {
   organizationOnboardingSteps,
 } from "@/features/onboarding/lib/organization/form";
 import { OnboardingOrganizationStep } from "@/features/onboarding/lib/organization/validators";
+import type { WizardStep } from "@/features/onboarding/lib/types";
 import {
   Alert,
   AlertDescription,
@@ -26,7 +26,6 @@ import {
 } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { useAppForm } from "@/shared/hooks/form";
-import { authClient } from "@/shared/lib/auth-client";
 
 export const Route = createFileRoute("/(authenticated)/create-organization")({
   component: RouteComponent,
@@ -101,25 +100,11 @@ function RouteComponent() {
             const { logoFile, ...organizationDetails } =
               value.organizationDetails;
 
-            const { data: authOrganization, error } =
-              await authClient.organization.create({
-                name: value.organizationSetup.name,
-                slug: value.organizationSetup.slug,
-                timezone: value.organizationSetup.timezone,
-                userId: user.id,
-              });
-
-            if (error) {
-              toast.error(error.message);
-              return;
-            }
-
             let logoUrl = null;
 
             const organization = await createOrganization.mutateAsync({
               ...organizationDetails,
               ...value.organizationSetup,
-              authOrganizationId: authOrganization.id,
             });
 
             if (logoFile) {
@@ -138,7 +123,7 @@ function RouteComponent() {
             // 3. Update organization
             await updateOrganization.mutateAsync({
               organizationId: organization.id,
-              input: {
+              request: {
                 logoUrl,
               },
             });
@@ -168,8 +153,8 @@ function RouteComponent() {
     (s) => s.id === section
   )!;
 
-  const goToStep = (step: OnboardingOrganizationStep) =>
-    form.setFieldValue("section", step);
+  const goToStep = (step: WizardStep["id"]) =>
+    form.setFieldValue("section", step as OnboardingOrganizationStep);
 
   return (
     <OnboardingWizard
@@ -185,7 +170,7 @@ function RouteComponent() {
         className="space-y-5"
       >
         {section === OnboardingOrganizationStep.PersonalDetails && (
-          <PersonalDetailsStep form={form} />
+          <PersonalDetailsStep form={form} fields="personalDetails" />
         )}
         {section === OnboardingOrganizationStep.OrganizationSetup && (
           <OrganizationSetupStep form={form} />

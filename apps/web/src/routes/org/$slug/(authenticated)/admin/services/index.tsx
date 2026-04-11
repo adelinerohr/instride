@@ -16,6 +16,7 @@ import {
   XIcon,
 } from "lucide-react";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
@@ -23,6 +24,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import {
@@ -172,6 +174,7 @@ function RouteComponent() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger
+                  onClick={(e) => e.preventDefault()}
                   render={<Button variant="ghost" size="icon" />}
                 >
                   <EllipsisIcon />
@@ -201,9 +204,19 @@ function RouteComponent() {
                       Edit
                     </DropdownMenuItem>
                   </Link>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() => deleteService.mutateAsync(service.id)}
+                    onClick={() =>
+                      deleteService.mutateAsync(service.id, {
+                        onSuccess: () => {
+                          toast.success("Service deleted successfully");
+                        },
+                        onError: () => {
+                          toast.error("Failed to delete service");
+                        },
+                      })
+                    }
                   >
                     <TrashIcon />
                     Delete

@@ -28,23 +28,21 @@ interface AuthData {
   role: "admin" | "user";
 }
 
-export const auth = authHandler<AuthParams, AuthData>(
-  async (params) => {
-    // Validate the token (example with JWT)
-    const token = params.authorization.replace("Bearer ", "");
-    
-    const payload = await verifyToken(token);
-    if (!payload) {
-      throw APIError.unauthenticated("invalid token");
-    }
-    
-    return {
-      userID: payload.sub,
-      email: payload.email,
-      role: payload.role,
-    };
+export const auth = authHandler<AuthParams, AuthData>(async (params) => {
+  // Validate the token (example with JWT)
+  const token = params.authorization.replace("Bearer ", "");
+
+  const payload = await verifyToken(token);
+  if (!payload) {
+    throw APIError.unauthenticated("invalid token");
   }
-);
+
+  return {
+    userID: payload.sub,
+    email: payload.email,
+    role: payload.role,
+  };
+});
 
 // Register the auth handler with a Gateway
 export const gateway = new Gateway({
@@ -81,8 +79,8 @@ import { getAuthData } from "~encore/auth";
 export const getProfile = api(
   { method: "GET", path: "/profile", expose: true, auth: true },
   async (): Promise<Profile> => {
-    const auth = getAuthData()!;  // Non-null when auth: true
-    
+    const auth = getAuthData()!; // Non-null when auth: true
+
     return {
       userID: auth.userID,
       email: auth.email,
@@ -94,20 +92,20 @@ export const getProfile = api(
 
 ## Auth Handler Behavior
 
-| Scenario | Handler Returns | Result |
-|----------|----------------|--------|
-| Valid credentials | `AuthData` object | Request authenticated |
-| Invalid credentials | Throws `APIError.unauthenticated()` | Treated as no auth |
-| Other error | Throws other error | Request aborted |
+| Scenario            | Handler Returns                     | Result                |
+| ------------------- | ----------------------------------- | --------------------- |
+| Valid credentials   | `AuthData` object                   | Request authenticated |
+| Invalid credentials | Throws `APIError.unauthenticated()` | Treated as no auth    |
+| Other error         | Throws other error                  | Request aborted       |
 
 ## Auth with Endpoints
 
-| Endpoint Config | Request Has Auth | Result |
-|-----------------|------------------|--------|
-| `auth: true` | Yes | Proceeds with auth data |
-| `auth: true` | No | 401 Unauthenticated |
-| `auth: false` or omitted | Yes | Proceeds (auth data available) |
-| `auth: false` or omitted | No | Proceeds (no auth data) |
+| Endpoint Config          | Request Has Auth | Result                         |
+| ------------------------ | ---------------- | ------------------------------ |
+| `auth: true`             | Yes              | Proceeds with auth data        |
+| `auth: true`             | No               | 401 Unauthenticated            |
+| `auth: false` or omitted | Yes              | Proceeds (auth data available) |
+| `auth: false` or omitted | No               | Proceeds (no auth data)        |
 
 ## Service-to-Service Auth Propagation
 
@@ -140,7 +138,13 @@ import { user } from "~encore/clients";
 // Override auth data for this specific call
 const adminUser = await user.getProfile(
   {},
-  { authData: { userID: "admin-123", email: "admin@example.com", role: "admin" } }
+  {
+    authData: {
+      userID: "admin-123",
+      email: "admin@example.com",
+      role: "admin",
+    },
+  }
 );
 ```
 
@@ -170,25 +174,23 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
 ### API Key Authentication
 
 ```typescript
-export const auth = authHandler<AuthParams, AuthData>(
-  async (params) => {
-    const apiKey = params.authorization;
-    
-    const user = await db.queryRow<User>`
+export const auth = authHandler<AuthParams, AuthData>(async (params) => {
+  const apiKey = params.authorization;
+
+  const user = await db.queryRow<User>`
       SELECT id, email, role FROM users WHERE api_key = ${apiKey}
     `;
-    
-    if (!user) {
-      throw APIError.unauthenticated("invalid API key");
-    }
-    
-    return {
-      userID: user.id,
-      email: user.email,
-      role: user.role,
-    };
+
+  if (!user) {
+    throw APIError.unauthenticated("invalid API key");
   }
-);
+
+  return {
+    userID: user.id,
+    email: user.email,
+    role: user.role,
+  };
+});
 ```
 
 ### Cookie-Based Auth
@@ -198,26 +200,24 @@ interface AuthParams {
   cookie: Header<"Cookie">;
 }
 
-export const auth = authHandler<AuthParams, AuthData>(
-  async (params) => {
-    const sessionId = parseCookie(params.cookie, "session");
-    
-    if (!sessionId) {
-      throw APIError.unauthenticated("no session");
-    }
-    
-    const session = await getSession(sessionId);
-    if (!session || session.expiresAt < new Date()) {
-      throw APIError.unauthenticated("session expired");
-    }
-    
-    return {
-      userID: session.userID,
-      email: session.email,
-      role: session.role,
-    };
+export const auth = authHandler<AuthParams, AuthData>(async (params) => {
+  const sessionId = parseCookie(params.cookie, "session");
+
+  if (!sessionId) {
+    throw APIError.unauthenticated("no session");
   }
-);
+
+  const session = await getSession(sessionId);
+  if (!session || session.expiresAt < new Date()) {
+    throw APIError.unauthenticated("session expired");
+  }
+
+  return {
+    userID: session.userID,
+    email: session.email,
+    role: session.role,
+  };
+});
 ```
 
 ## Testing with Auth

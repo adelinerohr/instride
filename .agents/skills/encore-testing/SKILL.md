@@ -51,6 +51,7 @@ npm test
 ```
 
 Using `encore test` is recommended because it:
+
 - Sets up test databases automatically
 - Provides isolated infrastructure per test
 - Handles service dependencies
@@ -87,9 +88,12 @@ describe("user operations", () => {
   });
 
   it("creates and retrieves a user", async () => {
-    const created = await createUser({ email: "test@example.com", name: "Test" });
+    const created = await createUser({
+      email: "test@example.com",
+      name: "Test",
+    });
     const retrieved = await getUser({ id: created.id });
-    
+
     expect(retrieved.email).toBe("test@example.com");
   });
 });
@@ -109,7 +113,7 @@ describe("order service", () => {
       userId: "user-123",
       items: [{ productId: "prod-1", quantity: 2 }],
     });
-    
+
     expect(order.id).toBeDefined();
     expect(order.status).toBe("pending");
   });
@@ -125,9 +129,9 @@ import { APIError } from "encore.dev/api";
 
 describe("error handling", () => {
   it("throws NotFound for missing user", async () => {
-    await expect(getUser({ id: "nonexistent" }))
-      .rejects
-      .toThrow("user not found");
+    await expect(getUser({ id: "nonexistent" })).rejects.toThrow(
+      "user not found"
+    );
   });
 
   it("throws with correct error code", async () => {
@@ -155,7 +159,7 @@ describe("pub/sub", () => {
       userId: "user-456",
       total: 9999,
     });
-    
+
     expect(messageId).toBeDefined();
   });
 });
@@ -174,10 +178,10 @@ describe("cleanup job", () => {
   it("removes expired sessions", async () => {
     // Create some expired sessions first
     await createExpiredSession();
-    
+
     // Call the endpoint directly
     await cleanupExpiredSessions();
-    
+
     // Verify cleanup happened
     const remaining = await countSessions();
     expect(remaining).toBe(0);
@@ -247,7 +251,7 @@ Install the [Vitest extension](https://marketplace.visualstudio.com/items?itemNa
 export default defineConfig({
   // ...
   test: {
-    fileParallelism: false,  // Disable for VS Code
+    fileParallelism: false, // Disable for VS Code
     // ...
   },
 });

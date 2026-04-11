@@ -1,22 +1,26 @@
-import { waiverOptions } from "@instride/api";
+import { useArchiveWaiver, waiverOptions } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, FileIcon, PlusIcon } from "lucide-react";
-import * as React from "react";
-import { toast } from "sonner";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  ArchiveIcon,
+  EllipsisVerticalIcon,
+  FileIcon,
+  PencilIcon,
+  PlusIcon,
+} from "lucide-react";
 
+import {
+  WaiverModal,
+  waiverModalHandler,
+} from "@/features/organization/components/waivers/waiver-modal";
+import {
+  ConfirmationModal,
+  confirmationModalHandler,
+} from "@/shared/components/confirmation-modal";
 import { PageHeader } from "@/shared/components/layout/page";
 import { Badge } from "@/shared/components/ui/badge";
-import { buttonVariants } from "@/shared/components/ui/button";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/shared/components/ui/dialog";
+import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,31 +42,13 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ context }) => {
-    return await context.queryClient.ensureQueryData(
-      waiverOptions(context.organization.id).all()
-    );
+    return await context.queryClient.ensureQueryData(waiverOptions.list());
   },
 });
 
 function RouteComponent() {
-  const { organization } = Route.useRouteContext();
-  const { data: waivers, isLoading } = useSuspenseQuery(
-    waiverOptions(organization.id).all()
-  );
-  const [archivingId, setArchivingId] = React.useState<string | null>(null);
-
-  const handleArchive = React.useCallback(async () => {
-    if (!archivingId) return;
-    try {
-      // We don't have a delete endpoint, so we mark it as archived via update
-      // In a real app this would call an archive endpoint
-      toast.info("Archive functionality coming soon");
-    } catch {
-      toast.error("Failed to archive waiver");
-    } finally {
-      setArchivingId(null);
-    }
-  }, [archivingId]);
+  const { data: waivers, isLoading } = useSuspenseQuery(waiverOptions.list());
+  const archiveWaiver = useArchiveWaiver();
 
   return (
     <>
@@ -71,14 +57,10 @@ function RouteComponent() {
           title="Waivers"
           description="Manage liability waivers that riders must sign."
           action={
-            <Link
-              to="/org/$slug/settings/organization/waivers/new"
-              params={{ slug: organization.slug }}
-              className={buttonVariants({ variant: "default", size: "sm" })}
-            >
+            <DialogTrigger handle={waiverModalHandler} render={<Button />}>
               <PlusIcon />
               New waiver
-            </Link>
+            </DialogTrigger>
           }
         />
 
@@ -105,14 +87,10 @@ function RouteComponent() {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Link
-                  to="/org/$slug/settings/organization/waivers/new"
-                  params={{ slug: organization.slug }}
-                  className={buttonVariants({ variant: "default", size: "sm" })}
-                >
+                <DialogTrigger handle={waiverModalHandler} render={<Button />}>
                   <PlusIcon />
                   New waiver
-                </Link>
+                </DialogTrigger>
               </EmptyContent>
             </Empty>
           ) : (
@@ -122,12 +100,6 @@ function RouteComponent() {
                   <tr className="border-b border-border bg-muted/50">
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                       Title
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                      Required
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                      Guardian signature
                     </th>
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                       Status
@@ -165,24 +137,35 @@ function RouteComponent() {
                             <EllipsisVerticalIcon className="size-4" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Link
-                                to="/org/$slug/settings/organization/waivers/$waiverId/edit"
-                                params={{
-                                  slug: organization.slug,
-                                  waiverId: waiver.id,
-                                }}
-                              >
-                                Edit waiver
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() => setArchivingId(waiver.id)}
+                            <DialogTrigger
+                              nativeButton={false}
+                              handle={waiverModalHandler}
+                              payload={{ waiver }}
+                              render={<DropdownMenuItem />}
                             >
+                              <PencilIcon />
+                              Edit waiver
+                            </DialogTrigger>
+                            <DropdownMenuSeparator />
+                            <DialogTrigger
+                              nativeButton={false}
+                              handle={confirmationModalHandler}
+                              payload={{
+                                title: "Archive waiver?",
+                                description:
+                                  "Archiving this waiver will prevent new signatures. Existing signatures will remain valid.",
+                                confirmLabel: "Archive waiver",
+                                cancelLabel: "Cancel",
+                                onConfirm: () =>
+                                  archiveWaiver.mutateAsync(waiver.id),
+                              }}
+                              render={
+                                <DropdownMenuItem variant="destructive" />
+                              }
+                            >
+                              <ArchiveIcon />
                               Archive
-                            </DropdownMenuItem>
+                            </DialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
@@ -195,28 +178,8 @@ function RouteComponent() {
         </div>
       </div>
 
-      <Dialog
-        open={!!archivingId}
-        onOpenChange={(open) => !open && setArchivingId(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Archive waiver?</DialogTitle>
-            <DialogDescription>
-              Archiving this waiver will prevent new signatures. Existing
-              signatures will remain valid.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setArchivingId(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleArchive}>
-              Archive waiver
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmationModal />
+      <WaiverModal />
     </>
   );
 }

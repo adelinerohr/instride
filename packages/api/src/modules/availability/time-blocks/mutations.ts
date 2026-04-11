@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type time_blocks } from "#client";
+import { apiClient, type time_blocks, type types } from "#client";
 
 import { timeBlockKeys } from "../keys";
 
@@ -10,6 +10,19 @@ import { timeBlockKeys } from "../keys";
 export const timeBlockMutations = {
   create: async (request: time_blocks.CreateTimeBlockRequest) => {
     const { timeBlock } = await apiClient.availability.createTimeBlock(request);
+    return timeBlock;
+  },
+  update: async ({
+    id,
+    request,
+  }: {
+    id: string;
+    request: time_blocks.UpdateTimeBlockRequest;
+  }) => {
+    const { timeBlock } = await apiClient.availability.updateTimeBlock(
+      id,
+      request
+    );
     return timeBlock;
   },
 
@@ -40,18 +53,60 @@ export function useCreateTimeBlock({
   });
 }
 
-export function useDeleteTimeBlock({
+export function useUpdateTimeBlock({
   mutationConfig,
-}: MutationHookOptions<typeof timeBlockMutations.delete> = {}) {
+}: MutationHookOptions<typeof timeBlockMutations.update> & {
+  timeBlock?: types.TimeBlock;
+}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(timeBlockMutations.update, {
+    ...config,
+    onSuccess: (timeBlock, ...args) => {
+      if (!timeBlock) return;
+
+      queryClient.setQueryData(timeBlockKeys.byId(timeBlock.id), timeBlock);
+      onSuccess?.(timeBlock, ...args);
+    },
+  });
+}
+
+export function useDeleteTimeBlock({
+  timeBlock,
+  mutationConfig,
+}: MutationHookOptions<typeof timeBlockMutations.delete> & {
+  timeBlock?: types.TimeBlock;
+}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
   return useWrappedMutation(timeBlockMutations.delete, {
     ...config,
     onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: timeBlockKeys.all(),
+      if (!timeBlock) return;
+
+      queryClient.removeQueries({
+        queryKey: timeBlockKeys.byId(timeBlock.id),
       });
+      queryClient.setQueryData(
+        timeBlockKeys.all(),
+        (oldData: types.TimeBlock[]) => {
+          if (!oldData) return oldData;
+          return oldData.filter(
+            (oldTimeBlock) => oldTimeBlock.id !== timeBlock.id
+          );
+        }
+      );
+      queryClient.setQueryData(
+        timeBlockKeys.forTrainer(timeBlock.trainerId),
+        (oldData: types.TimeBlock[]) => {
+          if (!oldData) return oldData;
+          return oldData.filter(
+            (oldTimeBlock) => oldTimeBlock.id !== timeBlock.id
+          );
+        }
+      );
       onSuccess?.(...args);
     },
   });

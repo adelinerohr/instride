@@ -40,7 +40,13 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       console.log("Submitting board form: ", value);
       createService.mutateAsync(
-        { value },
+        {
+          request: {
+            ...value,
+            boardIds: value.boardIds.map((b) => b.id),
+            trainerIds: value.trainerIds.map((t) => t.id),
+          },
+        },
         {
           onSuccess: () => {
             toast.success("Board created successfully");
@@ -75,7 +81,7 @@ function RouteComponent() {
           >
             <ArrowLeftIcon />
           </Button>
-          <h1 className="font-semibold text-2xl">Create New Board</h1>
+          <h1 className="font-semibold text-2xl">Create New Service</h1>
         </div>
         <div className="flex items-center gap-2">
           <Link className={buttonVariants({ variant: "outline" })} to="..">

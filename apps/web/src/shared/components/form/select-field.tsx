@@ -15,43 +15,41 @@ import {
   SelectValue,
 } from "../ui/select";
 
-type SelectFieldProps = Omit<
-  React.ComponentProps<"select">,
-  "value" | "defaultValue" | "onChange"
+type SelectFieldProps<T extends object> = Omit<
+  React.ComponentProps<typeof Select>,
+  "items" | "value" | "onValueChange" | "itemToStringValue"
 > & {
   label?: string;
   description?: string;
   placeholder?: string;
-  clearable?: boolean;
-  clearableLabel?: string;
   emptyPlaceholder?: string;
   fieldClassName?: string;
-  items: { label: string; value: string; icon?: React.ReactNode }[];
+  className?: string;
+  items: T[];
+  onChange?: (value: string) => void;
+  renderValue: (item: T) => React.ReactNode;
+  itemToValue: (item: T) => string;
 };
 
-export function SelectField({
+export function SelectField<T extends object>({
   label,
   description,
   placeholder,
-  clearable = false,
-  clearableLabel,
   emptyPlaceholder,
   fieldClassName,
-  items,
   className,
-  ...props
-}: SelectFieldProps) {
+  items,
+  onChange,
+  renderValue,
+  itemToValue,
+}: SelectFieldProps<T>) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   const errors = field.state.meta.errors;
-
   const emptyItems = items.length === 0;
 
-  const handleChange = (value: string) => {
-    field.handleChange(value === "reset" ? "" : value);
-  };
-
-  const placeholderValue = emptyItems ? emptyPlaceholder : placeholder;
+  const currentItem =
+    items.find((item) => itemToValue(item) === field.state.value) ?? null;
 
   return (
     <Field data-invalid={isInvalid} className={fieldClassName}>
@@ -60,25 +58,28 @@ export function SelectField({
         {description && <FieldDescription>{description}</FieldDescription>}
       </FieldContent>
       <Select
-        items={items}
         name={field.name}
-        value={field.state.value}
-        onValueChange={(value) => handleChange(value as string)}
-        {...props}
+        value={currentItem}
+        itemToStringValue={itemToValue}
+        onValueChange={(value) => {
+          if (onChange) {
+            onChange(value ? itemToValue(value) : "");
+          } else {
+            field.handleChange(value ? itemToValue(value) : "");
+          }
+        }}
       >
         <SelectTrigger className={className}>
-          <SelectValue placeholder={placeholderValue} />
+          <SelectValue
+            placeholder={emptyItems ? emptyPlaceholder : placeholder}
+          >
+            {currentItem ? (item: T) => renderValue(item) : undefined}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>
-          {clearable && <SelectItem value={null}>{clearableLabel}</SelectItem>}
           {items.map((item) => (
-            <SelectItem
-              key={item.value}
-              value={item.value}
-              className="flex items-center gap-2"
-            >
-              {item.icon}
-              {item.label}
+            <SelectItem key={itemToValue(item)} value={item}>
+              {renderValue(item)}
             </SelectItem>
           ))}
         </SelectContent>

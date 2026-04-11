@@ -1,9 +1,9 @@
 import { CalendarRangeIcon, Columns2Icon, ListIcon } from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { ButtonGroup } from "@/shared/components/ui/button-group";
 
-import { useCalendarSearch } from "../../hooks/use-calendar-search";
+import { useCalendar } from "../../hooks/use-calendar";
 import { CalendarView } from "../../lib/types";
 
 const calendarModes = [
@@ -24,41 +24,21 @@ const calendarModes = [
   },
 ];
 
-export interface ViewSwitcherProps {
-  view: CalendarView;
-}
-
-export function ViewSwitcher({ view }: ViewSwitcherProps) {
-  const { setView } = useCalendarSearch(false);
+export function ViewSwitcher() {
+  const { selectedView, setSelectedView } = useCalendar();
 
   return (
-    <Tabs
-      value={view}
-      onValueChange={(value) => setView(value as CalendarView)}
-    >
-      <TabsList className="p-0 border divide-x bg-background overflow-hidden">
-        {calendarModes.map((mode) => {
-          const isSelected = view === mode.view;
-          return (
-            <TabsTrigger
-              key={mode.view}
-              value={mode.view}
-              className="data-[state=active]:bg-muted shadow-none rounded-none px-4"
-            >
-              <mode.icon />
-              {isSelected && (
-                <span
-                  className={cn(
-                    isSelected ? "opacity-100 w-fit" : "opacity-0 w-0"
-                  )}
-                >
-                  {mode.label}
-                </span>
-              )}
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
-    </Tabs>
+    <ButtonGroup>
+      {calendarModes.map((mode) => (
+        <Button
+          key={mode.view}
+          variant={selectedView === mode.view ? "default" : "outline"}
+          onClick={() => setSelectedView(mode.view)}
+        >
+          <mode.icon />
+          {selectedView === mode.view && mode.label}
+        </Button>
+      ))}
+    </ButtonGroup>
   );
 }

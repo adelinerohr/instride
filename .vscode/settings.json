@@ -55,5 +55,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit",
     "source.removeUnusedImports": "explicit"
+  },
+  "vitest.commandLine": "encore test",
+  "vitest.nodeEnv": {
+    "ENCORE_RUNTIME_LIB": "/opt/homebrew/Cellar/encore/1.56.2/libexec/runtimes/js/encore-runtime.node"
   }
 }

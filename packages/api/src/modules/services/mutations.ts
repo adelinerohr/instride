@@ -56,12 +56,6 @@ export function useCreateService({
   return useWrappedMutation(servicesMutations.createService, {
     ...config,
     onSuccess: (service, ...args) => {
-      queryClient.setQueryData(
-        serviceKeys.all(),
-        (old: Awaited<ReturnType<typeof apiClient.boards.listServices>>) => ({
-          services: [...old.services, service.service],
-        })
-      );
       queryClient.invalidateQueries({
         queryKey: serviceKeys.all(),
       });
@@ -79,7 +73,10 @@ export function useUpdateService({
   return useWrappedMutation(servicesMutations.updateService, {
     ...config,
     onSuccess: (service, ...args) => {
-      queryClient.setQueryData(serviceKeys.byId(service.service.id), service);
+      queryClient.setQueryData(
+        serviceKeys.byId(service.service.id),
+        service.service
+      );
       queryClient.invalidateQueries({
         queryKey: serviceKeys.byId(service.service.id),
       });

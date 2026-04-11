@@ -200,6 +200,7 @@ export namespace availability {
             this.resetBoardBusinessHours = this.resetBoardBusinessHours.bind(this)
             this.resetTrainerBoardBusinessHours = this.resetTrainerBoardBusinessHours.bind(this)
             this.updateOrganizationBusinessHours = this.updateOrganizationBusinessHours.bind(this)
+            this.updateTimeBlock = this.updateTimeBlock.bind(this)
             this.updateTrainerBusinessHours = this.updateTrainerBusinessHours.bind(this)
         }
 
@@ -225,10 +226,10 @@ export namespace availability {
             return await resp.json() as types.GetTimeBlockResponse
         }
 
-        public async listOrganizationBusinessHours(): Promise<business_hours.ListOrganizationBusinessHoursResponse> {
+        public async listOrganizationBusinessHours(): Promise<types.ListBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/organization`)
-            return await resp.json() as business_hours.ListOrganizationBusinessHoursResponse
+            return await resp.json() as types.ListBusinessHoursResponse
         }
 
         public async listTimeBlocks(params: time_blocks.ListTimeBlocksRequest): Promise<types.ListTimeBlocksResponse> {
@@ -244,10 +245,10 @@ export namespace availability {
             return await resp.json() as types.ListTimeBlocksResponse
         }
 
-        public async listTrainerBusinessHours(trainerId: string): Promise<business_hours.ListTrainerBusinessHoursResponse> {
+        public async listTrainerBusinessHours(trainerId: string): Promise<types.ListBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/trainer/${encodeURIComponent(trainerId)}`)
-            return await resp.json() as business_hours.ListTrainerBusinessHoursResponse
+            return await resp.json() as types.ListBusinessHoursResponse
         }
 
         public async resetBoardBusinessHours(boardId: string): Promise<void> {
@@ -262,6 +263,12 @@ export namespace availability {
             await this.baseClient.callTypedAPI("PUT", `/business-hours/organization`, JSON.stringify(params))
         }
 
+        public async updateTimeBlock(id: string, params: time_blocks.UpdateTimeBlockRequest): Promise<types.GetTimeBlockResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/time-blocks/${encodeURIComponent(id)}`, JSON.stringify(params))
+            return await resp.json() as types.GetTimeBlockResponse
+        }
+
         public async updateTrainerBusinessHours(trainerId: string, params: business_hours.UpdateTrainerBusinessHoursRequest): Promise<types.ListTrainerBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/business-hours/trainer/${encodeURIComponent(trainerId)}`, JSON.stringify(params))
@@ -273,8 +280,8 @@ export namespace availability {
 export namespace boards {
     export interface AssignToBoardRequest {
         boardId: string
-        memberId: string
-        isTrainer: boolean
+        trainerId?: string
+        riderId?: string
     }
 
     export interface CreateBoardRequest {
@@ -298,8 +305,10 @@ export namespace boards {
     }
 
     export interface UpdateBoardRequest {
-        name: string
+        name?: string
         canRiderAdd?: boolean
+        trainerIds?: string[]
+        serviceIds?: string[]
     }
 
     export class ServiceClient {
@@ -314,8 +323,8 @@ export namespace boards {
             this.deleteBoard = this.deleteBoard.bind(this)
             this.deleteService = this.deleteService.bind(this)
             this.getBoard = this.getBoard.bind(this)
-            this.getBoardsForMember = this.getBoardsForMember.bind(this)
             this.getBoardsForRider = this.getBoardsForRider.bind(this)
+            this.getBoardsForTrainer = this.getBoardsForTrainer.bind(this)
             this.getService = this.getService.bind(this)
             this.getTrainerServiceAssignment = this.getTrainerServiceAssignment.bind(this)
             this.listBoardAssignments = this.listBoardAssignments.bind(this)
@@ -368,15 +377,15 @@ export namespace boards {
             return await resp.json() as types.GetBoardResponse
         }
 
-        public async getBoardsForMember(memberId: string): Promise<types.ListBoardsResponse> {
+        public async getBoardsForRider(riderId: string): Promise<types.ListBoardsResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/trainer/${encodeURIComponent(memberId)}`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/boards/rider/${encodeURIComponent(riderId)}`)
             return await resp.json() as types.ListBoardsResponse
         }
 
-        public async getBoardsForRider(memberId: string): Promise<types.ListBoardsResponse> {
+        public async getBoardsForTrainer(trainerId: string): Promise<types.ListBoardsResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/rider/${encodeURIComponent(memberId)}`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/boards/trainer/${encodeURIComponent(trainerId)}`)
             return await resp.json() as types.ListBoardsResponse
         }
 
@@ -1054,9 +1063,14 @@ export namespace organizations {
             return await resp.json() as types.ListRidersResponse
         }
 
-        public async listTrainers(): Promise<types.ListTrainersResponse> {
+        public async listTrainers(params: members.ListTrainersRequest): Promise<types.ListTrainersResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                boardId: params.boardId,
+            })
+
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/trainers`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/trainers`, undefined, {query})
             return await resp.json() as types.ListTrainersResponse
         }
 
@@ -1139,8 +1153,8 @@ export namespace questionnaires {
         isActive?: boolean
         version?: number
         defaultBoardId?: string | null
-        questions: interfaces.QuestionnaireQuestion[]
-        boardAssignmentRules: interfaces.QuestionnaireBoardAssignmentRule[]
+        questions: types.QuestionnaireQuestion[]
+        boardAssignmentRules: types.QuestionnaireBoardAssignmentRule[]
     }
 
     export interface SubmitQuestionnaireResponseRequest {
@@ -1161,8 +1175,8 @@ export namespace questionnaires {
         isActive?: boolean
         version?: number
         defaultBoardId?: string | null
-        questions?: interfaces.QuestionnaireQuestion[]
-        boardAssignmentRules?: interfaces.QuestionnaireBoardAssignmentRule[]
+        questions?: types.QuestionnaireQuestion[]
+        boardAssignmentRules?: types.QuestionnaireBoardAssignmentRule[]
     }
 
     export class ServiceClient {
@@ -1173,6 +1187,7 @@ export namespace questionnaires {
             this.createQuestionnaire = this.createQuestionnaire.bind(this)
             this.deactivateQuestionnaire = this.deactivateQuestionnaire.bind(this)
             this.getQuestionnaire = this.getQuestionnaire.bind(this)
+            this.getQuestionnaireResponse = this.getQuestionnaireResponse.bind(this)
             this.listQuestionnaires = this.listQuestionnaires.bind(this)
             this.submitResponse = this.submitResponse.bind(this)
             this.updateQuestionnaire = this.updateQuestionnaire.bind(this)
@@ -1192,6 +1207,12 @@ export namespace questionnaires {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires/${encodeURIComponent(id)}`)
             return await resp.json() as types.GetQuestionnaireResponse
+        }
+
+        public async getQuestionnaireResponse(questionnaireId: string): Promise<types.ListQuestionnaireResponsesResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires/${encodeURIComponent(questionnaireId)}/responses`)
+            return await resp.json() as types.ListQuestionnaireResponsesResponse
         }
 
         public async listQuestionnaires(): Promise<types.ListQuestionnairesResponse> {
@@ -1246,70 +1267,88 @@ export namespace upload {
 }
 
 export namespace waivers {
+    export interface CreateWaiverRequest {
+        title: string
+        content: string
+    }
+
+    export interface ListSignaturesRequest {
+        signerMemberId?: string
+    }
+
+    export interface SignWaiverRequest {
+        onBehalfOfMemberId?: string | null
+    }
+
+    export interface UpdateWaiverRequest {
+        title?: string
+        content?: string
+    }
 
     export class ServiceClient {
         private baseClient: BaseClient
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
-            this.archive = this.archive.bind(this)
-            this.byId = this.byId.bind(this)
-            this.create = this.create.bind(this)
-            this.list = this.list.bind(this)
-            this.listMySignatures = this.listMySignatures.bind(this)
-            this.sign = this.sign.bind(this)
-            this.signOnBehalfOf = this.signOnBehalfOf.bind(this)
-            this.update = this.update.bind(this)
+            this.archiveWaiver = this.archiveWaiver.bind(this)
+            this.createWaiver = this.createWaiver.bind(this)
+            this.getSignatureForWaiver = this.getSignatureForWaiver.bind(this)
+            this.getWaiver = this.getWaiver.bind(this)
+            this.listSignatures = this.listSignatures.bind(this)
+            this.listWaivers = this.listWaivers.bind(this)
+            this.signWaiver = this.signWaiver.bind(this)
+            this.updateWaiver = this.updateWaiver.bind(this)
         }
 
-        public async archive(waiverId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/waivers/${encodeURIComponent(waiverId)}`)
+        public async archiveWaiver(waiverId: string): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/waivers/${encodeURIComponent(waiverId)}/archive`)
         }
 
-        public async byId(waiverId: string): Promise<contracts.GetWaiverResponse> {
+        public async createWaiver(params: CreateWaiverRequest): Promise<types.GetWaiverResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(waiverId)}`)
-            return await resp.json() as contracts.GetWaiverResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/waivers`, JSON.stringify(params))
+            return await resp.json() as types.GetWaiverResponse
         }
 
-        public async create(organizationId: string, params: {
-    request: contracts.CreateWaiverRequest
-}): Promise<contracts.CreateWaiverResponse> {
+        public async getSignatureForWaiver(id: string, signatureId: string): Promise<types.GetSignatureResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/waivers`, JSON.stringify(params))
-            return await resp.json() as contracts.CreateWaiverResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(id)}/signatures/${encodeURIComponent(signatureId)}`)
+            return await resp.json() as types.GetSignatureResponse
         }
 
-        public async list(organizationId: string): Promise<contracts.GetWaiversResponse> {
+        public async getWaiver(id: string): Promise<types.GetWaiverResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(organizationId)}/waivers`)
-            return await resp.json() as contracts.GetWaiversResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(id)}`)
+            return await resp.json() as types.GetWaiverResponse
         }
 
-        public async listMySignatures(organizationId: string): Promise<contracts.GetSignaturesResponse> {
+        public async listSignatures(waiverId: string, params: ListSignaturesRequest): Promise<types.ListSignaturesResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                signerMemberId: params.signerMemberId,
+            })
+
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(organizationId)}/my-signatures`)
-            return await resp.json() as contracts.GetSignaturesResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(waiverId)}/signatures`, undefined, {query})
+            return await resp.json() as types.ListSignaturesResponse
         }
 
-        public async sign(waiverId: string): Promise<contracts.SignWaiverResponse> {
+        public async listWaivers(): Promise<types.ListWaiversResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/waivers/${encodeURIComponent(waiverId)}/sign`)
-            return await resp.json() as contracts.SignWaiverResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/waivers`)
+            return await resp.json() as types.ListWaiversResponse
         }
 
-        public async signOnBehalfOf(waiverId: string, memberId: string): Promise<contracts.SignBehalfOfResponse> {
+        public async signWaiver(waiverId: string, params: SignWaiverRequest): Promise<types.GetSignatureResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/waivers/${encodeURIComponent(waiverId)}/sign-behalf/${encodeURIComponent(memberId)}`)
-            return await resp.json() as contracts.SignBehalfOfResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/waivers/${encodeURIComponent(waiverId)}/sign`, JSON.stringify(params))
+            return await resp.json() as types.GetSignatureResponse
         }
 
-        public async update(waiverId: string, params: {
-    request: contracts.UpdateWaiverRequest
-}): Promise<contracts.UpdateWaiverResponse> {
+        public async updateWaiver(waiverId: string, params: UpdateWaiverRequest): Promise<types.GetWaiverResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/waivers/${encodeURIComponent(waiverId)}`, JSON.stringify(params))
-            return await resp.json() as contracts.UpdateWaiverResponse
+            return await resp.json() as types.GetWaiverResponse
         }
     }
 }
@@ -1329,16 +1368,6 @@ export namespace business_hours {
         effectiveOrgHours: types.EffectiveDayHours | null
         effectiveTrainerHours: types.EffectiveDayHours | null
         passes: boolean
-    }
-
-    export interface ListOrganizationBusinessHoursResponse {
-        defaults: types.OrganizationBusinessHours[]
-        boardOverrides: { [key: string]: types.OrganizationBusinessHours[] }
-    }
-
-    export interface ListTrainerBusinessHoursResponse {
-        general: types.TrainerBusinessHours[]
-        boardOverrides: { [key: string]: types.TrainerBusinessHours[] }
     }
 
     export interface UpdateOrganizationBusinessHoursRequest {
@@ -1374,15 +1403,6 @@ export namespace contracts {
         post: interfaces.BaseFeedPost
     }
 
-    export interface CreateWaiverRequest {
-        title: string
-        content: string
-    }
-
-    export interface CreateWaiverResponse {
-        waiver: interfaces.Waiver
-    }
-
     export interface GetFeedPostResponse {
         post: interfaces.FeedPost
     }
@@ -1391,36 +1411,6 @@ export namespace contracts {
         posts: interfaces.FeedPost[]
         nextCursor: models.FeedCursor | null
         hasMore: boolean
-    }
-
-    export interface GetSignaturesResponse {
-        signatures: interfaces.WaiverSignature[]
-    }
-
-    export interface GetWaiverResponse {
-        waiver: interfaces.Waiver
-        signature: interfaces.WaiverSignature | null
-    }
-
-    export interface GetWaiversResponse {
-        waivers: interfaces.Waiver[]
-    }
-
-    export interface SignBehalfOfResponse {
-        signature: interfaces.WaiverSignature
-    }
-
-    export interface SignWaiverResponse {
-        signature: interfaces.WaiverSignature
-    }
-
-    export interface UpdateWaiverRequest {
-        title?: string
-        content?: string
-    }
-
-    export interface UpdateWaiverResponse {
-        waiver: interfaces.Waiver
     }
 }
 
@@ -1577,33 +1567,6 @@ export namespace interfaces {
         deletedAt: string | null
     }
 
-    export interface QuestionnaireBoardAssignmentRule {
-        questionId: string
-        name: string
-        conditions: {
-            questionId: string
-            operator: models.QuestionnaireQuestionOperator
-            responseValue: ResponseValue
-        }[]
-        boardId: string
-        priority: number
-    }
-
-    export interface QuestionnaireQuestion {
-        id: string
-        text: string
-        type: models.QuestionnaireQuestionType
-        required: boolean
-        order: number
-        options: string[] | null
-        showIf: {
-            questionId: string
-            responseValue: ResponseValue
-        } | null
-    }
-
-    export type ResponseValue = string | boolean
-
     export interface User {
         id: string
         name: string
@@ -1618,31 +1581,6 @@ export namespace interfaces {
         banned: boolean | null
         banReason: string | null
         banExpires: string | null
-    }
-
-    export interface Waiver {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        status: models.WaiverStatus
-        version: string
-        title: string
-        content: string
-    }
-
-    export interface WaiverSignature {
-        id: string
-        organizationId: string
-        ipAddress: string | null
-        waiverId: string
-        waiverVersion: string
-        signerMemberId: string
-        onBehalfOfMemberId: string | null
-        signedAt: string
-        isValid: boolean
-        invalidatedAt: string | null
-        invalidatedReason: string | null
     }
 }
 
@@ -1678,6 +1616,10 @@ export namespace members {
         organizationId: string
         memberId: string
         bio?: string | null
+    }
+
+    export interface ListTrainersRequest {
+        boardId?: string
     }
 
     export interface UpdateRiderRequest {
@@ -1805,6 +1747,8 @@ export namespace services {
         restrictedToLevelId?: string
         isAllTrainers?: boolean
         isActive?: boolean
+        boardIds?: string[]
+        trainerIds?: string[]
     }
 
     export interface ListBoardServiceAssignmentsRequest {
@@ -1827,11 +1771,11 @@ export namespace services {
     }
 
     export interface UpdateServiceRequest {
-        name: string
-        duration: number
-        price: number
-        creditPrice: number
-        maxRiders: number
+        name?: string
+        duration?: number
+        price?: number
+        creditPrice?: number
+        maxRiders?: number
         isRestricted?: boolean
         description?: string
         canRiderAdd?: boolean
@@ -1841,6 +1785,8 @@ export namespace services {
         restrictedToLevelId?: string
         isAllTrainers?: boolean
         isActive?: boolean
+        boardIds?: string[]
+        trainerIds?: string[]
     }
 }
 
@@ -1857,6 +1803,14 @@ export namespace time_blocks {
         trainerId?: string
         from?: string
         to?: string
+    }
+
+    export interface UpdateTimeBlockRequest {
+        trainerId: string
+        start: string
+        end: string
+        boardId?: string | null
+        reason?: string | null
     }
 }
 
@@ -1973,6 +1927,10 @@ export namespace types {
         service: Service
     }
 
+    export interface GetSignatureResponse {
+        signature: WaiverSignature
+    }
+
     export interface GetTimeBlockResponse {
         timeBlock: TimeBlock
     }
@@ -1983,6 +1941,10 @@ export namespace types {
 
     export interface GetTrainerServiceAssignmentResponse {
         assignment: ServiceTrainerAssignment
+    }
+
+    export interface GetWaiverResponse {
+        waiver: Waiver
     }
 
     export interface GuardianRelationship {
@@ -2022,6 +1984,9 @@ export namespace types {
         cancelReason: string | null
         enrollments?: LessonInstanceEnrollment[] | null
         level?: Level | null
+        service?: Service | null
+        trainer?: Trainer | null
+        board?: Board | null
     }
 
     export interface LessonInstanceEnrollment {
@@ -2110,6 +2075,11 @@ export namespace types {
         boards: Board[]
     }
 
+    export interface ListBusinessHoursResponse {
+        defaults: TrainerBusinessHours[] | OrganizationBusinessHours[]
+        boardOverrides: { [key: string]: TrainerBusinessHours[] | OrganizationBusinessHours[] }
+    }
+
     export interface ListGuardianRelationshipsResponse {
         relationships: GuardianRelationship[]
     }
@@ -2142,6 +2112,10 @@ export namespace types {
         organizations: Organization[]
     }
 
+    export interface ListQuestionnaireResponsesResponse {
+        responses: QuestionnaireResponse[]
+    }
+
     export interface ListQuestionnairesResponse {
         questionnaires: Questionnaire[]
     }
@@ -2152,6 +2126,10 @@ export namespace types {
 
     export interface ListServicesResponse {
         services: Service[]
+    }
+
+    export interface ListSignaturesResponse {
+        signatures: WaiverSignature[]
     }
 
     export interface ListTimeBlocksResponse {
@@ -2170,6 +2148,10 @@ export namespace types {
         trainers: Trainer[]
     }
 
+    export interface ListWaiversResponse {
+        waivers: Waiver[]
+    }
+
     export interface Member {
         organizationId: string
         id: string
@@ -2182,6 +2164,8 @@ export namespace types {
         onboardingComplete: boolean
         deletedAt: string | null
         authUser?: AuthUser | null
+        rider?: Rider | null
+        trainer?: Trainer | null
     }
 
     export interface Organization {
@@ -2230,10 +2214,52 @@ export namespace types {
         isActive: boolean
         version: number
         defaultBoardId: string | null
-        questions: interfaces.QuestionnaireQuestion[]
-        boardAssignmentRules: interfaces.QuestionnaireBoardAssignmentRule[]
+        questions: QuestionnaireQuestion[]
+        boardAssignmentRules: QuestionnaireBoardAssignmentRule[]
         createdByMemberId: string | null
     }
+
+    export interface QuestionnaireBoardAssignmentRule {
+        id: string
+        name: string
+        conditions: {
+            questionId: string
+            operator: models.QuestionnaireQuestionOperator
+            responseValue: ResponseValue
+        }[]
+        boardId: string
+        priority: number
+    }
+
+    export interface QuestionnaireQuestion {
+        id: string
+        text: string
+        type: models.QuestionnaireQuestionType
+        required: boolean
+        order: number
+        options: string[] | null
+        showIf: QuestionnaireQuestionResponse | null
+    }
+
+    export interface QuestionnaireQuestionResponse {
+        questionId: string
+        responseValue: string | boolean
+    }
+
+    export interface QuestionnaireResponse {
+        id: string
+        createdAt: string
+        organizationId: string
+        questionnaireId: string
+        questionnaireVersion: number
+        memberId: string
+        submittedByMemberId: string
+        responses: QuestionnaireQuestionResponse[]
+        assignedBoardIds: string[]
+        completedAt: string
+    }
+
+    export type ResponseValue = string | boolean
 
     export interface Rider {
         id: string
@@ -2340,6 +2366,32 @@ export namespace types {
         isOpen: boolean
         openTime: string | null
         closeTime: string | null
+    }
+
+    export interface Waiver {
+        organizationId: string
+        id: string
+        createdAt: string
+        updatedAt: string
+        status: models.WaiverStatus
+        version: string
+        title: string
+        content: string
+        signature?: WaiverSignature | null
+    }
+
+    export interface WaiverSignature {
+        organizationId: string
+        id: string
+        signerMemberId: string
+        waiverId: string
+        onBehalfOfMemberId: string | null
+        ipAddress: string | null
+        waiverVersion: string
+        signedAt: string
+        isValid: boolean
+        invalidatedAt: string | null
+        invalidatedReason: string | null
     }
 }
 

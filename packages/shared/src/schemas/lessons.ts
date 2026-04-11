@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   DayOfWeek,
   LessonInstanceEnrollmentStatus,
+  LessonInstanceStatus,
   LessonSeriesEnrollmentStatus,
   LessonSeriesStatus,
   RecurrenceFrequency,
@@ -51,7 +52,7 @@ export const lessonInstanceSchema = z.object({
   updatedAt: dateLikeSchema,
   id: z.string(),
   organizationId: z.string(),
-  status: z.enum(["cancelled", "completed", "scheduled"]),
+  status: z.enum(LessonInstanceStatus),
   name: z.string().nullable(),
   seriesId: z.string(),
   boardId: z.string(),

@@ -54,7 +54,8 @@ export function UserProfile({ userId }: { userId: string }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    client.user.getUser({ id: userId })
+    client.user
+      .getUser({ id: userId })
       .then(setUser)
       .catch(setError)
       .finally(() => setLoading(false));
@@ -62,7 +63,7 @@ export function UserProfile({ userId }: { userId: string }) {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
+
   return (
     <div>
       <h1>{user.name}</h1>
@@ -81,22 +82,26 @@ import Client from "../client";
 const client = new Client(import.meta.env.VITE_API_URL);
 
 export function UserProfile({ userId }: { userId: string }) {
-  const { data: user, isLoading, error } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["user", userId],
     queryFn: () => client.user.getUser({ id: userId }),
   });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
+
   return <div>{user.name}</div>;
 }
 
 export function CreateUserForm() {
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation({
-    mutationFn: (data: { email: string; name: string }) => 
+    mutationFn: (data: { email: string; name: string }) =>
       client.user.createUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -134,7 +139,7 @@ const client = new Client(process.env.API_URL);
 
 export default async function UserPage({ params }: { params: { id: string } }) {
   const user = await client.user.getUser({ id: params.id });
-  
+
   return (
     <div>
       <h1>{user.name}</h1>
@@ -150,26 +155,26 @@ Configure CORS in your `encore.app` file:
 
 ```json
 {
-    "id": "my-app",
-    "global_cors": {
-        "allow_origins_with_credentials": [
-            "http://localhost:3000",
-            "https://myapp.com",
-            "https://*.myapp.com"
-        ]
-    }
+  "id": "my-app",
+  "global_cors": {
+    "allow_origins_with_credentials": [
+      "http://localhost:3000",
+      "https://myapp.com",
+      "https://*.myapp.com"
+    ]
+  }
 }
 ```
 
 ### CORS Options
 
-| Option | Description |
-|--------|-------------|
-| `allow_origins_without_credentials` | Origins allowed for non-credentialed requests (default: `["*"]`) |
-| `allow_origins_with_credentials` | Origins allowed for credentialed requests (cookies, auth headers) |
-| `allow_headers` | Additional request headers to allow |
-| `expose_headers` | Additional response headers to expose |
-| `debug` | Enable CORS debug logging |
+| Option                              | Description                                                       |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `allow_origins_without_credentials` | Origins allowed for non-credentialed requests (default: `["*"]`)  |
+| `allow_origins_with_credentials`    | Origins allowed for credentialed requests (cookies, auth headers) |
+| `allow_headers`                     | Additional request headers to allow                               |
+| `expose_headers`                    | Additional response headers to expose                             |
+| `debug`                             | Enable CORS debug logging                                         |
 
 ### Authentication from Frontend
 
@@ -179,7 +184,7 @@ For authenticated requests, pass the Authorization header:
 // Using fetch
 const response = await fetch("http://localhost:4000/profile", {
   headers: {
-    "Authorization": `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
 });
 

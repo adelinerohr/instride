@@ -1,6 +1,16 @@
 import { DayHours, TrainerDayHours } from "../interfaces";
 import { DayOfWeek } from "../models/enums";
 
+export const DAY_INDEX_MAP: DayOfWeek[] = [
+  DayOfWeek.SUN,
+  DayOfWeek.MON,
+  DayOfWeek.TUE,
+  DayOfWeek.WED,
+  DayOfWeek.THU,
+  DayOfWeek.FRI,
+  DayOfWeek.SAT,
+];
+
 /**
  * Parse "HH:MM" into total minutes from midnight
  * @param time - The time to convert to minutes in the format "HH:MM"
@@ -43,8 +53,7 @@ export function isWithinHours(
  * @returns The day of week
  */
 export function dateToDayOfWeek(date: Date): DayOfWeek {
-  const map: DayOfWeek[] = Object.values(DayOfWeek);
-  return map[date.getDay()];
+  return DAY_INDEX_MAP[date.getDay()];
 }
 
 /**

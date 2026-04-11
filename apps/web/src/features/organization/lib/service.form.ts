@@ -1,7 +1,5 @@
-import {
-  serviceInputSchema,
-  type ServiceWithAssignments,
-} from "@instride/shared";
+import type { types } from "@instride/api";
+import { serviceInputSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import { z } from "zod";
 
@@ -17,7 +15,7 @@ const serviceDefaultValues: ServiceFormValues = {
   description: "",
   price: 0,
   creditPrice: 0,
-  creditAdditionalPrice: 0,
+  creditAdditionalPrice: undefined,
   maxRiders: 1,
   isPrivate: false,
   canRecurBook: false,
@@ -37,7 +35,7 @@ export const serviceFormOpts = formOptions({
 });
 
 export function buildServiceDefaultValues(
-  service: ServiceWithAssignments
+  service: types.Service
 ): ServiceFormValues {
   if (!service) return serviceDefaultValues;
   return {
@@ -53,11 +51,13 @@ export function buildServiceDefaultValues(
     restrictedToLevelId: service.restrictedToLevelId ?? undefined,
     duration: service.duration,
     canRiderAdd: service.canRiderAdd,
-    boardIds: service.boardAssignments.map((assignment) => ({
-      id: assignment.boardId,
-    })),
-    trainerIds: service.trainerAssignments.map((assignment) => ({
-      id: assignment.memberId,
-    })),
+    boardIds:
+      service.boardAssignments?.map((assignment) => ({
+        id: assignment.boardId,
+      })) ?? [],
+    trainerIds:
+      service.trainerAssignments?.map((assignment) => ({
+        id: assignment.trainerId,
+      })) ?? [],
   };
 }

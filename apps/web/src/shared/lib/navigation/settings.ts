@@ -1,7 +1,9 @@
 import { linkOptions } from "@tanstack/react-router";
 import {
   BuildingIcon,
+  ClipboardIcon,
   ClockIcon,
+  FileTextIcon,
   ShieldUserIcon,
   UserIcon,
 } from "lucide-react";
@@ -65,6 +67,18 @@ export const getAdminSettingsNavItems = (slug: string) => {
           title: "Business Hours",
           icon: ClockIcon,
           to: "/org/$slug/settings/organization/business-hours",
+          params: { slug },
+        },
+        {
+          title: "Waivers",
+          icon: FileTextIcon,
+          to: "/org/$slug/settings/organization/waivers",
+          params: { slug },
+        },
+        {
+          title: "Questionnaires",
+          icon: ClipboardIcon,
+          to: "/org/$slug/settings/organization/questionnaires",
           params: { slug },
         },
       ]),

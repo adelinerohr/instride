@@ -92,13 +92,22 @@ Use raw SQL strings with positional parameters (`$1`, `$2`, etc.) instead of tem
 
 ```typescript
 // Raw query returning multiple rows
-const rows = await db.rawQuery<User>("SELECT * FROM users WHERE active = $1", true);
+const rows = await db.rawQuery<User>(
+  "SELECT * FROM users WHERE active = $1",
+  true
+);
 
 // Raw query returning single row
-const user = await db.rawQueryRow<User>("SELECT * FROM users WHERE id = $1", userId);
+const user = await db.rawQueryRow<User>(
+  "SELECT * FROM users WHERE id = $1",
+  userId
+);
 
 // Raw query returning all rows as array
-const users = await db.rawQueryAll<User>("SELECT * FROM users WHERE role = $1", "admin");
+const users = await db.rawQueryAll<User>(
+  "SELECT * FROM users WHERE role = $1",
+  "admin"
+);
 
 // Raw exec for INSERT/UPDATE/DELETE
 await db.rawExec("INSERT INTO users (id, email) VALUES ($1, $2)", id, email);
@@ -120,7 +129,8 @@ const db = new SQLDatabase("shared-db", {
 const sharedDb = SQLDatabase.named("shared-db");
 
 // Now you can query the shared database
-const user = await sharedDb.queryRow<User>`SELECT * FROM users WHERE id = ${id}`;
+const user =
+  await sharedDb.queryRow<User>`SELECT * FROM users WHERE id = ${id}`;
 ```
 
 ## Migrations

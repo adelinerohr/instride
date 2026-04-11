@@ -1,10 +1,13 @@
+import type { boards } from "#client";
+
 const getBoardRootKey = ["boards"] as const;
 
 const getAssignmentRootKey = ["board-assignments"] as const;
 
 export const boardKeys = {
   /** Everything for this organization's boards */
-  list: (params?: object) => [...getBoardRootKey, params] as const,
+  list: (params?: boards.ListBoardsRequest) =>
+    [...getBoardRootKey, params] as const,
   /** One board and all its sub-keys */
   byId: (boardId: string) => [...getBoardRootKey, boardId] as const,
   /** All assignments for a board */

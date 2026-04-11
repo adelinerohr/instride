@@ -18,19 +18,14 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    return context.queryClient.ensureQueryData(
-      membersOptions(context.organization.id).byId(params.id)
-    );
+    return context.queryClient.ensureQueryData(membersOptions.byId(params.id));
   },
 });
 
 function RouteComponent() {
-  const { organization } = Route.useRouteContext();
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { data: membership, isLoading } = useSuspenseQuery(
-    membersOptions(organization.id).byId(id)
-  );
+  const { data: member, isLoading } = useSuspenseQuery(membersOptions.byId(id));
 
   if (isLoading) {
     return (
@@ -41,7 +36,7 @@ function RouteComponent() {
     );
   }
 
-  if (!membership) {
+  if (!member) {
     return (
       <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">
         Member not found.
@@ -52,8 +47,8 @@ function RouteComponent() {
   return (
     <div className="flex flex-col h-full">
       <PageHeader
-        title={membership.authUser.name}
-        description={membership.authUser.email}
+        title={member.authUser?.name ?? ""}
+        description={member.authUser?.email ?? ""}
         action={
           <Button
             variant="ghost"
@@ -77,33 +72,18 @@ function RouteComponent() {
 
           <div className="p-6">
             <TabsContent value="overview">
-              <MemberOverview member={membership} />
+              <MemberOverview member={member} />
             </TabsContent>
             <TabsContent value="enrollments">
-              <MemberEnrollments slug={organization.slug} memberId={id} />
+              <div className="max-w-xl">
+                <div className="rounded-xl border border-border p-5 text-sm text-muted-foreground">
+                  Member enrollment history will appear here. This requires a
+                  member-specific enrollment endpoint.
+                </div>
+              </div>
             </TabsContent>
           </div>
         </Tabs>
-      </div>
-    </div>
-  );
-}
-
-function MemberEnrollments({
-  slug,
-  memberId,
-}: {
-  slug: string;
-  memberId: string;
-}) {
-  // Note: listMyEnrollments is for the authenticated user's enrollments.
-  // An admin viewing another member's enrollments would need a different endpoint.
-  // This shows a placeholder for now.
-  return (
-    <div className="max-w-xl">
-      <div className="rounded-xl border border-border p-5 text-sm text-muted-foreground">
-        Member enrollment history will appear here. This requires a
-        member-specific enrollment endpoint.
       </div>
     </div>
   );
