@@ -1,5 +1,5 @@
 import { TimeBlockModal } from "@/features/calendar/components/modals/time-block-form";
-import { NewLessonModal } from "@/features/lessons/components/modals/new-lesson";
+import { LessonModal } from "@/features/lessons/components/modals/new-lesson";
 import { ViewLessonModal } from "@/features/lessons/components/modals/view-lesson";
 import { LevelModal } from "@/features/organization/components/levels/modal";
 import { ChangeRoleModal } from "@/features/organization/components/members/modals/role-modal";
@@ -16,7 +16,7 @@ export function Modals() {
       <ViewLessonModal />
       <LevelModal />
       <TimeBlockModal />
-      <NewLessonModal />
+      <LessonModal />
     </>
   );
 }

@@ -11,6 +11,7 @@ import {
   organizationAvailabilitySchema,
   type DayHours,
 } from "@instride/shared";
+import { normalizeTimeSlot } from "@instride/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcwIcon } from "lucide-react";
@@ -76,14 +77,10 @@ function RouteComponent() {
     "defaults"
   );
 
-  const boardsWithOverrides = boards.filter(
-    (board) => availability.boardOverrides[board.id]?.length > 0
-  );
-
   return (
     <AnnotatedLayout>
       <AnnotatedSection
-        title="Personal details"
+        title="Organization business hours"
         description="Set your organization's operating hours. Boards can inherit these defaults or set their own."
       >
         <div className="space-y-6 max-w-2xl">
@@ -224,8 +221,14 @@ export function OrgBusinessHoursForm({
       return {
         dayOfWeek: dow as DayOfWeek,
         isOpen: saved.isOpen,
-        openTime: saved.openTime,
-        closeTime: saved.closeTime,
+        openTime:
+          saved.isOpen && saved.openTime != null
+            ? normalizeTimeSlot(saved.openTime, "09:00")
+            : saved.openTime,
+        closeTime:
+          saved.isOpen && saved.closeTime != null
+            ? normalizeTimeSlot(saved.closeTime, "17:00")
+            : saved.closeTime,
       };
     }
     return buildEmptyWeek().find((d) => d.dayOfWeek === dow)!;
@@ -236,8 +239,19 @@ export function OrgBusinessHoursForm({
     validators: {
       onSubmit: organizationAvailabilitySchema,
     },
-    onSubmit: async ({ value }) => {
-      await upsert.mutateAsync({ boardId, days: value.days });
+    onSubmit: ({ value }) => {
+      console.log(value);
+      upsert.mutateAsync(
+        { boardId, days: value.days },
+        {
+          onSuccess: () => {
+            toast.success("Business hours saved");
+          },
+          onError: () => {
+            toast.error("Failed to save business hours");
+          },
+        }
+      );
     },
   });
 
@@ -252,15 +266,12 @@ export function OrgBusinessHoursForm({
       <form.Field name="days" mode="array">
         {(field) => (
           <div className="rounded-md border">
-            {field.state.value.map((day, i) => (
-              <form.Field key={day.dayOfWeek} name={`days[${i}]`}>
-                {(dayField) => (
-                  <DayRow
-                    day={dayField.state.value}
-                    onChange={(updated) => dayField.handleChange(updated)}
-                  />
-                )}
-              </form.Field>
+            {([0, 1, 2, 3, 4, 5, 6] as const).map((i) => (
+              <DayRow
+                key={field.state.value[i].dayOfWeek}
+                form={form}
+                fields={`days[${i}]`}
+              />
             ))}
           </div>
         )}

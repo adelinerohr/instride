@@ -1,10 +1,14 @@
 import type { types } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
+import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";
 
+import { SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { getTrainerColor } from "@/features/calendar/utils/lesson";
 import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
-import { DialogTrigger } from "@/shared/components/ui/dialog";
+import { Badge } from "@/shared/components/ui/badge";
+import { SheetTrigger } from "@/shared/components/ui/sheet";
 import { cn } from "@/shared/lib/utils";
 
 const weekLessonBlockVariants = cva(
@@ -42,17 +46,20 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
   const start = parseISO(lesson.start);
   const end = parseISO(lesson.end);
   const durationInMinutes = differenceInMinutes(end, start);
-  const heightInPixels = (durationInMinutes / 60) * 96 - 8;
+  const heightInPixels = (durationInMinutes / 60) * SLOT_HEIGHT - 8;
 
   const color = lesson.trainer ? getTrainerColor(lesson.trainer.id) : "gray";
 
   const weekLessonBlockClasses = cn(
     weekLessonBlockVariants({ color, className }),
-    durationInMinutes < 35 && "py-0 justify-center"
+    "cursor-pointer"
   );
 
+  const trainer = lesson.trainer ? getUser({ trainer: lesson.trainer }) : null;
+  const isPrivate = lesson.maxRiders === 1;
+
   return (
-    <DialogTrigger
+    <SheetTrigger
       handle={viewLessonModalHandler}
       payload={{ lesson }}
       nativeButton={false}
@@ -67,13 +74,28 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
     >
       <div className="flex items-center gap-1.5 truncate">
         <p className="truncate font-semibold">{lesson.service?.name}</p>
+        {isPrivate && <Badge variant="outline">Private</Badge>}
       </div>
-
-      {durationInMinutes > 25 && (
+      <div className="flex items-center gap-1.5">
+        <ClockIcon className="size-3" />
         <p>
-          {format(start, "h:mm a")} - {format(end, "h:mm a")}
+          {format(start, "h:mm")} - {format(end, "h:mm a")}
         </p>
+      </div>
+      {trainer && (
+        <div className="flex items-center gap-1.5">
+          <UserIcon className="size-3" />
+          <p>{trainer.name}</p>
+        </div>
       )}
-    </DialogTrigger>
+      {!isPrivate && (
+        <div className="flex items-center gap-1.5">
+          <ClipboardListIcon className="size-3" />
+          <p>
+            {lesson.enrollments?.length} / {lesson.service?.maxRiders} riders
+          </p>
+        </div>
+      )}
+    </SheetTrigger>
   );
 }

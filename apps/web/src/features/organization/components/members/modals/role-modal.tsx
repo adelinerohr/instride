@@ -98,9 +98,11 @@ function ChangeRoleForm({
           name="roles"
           children={(field) => (
             <field.MultiSelectField
-              label="Role(s)"
               placeholder="Select role(s)"
               items={allRoles}
+              itemToValue={(item) => item.value}
+              itemToLabel={(item) => item.label}
+              renderValue={(item) => item.label}
             />
           )}
         />

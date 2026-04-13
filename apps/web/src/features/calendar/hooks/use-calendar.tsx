@@ -1,11 +1,9 @@
-import {
-  businessHoursOptions,
-  type types,
-  useTrainerBusinessHours,
-} from "@instride/api";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getRouteApi, useParams } from "@tanstack/react-router";
+import { businessHoursOptions, type types } from "@instride/api";
+import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
 import * as React from "react";
+
+import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 
 import type {
   CalendarView,
@@ -55,7 +53,6 @@ export function CalendarProvider({
   lessons,
   timeBlocks,
 }: CalendarProviderProps) {
-  const { slug } = useParams({ strict: false });
   const portalRouteApi = getRouteApi(
     "/org/$slug/(authenticated)/portal/calendar/"
   );
@@ -79,33 +76,70 @@ export function CalendarProvider({
     isLoading: isLoadingOrganizationBusinessHours,
   } = useSuspenseQuery(businessHoursOptions.organization());
 
-  if (isLoading || isLoadingOrganizationBusinessHours) {
-    return <div>Loading...</div>;
-  }
+  const filteredLessons = React.useMemo(() => {
+    return lessons.filter((lesson) => {
+      if (
+        selectedTrainerIds.length > 0 &&
+        !selectedTrainerIds.includes(lesson.trainerId)
+      ) {
+        return false;
+      }
+      if (selectedBoardId && lesson.boardId !== selectedBoardId) {
+        return false;
+      }
+      return true;
+    });
+  }, [lessons, date]);
 
-  const effectiveOrganizationBusinessHours = resolveEffectiveBusinessHours(
-    organizationBusinessHours,
-    selectedBoardId
+  const filteredTimeBlocks = React.useMemo(() => {
+    return timeBlocks.filter((timeBlock) => {
+      if (
+        selectedTrainerIds.length > 0 &&
+        !selectedTrainerIds.includes(timeBlock.trainerId)
+      ) {
+        return false;
+      }
+      if (selectedBoardId && timeBlock.boardId !== selectedBoardId) {
+        return false;
+      }
+      return true;
+    });
+  }, [timeBlocks, date]);
+
+  const trainerIdsToFetch = React.useMemo(
+    () =>
+      selectedTrainerIds.filter((id) =>
+        trainers.some((trainer) => trainer.id === id)
+      ),
+    [selectedTrainerIds, trainers]
   );
 
-  let effectiveTrainerBusinessHours: TrainerEffectiveBusinessHours = {};
+  const trainerBusinessHoursQueries = useQueries({
+    queries: trainerIdsToFetch.map((trainerId) => ({
+      ...businessHoursOptions.trainer(trainerId),
+    })),
+  });
 
-  if (trainers && selectedTrainerIds.length > 0) {
-    for (const trainerId of selectedTrainerIds) {
-      const trainer = trainers.find((trainer) => trainer.id === trainerId);
-      if (trainer) {
-        const { data: trainerBusinessHours } =
-          useTrainerBusinessHours(trainerId);
-        if (trainerBusinessHours) {
-          effectiveTrainerBusinessHours[trainerId] =
-            resolveEffectiveBusinessHours(
-              trainerBusinessHours,
-              selectedBoardId
-            );
-        }
+  const effectiveOrganizationBusinessHours = React.useMemo(
+    () =>
+      resolveEffectiveBusinessHours(organizationBusinessHours, selectedBoardId),
+    [organizationBusinessHours, selectedBoardId]
+  );
+
+  const effectiveTrainerBusinessHours = React.useMemo(() => {
+    const result: TrainerEffectiveBusinessHours = {};
+    for (let i = 0; i < trainerIdsToFetch.length; i++) {
+      const trainerId = trainerIdsToFetch[i];
+      const trainerBusinessHours = trainerBusinessHoursQueries[i]?.data;
+      if (trainerBusinessHours) {
+        result[trainerId] = resolveEffectiveBusinessHours(
+          trainerBusinessHours,
+          selectedBoardId
+        );
       }
     }
-  }
+    return result;
+  }, [trainerBusinessHoursQueries, trainerIdsToFetch, selectedBoardId]);
 
   const setSelectedDate = React.useCallback(
     (date: Date | undefined) => {
@@ -141,19 +175,18 @@ export function CalendarProvider({
 
   const createLesson = React.useCallback(
     (start: Date, boardId: string, trainerId?: string) => {
-      navigate({
-        to: "/org/$slug/admin/calendar/new",
-        params: { slug: slug ?? "" },
-        search: (prev) => ({
-          ...prev,
-          start: start.toISOString(),
-          boardId,
-          trainerId,
-        }),
+      lessonModalHandler.openWithPayload({
+        start: start.toISOString(),
+        boardId,
+        trainerId,
       });
     },
-    [navigate, slug]
+    [lessonModalHandler]
   );
+
+  if (isLoading || isLoadingOrganizationBusinessHours) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <CalendarContext.Provider
@@ -170,8 +203,8 @@ export function CalendarProvider({
         boards,
         organizationBusinessHours: effectiveOrganizationBusinessHours,
         trainerBusinessHours: effectiveTrainerBusinessHours,
-        lessons,
-        timeBlocks,
+        lessons: filteredLessons,
+        timeBlocks: filteredTimeBlocks,
         createLesson,
       }}
     >

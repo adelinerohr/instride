@@ -11,3 +11,4 @@ export * from "./_internal/runtime";
 export * from "./modules/auth";
 export * from "./modules/guardians";
 export * from "./modules/questionnaires";
+export * from "./modules/activity";

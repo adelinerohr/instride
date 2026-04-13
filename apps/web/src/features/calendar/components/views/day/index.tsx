@@ -2,7 +2,7 @@ import { format, parseISO } from "date-fns";
 import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import { HOURS } from "@/features/calendar/lib/constants";
+import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { getCurrentLessons } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
@@ -42,7 +42,11 @@ export function DayView() {
             {/* Hours column */}
             <div className="relative w-18">
               {HOURS.map((hour, index) => (
-                <div key={hour} className="relative" style={{ height: "96px" }}>
+                <div
+                  key={hour}
+                  className="relative"
+                  style={{ height: `${SLOT_HEIGHT}px` }}
+                >
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
                     {index !== 0 && (
                       <span className="text-xs text-muted-foreground">

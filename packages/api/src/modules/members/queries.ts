@@ -42,12 +42,28 @@ export const membersOptions = {
         return trainers;
       },
     }),
+  trainerById: (trainerId: string) =>
+    queryOptions({
+      queryKey: memberKeys.trainerById(trainerId),
+      queryFn: async () => {
+        const { trainer } = await apiClient.organizations.getTrainer(trainerId);
+        return trainer;
+      },
+    }),
   riders: () =>
     queryOptions({
       queryKey: memberKeys.riders(),
       queryFn: async () => {
         const { riders } = await apiClient.organizations.listRiders();
         return riders;
+      },
+    }),
+  riderById: (riderId: string) =>
+    queryOptions({
+      queryKey: memberKeys.riderById(riderId),
+      queryFn: async () => {
+        const { rider } = await apiClient.organizations.getRider(riderId);
+        return rider;
       },
     }),
   riderStats: () =>
@@ -81,4 +97,12 @@ export function useRiders() {
 
 export function useRiderStats() {
   return useQuery(membersOptions.riderStats());
+}
+
+export function useTrainer(trainerId: string) {
+  return useQuery(membersOptions.trainerById(trainerId));
+}
+
+export function useRider(riderId: string) {
+  return useQuery(membersOptions.riderById(riderId));
 }

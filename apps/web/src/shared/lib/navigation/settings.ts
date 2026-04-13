@@ -12,10 +12,11 @@ import {
 
 export const getSettingsNavItems = (
   slug: string,
-  canViewAdminSettings: boolean
+  canViewAdminSettings: boolean,
+  isTrainer: boolean
 ) => {
   if (canViewAdminSettings) {
-    return getAdminSettingsNavItems(slug);
+    return getAdminSettingsNavItems(slug, isTrainer);
   }
 
   return getPortalSettingsNavItems(slug);
@@ -37,7 +38,7 @@ export const getPortalSettingsNavItems = (slug: string) => {
   ];
 };
 
-export const getAdminSettingsNavItems = (slug: string) => {
+export const getAdminSettingsNavItems = (slug: string, isTrainer: boolean) => {
   return [
     {
       title: "Personal",
@@ -60,6 +61,16 @@ export const getAdminSettingsNavItems = (slug: string) => {
           to: "/org/$slug/settings/account/guardian",
           params: { slug },
         },
+        ...(isTrainer
+          ? [
+              {
+                title: "Trainer Availability",
+                icon: ClockIcon,
+                to: "/org/$slug/settings/account/availability",
+                params: { slug },
+              },
+            ]
+          : []),
       ]),
     },
     {

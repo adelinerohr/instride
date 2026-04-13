@@ -26,15 +26,50 @@ export const lessonFormOpts = formOptions({
   validators: { onSubmit: lessonSeriesInputSchema },
 });
 
-export function buildLessonDefaultValues(
-  lesson: types.LessonSeries
-): LessonSeriesInputSchema {
-  return {
-    ...lesson,
-    effectiveFrom: lesson.effectiveFrom ? new Date(lesson.effectiveFrom) : null,
-    riderIds:
-      lesson.enrollments?.map((enrollment) => ({
-        id: enrollment.riderId,
-      })) ?? [],
-  };
+export function buildLessonDefaultValues(initialValues: {
+  lesson?: types.LessonInstance;
+  start?: string;
+  boardId?: string;
+  trainerId?: string;
+}): LessonSeriesInputSchema {
+  if (initialValues.lesson) {
+    const lesson = initialValues.lesson;
+    const series = lesson.series;
+
+    // Map only series-form fields. Do not spread the full instance — it includes
+    // instance-only `status` ("scheduled" | …) which breaks updateLessonSeries
+    // (expects LessonSeriesStatus: "active" | "paused" | …).
+    return {
+      ...lessonDefaultValues,
+      name: lesson.name ?? "",
+      boardId: lesson.boardId,
+      trainerId: lesson.trainerId,
+      serviceId: lesson.serviceId,
+      levelId: lesson.levelId ?? "",
+      notes: lesson.notes ?? "",
+      maxRiders: lesson.maxRiders,
+      start:
+        typeof lesson.start === "string"
+          ? lesson.start
+          : new Date(lesson.start).toISOString(),
+      duration: Math.floor(
+        (new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) /
+          60000
+      ),
+      isRecurring: series?.isRecurring ?? false,
+      recurrenceFrequency: series?.recurrenceFrequency ?? null,
+      effectiveFrom: series?.effectiveFrom
+        ? new Date(series.effectiveFrom)
+        : null,
+      riderIds:
+        lesson.enrollments?.map((enrollment) => enrollment.riderId) ?? [],
+    };
+  } else {
+    return {
+      ...lessonDefaultValues,
+      start: initialValues.start ?? "",
+      boardId: initialValues.boardId ?? "",
+      trainerId: initialValues.trainerId ?? "",
+    };
+  }
 }

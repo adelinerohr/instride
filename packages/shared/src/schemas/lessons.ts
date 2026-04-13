@@ -106,7 +106,7 @@ export const lessonSeriesInputSchema = lessonSeriesSchema
     effectiveFrom: true,
   })
   .extend({
-    riderIds: z.array(z.object({ id: z.string() })),
+    riderIds: z.array(z.string()),
   })
   .superRefine((data, ctx) => {
     if (data.isRecurring && !data.recurrenceFrequency) {

@@ -5,7 +5,7 @@ import { ClockIcon, TextIcon, UserIcon } from "lucide-react";
 
 import { getTrainerColor } from "@/features/calendar/utils/lesson";
 import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
-import { DialogTrigger } from "@/shared/components/ui/dialog";
+import { SheetTrigger } from "@/shared/components/ui/sheet";
 
 const agendaLessonCardVariants = cva(
   "flex select-none items-center justify-between gap-3 rounded-md border p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -42,7 +42,7 @@ export function AgendaLessonCard({ lesson }: AgendaLessonCardProps) {
   const color = lesson.trainerId ? getTrainerColor(lesson.trainerId) : "gray";
 
   return (
-    <DialogTrigger
+    <SheetTrigger
       handle={viewLessonModalHandler}
       payload={{ lesson }}
       render={
@@ -81,6 +81,6 @@ export function AgendaLessonCard({ lesson }: AgendaLessonCardProps) {
           </p>
         </div>
       </div>
-    </DialogTrigger>
+    </SheetTrigger>
   );
 }

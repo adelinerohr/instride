@@ -1,7 +1,10 @@
 import { useMarkAttendance, type types } from "@instride/api";
+import { getUser } from "@instride/utils";
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { isAfter, isSameDay } from "date-fns";
 import { ArrowDownIcon, BanIcon, EllipsisVerticalIcon } from "lucide-react";
 
-import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Empty,
@@ -18,6 +21,9 @@ type RidersListProps = {
 };
 
 export function RidersList({ instance, isPortal }: RidersListProps) {
+  const { organization } = useRouteContext({
+    from: "/org/$slug/(authenticated)",
+  });
   const updateAttendance = useMarkAttendance();
 
   if (instance.enrollments?.length === 0) {
@@ -37,13 +43,18 @@ export function RidersList({ instance, isPortal }: RidersListProps) {
     );
   }
 
+  const showCheckIn =
+    !isPortal &&
+    (isSameDay(new Date(instance.start), new Date()) ||
+      isAfter(new Date(), new Date(instance.start)));
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium uppercase text-muted-foreground">
-          Signups ({instance.enrollments?.length}/{instance.maxRiders})
+          Enrollments ({instance.enrollments?.length}/{instance.maxRiders})
         </span>
-        {!isPortal && (
+        {showCheckIn && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             Check-in
             <ArrowDownIcon className="size-4" />
@@ -53,26 +64,26 @@ export function RidersList({ instance, isPortal }: RidersListProps) {
 
       <div className="flex flex-col gap-3">
         {instance.enrollments?.map((enrollment) => {
-          const authUser = enrollment.rider?.member?.authUser;
+          if (!enrollment.rider) return null;
+          const user = getUser({ rider: enrollment.rider });
 
           return (
             <div
               className="flex items-center justify-between"
               key={enrollment.id}
             >
-              <div className="flex items-center gap-3">
-                <UserAvatar user={authUser!} />
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">{authUser?.name}</span>
-                  {authUser?.email && (
-                    <span className="text-xs text-muted-foreground">
-                      {authUser?.email}
-                    </span>
-                  )}
-                </div>
-              </div>
+              <Link
+                to="/org/$slug/admin/members/riders/$riderId"
+                className="cursor-pointer w-full"
+                params={{
+                  riderId: enrollment.rider?.id ?? "",
+                  slug: organization.slug,
+                }}
+              >
+                <UserAvatarItem user={user} variant="outline" size="default" />
+              </Link>
 
-              {!isPortal && (
+              {showCheckIn && (
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={enrollment.attended ?? false}

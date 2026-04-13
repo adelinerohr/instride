@@ -1,7 +1,7 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { CalendarPlusIcon, ClockIcon, PlusIcon } from "lucide-react";
 
-import { newLessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
+import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 import { Button } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
@@ -45,7 +45,7 @@ export function CalendarHeader() {
                 <span>Add new event</span>
               </DropdownMenuItem>
               <DialogTrigger
-                handle={newLessonModalHandler}
+                handle={lessonModalHandler}
                 nativeButton={false}
                 payload={{
                   boardId: selectedBoardId ?? "",

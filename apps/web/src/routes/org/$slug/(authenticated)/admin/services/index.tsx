@@ -3,9 +3,11 @@ import {
   useDeleteService,
   servicesOptions,
 } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  CircleIcon,
   ClipboardIcon,
   EllipsisIcon,
   EyeIcon,
@@ -18,6 +20,8 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 
+import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { AvatarGroup } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
@@ -97,6 +101,13 @@ function RouteComponent() {
     return <div>Loading...</div>;
   }
 
+  const assignedTrainers = services.flatMap(
+    (service) =>
+      service.trainerAssignments
+        ?.map((assignment) => assignment.trainer)
+        .filter((trainer) => !!trainer) ?? []
+  );
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-4">
@@ -150,11 +161,22 @@ function RouteComponent() {
                   <h2 className="text-xl font-semibold group-hover:text-primary">
                     {service.name}
                   </h2>
-                  {service.boardAssignments?.map((assignment) => (
-                    <Badge variant="outline" key={assignment.boardId}>
-                      {assignment.board?.name ?? ""}
-                    </Badge>
-                  ))}
+                  <div className="flex items-center gap-2">
+                    {service.restrictedToLevel && (
+                      <Badge variant="secondary">
+                        <CircleIcon
+                          fill={service.restrictedToLevel.color}
+                          stroke={service.restrictedToLevel.color}
+                        />
+                        {service.restrictedToLevel.name}
+                      </Badge>
+                    )}
+                    {service.boardAssignments?.map((assignment) => (
+                      <Badge variant="outline" key={assignment.boardId}>
+                        {assignment.board?.name ?? ""}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="text-muted-foreground text-sm">
@@ -165,11 +187,23 @@ function RouteComponent() {
                     ${service.price}
                   </p>
                 </div>
-                <p className="text-muted-foreground text-sm">
-                  {service.canRiderAdd
-                    ? `Riders can add a ${service.name}`
-                    : `Only instructors can add a ${service.name}`}
-                </p>
+                <div className="flex items-center gap-2">
+                  <AvatarGroup>
+                    {assignedTrainers.map((trainer) => (
+                      <UserAvatar size="sm" user={getUser({ trainer })} />
+                    ))}
+                  </AvatarGroup>
+                  <span className="text-muted-foreground text-sm">
+                    {assignedTrainers.length} trainer
+                    {assignedTrainers.length > 1 ? "s" : ""} assigned
+                  </span>
+                  &middot;
+                  <p className="text-muted-foreground text-sm">
+                    {service.canRiderAdd
+                      ? `Riders can add a ${service.name}`
+                      : `Only instructors can add a ${service.name}`}
+                  </p>
+                </div>
               </div>
 
               <DropdownMenu>

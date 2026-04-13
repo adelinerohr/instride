@@ -1,5 +1,6 @@
 import type { types } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   EllipsisVerticalIcon,
@@ -24,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { isRider, isTrainer } from "@/shared/lib/auth/roles";
 import {
   formatDate,
   ROLE_LABELS,
@@ -120,15 +120,32 @@ export function getMembersTableColumns(): ColumnDef<types.Member>[] {
     {
       id: "actions",
       cell: ({ row }) => {
-        const isMemberRider = isRider(row.original);
-        const isMemberTrainer = isTrainer(row.original);
+        const { organization } = useRouteContext({
+          from: "/org/$slug/(authenticated)",
+        });
+
+        const rider = row.original.rider;
+        const trainer = row.original.trainer;
+
+        const isMemberRider = !!rider;
+        const isMemberTrainer = !!trainer;
 
         const isBothRiderAndTrainer = isMemberRider && isMemberTrainer;
 
         const renderRiderActions = () => {
           return (
             <>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                render={
+                  <Link
+                    to="/org/$slug/admin/members/riders/$riderId"
+                    params={{
+                      riderId: rider?.id ?? "",
+                      slug: organization.slug,
+                    }}
+                  />
+                }
+              >
                 <EyeIcon />
                 View
               </DropdownMenuItem>

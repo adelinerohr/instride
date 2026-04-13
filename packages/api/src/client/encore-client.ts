@@ -32,6 +32,7 @@ const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
  * Client is an API client for the instride-zeai Encore application.
  */
 export default class Client {
+    public readonly activity: activity.ServiceClient
     public readonly auth: auth.ServiceClient
     public readonly availability: availability.ServiceClient
     public readonly boards: boards.ServiceClient
@@ -39,9 +40,11 @@ export default class Client {
     public readonly guardians: guardians.ServiceClient
     public readonly hello: hello.ServiceClient
     public readonly lessons: lessons.ServiceClient
+    public readonly notifications: notifications.ServiceClient
     public readonly organizations: organizations.ServiceClient
     public readonly payments: payments.ServiceClient
     public readonly questionnaires: questionnaires.ServiceClient
+    public readonly quickbooks: quickbooks.ServiceClient
     public readonly upload: upload.ServiceClient
     public readonly waivers: waivers.ServiceClient
     private readonly options: ClientOptions
@@ -58,6 +61,7 @@ export default class Client {
         this.target = target
         this.options = options ?? {}
         const base = new BaseClient(this.target, this.options)
+        this.activity = new activity.ServiceClient(base)
         this.auth = new auth.ServiceClient(base)
         this.availability = new availability.ServiceClient(base)
         this.boards = new boards.ServiceClient(base)
@@ -65,9 +69,11 @@ export default class Client {
         this.guardians = new guardians.ServiceClient(base)
         this.hello = new hello.ServiceClient(base)
         this.lessons = new lessons.ServiceClient(base)
+        this.notifications = new notifications.ServiceClient(base)
         this.organizations = new organizations.ServiceClient(base)
         this.payments = new payments.ServiceClient(base)
         this.questionnaires = new questionnaires.ServiceClient(base)
+        this.quickbooks = new quickbooks.ServiceClient(base)
         this.upload = new upload.ServiceClient(base)
         this.waivers = new waivers.ServiceClient(base)
     }
@@ -105,6 +111,53 @@ export interface ClientOptions {
      * a function which returns a new object for each request.
      */
     auth?: auth.AuthParams | AuthDataGenerator
+}
+
+export namespace activity {
+    export interface CreateActivityRequest {
+        metadata: types.ActivityMetadata
+        ownerMemberId: string
+        subjectType: types.ActivitySubjectType
+        subjectId: string
+        type: types.ActivityType
+        actorMemberId?: string | null
+        actorRole?: models.MembershipRole
+    }
+
+    export interface ListActivityRequest {
+        riderId?: string
+        trainerId?: string
+        ownerMemberId: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.createActivity = this.createActivity.bind(this)
+            this.listActivity = this.listActivity.bind(this)
+        }
+
+        public async createActivity(params: CreateActivityRequest): Promise<types.GetActivityResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/activity`, JSON.stringify(params))
+            return await resp.json() as types.GetActivityResponse
+        }
+
+        public async listActivity(params: ListActivityRequest): Promise<types.ListActivityResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                ownerMemberId: params.ownerMemberId,
+                riderId:       params.riderId,
+                trainerId:     params.trainerId,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/activity`, undefined, {query})
+            return await resp.json() as types.ListActivityResponse
+        }
+    }
 }
 
 export namespace auth {
@@ -794,7 +847,6 @@ export namespace lessons {
             this.createLessonSeries = this.createLessonSeries.bind(this)
             this.enrollInInstance = this.enrollInInstance.bind(this)
             this.enrollInSeries = this.enrollInSeries.bind(this)
-            this.generateLessonInstances = this.generateLessonInstances.bind(this)
             this.getLessonInstance = this.getLessonInstance.bind(this)
             this.getLessonSeries = this.getLessonSeries.bind(this)
             this.getLessonStats = this.getLessonStats.bind(this)
@@ -810,9 +862,9 @@ export namespace lessons {
             this.updateLessonSeries = this.updateLessonSeries.bind(this)
         }
 
-        public async cancelLessonInstance(id: string, params: instances.CancelLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
+        public async cancelLessonInstance(instanceId: string, params: instances.CancelLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances/${encodeURIComponent(id)}/cancel`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances/${encodeURIComponent(instanceId)}/cancel`, JSON.stringify(params))
             return await resp.json() as types.GetLessonInstanceResponse
         }
 
@@ -842,10 +894,6 @@ export namespace lessons {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(seriesId)}/enroll`, JSON.stringify(params))
             return await resp.json() as enrollments.EnrollInSeriesResponse
-        }
-
-        public async generateLessonInstances(id: string, params: series.GenerateLessonInstancesRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(id)}/generate`, JSON.stringify(params))
         }
 
         public async getLessonInstance(id: string): Promise<types.GetLessonInstanceResponse> {
@@ -908,17 +956,17 @@ export namespace lessons {
             return await resp.json() as types.GetInstanceEnrollmentResponse
         }
 
-        public async unenrollFromInstance(instanceId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/lessons/instances/${encodeURIComponent(instanceId)}/unenroll`)
+        public async unenrollFromInstance(enrollmentId: string): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/lessons/instances/enrollments/${encodeURIComponent(enrollmentId)}/unenroll`)
         }
 
         public async unenrollFromSeries(seriesId: string): Promise<void> {
             await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(seriesId)}/unenroll`)
         }
 
-        public async updateLessonInstance(id: string, params: instances.UpdateLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
+        public async updateLessonInstance(instanceId: string, params: instances.UpdateLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/lessons/instances/${encodeURIComponent(id)}`, JSON.stringify(params))
+            const resp = await this.baseClient.callTypedAPI("PUT", `/lessons/instances/${encodeURIComponent(instanceId)}`, JSON.stringify(params))
             return await resp.json() as types.GetLessonInstanceResponse
         }
 
@@ -926,6 +974,73 @@ export namespace lessons {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/lessons/series/${encodeURIComponent(id)}`, JSON.stringify(params))
             return await resp.json() as types.GetLessonSeriesResponse
+        }
+    }
+}
+
+export namespace notifications {
+    export interface CreateNotificationRequest {
+        organizationId: string
+        recipientId: string
+        type: types.NotificationType
+        title: string
+        message: string
+        entityType: string
+        entityId?: string
+        deepLink?: string
+        /**
+         * Override default channels for this specific notification
+         */
+        channels?: types.NotificationChannel[]
+    }
+
+    export interface DispatchNotificationRequest {
+        channel: types.NotificationChannel
+    }
+
+    export interface GetUnreadResponse {
+        notifications: types.Notification[]
+        unreadCount: number
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.createNotification = this.createNotification.bind(this)
+            this.dispatch = this.dispatch.bind(this)
+            this.getPreferences = this.getPreferences.bind(this)
+            this.getUnread = this.getUnread.bind(this)
+            this.markAsRead = this.markAsRead.bind(this)
+        }
+
+        public async createNotification(params: CreateNotificationRequest): Promise<types.GetNotificationResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications`, JSON.stringify(params))
+            return await resp.json() as types.GetNotificationResponse
+        }
+
+        public async dispatch(notificationId: string, params: DispatchNotificationRequest): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/dispatch`, JSON.stringify(params))
+        }
+
+        public async getPreferences(memberId: string): Promise<types.GetPreferencesResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/notifications/${encodeURIComponent(memberId)}/preferences`)
+            return await resp.json() as types.GetPreferencesResponse
+        }
+
+        public async getUnread(memberId: string): Promise<GetUnreadResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/notifications/${encodeURIComponent(memberId)}/unread-count`)
+            return await resp.json() as GetUnreadResponse
+        }
+
+        public async markAsRead(notificationId: string): Promise<types.GetNotificationResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/read`)
+            return await resp.json() as types.GetNotificationResponse
         }
     }
 }
@@ -1327,6 +1442,86 @@ export namespace questionnaires {
     }
 }
 
+export namespace quickbooks {
+    export interface ConnectQuickBooksResponse {
+        authUrl: string
+    }
+
+    export interface CreateQuickBooksInvoiceRequest {
+        customerId: string
+        amount: number
+        lineItems: {
+            description: string
+            amount: number
+            quantity?: number
+        }[]
+        lessonId?: string
+    }
+
+    export interface CreateQuickBooksInvoiceResponse {
+        id: string
+        quickbooksId: string
+        invoiceUrl?: string
+        status: string
+    }
+
+    export interface QuickBooksCallbackRequest {
+        code: string
+        state: string
+        realmId: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.createQuickBooksInvoice = this.createQuickBooksInvoice.bind(this)
+            this.disconnectQuickBooks = this.disconnectQuickBooks.bind(this)
+            this.getConnection = this.getConnection.bind(this)
+            this.getQuickbooksAuthUrl = this.getQuickbooksAuthUrl.bind(this)
+            this.handleQuickBooksCallback = this.handleQuickBooksCallback.bind(this)
+        }
+
+        public async createQuickBooksInvoice(params: CreateQuickBooksInvoiceRequest): Promise<CreateQuickBooksInvoiceResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/quickbooks/invoices`, JSON.stringify(params))
+            return await resp.json() as CreateQuickBooksInvoiceResponse
+        }
+
+        public async disconnectQuickBooks(): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/quickbooks/connection`)
+        }
+
+        public async getConnection(): Promise<void> {
+            await this.baseClient.callTypedAPI("GET", `/quickbooks/connection`)
+        }
+
+        public async getQuickbooksAuthUrl(): Promise<ConnectQuickBooksResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/quickbooks/auth-url`)
+            return await resp.json() as ConnectQuickBooksResponse
+        }
+
+        public async handleQuickBooksCallback(params: QuickBooksCallbackRequest): Promise<{
+    success: boolean
+}> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                code:    params.code,
+                realmId: params.realmId,
+                state:   params.state,
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/quickbooks/callback`, undefined, {query})
+            return await resp.json() as {
+    success: boolean
+}
+        }
+    }
+}
+
 export namespace upload {
 
     export class ServiceClient {
@@ -1509,9 +1704,9 @@ export namespace instances {
 
     export interface CreateLessonInstanceRequest {
         boardId: string
+        trainerId: string
         maxRiders: number
         serviceId: string
-        trainerMemberId: string
         start: string
         seriesId: string
         end: string
@@ -1534,18 +1729,17 @@ export namespace instances {
     }
 
     export interface UpdateLessonInstanceRequest {
-        boardId?: string
-        maxRiders?: number
-        serviceId?: string
-        trainerMemberId?: string
-        start?: string
-        seriesId?: string
-        end?: string
-        occurrenceKey?: string
-        name?: string
+        boardId: string
+        trainerId: string
+        maxRiders: number
+        serviceId: string
+        start: string
+        end: string
+        name: string | null
         status?: models.LessonInstanceStatus
-        levelId?: string
-        notes?: string
+        levelId?: string | null
+        notes?: string | null
+        riderIds?: string[] | null
     }
 }
 
@@ -1667,11 +1861,8 @@ export namespace series {
         riderIds?: string[]
     }
 
-    export interface GenerateLessonInstancesRequest {
-        until: string
-    }
-
     export interface UpdateLessonSeriesRequest {
+        effectiveFrom?: string | null
         duration: number
         boardId: string
         maxRiders: number
@@ -1686,7 +1877,6 @@ export namespace series {
         recurrenceFrequency?: models.RecurrenceFrequency | null
         recurrenceByDay?: models.DayOfWeek[] | null
         recurrenceEnd?: string | null
-        effectiveFrom?: string | null
         lastPlannedUntil?: string | null
         updatedByMemberId?: string | null
         riderIds?: string[]
@@ -1789,6 +1979,81 @@ export namespace time_blocks {
 }
 
 export namespace types {
+    export interface Activity {
+        id: string
+        createdAt: string
+        metadata: ActivityMetadata
+        organizationId: string
+        actorMemberId: string | null
+        ownerMemberId: string
+        trainerId: string | null
+        riderId: string | null
+        subjectType: ActivitySubjectType
+        subjectId: string
+        type: ActivityType
+        actorMember?: Member | null
+    }
+
+    export interface ActivityMetadata {
+        /**
+         * Lesson activities
+         */
+        lessonId?: string
+
+        instanceId?: string
+        trainerName?: string
+        trainerProfileId?: string
+        trainerMemberId?: string
+        riderName?: string
+        riderProfileId?: string
+        riderMemberId?: string
+        horseName?: string
+        horses?: {
+            id: string
+            name: string
+        }[]
+        riders?: {
+            name: string
+            profileId?: string
+            memberId?: string
+        }[]
+        otherRiders?: {
+            name: string
+        }[]
+        lessonName?: string
+        startTime?: string
+        endTime?: string
+        completedAt?: string
+        duration?: string
+        /**
+         * Post/social activities
+         */
+        postId?: string
+
+        content?: string
+        truncatedContent?: string
+        commentCount?: number
+        /**
+         * Questionnaire/Waiver activities
+         */
+        questionnaireId?: string
+
+        questionnaireName?: string
+        waiverType?: string
+        /**
+         * Generic fields
+         */
+        title?: string
+
+        description?: string
+        reason?: string
+        notes?: string
+    }
+
+    export type ActivitySubjectType = "lesson" | "post" | "payment" | "rider" | "trainer" | "other"
+
+    export type ActivityType = "enrollment_created" | "lesson_completed_as_rider" | "waiver_signed" | "questionnaire_submitted" | "level_updated" | "lesson_taught" | "student_assigned" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
+
     export interface AuthUser {
         id: string
         createdAt: string
@@ -1881,6 +2146,10 @@ export namespace types {
         board?: Board | null
     }
 
+    export interface GetActivityResponse {
+        activity: Activity
+    }
+
     export interface GetBoardAssignmentResponse {
         assignment: BoardAssignment
     }
@@ -1925,8 +2194,16 @@ export namespace types {
         member: Member
     }
 
+    export interface GetNotificationResponse {
+        notification: Notification
+    }
+
     export interface GetOrganizationResponse {
         organization: Organization
+    }
+
+    export interface GetPreferencesResponse {
+        preferences: NotificationPreference
     }
 
     export interface GetQuestionnaireResponse {
@@ -2091,6 +2368,10 @@ export namespace types {
         color: string
     }
 
+    export interface ListActivityResponse {
+        activities: Activity[]
+    }
+
     export interface ListBoardAssignmentsResponse {
         assignments: BoardAssignment[]
     }
@@ -2200,6 +2481,38 @@ export namespace types {
         trainer?: Trainer | null
     }
 
+    export interface Notification {
+        id: string
+        createdAt: string
+        organizationId: string
+        title: string
+        recipientId: string
+        type: NotificationType
+        message: string
+        entityType: string
+        entityId: string | null
+        deepLink: string | null
+        isRead: boolean
+        readAt: string | null
+    }
+
+    export type NotificationChannel = "email" | "sms" | "push" | "in_app"
+
+    export interface NotificationPreference {
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        memberId: string
+        type: NotificationType
+        inAppEnabled: boolean
+        pushEnabled: boolean
+        emailEnabled: boolean
+        smsEnabled: boolean
+    }
+
+    export type NotificationType = "enrollment_created" | "lesson_enrolled" | "lesson_cancelled" | "lesson_reminder" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
+
     export interface Organization {
         id: string
         name: string
@@ -2306,6 +2619,7 @@ export namespace types {
         ridingLevelId: string | null
         member?: Member | null
         boardAssignments?: BoardAssignment[] | null
+        level?: Level | null
     }
 
     export interface Service {
@@ -2329,6 +2643,7 @@ export namespace types {
         isActive: boolean
         boardAssignments?: ServiceBoardAssignment[] | null
         trainerAssignments?: ServiceTrainerAssignment[] | null
+        restrictedToLevel?: Level | null
     }
 
     export interface ServiceBoardAssignment {
@@ -2351,7 +2666,7 @@ export namespace types {
         serviceId: string
         trainerId: string
         service?: Service | null
-        trainer?: Member | null
+        trainer?: Trainer | null
     }
 
     export interface TimeBlock {

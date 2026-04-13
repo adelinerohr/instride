@@ -6,17 +6,20 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { useFieldContext } from "@/shared/hooks/form";
+import { cn } from "@/shared/lib/utils";
 
 import { Checkbox } from "../ui/checkbox";
 
 type CheckboxFieldProps = React.ComponentProps<typeof Checkbox> & {
   label: string;
   description?: string;
+  labelClassName?: string;
 };
 
 export function CheckboxField({
   label,
   description,
+  labelClassName,
   ...props
 }: CheckboxFieldProps) {
   const field = useFieldContext<boolean>();
@@ -37,7 +40,7 @@ export function CheckboxField({
       <FieldContent>
         <FieldLabel
           htmlFor={field.name}
-          className={!description ? "font-normal" : ""}
+          className={cn(!description ? "font-normal" : "", labelClassName)}
         >
           {label}
         </FieldLabel>

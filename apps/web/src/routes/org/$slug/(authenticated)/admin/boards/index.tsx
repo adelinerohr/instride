@@ -1,4 +1,5 @@
 import { useDeleteBoard, boardsOptions } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -10,6 +11,9 @@ import {
   TrashIcon,
 } from "lucide-react";
 
+import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { AvatarGroup } from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -44,6 +48,22 @@ function RouteComponent() {
     return <div>Loading...</div>;
   }
 
+  const assignedTrainers = boards.flatMap((board) =>
+    board.assignments
+      ? board.assignments
+          .map((assignment) => assignment.trainer)
+          .filter((trainer) => !!trainer)
+      : []
+  );
+
+  const assignedRiders = boards.flatMap((board) =>
+    board.assignments
+      ? board.assignments
+          .map((assignment) => assignment.rider)
+          .filter((rider) => !!rider)
+      : []
+  );
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between border-b p-4">
@@ -68,7 +88,22 @@ function RouteComponent() {
                 className="flex items-center justify-between rounded-md border bg-white p-4 hover:border-secondary-border"
               >
                 <div className="flex flex-col gap-2">
-                  <h2 className="font-bold text-lg">{board.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-bold text-lg">{board.name}</h2>
+                    <Badge variant="outline">
+                      {assignedRiders.length} riders assigned
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AvatarGroup>
+                      {assignedTrainers.map((trainer) => (
+                        <UserAvatar size="sm" user={getUser({ trainer })} />
+                      ))}
+                    </AvatarGroup>
+                    <span className="text-sm text-muted-foreground">
+                      {assignedTrainers.length} trainers
+                    </span>
+                  </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger

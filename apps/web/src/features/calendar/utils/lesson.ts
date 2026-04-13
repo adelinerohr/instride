@@ -1,7 +1,7 @@
 import type { types } from "@instride/api";
 import { differenceInMinutes, isWithinInterval, parseISO } from "date-fns";
 
-import { END_HOUR, START_HOUR } from "@/features/calendar/lib/constants";
+import { SLOT_HEIGHT, START_HOUR } from "@/features/calendar/lib/constants";
 
 const COLORS = ["blue", "green", "red", "yellow", "purple", "orange"] as const;
 export type TrainerColor = (typeof COLORS)[number];
@@ -48,20 +48,18 @@ export function getLessonBlockStyle(
   groupSize: number
 ) {
   const startDate = parseISO(lesson.start);
-  const dayStart = new Date(day.setHours(0, 0, 0, 0));
+  const dayStart = new Date(day);
+  dayStart.setHours(0, 0, 0, 0);
   const lessonStart = startDate < dayStart ? dayStart : startDate;
   const startMinutes = differenceInMinutes(lessonStart, dayStart);
 
   const visibleStartMinutes = START_HOUR * 60;
-  const visibleEndMinutes = END_HOUR * 60;
-  const visibleRangeMinutes = visibleEndMinutes - visibleStartMinutes;
-  const top =
-    ((startMinutes - visibleStartMinutes) / visibleRangeMinutes) * 100;
+  const top = ((startMinutes - visibleStartMinutes) / 60) * SLOT_HEIGHT;
 
   const width = 100 / groupSize;
   const left = groupIndex * width;
 
-  return { top: `${top}%`, width: `${width}%`, left: `${left}%` };
+  return { top: `${top}px`, width: `${width}%`, left: `${left}%` };
 }
 
 export function getCurrentLessons(lessons: types.LessonInstance[]) {

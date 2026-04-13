@@ -7,7 +7,9 @@ import * as React from "react";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
-function Sheet({ ...props }: SheetPrimitive.Root.Props) {
+function Sheet<Payload = unknown>({
+  ...props
+}: SheetPrimitive.Root.Props<Payload>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
@@ -126,6 +128,7 @@ function SheetDescription({
 }
 
 export {
+  SheetPrimitive as SheetHandler,
   Sheet,
   SheetTrigger,
   SheetClose,

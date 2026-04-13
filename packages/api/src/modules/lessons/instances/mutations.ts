@@ -13,7 +13,25 @@ export const instanceMutations = {
     instanceId: string;
     request: instances.CancelLessonInstanceRequest;
   }) => {
-    await apiClient.lessons.cancelLessonInstance(instanceId, request);
+    const response = await apiClient.lessons.cancelLessonInstance(
+      instanceId,
+      request
+    );
+    return response.instance;
+  },
+
+  update: async ({
+    instanceId,
+    request,
+  }: {
+    instanceId: string;
+    request: instances.UpdateLessonInstanceRequest;
+  }) => {
+    const response = await apiClient.lessons.updateLessonInstance(
+      instanceId,
+      request
+    );
+    return response.instance;
   },
 };
 
@@ -25,9 +43,35 @@ export function useCancelLessonInstance({
 
   return useWrappedMutation(instanceMutations.cancel, {
     ...config,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: lessonKeys.instances() });
-      onSuccess?.(...args);
+    onSuccess: (instance, ...args) => {
+      queryClient.removeQueries({
+        queryKey: lessonKeys.instanceById(instance.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: lessonKeys.instances(),
+      });
+      onSuccess?.(instance, ...args);
+    },
+  });
+}
+
+export function useUpdateLessonInstance({
+  mutationConfig,
+}: MutationHookOptions<typeof instanceMutations.update> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(instanceMutations.update, {
+    ...config,
+    onSuccess: (instance, ...args) => {
+      queryClient.setQueryData(lessonKeys.instanceById(instance.id), instance);
+      queryClient.invalidateQueries({
+        queryKey: lessonKeys.instanceById(instance.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: lessonKeys.instances(),
+      });
+      onSuccess?.(instance, ...args);
     },
   });
 }

@@ -30,7 +30,7 @@ export function isWorkingHour(
   hour: number,
   businessHours: EffectiveBusinessHours | undefined
 ): boolean {
-  if (!businessHours) return true; // ← treat missing hours as non-working
+  if (!businessHours) return false; // ← treat missing hours as non-working
 
   const dayKey = dateToDayOfWeek(day);
   const dayHours = businessHours[dayKey];

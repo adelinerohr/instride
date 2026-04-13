@@ -56,7 +56,6 @@ export function MultiSelectField<T extends object>({
       <Combobox
         value={currentItems}
         onValueChange={(value) => {
-          console.log(value);
           field.handleChange((value as T[]).map((v) => itemToValue(v)));
         }}
         multiple

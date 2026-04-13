@@ -30,6 +30,9 @@ type SelectFieldProps<T extends object> = Omit<
   onChange?: (value: string) => void;
   renderValue: (item: T) => React.ReactNode;
   itemToValue: (item: T) => string;
+  /** Map stored form/API values to the same string shape as {@link itemToValue} (e.g. DB time → slot key). */
+  matchValue?: (stored: string | null | undefined) => string;
+  alignItemWithTrigger?: boolean;
 };
 
 export function SelectField<T extends object>({
@@ -43,21 +46,30 @@ export function SelectField<T extends object>({
   onChange,
   renderValue,
   itemToValue,
+  matchValue,
+  alignItemWithTrigger = false,
 }: SelectFieldProps<T>) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   const errors = field.state.meta.errors;
   const emptyItems = items.length === 0;
 
+  const valueForMatch = matchValue
+    ? matchValue(field.state.value)
+    : (field.state.value ?? "");
+
   const currentItem =
-    items.find((item) => itemToValue(item) === field.state.value) ?? null;
+    items.find((item) => itemToValue(item) === valueForMatch) ?? null;
 
   return (
     <Field data-invalid={isInvalid} className={fieldClassName}>
-      <FieldContent>
-        {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
-        {description && <FieldDescription>{description}</FieldDescription>}
-      </FieldContent>
+      {label ||
+        (description && (
+          <FieldContent>
+            {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+            {description && <FieldDescription>{description}</FieldDescription>}
+          </FieldContent>
+        ))}
       <Select
         name={field.name}
         value={currentItem}
@@ -79,7 +91,7 @@ export function SelectField<T extends object>({
               : undefined}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
+        <SelectContent alignItemWithTrigger={alignItemWithTrigger}>
           {items.map((item) => (
             <SelectItem key={itemToValue(item)} value={item}>
               {renderValue(item)}

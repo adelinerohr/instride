@@ -2,12 +2,16 @@ import { useCreateLessonSeries } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { newLessonSearchSchema } from "@/features/calendar/lib/search-params";
 import { LessonChoicesFormSection } from "@/features/lessons/components/form/choices";
 import { LessonInformationFormSection } from "@/features/lessons/components/form/information";
 import { LessonRidersFormSection } from "@/features/lessons/components/form/riders";
-import { lessonFormOpts } from "@/features/lessons/lib/new-lesson.form";
+import {
+  buildLessonDefaultValues,
+  lessonFormOpts,
+} from "@/features/lessons/lib/new-lesson.form";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { useAppForm } from "@/shared/hooks/form";
 
@@ -25,23 +29,31 @@ function RouteComponent() {
 
   const form = useAppForm({
     ...lessonFormOpts,
-    defaultValues: {
-      ...lessonFormOpts.defaultValues,
-      start: new Date(search.start),
+    defaultValues: buildLessonDefaultValues({
+      start: new Date(search.start).toISOString(),
       boardId: search.boardId,
       trainerId: search.trainerId,
-    },
+    }),
     onSubmit: ({ value }) => {
       const { riderIds, ...data } = value;
-      createLesson.mutate({
-        ...data,
-        start: data.start.toISOString(),
-        recurrenceEnd: data.recurrenceEnd?.toISOString() ?? null,
-        effectiveFrom: data.effectiveFrom?.toISOString() ?? null,
-        lastPlannedUntil: data.lastPlannedUntil?.toISOString() ?? null,
-        levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
-        riderIds: riderIds.map((rider) => rider.id),
-      });
+      createLesson.mutate(
+        {
+          ...data,
+          start: data.start,
+          effectiveFrom: data.effectiveFrom?.toISOString() ?? null,
+          levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
+          riderIds: riderIds.map((rider) => rider.id),
+        },
+        {
+          onSuccess: () => {
+            toast.success("Lesson created successfully");
+            router.history.back();
+          },
+          onError: () => {
+            toast.error("Failed to create lesson");
+          },
+        }
+      );
     },
   });
 

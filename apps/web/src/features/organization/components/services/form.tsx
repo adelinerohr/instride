@@ -1,8 +1,10 @@
 import type { types } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useStore } from "@tanstack/react-form";
-import { PlusIcon, XIcon, CoinsIcon } from "lucide-react";
+import { PlusIcon, XIcon, CoinsIcon, CircleIcon } from "lucide-react";
 import * as React from "react";
 
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   FieldDescription,
@@ -84,10 +86,9 @@ export const ServiceForm = withForm({
                         <div className="flex items-center gap-2">
                           <subField.SelectField
                             placeholder="Select a board"
-                            items={boards.map((b) => ({
-                              label: b.name,
-                              value: b.id,
-                            }))}
+                            items={boards}
+                            itemToValue={(board) => board.id}
+                            renderValue={(board) => board.name}
                           />
                           {subField.state.value.length > 1 && (
                             <Button
@@ -139,10 +140,12 @@ export const ServiceForm = withForm({
                         <div className="flex items-center gap-2">
                           <subField.SelectField
                             placeholder="Select a trainer"
-                            items={trainers.map((t) => ({
-                              label: t.member?.authUser?.name ?? "",
-                              value: t.id,
-                            }))}
+                            items={trainers}
+                            itemToValue={(trainer) => trainer.id}
+                            renderValue={(trainer) => {
+                              const user = getUser({ member: trainer.member! });
+                              return <UserAvatarItem user={user} />;
+                            }}
                           />
                           {subField.state.value.length > 1 && (
                             <Button
@@ -265,10 +268,14 @@ export const ServiceForm = withForm({
               children={(field) => (
                 <field.SelectField
                   placeholder="Select a level"
-                  items={levels.map((level) => ({
-                    label: level.name,
-                    value: level.id,
-                  }))}
+                  items={levels}
+                  itemToValue={(level) => level.id}
+                  renderValue={(level) => (
+                    <div className="flex items-center gap-2">
+                      <CircleIcon stroke={level.color} fill={level.color} />
+                      <span>{level.name}</span>
+                    </div>
+                  )}
                 />
               )}
             />

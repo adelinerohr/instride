@@ -129,10 +129,10 @@
   }
 }
 
-.bg-background-image-calendar-disabled-hour {
+.bg-calendar-disabled-hour {
   background-image: repeating-linear-gradient(
     -60deg,
-    hsl(var(--border)) 0 0.5px,
+    var(--border) 0 0.5px,
     transparent 0.5px 8px
   );
 }

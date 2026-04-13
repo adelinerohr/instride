@@ -6,10 +6,10 @@ import { cn } from "@/shared/lib/utils";
 
 import { Button } from "../ui/button";
 
-function Page(props: React.ComponentProps<"div">) {
+function Page({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("flex flex-col gap-4", props.className)} {...props}>
-      {props.children}
+    <div className={cn("flex flex-col gap-4", className)} {...props}>
+      {children}
     </div>
   );
 }

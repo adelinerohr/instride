@@ -5,9 +5,8 @@ import {
   useDeleteBoard,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ChevronLeftIcon,
   ChevronRightIcon,
   ClipboardIcon,
   EllipsisVerticalIcon,
@@ -49,7 +48,6 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const params = Route.useParams();
-  const router = useRouter();
   const { data: board } = useSuspenseQuery(boardsOptions.byId(params.id));
   const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
   const { data: services } = useSuspenseQuery(
@@ -65,18 +63,6 @@ function RouteComponent() {
   return (
     <Page>
       <PageHeader title={board.name}>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.history.back()}
-          >
-            <ChevronLeftIcon />
-            <span className="sr-only">Back</span>
-          </Button>
-          <h1 className="font-bold text-2xl">{board.name}</h1>
-        </div>
-
         <div className="flex items-center gap-2">
           <Link
             to="/org/$slug/admin/boards/new"

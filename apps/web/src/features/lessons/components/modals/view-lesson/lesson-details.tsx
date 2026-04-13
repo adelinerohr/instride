@@ -1,15 +1,27 @@
 import type { types } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { differenceInMinutes, format } from "date-fns";
-import { CalendarIcon, ClipboardIcon } from "lucide-react";
+import { CalendarIcon, CircleIcon, ClipboardIcon } from "lucide-react";
 
-import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
+import { Badge } from "@/shared/components/ui/badge";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/shared/components/ui/item";
 
 type LessonDetailsProps = {
   instance: types.LessonInstance;
 };
 
 export function LessonDetails({ instance }: LessonDetailsProps) {
-  const authUser = instance.trainer?.member?.authUser;
+  if (!instance.trainer) return null;
+
+  const trainer = getUser({ trainer: instance.trainer });
+
   const start = new Date(instance.start);
   const end = new Date(instance.end);
 
@@ -23,33 +35,50 @@ export function LessonDetails({ instance }: LessonDetailsProps) {
 
       {instance.trainer && (
         <DetailSection label="Trainer">
-          <div className="flex items-center gap-3">
-            <UserAvatar user={authUser!} />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{authUser?.name}</span>
-              {authUser?.email && (
-                <span className="text-xs text-muted-foreground">
-                  {authUser?.email}
-                </span>
-              )}
-            </div>
-          </div>
+          <UserAvatarItem user={trainer} variant="outline" size="default" />
         </DetailSection>
       )}
 
-      <DetailRow
-        label="Scheduled"
-        icon={<CalendarIcon className="size-5" />}
-        primary={`${format(start, "MM/dd/yyyy h:mm")} - ${format(end, "h:mm a")}`}
-        secondary={formatDuration(differenceInMinutes(end, start))}
-      />
-
-      <DetailRow
-        label="Service & Board"
-        icon={<ClipboardIcon className="size-5" />}
-        primary={instance.service?.name}
-        secondary={instance.board?.name}
-      />
+      <DetailSection label="Details">
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <CalendarIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>{format(start, "EEEE, MMMM d, yyyy")}</ItemTitle>
+            <div className="flex items-center gap-2">
+              <ItemDescription>
+                {format(start, "h:mm")} - {format(end, "h:mm a")}
+              </ItemDescription>
+              <Badge variant="secondary">
+                {formatDuration(differenceInMinutes(end, start))}
+              </Badge>
+            </div>
+          </ItemContent>
+        </Item>
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <ClipboardIcon />
+          </ItemMedia>
+          <ItemContent>
+            <div className="flex items-center gap-2 justify-between">
+              <ItemTitle>Service: {instance.service?.name}</ItemTitle>
+              {instance.level && (
+                <Badge variant="secondary">
+                  <CircleIcon
+                    stroke={instance.level.color}
+                    fill={instance.level.color}
+                  />
+                  {instance.level.name}
+                </Badge>
+              )}
+            </div>
+            <ItemDescription>
+              On the {instance.board?.name} board
+            </ItemDescription>
+          </ItemContent>
+        </Item>
+      </DetailSection>
     </div>
   );
 }
@@ -67,34 +96,6 @@ function DetailSection({
         {label}
       </span>
       {children}
-    </div>
-  );
-}
-
-type DetailRowProps = {
-  label: string;
-  icon: React.ReactNode;
-  primary: React.ReactNode;
-  secondary?: React.ReactNode;
-};
-
-function DetailRow({ label, icon, primary, secondary }: DetailRowProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium uppercase text-muted-foreground">
-        {label}
-      </span>
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-          {icon}
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{primary}</span>
-          {secondary && (
-            <span className="text-xs text-muted-foreground">{secondary}</span>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

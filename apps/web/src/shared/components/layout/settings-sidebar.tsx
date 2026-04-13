@@ -22,11 +22,11 @@ import {
 
 export function SettingsSidebar() {
   const { slug } = useParams({ from: "/org/$slug/(authenticated)/settings" });
-  const { isAdmin } = useRouteContext({
+  const { isAdmin, isTrainer } = useRouteContext({
     from: "/org/$slug/(authenticated)/settings",
   });
 
-  const navItems = getSettingsNavItems(slug, isAdmin);
+  const navItems = getSettingsNavItems(slug, isAdmin, isTrainer);
 
   const portalDashboardLink = linkOptions({
     to: "/org/$slug/portal",

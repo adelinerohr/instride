@@ -8,13 +8,14 @@ import {
 } from "date-fns";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import { HOURS } from "@/features/calendar/lib/constants";
+import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { isWorkingHour } from "@/features/calendar/utils/business-hours";
 import {
   getLessonBlockStyle,
   groupLessons,
 } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { cn } from "@/shared/lib/utils";
 
 import { HourCell } from "../fragments/hour-cell";
 import { LessonBlock } from "../fragments/lesson-block";
@@ -34,10 +35,18 @@ export function WeekView() {
           {weekDays.map((day, index) => (
             <span
               key={index}
-              className="py-2 text-center text-xs font-medium text-muted-foreground"
+              className={cn(
+                "py-2 text-center text-xs font-medium text-muted-foreground",
+                isSameDay(day, new Date()) && "text-blue-500"
+              )}
             >
-              {format(day, "EE")}{" "}
-              <span className="ml-1 font-semibold text-foreground">
+              {format(day, "EE")}
+              <span
+                className={cn(
+                  "ml-1 font-semibold text-foreground",
+                  isSameDay(day, new Date()) && "text-blue-500"
+                )}
+              >
                 {format(day, "d")}
               </span>
             </span>
@@ -49,7 +58,11 @@ export function WeekView() {
           {/* Hours column */}
           <div className="relative w-18 shrink-0">
             {HOURS.map((hour, index) => (
-              <div key={hour} className="relative" style={{ height: "96px" }}>
+              <div
+                key={hour}
+                className="relative"
+                style={{ height: `${SLOT_HEIGHT}px` }}
+              >
                 <div className="absolute -top-3 right-2 flex h-6 items-center">
                   {index !== 0 && (
                     <span className="text-xs text-muted-foreground">

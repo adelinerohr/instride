@@ -39,6 +39,7 @@ import { Route as OrgSlugauthenticatedAdminCalendarIndexRouteImport } from './ro
 import { Route as OrgSlugauthenticatedAdminBoardsIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/index'
 import { Route as OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/business-hours'
 import { Route as OrgSlugauthenticatedSettingsAccountGuardianRouteImport } from './routes/org/$slug/(authenticated)/settings/account/guardian'
+import { Route as OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport } from './routes/org/$slug/(authenticated)/settings/account/availability'
 import { Route as OrgSlugauthenticatedAdminServicesNewRouteImport } from './routes/org/$slug/(authenticated)/admin/services/new'
 import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/new'
 import { Route as OrgSlugauthenticatedAdminCalendarNewRouteImport } from './routes/org/$slug/(authenticated)/admin/calendar/new'
@@ -54,9 +55,11 @@ import { Route as OrgSlugauthenticatedAdminMembersIdIndexRouteImport } from './r
 import { Route as OrgSlugauthenticatedAdminBoardsIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.index'
 import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/new'
 import { Route as OrgSlugauthenticatedAdminServicesIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/services/$id.edit'
-import { Route as OrgSlugauthenticatedAdminMembersIdRiderRouteImport } from './routes/org/$slug/(authenticated)/admin/members/$id/rider'
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId'
 import { Route as OrgSlugauthenticatedAdminBoardsIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.edit'
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId.index'
 import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/$id.edit'
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId.activity'
 
 const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
   id: '/(unauthenticated)',
@@ -228,6 +231,12 @@ const OrgSlugauthenticatedSettingsAccountGuardianRoute =
     path: '/account/guardian',
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
   } as any)
+const OrgSlugauthenticatedSettingsAccountAvailabilityRoute =
+  OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport.update({
+    id: '/account/availability',
+    path: '/account/availability',
+    getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
+  } as any)
 const OrgSlugauthenticatedAdminServicesNewRoute =
   OrgSlugauthenticatedAdminServicesNewRouteImport.update({
     id: '/services/new',
@@ -320,10 +329,10 @@ const OrgSlugauthenticatedAdminServicesIdEditRoute =
     path: '/services/$id/edit',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
-const OrgSlugauthenticatedAdminMembersIdRiderRoute =
-  OrgSlugauthenticatedAdminMembersIdRiderRouteImport.update({
-    id: '/members/$id/rider',
-    path: '/members/$id/rider',
+const OrgSlugauthenticatedAdminMembersRidersRiderIdRoute =
+  OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport.update({
+    id: '/members/riders/$riderId',
+    path: '/members/riders/$riderId',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
 const OrgSlugauthenticatedAdminBoardsIdEditRoute =
@@ -331,6 +340,12 @@ const OrgSlugauthenticatedAdminBoardsIdEditRoute =
     id: '/boards/$id/edit',
     path: '/boards/$id/edit',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
+  } as any)
+const OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute =
+  OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgSlugauthenticatedAdminMembersRidersRiderIdRoute,
   } as any)
 const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute =
   OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport.update(
@@ -340,6 +355,12 @@ const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute =
       getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
     } as any,
   )
+const OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute =
+  OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => OrgSlugauthenticatedAdminMembersRidersRiderIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -364,6 +385,7 @@ export interface FileRoutesByFullPath {
   '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
+  '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
   '/org/$slug/admin/boards/': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
@@ -373,7 +395,7 @@ export interface FileRoutesByFullPath {
   '/org/$slug/admin/services/': typeof OrgSlugauthenticatedAdminServicesIndexRoute
   '/org/$slug/portal/calendar/': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
   '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
+  '/org/$slug/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
   '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
   '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
@@ -385,7 +407,9 @@ export interface FileRoutesByFullPath {
   '/org/$slug/settings/organization/members/': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
   '/org/$slug/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
+  '/org/$slug/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
   '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
+  '/org/$slug/admin/members/riders/$riderId/': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -406,6 +430,7 @@ export interface FileRoutesByTo {
   '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
+  '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
   '/org/$slug/admin/boards': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
@@ -415,7 +440,6 @@ export interface FileRoutesByTo {
   '/org/$slug/admin/services': typeof OrgSlugauthenticatedAdminServicesIndexRoute
   '/org/$slug/portal/calendar': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
   '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
   '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
   '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/admin/boards/$id': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
@@ -427,7 +451,9 @@ export interface FileRoutesByTo {
   '/org/$slug/settings/organization/members': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
   '/org/$slug/settings/organization/questionnaires': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/settings/organization/waivers': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
+  '/org/$slug/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
   '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
+  '/org/$slug/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -457,6 +483,7 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
   '/org/$slug/(authenticated)/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/(authenticated)/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
+  '/org/$slug/(authenticated)/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/(authenticated)/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/(authenticated)/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
   '/org/$slug/(authenticated)/admin/boards/': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
@@ -466,7 +493,7 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/admin/services/': typeof OrgSlugauthenticatedAdminServicesIndexRoute
   '/org/$slug/(authenticated)/portal/calendar/': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
   '/org/$slug/(authenticated)/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/(authenticated)/admin/members/$id/rider': typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
+  '/org/$slug/(authenticated)/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
   '/org/$slug/(authenticated)/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
   '/org/$slug/(authenticated)/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
   '/org/$slug/(authenticated)/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
@@ -478,7 +505,9 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/settings/organization/members/': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
   '/org/$slug/(authenticated)/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
   '/org/$slug/(authenticated)/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
+  '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
   '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
+  '/org/$slug/(authenticated)/admin/members/riders/$riderId/': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -505,6 +534,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/calendar/new'
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/services/new'
+    | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
     | '/org/$slug/settings/organization/business-hours'
     | '/org/$slug/admin/boards/'
@@ -514,7 +544,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/services/'
     | '/org/$slug/portal/calendar/'
     | '/org/$slug/admin/boards/$id/edit'
-    | '/org/$slug/admin/members/$id/rider'
+    | '/org/$slug/admin/members/riders/$riderId'
     | '/org/$slug/admin/services/$id/edit'
     | '/org/$slug/settings/organization/questionnaires/new'
     | '/org/$slug/admin/boards/$id/'
@@ -526,7 +556,9 @@ export interface FileRouteTypes {
     | '/org/$slug/settings/organization/members/'
     | '/org/$slug/settings/organization/questionnaires/'
     | '/org/$slug/settings/organization/waivers/'
+    | '/org/$slug/admin/members/riders/$riderId/activity'
     | '/org/$slug/settings/organization/questionnaires/$id/edit'
+    | '/org/$slug/admin/members/riders/$riderId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -547,6 +579,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/calendar/new'
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/services/new'
+    | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
     | '/org/$slug/settings/organization/business-hours'
     | '/org/$slug/admin/boards'
@@ -556,7 +589,6 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/services'
     | '/org/$slug/portal/calendar'
     | '/org/$slug/admin/boards/$id/edit'
-    | '/org/$slug/admin/members/$id/rider'
     | '/org/$slug/admin/services/$id/edit'
     | '/org/$slug/settings/organization/questionnaires/new'
     | '/org/$slug/admin/boards/$id'
@@ -568,7 +600,9 @@ export interface FileRouteTypes {
     | '/org/$slug/settings/organization/members'
     | '/org/$slug/settings/organization/questionnaires'
     | '/org/$slug/settings/organization/waivers'
+    | '/org/$slug/admin/members/riders/$riderId/activity'
     | '/org/$slug/settings/organization/questionnaires/$id/edit'
+    | '/org/$slug/admin/members/riders/$riderId'
   id:
     | '__root__'
     | '/'
@@ -597,6 +631,7 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/admin/calendar/new'
     | '/org/$slug/(authenticated)/admin/lessons/new'
     | '/org/$slug/(authenticated)/admin/services/new'
+    | '/org/$slug/(authenticated)/settings/account/availability'
     | '/org/$slug/(authenticated)/settings/account/guardian'
     | '/org/$slug/(authenticated)/settings/organization/business-hours'
     | '/org/$slug/(authenticated)/admin/boards/'
@@ -606,7 +641,7 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/admin/services/'
     | '/org/$slug/(authenticated)/portal/calendar/'
     | '/org/$slug/(authenticated)/admin/boards/$id/edit'
-    | '/org/$slug/(authenticated)/admin/members/$id/rider'
+    | '/org/$slug/(authenticated)/admin/members/riders/$riderId'
     | '/org/$slug/(authenticated)/admin/services/$id/edit'
     | '/org/$slug/(authenticated)/settings/organization/questionnaires/new'
     | '/org/$slug/(authenticated)/admin/boards/$id/'
@@ -618,7 +653,9 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/settings/organization/members/'
     | '/org/$slug/(authenticated)/settings/organization/questionnaires/'
     | '/org/$slug/(authenticated)/settings/organization/waivers/'
+    | '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity'
     | '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
+    | '/org/$slug/(authenticated)/admin/members/riders/$riderId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -840,6 +877,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
     }
+    '/org/$slug/(authenticated)/settings/account/availability': {
+      id: '/org/$slug/(authenticated)/settings/account/availability'
+      path: '/account/availability'
+      fullPath: '/org/$slug/settings/account/availability'
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
+    }
     '/org/$slug/(authenticated)/admin/services/new': {
       id: '/org/$slug/(authenticated)/admin/services/new'
       path: '/services/new'
@@ -945,11 +989,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
-    '/org/$slug/(authenticated)/admin/members/$id/rider': {
-      id: '/org/$slug/(authenticated)/admin/members/$id/rider'
-      path: '/members/$id/rider'
-      fullPath: '/org/$slug/admin/members/$id/rider'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersIdRiderRouteImport
+    '/org/$slug/(authenticated)/admin/members/riders/$riderId': {
+      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId'
+      path: '/members/riders/$riderId'
+      fullPath: '/org/$slug/admin/members/riders/$riderId'
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
     '/org/$slug/(authenticated)/admin/boards/$id/edit': {
@@ -959,12 +1003,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
+    '/org/$slug/(authenticated)/admin/members/riders/$riderId/': {
+      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId/'
+      path: '/'
+      fullPath: '/org/$slug/admin/members/riders/$riderId/'
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport
+      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute
+    }
     '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': {
       id: '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
       path: '/organization/questionnaires/$id/edit'
       fullPath: '/org/$slug/settings/organization/questionnaires/$id/edit'
       preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
+    }
+    '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity': {
+      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity'
+      path: '/activity'
+      fullPath: '/org/$slug/admin/members/riders/$riderId/activity'
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport
+      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute
     }
   }
 }
@@ -995,6 +1053,24 @@ const unauthenticatedRouteRouteChildren: unauthenticatedRouteRouteChildren = {
 const unauthenticatedRouteRouteWithChildren =
   unauthenticatedRouteRoute._addFileChildren(unauthenticatedRouteRouteChildren)
 
+interface OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren {
+  OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
+  OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
+}
+
+const OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren: OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren =
+  {
+    OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute:
+      OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute,
+    OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute:
+      OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute,
+  }
+
+const OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren =
+  OrgSlugauthenticatedAdminMembersRidersRiderIdRoute._addFileChildren(
+    OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren,
+  )
+
 interface OrgSlugauthenticatedAdminRouteRouteChildren {
   OrgSlugauthenticatedAdminFeedRoute: typeof OrgSlugauthenticatedAdminFeedRoute
   OrgSlugauthenticatedAdminIndexRoute: typeof OrgSlugauthenticatedAdminIndexRoute
@@ -1008,7 +1084,7 @@ interface OrgSlugauthenticatedAdminRouteRouteChildren {
   OrgSlugauthenticatedAdminMembersIndexRoute: typeof OrgSlugauthenticatedAdminMembersIndexRoute
   OrgSlugauthenticatedAdminServicesIndexRoute: typeof OrgSlugauthenticatedAdminServicesIndexRoute
   OrgSlugauthenticatedAdminBoardsIdEditRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  OrgSlugauthenticatedAdminMembersIdRiderRoute: typeof OrgSlugauthenticatedAdminMembersIdRiderRoute
+  OrgSlugauthenticatedAdminMembersRidersRiderIdRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
   OrgSlugauthenticatedAdminServicesIdEditRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRoute
   OrgSlugauthenticatedAdminBoardsIdIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
   OrgSlugauthenticatedAdminMembersIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
@@ -1039,8 +1115,8 @@ const OrgSlugauthenticatedAdminRouteRouteChildren: OrgSlugauthenticatedAdminRout
       OrgSlugauthenticatedAdminServicesIndexRoute,
     OrgSlugauthenticatedAdminBoardsIdEditRoute:
       OrgSlugauthenticatedAdminBoardsIdEditRoute,
-    OrgSlugauthenticatedAdminMembersIdRiderRoute:
-      OrgSlugauthenticatedAdminMembersIdRiderRoute,
+    OrgSlugauthenticatedAdminMembersRidersRiderIdRoute:
+      OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren,
     OrgSlugauthenticatedAdminServicesIdEditRoute:
       OrgSlugauthenticatedAdminServicesIdEditRoute,
     OrgSlugauthenticatedAdminBoardsIdIndexRoute:
@@ -1077,6 +1153,7 @@ const OrgSlugauthenticatedPortalRouteRouteWithChildren =
 
 interface OrgSlugauthenticatedSettingsRouteRouteChildren {
   OrgSlugauthenticatedSettingsIndexRoute: typeof OrgSlugauthenticatedSettingsIndexRoute
+  OrgSlugauthenticatedSettingsAccountAvailabilityRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   OrgSlugauthenticatedSettingsAccountGuardianRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
   OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
@@ -1093,6 +1170,8 @@ const OrgSlugauthenticatedSettingsRouteRouteChildren: OrgSlugauthenticatedSettin
   {
     OrgSlugauthenticatedSettingsIndexRoute:
       OrgSlugauthenticatedSettingsIndexRoute,
+    OrgSlugauthenticatedSettingsAccountAvailabilityRoute:
+      OrgSlugauthenticatedSettingsAccountAvailabilityRoute,
     OrgSlugauthenticatedSettingsAccountGuardianRoute:
       OrgSlugauthenticatedSettingsAccountGuardianRoute,
     OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute:
