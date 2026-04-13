@@ -47,6 +47,7 @@ function RouteComponent() {
       <PageHeader
         title="Questionnaires"
         description="Manage questionnaires that riders must complete."
+        backButton={false}
         action={
           <Link
             to="/org/$slug/settings/organization/questionnaires/new"

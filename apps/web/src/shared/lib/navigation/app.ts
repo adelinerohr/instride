@@ -15,6 +15,35 @@ export const getPortalNavItems = (slug: string) =>
     {
       title: "Dashboard",
       icon: LayoutDashboard,
+      to: "/org/$slug/portal",
+      params: { slug },
+      activeOptions: { exact: true },
+    },
+    {
+      title: "Feed",
+      icon: MessageCircle,
+      to: "/org/$slug/portal/feed",
+      params: { slug },
+    },
+    {
+      title: "Calendar",
+      icon: CalendarClock,
+      to: "/org/$slug/portal/calendar",
+      params: { slug },
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      to: "/org/$slug/settings",
+      params: { slug },
+    },
+  ]);
+
+export const getAdminNavItems = (slug: string) => ({
+  main: linkOptions([
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
       to: "/org/$slug/admin",
       params: { slug },
       activeOptions: { exact: true },
@@ -37,10 +66,7 @@ export const getPortalNavItems = (slug: string) =>
       to: "/org/$slug/settings",
       params: { slug },
     },
-  ]);
-
-export const getAdminNavItems = (slug: string) => ({
-  main: getPortalNavItems(slug),
+  ]),
   groups: [
     {
       title: "Organization",

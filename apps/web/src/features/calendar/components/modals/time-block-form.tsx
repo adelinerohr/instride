@@ -1,6 +1,7 @@
 import {
   useCreateTimeBlock,
   useDeleteTimeBlock,
+  useTrainers,
   useUpdateTimeBlock,
   type types,
 } from "@instride/api";
@@ -9,6 +10,11 @@ import * as React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -21,9 +27,10 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { FieldGroup } from "@/shared/components/ui/field";
+import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useAppForm } from "@/shared/hooks/form";
-
-import { useCalendar } from "../../hooks/use-calendar";
+import { getInitials } from "@/shared/lib/utils/format";
 
 function toLocalInputValue(date: Date) {
   return format(date, "yyyy-MM-dd'T'HH:mm");
@@ -61,7 +68,7 @@ export function TimeBlockModalForm({
   defaultEnd,
   defaultTrainerId,
 }: TimeBlockModalFormProps) {
-  const { trainers } = useCalendar();
+  const { data: trainers, isPending } = useTrainers();
   const createTimeBlock = useCreateTimeBlock();
   const updateTimeBlock = useUpdateTimeBlock({ timeBlock });
   const deleteTimeBlock = useDeleteTimeBlock({ timeBlock });
@@ -157,6 +164,10 @@ export function TimeBlockModalForm({
     });
   }, [timeBlock, deleteTimeBlock]);
 
+  if (!trainers) return null;
+
+  if (isPending) return <Skeleton className="w-full h-full" />;
+
   return (
     <DialogContent className="max-w-md">
       <form
@@ -178,11 +189,25 @@ export function TimeBlockModalForm({
             children={(field) => (
               <field.SelectField
                 label="Trainer"
-                description="Select the trainer for this time block"
-                items={trainers.map((trainer) => ({
-                  label: trainer.member?.authUser?.name ?? "",
-                  value: trainer.id,
-                }))}
+                placeholder="Select a trainer"
+                fieldClassName="w-full"
+                items={trainers}
+                itemToValue={(trainer) => trainer?.id ?? null}
+                renderValue={(value) => (
+                  <Item size="xs" className="w-full p-0">
+                    <ItemMedia>
+                      <Avatar className="size-4">
+                        <AvatarImage
+                          src={value?.member?.authUser?.image ?? undefined}
+                        />
+                        <AvatarFallback className="text-[8px]">
+                          {getInitials(value?.member?.authUser?.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </ItemMedia>
+                    <ItemContent>{value?.member?.authUser?.name}</ItemContent>
+                  </Item>
+                )}
               />
             )}
           />

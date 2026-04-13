@@ -4,8 +4,10 @@ import {
   ClipboardIcon,
   ClockIcon,
   FileTextIcon,
+  ShieldIcon,
   ShieldUserIcon,
   UserIcon,
+  UsersIcon,
 } from "lucide-react";
 
 export const getSettingsNavItems = (
@@ -47,6 +49,12 @@ export const getAdminSettingsNavItems = (slug: string) => {
           params: { slug },
         },
         {
+          title: "Security",
+          icon: ShieldIcon,
+          to: "/org/$slug/settings/account/security",
+          params: { slug },
+        },
+        {
           title: "Guardian",
           icon: ShieldUserIcon,
           to: "/org/$slug/settings/account/guardian",
@@ -61,6 +69,12 @@ export const getAdminSettingsNavItems = (slug: string) => {
           title: "General",
           icon: BuildingIcon,
           to: "/org/$slug/settings/organization/general",
+          params: { slug },
+        },
+        {
+          title: "Members",
+          icon: UsersIcon,
+          to: "/org/$slug/settings/organization/members",
           params: { slug },
         },
         {

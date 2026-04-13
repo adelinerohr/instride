@@ -44,11 +44,14 @@ export type OrganizationMutationHookOptions<TMutationFn extends MutationFn> = {
   >;
 };
 
-export function useWrappedMutation<TData, TVariables>(
+export function useWrappedMutation<TData, TVariables, TContext = unknown>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options: Omit<UseMutationOptions<TData, APIError, TVariables>, "mutationFn">
+  options: Omit<
+    UseMutationOptions<TData, APIError, TVariables, TContext>,
+    "mutationFn"
+  >
 ) {
-  return useMutation<TData, APIError, TVariables>({
+  return useMutation<TData, APIError, TVariables, TContext>({
     ...options,
     mutationFn,
   });

@@ -16,37 +16,48 @@ import {
 } from "../ui/combobox";
 import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
 
-type Item = { value: string; label: string };
-
-type MultiSelectFieldProps = React.ComponentProps<typeof Combobox> & {
+type MultiSelectFieldProps<T extends object> = Omit<
+  React.ComponentProps<typeof Combobox>,
+  "items"
+> & {
   label?: string;
   placeholder?: string;
   required?: boolean;
   description?: string;
-  items: Item[];
+  items: T[];
+  itemToLabel?: (item: T) => string;
+  itemToValue: (item: T) => string;
+  renderValue: (item: T) => React.ReactNode;
 };
 
-export function MultiSelectField({
+export function MultiSelectField<T extends object>({
   label,
   placeholder,
   required,
   description,
   items,
+  itemToLabel,
+  itemToValue,
+  renderValue,
   ...props
-}: MultiSelectFieldProps) {
+}: MultiSelectFieldProps<T>) {
   const anchor = useComboboxAnchor();
   const field = useFieldContext<string[]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   const errors = field.state.meta.errors;
 
+  const currentItems = items.filter((item) =>
+    field.state.value.includes(itemToValue(item))
+  );
+
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
       <Combobox
-        value={items.filter((item) => field.state.value.includes(item.value))}
+        value={currentItems}
         onValueChange={(value) => {
           console.log(value);
-          field.handleChange((value as Item[]).map((v) => v.value));
+          field.handleChange((value as T[]).map((v) => itemToValue(v)));
         }}
         multiple
         autoHighlight
@@ -57,8 +68,10 @@ export function MultiSelectField({
           <ComboboxValue>
             {(values) => (
               <React.Fragment>
-                {values.map((value: Item) => (
-                  <ComboboxChip key={value.value}>{value.label}</ComboboxChip>
+                {values.map((value: T) => (
+                  <ComboboxChip key={itemToValue(value)}>
+                    {itemToLabel ? itemToLabel(value) : itemToValue(value)}
+                  </ComboboxChip>
                 ))}
                 <ComboboxChipsInput
                   id={field.name}
@@ -75,9 +88,9 @@ export function MultiSelectField({
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty>No options found</ComboboxEmpty>
           <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item.value} value={item}>
-                {item.label}
+            {(item: T) => (
+              <ComboboxItem key={itemToValue(item)} value={item}>
+                {renderValue(item)}
               </ComboboxItem>
             )}
           </ComboboxList>

@@ -1,8 +1,14 @@
-import type { Board } from "@instride/shared";
+import {
+  boardsOptions,
+  useCreatePost,
+  useUpdatePost,
+  type types,
+} from "@instride/api";
 import { useForm, useStore } from "@tanstack/react-form";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSearch } from "@tanstack/react-router";
 import { ChevronDownIcon } from "lucide-react";
-import * as React from "react";
-import { z } from "zod";
+import { toast } from "sonner";
 
 import {
   DropdownMenu,
@@ -16,37 +22,51 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/shared/components/ui/input-group";
-import type { FeedSearchParams } from "@/shared/lib/search/feed";
 
-type PostComposerProps = {
-  search: FeedSearchParams;
-  boards: Board[];
-};
+interface PostComposerProps {
+  post?: types.FeedPost;
+  onUpdate?: (post: types.FeedPost) => void;
+}
 
-export function PostComposer({ search, boards }: PostComposerProps) {
+export function PostComposer({ post, onUpdate }: PostComposerProps) {
+  const search = useSearch({ strict: false });
+  const { data: boards } = useSuspenseQuery(boardsOptions.list());
+  const createPost = useCreatePost();
+  const updatePost = useUpdatePost();
+  const isEditing = !!post;
+
   const form = useForm({
     defaultValues: {
-      text: "",
-      boardId: search.board ?? undefined,
-    },
-    validators: {
-      onSubmit: () =>
-        z.object({
-          text: z.string().min(1, "Post content is required"),
-          boardId: z.string().nullable(),
-        }),
+      text: post?.text ?? "",
+      boardId: post?.boardId ?? search.boards?.[0] ?? null,
     },
     onSubmit: ({ value }) => {
-      console.log(value);
+      if (isEditing) {
+        updatePost.mutate(
+          { postId: post.id, request: value },
+          {
+            onSuccess: (updated) => {
+              form.reset();
+              onUpdate?.(updated);
+              toast.success("Post updated successfully");
+            },
+            onError: () => toast.error("Failed to update post"),
+          }
+        );
+      } else {
+        createPost.mutate(value, {
+          onSuccess: () => {
+            form.reset();
+            toast.success("Post created successfully");
+          },
+          onError: () => toast.error("Failed to create post"),
+        });
+      }
     },
   });
 
-  React.useEffect(() => {
-    form.setFieldValue("boardId", search.board ?? undefined);
-  }, [search.board]);
-
-  const selectedBoard = useStore(form.store, (state) => state.values.boardId);
-  const currentBoard = boards?.find((board) => board.id === selectedBoard);
+  const selectedBoardId = useStore(form.store, (state) => state.values.boardId);
+  const currentBoard = boards?.find((b) => b.id === selectedBoardId);
 
   return (
     <form
@@ -58,66 +78,66 @@ export function PostComposer({ search, boards }: PostComposerProps) {
       <InputGroup className="bg-white rounded-lg!">
         <form.Field
           name="text"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-            return (
-              <InputGroupTextarea
-                id={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                aria-invalid={isInvalid}
-                placeholder={`Share an update with ${currentBoard?.name ? `the ${currentBoard?.name}` : "all boards"}...`}
-              />
-            );
+          validators={{
+            onSubmit: ({ value }) =>
+              value.trim().length === 0
+                ? "Post content is required"
+                : undefined,
           }}
+          children={(field) => (
+            <InputGroupTextarea
+              id={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              aria-invalid={
+                field.state.meta.isTouched && !field.state.meta.isValid
+              }
+              placeholder={`Share an update with ${currentBoard?.name ? `the ${currentBoard.name}` : "all boards"}...`}
+            />
+          )}
         />
         <InputGroupAddon align="block-end" className="flex justify-end gap-4">
           <form.Field
             name="boardId"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <InputGroupButton
-                        variant="ghost"
-                        aria-label="More"
-                        className="pr-1.5! text-xs"
-                        aria-invalid={isInvalid}
-                        disabled={form.state.isSubmitting}
-                      />
-                    }
-                  >
-                    {selectedBoard
-                      ? boards?.find((b) => b.id === selectedBoard)?.name
-                      : "All Boards"}
-                    <ChevronDownIcon />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+            children={(field) => (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <InputGroupButton
+                      variant="ghost"
+                      aria-label="Select board"
+                      className="pr-1.5! text-xs"
+                      disabled={form.state.isSubmitting}
+                    />
+                  }
+                >
+                  {currentBoard?.name ?? "All Boards"}
+                  <ChevronDownIcon />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => field.handleChange(null)}>
+                    All Boards
+                  </DropdownMenuItem>
+                  {boards?.map((board) => (
                     <DropdownMenuItem
-                      onClick={() => field.handleChange(undefined)}
+                      key={board.id}
+                      onClick={() => field.handleChange(board.id)}
                     >
-                      All Boards
+                      {board.name}
                     </DropdownMenuItem>
-                    {boards?.map((board) => (
-                      <DropdownMenuItem
-                        key={board.id}
-                        onClick={() => field.handleChange(board.id)}
-                      >
-                        {board.name}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
-            }}
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           />
-          <InputGroupButton variant="default" type="submit" size={null}>
-            Post
+          <InputGroupButton
+            variant="default"
+            type="submit"
+            size={null}
+            disabled={form.state.isSubmitting}
+          >
+            {isEditing ? "Update" : "Post"}
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>

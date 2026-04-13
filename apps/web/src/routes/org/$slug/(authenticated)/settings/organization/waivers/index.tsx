@@ -9,14 +9,8 @@ import {
   PlusIcon,
 } from "lucide-react";
 
-import {
-  WaiverModal,
-  waiverModalHandler,
-} from "@/features/organization/components/waivers/waiver-modal";
-import {
-  ConfirmationModal,
-  confirmationModalHandler,
-} from "@/shared/components/confirmation-modal";
+import { waiverModalHandler } from "@/features/organization/components/waivers/waiver-modal";
+import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
 import { PageHeader } from "@/shared/components/layout/page";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -56,6 +50,7 @@ function RouteComponent() {
         <PageHeader
           title="Waivers"
           description="Manage liability waivers that riders must sign."
+          backButton={false}
           action={
             <DialogTrigger handle={waiverModalHandler} render={<Button />}>
               <PlusIcon />
@@ -177,9 +172,6 @@ function RouteComponent() {
           )}
         </div>
       </div>
-
-      <ConfirmationModal />
-      <WaiverModal />
     </>
   );
 }

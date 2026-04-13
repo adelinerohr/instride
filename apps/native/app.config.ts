@@ -4,40 +4,32 @@ if (!process.env.ORGANIZATION_SLUG) {
   throw new Error("ORGANIZATION_SLUG is not set");
 }
 
-const organizationSlug = process.env.ORGANIZATION_SLUG;
-const organizationName = process.env.ORGANIZATION_NAME;
-const bundleIdSuffix = process.env.BUNDLE_ID_SUFFIX ?? "instride";
-const primaryColor = process.env.PRIMARY_COLOR ?? "#000000";
+// Set per EAS build profile via the `env` block in eas.json
+const ORGANIZATION_SLUG = process.env.ORGANIZATION_SLUG ?? "instride";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: organizationName,
-  slug: organizationSlug,
+  name: ORGANIZATION_SLUG,
+  slug: ORGANIZATION_SLUG,
   orientation: "portrait",
   userInterfaceStyle: "light",
   version: "1.0.0",
-  icon: `./assets/organizations/${organizationSlug}/icon.png`,
-  splash: {
-    image: `./assets/organizations/${organizationSlug}/splash.png`,
-    backgroundColor: primaryColor,
-  },
   ios: {
-    bundleIdentifier: `com.instride.${bundleIdSuffix}`,
-    buildNumber: "1",
+    bundleIdentifier: `com.instride.${ORGANIZATION_SLUG}`,
+    supportsTablet: true,
   },
   android: {
-    package: `com.instride.${bundleIdSuffix}`,
+    package: `com.instride.${ORGANIZATION_SLUG}`,
     adaptiveIcon: {
-      foregroundImage: `./assets/organizations/${organizationSlug}/adaptive-icon.png`,
-      backgroundColor: primaryColor,
+      backgroundColor: "#000000",
     },
   },
-  plugins: ["expo-font"],
-  extra: {
-    organizationSlug: organizationSlug,
-    primaryColor,
-  },
+  plugins: ["expo-font", "expo-secure-store"],
   experiments: {
     typedRoutes: true,
+    reactCompiler: true,
+  },
+  extra: {
+    organizationSlug: ORGANIZATION_SLUG,
   },
 });

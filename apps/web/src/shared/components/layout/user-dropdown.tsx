@@ -8,21 +8,22 @@ import {
   UserIcon,
 } from "lucide-react";
 
-import { authClient } from "@/shared/lib/auth-client";
-import { hasAnyRole, hasRole } from "@/shared/lib/roles";
+import { authClient } from "@/shared/lib/auth/client";
+import { hasAnyRole, hasRole } from "@/shared/lib/auth/roles";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
 
 export function UserDropdown() {
-  const { user, organization, membership, isPortal } = useRouteContext({
+  const { user, organization, member, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
 
-  const isTrainerOrAdmin = hasAnyRole(membership, [
-    MembershipRole.TRAINER,
+  const isAdminOrTrainer = hasAnyRole(member, [
     MembershipRole.ADMIN,
+    MembershipRole.TRAINER,
   ]);
+  const isRider = hasRole(member, MembershipRole.RIDER);
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -40,7 +41,9 @@ export function UserDropdown() {
           <span className="truncate text-xs">{user.email}</span>
         </div>
       </div>
+
       <DropdownMenuSeparator />
+
       <DropdownMenuItem
         render={
           <Link to="/org/$slug/admin" params={{ slug: organization.slug }} />
@@ -49,51 +52,44 @@ export function UserDropdown() {
         <UserCog2Icon />
         Account Settings
       </DropdownMenuItem>
-
-      {isTrainerOrAdmin && (
-        <>
-          <DropdownMenuSeparator />
-          {isPortal && isTrainerOrAdmin && (
-            <>
-              <DropdownMenuItem
-                render={
-                  <Link
-                    to="/org/$slug/admin"
-                    params={{ slug: organization.slug }}
-                  />
-                }
-              >
-                <LayoutDashboardIcon />
-                Admin Dashboard
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                render={
-                  <Link
-                    to="/org/$slug/admin/settings"
-                    params={{ slug: organization.slug }}
-                  />
-                }
-              >
-                <SettingsIcon />
-                Organization Settings
-              </DropdownMenuItem>
-            </>
-          )}
-          {!isPortal && hasRole(membership, MembershipRole.MEMBER) && (
-            <DropdownMenuItem
-              render={
-                <Link
-                  to="/org/$slug/admin/settings"
-                  params={{ slug: organization.slug }}
-                />
-              }
-            >
-              <UserIcon />
-              Rider Dashboard
-            </DropdownMenuItem>
-          )}
-        </>
+      {isAdminOrTrainer && (
+        <DropdownMenuItem
+          render={
+            <Link
+              to="/org/$slug/settings/organization/general"
+              params={{ slug: organization.slug }}
+            />
+          }
+        >
+          <SettingsIcon />
+          Organization Settings
+        </DropdownMenuItem>
       )}
+
+      <DropdownMenuSeparator />
+
+      {isRider && !isPortal && (
+        <DropdownMenuItem
+          render={
+            <Link to="/org/$slug/portal" params={{ slug: organization.slug }} />
+          }
+        >
+          <UserIcon />
+          Rider Dashboard
+        </DropdownMenuItem>
+      )}
+
+      {isAdminOrTrainer && isPortal && (
+        <DropdownMenuItem
+          render={
+            <Link to="/org/$slug/admin" params={{ slug: organization.slug }} />
+          }
+        >
+          <LayoutDashboardIcon />
+          Admin Dashboard
+        </DropdownMenuItem>
+      )}
+
       <DropdownMenuSeparator />
       <DropdownMenuItem onClick={handleSignOut}>
         <LogOutIcon />

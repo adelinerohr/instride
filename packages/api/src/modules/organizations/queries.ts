@@ -46,6 +46,26 @@ export const organizationOptions = {
     }),
 };
 
+export const invitationOptions = {
+  list: () =>
+    queryOptions({
+      queryKey: organizationKeys.listInvitations(),
+      queryFn: async () => {
+        const { invitations } = await apiClient.organizations.listInvitations();
+        return invitations;
+      },
+    }),
+  listUser: () =>
+    queryOptions({
+      queryKey: organizationKeys.listUserInvitations(),
+      queryFn: async () => {
+        const { invitations } =
+          await apiClient.organizations.listUserInvitations();
+        return invitations;
+      },
+    }),
+};
+
 export const levelOptions = {
   list: () =>
     queryOptions({

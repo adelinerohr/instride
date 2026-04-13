@@ -4,16 +4,13 @@ import {
   servicesOptions,
   levelOptions,
 } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PencilIcon, XIcon, CircleIcon } from "lucide-react";
 import * as React from "react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -35,7 +32,6 @@ import {
 } from "@/shared/components/ui/input-group";
 import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
 import { withForm } from "@/shared/hooks/form";
-import { getInitials } from "@/shared/lib/utils/format";
 
 import { lessonFormOpts } from "../../lib/new-lesson.form";
 
@@ -118,16 +114,7 @@ export const LessonChoicesFormSection = withForm({
                       renderValue={(value) => (
                         <Item size="xs" className="w-full p-0">
                           <ItemMedia>
-                            <Avatar className="size-4">
-                              <AvatarImage
-                                src={
-                                  value?.member?.authUser?.image ?? undefined
-                                }
-                              />
-                              <AvatarFallback className="text-[8px]">
-                                {getInitials(value?.member?.authUser?.name)}
-                              </AvatarFallback>
-                            </Avatar>
+                            <UserAvatar user={getUser({ trainer: value })} />
                           </ItemMedia>
                           <ItemContent>
                             {value?.member?.authUser?.name}

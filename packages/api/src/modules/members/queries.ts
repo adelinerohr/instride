@@ -50,6 +50,11 @@ export const membersOptions = {
         return riders;
       },
     }),
+  riderStats: () =>
+    queryOptions({
+      queryKey: memberKeys.stats(),
+      queryFn: async () => await apiClient.organizations.getRiderStats(),
+    }),
 };
 
 // ---- Hooks --------------------------------------------------------------------
@@ -72,4 +77,8 @@ export function useTrainers() {
 
 export function useRiders() {
   return useQuery(membersOptions.riders());
+}
+
+export function useRiderStats() {
+  return useQuery(membersOptions.riderStats());
 }

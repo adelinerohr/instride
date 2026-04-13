@@ -3,7 +3,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppHeader } from "@/shared/components/layout/app-header";
 import { AppSidebar } from "@/shared/components/layout/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
-import { isAdmin } from "@/shared/lib/roles";
+import { isAdmin } from "@/shared/lib/auth/roles";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/admin")({
   component: RouteComponent,

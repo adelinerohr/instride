@@ -41,7 +41,9 @@ export function AppSidebar({ type }: AppSidebarProps) {
                 <span className="truncate font-medium">
                   {organization.name}
                 </span>
-                <span className="truncate text-xs">Enterprise</span>
+                <span className="truncate text-xs">
+                  {type === "admin" ? "Admin" : "Rider Portal"}
+                </span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -24,7 +24,7 @@ export function DayView() {
   );
 
   return (
-    <div className="flex">
+    <div className="flex h-full">
       <div className="flex flex-1 flex-col">
         {/* Day header */}
         <div className="relative z-20 flex border-b">

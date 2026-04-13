@@ -3,10 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChartAreaIcon, MoreHorizontalIcon, SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import {
-  LevelModal,
-  levelModalHandler,
-} from "@/features/organization/components/levels/modal";
+import { levelModalHandler } from "@/features/organization/components/levels/modal";
 import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
@@ -150,7 +147,6 @@ export function OrganizationLevelsCard() {
           </Empty>
         )}
       </CardContent>
-      <LevelModal />
     </Card>
   );
 }

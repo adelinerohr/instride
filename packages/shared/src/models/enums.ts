@@ -17,9 +17,8 @@ export type MembershipRole =
 export const InvitationStatus = {
   PENDING: "pending",
   ACCEPTED: "accepted",
-  DECLINED: "declined",
-  EXPIRED: "expired",
-  REVOKED: "revoked",
+  REJECTED: "rejected",
+  CANCELLED: "cancelled",
 } as const;
 
 export type InvitationStatus =

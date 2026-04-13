@@ -3,8 +3,8 @@ import { z } from "zod";
 export const feedSearchParams = z.object({
   // Filters
   query: z.string().optional(),
-  author: z.string().optional(),
-  board: z.string().optional(),
+  authors: z.array(z.string()).optional(),
+  boards: z.array(z.string()).optional(),
 
   // Comments modal
   postId: z.string().optional(),

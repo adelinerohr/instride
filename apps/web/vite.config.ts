@@ -15,6 +15,10 @@ export default defineConfig({
         __dirname,
         "../../packages/api/src/index.ts"
       ),
+      "@instride/utils": path.resolve(
+        __dirname,
+        "../../packages/utils/src/index.ts"
+      ),
     },
   },
   server: {

@@ -3,10 +3,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
 
 import { getTrainerColor } from "@/features/calendar/utils/lesson";
+import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import { cn } from "@/shared/lib/utils";
-
-import { viewLessonModalHandler } from "../../modals/view-lesson";
 
 const weekLessonBlockVariants = cva(
   "flex select-none flex-col gap-0.5 truncate whitespace-nowrap rounded-md border px-2 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -56,6 +55,7 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
     <DialogTrigger
       handle={viewLessonModalHandler}
       payload={{ lesson }}
+      nativeButton={false}
       render={
         <div
           role="button"

@@ -116,7 +116,7 @@ export namespace auth {
         session: Session
     }
 
-    export type Session = {
+    export interface Session {
         session: {
             id: string
             createdAt: string
@@ -145,7 +145,7 @@ export namespace auth {
             banReason?: string | null
             banExpires?: string | null
         }
-    } | null
+    }
 
     export interface UpdateUserRequest {
         name?: string
@@ -499,6 +499,44 @@ export namespace boards {
 }
 
 export namespace feed {
+    export interface CreateCommentRequest {
+        text: string
+        parentCommentId?: string | null
+    }
+
+    export interface CreatePostRequest {
+        text: string
+        boardId?: string | null
+        mediaUrls?: string[] | null
+    }
+
+    export interface ListFeedRequest {
+        searchQuery?: string
+        boardId?: string
+        authorMemberId?: string
+        limit?: number
+        cursorCreatedAt?: string
+        cursorId?: string
+    }
+
+    export interface ListFeedResponse {
+        nextCursor: {
+            createdAt: string
+            id: string
+        } | null
+        hasMore: boolean
+        posts: types.FeedPost[]
+    }
+
+    export interface UpdateCommentRequest {
+        text: string
+    }
+
+    export interface UpdatePostRequest {
+        text: string
+        boardId?: string | null
+        mediaUrls?: string[] | null
+    }
 
     export class ServiceClient {
         private baseClient: BaseClient
@@ -507,36 +545,49 @@ export namespace feed {
             this.baseClient = baseClient
             this.createComment = this.createComment.bind(this)
             this.createPost = this.createPost.bind(this)
-            this.getFeed = this.getFeed.bind(this)
+            this.deleteComment = this.deleteComment.bind(this)
+            this.deletePost = this.deletePost.bind(this)
             this.getFeedPost = this.getFeedPost.bind(this)
             this.likePost = this.likePost.bind(this)
+            this.listFeed = this.listFeed.bind(this)
             this.unlikePost = this.unlikePost.bind(this)
+            this.updateComment = this.updateComment.bind(this)
+            this.updatePost = this.updatePost.bind(this)
         }
 
-        public async createComment(postId: string, params: {
-    request: contracts.CreateCommentRequest
-}): Promise<contracts.CreateCommentResponse> {
+        public async createComment(postId: string, params: CreateCommentRequest): Promise<types.GetFeedCommentResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/comment`, JSON.stringify(params))
-            return await resp.json() as contracts.CreateCommentResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/comments`, JSON.stringify(params))
+            return await resp.json() as types.GetFeedCommentResponse
         }
 
-        public async createPost(organizationId: string, params: {
-    request: contracts.CreatePostRequest
-}): Promise<contracts.CreatePostResponse> {
+        public async createPost(params: CreatePostRequest): Promise<types.GetFeedPostResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/feed`, JSON.stringify(params))
-            return await resp.json() as contracts.CreatePostResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/feed`, JSON.stringify(params))
+            return await resp.json() as types.GetFeedPostResponse
         }
 
-        public async getFeed(organizationId: string, params: {
-    searchQuery?: string
-    boardId?: string
-    authorMemberId?: string
-    limit?: number
-    cursorCreatedAt?: string
-    cursorId?: string
-}): Promise<contracts.GetFeedResponse> {
+        public async deleteComment(commentId: string): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/feed/comments/${encodeURIComponent(commentId)}`)
+        }
+
+        public async deletePost(postId: string): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/feed/${encodeURIComponent(postId)}`)
+        }
+
+        public async getFeedPost(id: string): Promise<types.GetFeedPostResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/feed/post/${encodeURIComponent(id)}`)
+            return await resp.json() as types.GetFeedPostResponse
+        }
+
+        public async likePost(postId: string): Promise<types.GetFeedLikeResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/like`)
+            return await resp.json() as types.GetFeedLikeResponse
+        }
+
+        public async listFeed(params: ListFeedRequest): Promise<ListFeedResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 authorMemberId:  params.authorMemberId,
@@ -548,22 +599,24 @@ export namespace feed {
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(organizationId)}/feed`, undefined, {query})
-            return await resp.json() as contracts.GetFeedResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/feed`, undefined, {query})
+            return await resp.json() as ListFeedResponse
         }
 
-        public async getFeedPost(postId: string): Promise<contracts.GetFeedPostResponse> {
+        public async unlikePost(likeId: string): Promise<void> {
+            await this.baseClient.callTypedAPI("DELETE", `/feed/likes/${encodeURIComponent(likeId)}`)
+        }
+
+        public async updateComment(commentId: string, params: UpdateCommentRequest): Promise<types.GetFeedCommentResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/feed/${encodeURIComponent(postId)}`)
-            return await resp.json() as contracts.GetFeedPostResponse
+            const resp = await this.baseClient.callTypedAPI("PUT", `/feed/comments/${encodeURIComponent(commentId)}`, JSON.stringify(params))
+            return await resp.json() as types.GetFeedCommentResponse
         }
 
-        public async likePost(postId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/like`)
-        }
-
-        public async unlikePost(postId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/feed/${encodeURIComponent(postId)}/like`)
+        public async updatePost(postId: string, params: UpdatePostRequest): Promise<types.GetFeedPostResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/feed/${encodeURIComponent(postId)}`, JSON.stringify(params))
+            return await resp.json() as types.GetFeedPostResponse
         }
     }
 }
@@ -744,6 +797,7 @@ export namespace lessons {
             this.generateLessonInstances = this.generateLessonInstances.bind(this)
             this.getLessonInstance = this.getLessonInstance.bind(this)
             this.getLessonSeries = this.getLessonSeries.bind(this)
+            this.getLessonStats = this.getLessonStats.bind(this)
             this.listInstanceEnrollments = this.listInstanceEnrollments.bind(this)
             this.listLessonInstances = this.listLessonInstances.bind(this)
             this.listLessonSeries = this.listLessonSeries.bind(this)
@@ -804,6 +858,12 @@ export namespace lessons {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series/${encodeURIComponent(id)}`)
             return await resp.json() as types.GetLessonSeriesResponse
+        }
+
+        public async getLessonStats(): Promise<instances.GetLessonStatsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/stats`)
+            return await resp.json() as instances.GetLessonStatsResponse
         }
 
         public async listInstanceEnrollments(id: string): Promise<types.ListLessonInstanceEnrollmentsResponse> {
@@ -901,6 +961,12 @@ export namespace organizations {
         organization: types.Organization
     }
 
+    export interface SendInvitationRequest {
+        email: string
+        role: models.MembershipRole[]
+        resend?: boolean
+    }
+
     export interface UpdateOrganizationRequest {
         slug?: string
         name?: string
@@ -940,13 +1006,17 @@ export namespace organizations {
             this.getMember = this.getMember.bind(this)
             this.getMemberById = this.getMemberById.bind(this)
             this.getRider = this.getRider.bind(this)
+            this.getRiderStats = this.getRiderStats.bind(this)
             this.getTrainer = this.getTrainer.bind(this)
             this.joinOrganization = this.joinOrganization.bind(this)
+            this.listInvitations = this.listInvitations.bind(this)
             this.listLevels = this.listLevels.bind(this)
             this.listMembers = this.listMembers.bind(this)
             this.listOrganizations = this.listOrganizations.bind(this)
             this.listRiders = this.listRiders.bind(this)
             this.listTrainers = this.listTrainers.bind(this)
+            this.listUserInvitations = this.listUserInvitations.bind(this)
+            this.sendInvitation = this.sendInvitation.bind(this)
             this.updateLevel = this.updateLevel.bind(this)
             this.updateOrganization = this.updateOrganization.bind(this)
             this.updateRider = this.updateRider.bind(this)
@@ -1027,6 +1097,12 @@ export namespace organizations {
             return await resp.json() as types.GetRiderResponse
         }
 
+        public async getRiderStats(): Promise<members.GetRiderStatsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/riders/stats`)
+            return await resp.json() as members.GetRiderStatsResponse
+        }
+
         public async getTrainer(trainerId: string): Promise<types.GetTrainerResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/trainers/${encodeURIComponent(trainerId)}`)
@@ -1037,6 +1113,12 @@ export namespace organizations {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/join`)
             return await resp.json() as types.GetMemberResponse
+        }
+
+        public async listInvitations(): Promise<types.ListInvitationsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/invitations`)
+            return await resp.json() as types.ListInvitationsResponse
         }
 
         public async listLevels(): Promise<types.ListLevelsResponse> {
@@ -1072,6 +1154,16 @@ export namespace organizations {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/trainers`, undefined, {query})
             return await resp.json() as types.ListTrainersResponse
+        }
+
+        public async listUserInvitations(): Promise<types.ListInvitationsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/invitations/user`)
+            return await resp.json() as types.ListInvitationsResponse
+        }
+
+        public async sendInvitation(organizationId: string, params: SendInvitationRequest): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/invitations`, JSON.stringify(params))
         }
 
         public async updateLevel(id: string, params: levels.UpdateLevelRequest): Promise<types.GetLevelResponse> {
@@ -1381,39 +1473,6 @@ export namespace business_hours {
     }
 }
 
-export namespace contracts {
-    export interface CreateCommentRequest {
-        text: string
-        memberId: string
-        parentCommentId?: string | null
-    }
-
-    export interface CreateCommentResponse {
-        comment: interfaces.BaseFeedComment
-    }
-
-    export interface CreatePostRequest {
-        authorMemberId: string
-        boardId?: string | null
-        text: string
-        mediaUrls?: string[] | null
-    }
-
-    export interface CreatePostResponse {
-        post: interfaces.BaseFeedPost
-    }
-
-    export interface GetFeedPostResponse {
-        post: interfaces.FeedPost
-    }
-
-    export interface GetFeedResponse {
-        posts: interfaces.FeedPost[]
-        nextCursor: models.FeedCursor | null
-        hasMore: boolean
-    }
-}
-
 export namespace enrollments {
     export interface EnrollInInstanceRequest {
         riderIds: string | string[]
@@ -1463,6 +1522,12 @@ export namespace instances {
         notes?: string
     }
 
+    export interface GetLessonStatsResponse {
+        totalLessonInstancesThisMonth: number
+        totalLessonInstancesLastMonth: number
+        percentageChange: number
+    }
+
     export interface ListLessonInstancesRequest {
         from: string
         to: string
@@ -1481,106 +1546,6 @@ export namespace instances {
         status?: models.LessonInstanceStatus
         levelId?: string
         notes?: string
-    }
-}
-
-export namespace interfaces {
-    export interface BaseFeedComment {
-        id: string
-        createdAt: string
-        updatedAt: string
-        deletedAt: string | null
-        memberId: string
-        text: string
-        postId: string
-        parentCommentId: string | null
-    }
-
-    export interface BaseFeedPost {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        deletedAt: string | null
-        authorMemberId: string
-        boardId: string | null
-        text: string
-        mediaUrls: string[] | null
-    }
-
-    export interface Board {
-        id: string
-        name: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        canRiderAdd: boolean
-    }
-
-    export interface FeedComment {
-        id: string
-        createdAt: string
-        updatedAt: string
-        deletedAt: string | null
-        memberId: string
-        text: string
-        postId: string
-        parentCommentId: string | null
-        member: MemberWithUser
-    }
-
-    export interface FeedLike {
-        id: string
-        createdAt: string
-        memberId: string
-        postId: string
-        member: MemberWithUser
-    }
-
-    export interface FeedPost {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        deletedAt: string | null
-        authorMemberId: string
-        boardId: string | null
-        text: string
-        mediaUrls: string[] | null
-        author: MemberWithUser
-        likes: FeedLike[]
-        comments: FeedComment[]
-        board: Board | null
-    }
-
-    export interface MemberWithUser {
-        authUser: User
-        id: string
-        createdAt: string
-        updatedAt: string
-        userId: string
-        organizationId: string
-        isPlaceholder: boolean
-        authMemberId: string
-        roles: models.MembershipRole[]
-        onboardingComplete: boolean
-        deletedAt: string | null
-    }
-
-    export interface User {
-        id: string
-        name: string
-        createdAt: string
-        phone: string | null
-        updatedAt: string
-        email: string
-        emailVerified: boolean
-        image: string | null
-        profilePictureUrl: string | null
-        role: string | null
-        banned: boolean | null
-        banReason: string | null
-        banExpires: string | null
     }
 }
 
@@ -1618,6 +1583,18 @@ export namespace members {
         bio?: string | null
     }
 
+    export interface GetRiderStatsResponse {
+        totalRiders: number
+        newRidersThisMonth: number
+        newRidersLastMonth: number
+        percentageChange: number
+        ridersByLevel: {
+            levelName: string
+            count: number
+            color: string
+        }[]
+    }
+
     export interface ListTrainersRequest {
         boardId?: string
     }
@@ -1641,12 +1618,9 @@ export namespace members {
 export namespace models {
     export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
 
-    export interface FeedCursor {
-        createdAt: string
-        id: string
-    }
-
     export type GuardianRelationshipStatus = "active" | "revoked" | "pending"
+
+    export type InvitationStatus = "pending" | "accepted" | "rejected" | "cancelled"
 
     export type LessonInstanceEnrollmentStatus = "enrolled" | "waitlisted" | "cancelled" | "attended" | "no_show"
 
@@ -1838,6 +1812,8 @@ export namespace types {
         createdAt: string
         updatedAt: string
         canRiderAdd: boolean
+        assignments?: BoardAssignment[] | null
+        serviceBoardAssignments?: ServiceBoardAssignment[] | null
     }
 
     export interface BoardAssignment {
@@ -1868,15 +1844,41 @@ export namespace types {
 
     export type EffectiveDayHoursSource = "board_override" | "organization_default" | "trainer_default" | "trainer_board_override"
 
-    export interface ExpandedBoard {
-        assignments?: BoardAssignment[] | null
-        serviceBoardAssignments?: ServiceBoardAssignment[] | null
-        organizationId: string
+    export interface FeedComment {
         id: string
-        name: string
         createdAt: string
         updatedAt: string
-        canRiderAdd: boolean
+        deletedAt: string | null
+        memberId: string
+        text: string
+        postId: string
+        parentCommentId: string | null
+        member?: Member | null
+        replies?: FeedComment[] | null
+    }
+
+    export interface FeedLike {
+        id: string
+        createdAt: string
+        memberId: string
+        postId: string
+        member?: Member | null
+    }
+
+    export interface FeedPost {
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        deletedAt: string | null
+        boardId: string | null
+        authorMemberId: string
+        text: string | null
+        mediaUrls: string[] | null
+        comments?: FeedComment[] | null
+        likes?: FeedLike[] | null
+        author?: Member | null
+        board?: Board | null
     }
 
     export interface GetBoardAssignmentResponse {
@@ -1884,7 +1886,19 @@ export namespace types {
     }
 
     export interface GetBoardResponse {
-        board: ExpandedBoard
+        board: Board
+    }
+
+    export interface GetFeedCommentResponse {
+        comment: FeedComment
+    }
+
+    export interface GetFeedLikeResponse {
+        like: FeedLike
+    }
+
+    export interface GetFeedPostResponse {
+        post: FeedPost
     }
 
     export interface GetGuardianRelationshipResponse {
@@ -1961,6 +1975,18 @@ export namespace types {
         dependent?: Member | null
     }
 
+    export interface Invitation {
+        id: string
+        organizationId: string
+        email: string
+        role: models.MembershipRole[]
+        status: models.InvitationStatus
+        inviterId: string
+        expiresAt: string
+        createdAt: string
+        organization?: Organization
+    }
+
     export interface LessonInstance {
         id: string
         name: string | null
@@ -1971,6 +1997,7 @@ export namespace types {
         boardId: string
         maxRiders: number
         serviceId: string
+        seriesId: string
         trainerId: string
         levelId: string | null
         notes: string | null
@@ -1987,6 +2014,7 @@ export namespace types {
         service?: Service | null
         trainer?: Trainer | null
         board?: Board | null
+        series?: LessonSeries | null
     }
 
     export interface LessonInstanceEnrollment {
@@ -2082,6 +2110,10 @@ export namespace types {
 
     export interface ListGuardianRelationshipsResponse {
         relationships: GuardianRelationship[]
+    }
+
+    export interface ListInvitationsResponse {
+        invitations: Invitation[]
     }
 
     export interface ListLessonInstanceEnrollmentsResponse {

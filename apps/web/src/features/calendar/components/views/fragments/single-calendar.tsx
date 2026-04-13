@@ -9,7 +9,7 @@ export function SingleCalendar() {
 
   return (
     <Calendar
-      className="p-3 mx-auto w-fit"
+      className="p-3 mx-auto w-full"
       mode="single"
       selected={selectedDate}
       onSelect={setSelectedDate}

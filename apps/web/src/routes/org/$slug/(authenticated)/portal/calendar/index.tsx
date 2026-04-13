@@ -7,19 +7,11 @@ import {
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  addDays,
-  addMonths,
-  subDays,
-  subMonths,
-  subWeeks,
-  addWeeks,
-} from "date-fns";
 
 import { Calendar } from "@/features/calendar/components";
 import { CalendarProvider } from "@/features/calendar/hooks/use-calendar";
 import { calendarSearchSchema } from "@/features/calendar/lib/search-params";
-import { CalendarView } from "@/features/calendar/lib/types";
+import { getCalendarRange } from "@/features/calendar/utils/date";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/portal/calendar/"
@@ -47,20 +39,7 @@ export const Route = createFileRoute(
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context, deps }) => {
     const memberId = context.member.id;
-
-    const from =
-      deps.search.view === CalendarView.DAY
-        ? subDays(deps.search.date, 1)
-        : deps.search.view === CalendarView.AGENDA
-          ? subMonths(deps.search.date, 1)
-          : subWeeks(deps.search.date, 1);
-
-    const to =
-      deps.search.view === CalendarView.DAY
-        ? addDays(deps.search.date, 1)
-        : deps.search.view === CalendarView.AGENDA
-          ? addMonths(deps.search.date, 1)
-          : addWeeks(deps.search.date, 1);
+    const { from, to } = getCalendarRange(deps.search.view, deps.search.date);
 
     context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
     context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to));

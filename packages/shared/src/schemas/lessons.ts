@@ -77,7 +77,7 @@ export const lessonSeriesSchema = z.object({
   trainerId: z.string().min(1, "Select a trainer"),
   levelId: z.string().nullable(),
   notes: z.string().nullable(),
-  start: z.date(),
+  start: z.string(),
   isRecurring: z.boolean(),
   recurrenceFrequency: z.enum(RecurrenceFrequency).nullable(),
   recurrenceByDay: z.array(z.enum(DayOfWeek)).nullable(),
@@ -103,10 +103,10 @@ export const lessonSeriesInputSchema = lessonSeriesSchema
     start: true,
     isRecurring: true,
     recurrenceFrequency: true,
-    recurrenceByDay: true,
-    recurrenceEnd: true,
     effectiveFrom: true,
-    lastPlannedUntil: true,
+  })
+  .extend({
+    riderIds: z.array(z.object({ id: z.string() })),
   })
   .superRefine((data, ctx) => {
     if (data.isRecurring && !data.recurrenceFrequency) {

@@ -2,7 +2,7 @@ import { organizationOptions } from "@instride/api";
 import { registerRuntime } from "@instride/api";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-import { authClient } from "@/shared/lib/auth-client";
+import { authClient } from "@/shared/lib/auth/client";
 /**
  * Path: /org/[slug]
  * Description: Main organization route, loads organization

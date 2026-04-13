@@ -3,7 +3,7 @@ import * as dateFns from "date-fns";
 import { parseISO } from "date-fns";
 
 import { END_HOUR, START_HOUR } from "../lib/constants";
-import type { CalendarView } from "../lib/types";
+import { CalendarView } from "../lib/types";
 
 export function rangeText(view: CalendarView, date: Date) {
   const formatString = "MMM d, yyyy";
@@ -64,4 +64,24 @@ export function getVisibleHours(lessons: types.LessonInstance[]) {
   );
 
   return { hours, earliestEventHour, latestEventHour };
+}
+
+export function getCalendarRange(view: CalendarView, dateString: string) {
+  const date = new Date(dateString);
+
+  const from =
+    view === CalendarView.DAY
+      ? dateFns.subDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? dateFns.subMonths(date, 1)
+        : dateFns.subWeeks(date, 1);
+
+  const to =
+    view === CalendarView.DAY
+      ? dateFns.addDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? dateFns.addMonths(date, 1)
+        : dateFns.addWeeks(date, 1);
+
+  return { from, to };
 }

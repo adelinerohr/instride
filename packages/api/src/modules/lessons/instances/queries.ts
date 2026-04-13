@@ -27,8 +27,17 @@ export const instanceOptions = {
     return queryOptions({
       queryKey: lessonKeys.instanceById(instanceId),
       queryFn: async () => {
-        return await apiClient.lessons.getLessonInstance(instanceId);
+        const { instance } =
+          await apiClient.lessons.getLessonInstance(instanceId);
+        return instance;
       },
+    });
+  },
+
+  stats: () => {
+    return queryOptions({
+      queryKey: lessonKeys.stats(),
+      queryFn: async () => await apiClient.lessons.getLessonStats(),
     });
   },
 };
@@ -39,4 +48,8 @@ export function useListLessonInstances(from: Date, to: Date) {
 
 export function useGetLessonInstance(instanceId: string) {
   return useQuery(instanceOptions.byId(instanceId));
+}
+
+export function useGetLessonStats() {
+  return useQuery(instanceOptions.stats());
 }

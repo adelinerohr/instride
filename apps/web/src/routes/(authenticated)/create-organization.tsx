@@ -1,9 +1,9 @@
 import {
+  apiClient,
   useCreateOrganization,
   useUpdateCurrentUser,
   useUpdateOrganization,
 } from "@instride/api";
-import serverClient from "@instride/server-client";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
@@ -37,6 +37,7 @@ function RouteComponent() {
   const updateOrganization = useUpdateOrganization();
   const updateCurrentUser = useUpdateCurrentUser();
   const navigate = useNavigate();
+
   const [error, setError] = React.useState<string | null>(null);
 
   const form = useAppForm({
@@ -53,7 +54,7 @@ function RouteComponent() {
           break;
         case OnboardingOrganizationStep.OrganizationSetup:
           console.log("OrganizationSetup:", value.organizationSetup);
-          const slugCheck = await serverClient.organizations.checkSlug(
+          const slugCheck = await apiClient.organizations.checkSlug(
             value.organizationSetup.slug
           );
           if (!slugCheck.available) {

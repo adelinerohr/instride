@@ -14,8 +14,8 @@ import { Button } from "@/shared/components/ui/button";
 export const confirmationModalHandler = AlertDialogHandler.createHandle<{
   title: string;
   description: string;
-  confirmLabel: string;
-  cancelLabel: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
   discardLabel?: string;
   onConfirm: () => void;
   onDiscard?: () => void;
@@ -39,14 +39,16 @@ export function ConfirmationModal() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{payload.cancelLabel}</AlertDialogCancel>
+              <AlertDialogCancel>
+                {payload.cancelLabel ?? "Cancel"}
+              </AlertDialogCancel>
               {hasDiscard && (
                 <Button variant="outline" onClick={payload.onDiscard}>
-                  {payload.discardLabel}
+                  {payload.discardLabel ?? "Discard"}
                 </Button>
               )}
               <AlertDialogAction onClick={payload.onConfirm}>
-                {payload.confirmLabel}
+                {payload.confirmLabel ?? "Confirm"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

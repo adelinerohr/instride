@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { isRider, isTrainer } from "@/shared/lib/roles";
+import { isRider, isTrainer } from "@/shared/lib/auth/roles";
 import {
   formatDate,
   ROLE_LABELS,

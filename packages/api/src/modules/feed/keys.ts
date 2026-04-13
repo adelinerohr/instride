@@ -8,14 +8,12 @@ import type { FeedFilters } from "@instride/shared";
  *   ["feed", orgId, "posts", id]       ← one post
  */
 
-const getFeedRootKey = (organizationId: string) =>
-  ["feed", organizationId] as const;
+const getFeedRootKey = ["feed"] as const;
 
-export const feedKeys = (organizationId: string) => ({
-  all: () => getFeedRootKey(organizationId),
-  posts: () => [...getFeedRootKey(organizationId), "posts"] as const,
+export const feedKeys = {
+  all: () => getFeedRootKey,
+  posts: () => [...getFeedRootKey, "posts"] as const,
   postsList: (filters: FeedFilters) =>
-    [...getFeedRootKey(organizationId), "posts", filters] as const,
-  postById: (id: string) =>
-    [...getFeedRootKey(organizationId), "posts", id] as const,
-});
+    [...getFeedRootKey, "posts", filters] as const,
+  postById: (id: string) => [...getFeedRootKey, "posts", id] as const,
+};

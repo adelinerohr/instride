@@ -1,6 +1,7 @@
 import { useFormContext } from "@/shared/hooks/form";
 
 import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 type SubmitButtonProps = React.ComponentProps<typeof Button> & {
   label: string;
@@ -18,7 +19,13 @@ export function SubmitButton({
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Button type="submit" className={className} disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className={className}
+          disabled={isSubmitting}
+          {...props}
+        >
+          {isSubmitting && <Spinner data-icon="inline-start" />}
           {isSubmitting ? loadingLabel : label}
         </Button>
       )}

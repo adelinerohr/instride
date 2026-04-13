@@ -4,6 +4,13 @@ import { CalendarX2Icon } from "lucide-react";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
+import {
+  Empty,
+  EmptyMedia,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/shared/components/ui/empty";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
 import { AgendaLessonCard } from "./lesson-card";
@@ -61,12 +68,17 @@ export function AgendaView() {
         })}
 
         {!hasAnyLessons && (
-          <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-            <CalendarX2Icon className="size-10" />
-            <p className="text-sm md:text-base">
-              No lessons scheduled for the selected month
-            </p>
-          </div>
+          <Empty className="border border-dashed w-full">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <CalendarX2Icon className="size-6" />
+              </EmptyMedia>
+              <EmptyTitle>No lessons scheduled</EmptyTitle>
+              <EmptyDescription>
+                You don't have any lessons scheduled for the selected month.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         )}
       </div>
     </ScrollArea>

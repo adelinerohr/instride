@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { useAppForm } from "@/shared/hooks/form";
-import { authClient } from "@/shared/lib/auth-client";
+import { authClient } from "@/shared/lib/auth/client";
 
 export const Route = createFileRoute("/org/$slug/(unauthenticated)/register")({
   component: RouteComponent,

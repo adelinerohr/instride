@@ -8,12 +8,18 @@ export const lessonSeriesOptions = {
   list: () =>
     queryOptions({
       queryKey: lessonKeys.series(),
-      queryFn: async () => await apiClient.lessons.listLessonSeries(),
+      queryFn: async () => {
+        const { series } = await apiClient.lessons.listLessonSeries();
+        return series;
+      },
     }),
   byId: (seriesId: string) =>
     queryOptions({
       queryKey: lessonKeys.seriesById(seriesId),
-      queryFn: async () => await apiClient.lessons.getLessonSeries(seriesId),
+      queryFn: async () => {
+        const { series } = await apiClient.lessons.getLessonSeries(seriesId);
+        return series;
+      },
     }),
 };
 

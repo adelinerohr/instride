@@ -1,6 +1,6 @@
 import { formOptions } from "@tanstack/react-form";
 
-import type { AuthUser } from "@/shared/lib/auth-client";
+import type { AuthUser } from "@/shared/lib/auth/client";
 
 import { personalDetailsSchema } from "../validators";
 import {

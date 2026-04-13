@@ -4,9 +4,8 @@ import { format, parseISO } from "date-fns";
 import { ClockIcon, TextIcon, UserIcon } from "lucide-react";
 
 import { getTrainerColor } from "@/features/calendar/utils/lesson";
+import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
-
-import { viewLessonModalHandler } from "../../modals/view-lesson";
 
 const agendaLessonCardVariants = cva(
   "flex select-none items-center justify-between gap-3 rounded-md border p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",

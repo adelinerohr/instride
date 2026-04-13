@@ -1,0 +1,15 @@
+{
+  "name": "@instride/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@instride/api": "workspace:*",
+    "@instride/shared": "workspace:*",
+    "typescript": "^5"
+  }
+}

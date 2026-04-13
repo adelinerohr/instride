@@ -200,11 +200,14 @@ export const QuestionBuilder = withForm({
             <form.AppField
               name={`questions[${index}].showIf.questionId`}
               children={(field) => (
-                <field.SelectField
+                <field.ClearableSelectField
                   label="Show this question only if..."
-                  placeholder="Select a question"
+                  placeholder="Always show this question"
+                  items={questions.slice(0, index)}
+                  itemToValue={(item) => item?.id ?? null}
+                  renderValue={(item) => item?.text}
                   onChange={(value) => {
-                    if (value === "reset") {
+                    if (value === null) {
                       form.setFieldValue(`questions[${index}].showIf`, null);
                       return null;
                     }
@@ -224,16 +227,6 @@ export const QuestionBuilder = withForm({
 
                     return value;
                   }}
-                  items={[
-                    {
-                      label: "Always show this question",
-                      value: "reset",
-                    },
-                    ...questions.slice(0, index).map((question) => ({
-                      label: question.text || "Untitled question",
-                      value: question.id,
-                    })),
-                  ]}
                 />
               )}
             />
@@ -261,10 +254,14 @@ export const QuestionBuilder = withForm({
                 <field.SelectField
                   label="Answer that triggers this question"
                   placeholder="Select an answer"
-                  items={(referencedQuestion.options ?? []).map((option) => ({
-                    label: option,
-                    value: option,
-                  }))}
+                  items={
+                    referencedQuestion.options?.map((option) => ({
+                      label: option,
+                      value: option,
+                    })) ?? []
+                  }
+                  itemToValue={(item) => item.value}
+                  renderValue={(item) => item.label}
                 />
               )}
             />

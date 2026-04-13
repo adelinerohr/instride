@@ -107,6 +107,8 @@ export function OrganizationDetails() {
                         label: state,
                         value: state,
                       }))}
+                      itemToValue={(state) => state.value}
+                      renderValue={(state) => state.label}
                     />
                   )}
                 />

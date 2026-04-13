@@ -6,9 +6,9 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "sonner";
 
-import { ThemeProvider } from "@/shared/components/theme-provider";
-
 import "../index.css";
+import { Modals } from "@/shared/components/modals";
+import { ThemeProvider } from "@/shared/components/theme-provider";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 
 import type { RouterContext } from "../main";
@@ -48,6 +48,7 @@ function RootComponent() {
           <Outlet />
         </div>
         <Toaster richColors />
+        <Modals />
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </TooltipProvider>

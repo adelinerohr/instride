@@ -20,10 +20,7 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-import {
-  ConfirmationModal,
-  confirmationModalHandler,
-} from "@/shared/components/confirmation-modal";
+import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
 import {
   DetailAvatarItem,
   DetailCard,
@@ -220,7 +217,6 @@ function RouteComponent() {
           ))}
         </DetailRelationCard>
       </DetailLayout>
-      <ConfirmationModal />
     </Page>
   );
 }

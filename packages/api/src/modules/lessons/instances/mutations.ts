@@ -19,7 +19,7 @@ export const instanceMutations = {
 
 export function useCancelLessonInstance({
   mutationConfig,
-}: MutationHookOptions<typeof instanceMutations.cancel>) {
+}: MutationHookOptions<typeof instanceMutations.cancel> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 

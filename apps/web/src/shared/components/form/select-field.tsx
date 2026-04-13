@@ -1,4 +1,5 @@
 import { useFieldContext } from "@/shared/hooks/form";
+import { cn } from "@/shared/lib/utils";
 
 import {
   Field,
@@ -69,11 +70,13 @@ export function SelectField<T extends object>({
           }
         }}
       >
-        <SelectTrigger className={className}>
+        <SelectTrigger className={cn(className, "h-auto!")}>
           <SelectValue
             placeholder={emptyItems ? emptyPlaceholder : placeholder}
           >
-            {currentItem ? (item: T) => renderValue(item) : undefined}
+            {currentItem
+              ? (item: T | null) => (item != null ? renderValue(item) : null)
+              : undefined}
           </SelectValue>
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>

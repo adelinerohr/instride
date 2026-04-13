@@ -27,6 +27,7 @@ export const lessonKeys = {
     [...lessonKeys.instances(), { from, to }] as const,
   instanceById: (instanceId: string) =>
     [...lessonKeys.instances(), instanceId] as const,
+  stats: () => [...lessonKeys.instances(), "stats"] as const,
 
   // Enrollments
   enrollments: () => [...getLessonRootKey, "enrollments"] as const,

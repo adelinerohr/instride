@@ -1,6 +1,7 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { CalendarPlusIcon, ClockIcon, PlusIcon } from "lucide-react";
 
+import { newLessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 import { Button } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
@@ -18,7 +19,7 @@ import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
   const { slug } = useParams({ strict: false });
-  const { selectedTrainerIds } = useCalendar();
+  const { selectedTrainerIds, selectedBoardId } = useCalendar();
 
   return (
     <div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
@@ -43,6 +44,18 @@ export function CalendarHeader() {
                 <CalendarPlusIcon />
                 <span>Add new event</span>
               </DropdownMenuItem>
+              <DialogTrigger
+                handle={newLessonModalHandler}
+                nativeButton={false}
+                payload={{
+                  boardId: selectedBoardId ?? "",
+                  trainerId: selectedTrainerIds[0] ?? "",
+                }}
+                render={<DropdownMenuItem />}
+              >
+                <CalendarPlusIcon />
+                <span>Add new lesson</span>
+              </DialogTrigger>
               <DialogTrigger
                 handle={timeBlockModalHandler}
                 nativeButton={false}

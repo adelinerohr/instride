@@ -52,7 +52,7 @@ export const enrollmentsMutations = {
 
 export function useEnrollInSeries({
   mutationConfig,
-}: MutationHookOptions<typeof enrollmentsMutations.enrollInSeries>) {
+}: MutationHookOptions<typeof enrollmentsMutations.enrollInSeries> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
@@ -69,7 +69,7 @@ export function useEnrollInSeries({
 
 export function useUnenrollFromSeries({
   mutationConfig,
-}: MutationHookOptions<typeof enrollmentsMutations.unenrollFromSeries>) {
+}: MutationHookOptions<typeof enrollmentsMutations.unenrollFromSeries> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
@@ -86,7 +86,7 @@ export function useUnenrollFromSeries({
 
 export function useEnrollInInstance({
   mutationConfig,
-}: MutationHookOptions<typeof enrollmentsMutations.enrollInInstance>) {
+}: MutationHookOptions<typeof enrollmentsMutations.enrollInInstance> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
@@ -102,7 +102,7 @@ export function useEnrollInInstance({
 
 export function useUnenrollFromInstance({
   mutationConfig,
-}: MutationHookOptions<typeof enrollmentsMutations.unenrollFromInstance>) {
+}: MutationHookOptions<typeof enrollmentsMutations.unenrollFromInstance> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
@@ -118,7 +118,7 @@ export function useUnenrollFromInstance({
 
 export function useMarkAttendance({
   mutationConfig,
-}: MutationHookOptions<typeof enrollmentsMutations.markAttendance>) {
+}: MutationHookOptions<typeof enrollmentsMutations.markAttendance> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 

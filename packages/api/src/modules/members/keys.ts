@@ -29,4 +29,5 @@ export const memberKeys = {
   // Riders
   riders: () => getRiderRootKey,
   riderById: (riderId: string) => [...getRiderRootKey, riderId] as const,
+  stats: () => [...getRiderRootKey, "stats"] as const,
 };

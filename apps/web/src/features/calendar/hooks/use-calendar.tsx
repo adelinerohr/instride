@@ -7,8 +7,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi, useParams } from "@tanstack/react-router";
 import * as React from "react";
 
-import { TimeBlockModal } from "../components/modals/time-block-form";
-import { ViewLessonModal } from "../components/modals/view-lesson";
 import type {
   CalendarView,
   EffectiveBusinessHours,
@@ -178,8 +176,6 @@ export function CalendarProvider({
       }}
     >
       {children}
-      <TimeBlockModal />
-      <ViewLessonModal />
     </CalendarContext.Provider>
   );
 }

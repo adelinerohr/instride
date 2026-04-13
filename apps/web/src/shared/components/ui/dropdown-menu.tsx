@@ -252,6 +252,7 @@ function DropdownMenuShortcut({
 }
 
 export {
+  MenuPrimitive as DropdownMenuHandler,
   DropdownMenu,
   DropdownMenuPortal,
   DropdownMenuTrigger,

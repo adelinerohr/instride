@@ -1,4 +1,4 @@
-import { DayOfWeek } from "../models/enums";
+import { DayOfWeek, MembershipRole } from "../models/enums";
 
 export const DAY_LABELS: Record<DayOfWeek, string> = {
   [DayOfWeek.MON]: "Monday",
@@ -25,3 +25,10 @@ export function replaceYouWithThey(text: string): string {
     .replace(/\bYourself\b/g, "Themselves")
     .replace(/\byourself\b/g, "themselves");
 }
+
+export const ROLE_LABELS: Record<MembershipRole, string> = {
+  [MembershipRole.ADMIN]: "Admin",
+  [MembershipRole.TRAINER]: "Trainer",
+  [MembershipRole.RIDER]: "Rider",
+  [MembershipRole.GUARDIAN]: "Guardian",
+} as const;

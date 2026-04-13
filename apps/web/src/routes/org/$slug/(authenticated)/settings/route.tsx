@@ -3,7 +3,7 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SettingsPage } from "@/shared/components/layout/settings-page";
 import { SettingsSidebar } from "@/shared/components/layout/settings-sidebar";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
-import { isAdmin } from "@/shared/lib/roles";
+import { isAdmin } from "@/shared/lib/auth/roles";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/settings")({
   component: RouteComponent,

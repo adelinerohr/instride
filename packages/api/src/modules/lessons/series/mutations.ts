@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type series } from "#client";
+import { apiClient, type series, type types } from "#client";
 
 import { lessonKeys } from "../keys";
 
@@ -49,9 +49,7 @@ export function useCreateLessonSeries({
     onSuccess: (series, ...args) => {
       queryClient.setQueryData(
         lessonKeys.series(),
-        (
-          old: Awaited<ReturnType<typeof apiClient.lessons.listLessonSeries>>
-        ) => [...old.series, series]
+        (old: types.LessonSeries[] | undefined) => [...(old ?? []), series]
       );
 
       queryClient.invalidateQueries({ queryKey: lessonKeys.series() });
