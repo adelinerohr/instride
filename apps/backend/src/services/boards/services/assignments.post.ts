@@ -1,0 +1,84 @@
+import { eq } from "drizzle-orm";
+import { api, APIError } from "encore.dev/api";
+
+import { db } from "@/database";
+import { requireOrganizationAuth } from "@/shared/auth";
+
+import { serviceBoardAssignments, serviceTrainerAssignments } from "../schema";
+import {
+  ServiceBoardAssignment,
+  ServiceTrainerAssignment,
+} from "../types/models";
+
+interface AssignToServiceRequest {
+  type: "trainer" | "board";
+  serviceId: string;
+  trainerId?: string;
+  boardId?: string;
+  isActive?: boolean;
+}
+
+interface AssignToServiceResponse {
+  assignment: ServiceTrainerAssignment | ServiceBoardAssignment;
+}
+
+export const assignToService = api(
+  {
+    method: "POST",
+    path: "/services/assignments",
+    expose: true,
+    auth: true,
+  },
+  async (request: AssignToServiceRequest): Promise<AssignToServiceResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
+    if (request.type === "trainer" && request.trainerId) {
+      const [assignment] = await db
+        .insert(serviceTrainerAssignments)
+        .values({
+          serviceId: request.serviceId,
+          trainerId: request.trainerId,
+          organizationId,
+        })
+        .returning();
+      return { assignment };
+    } else if (request.type === "board" && request.boardId) {
+      const [assignment] = await db
+        .insert(serviceBoardAssignments)
+        .values({
+          serviceId: request.serviceId,
+          boardId: request.boardId,
+          organizationId,
+        })
+        .returning();
+      return { assignment };
+    }
+
+    throw APIError.invalidArgument("Invalid assignment type");
+  }
+);
+
+interface UnassignFromServiceRequest {
+  type: "trainer" | "board";
+  assignmentId: string;
+}
+
+export const unassignFromService = api(
+  {
+    method: "DELETE",
+    path: "/services/assignments/:assignmentId",
+    expose: true,
+    auth: true,
+  },
+  async (request: UnassignFromServiceRequest): Promise<void> => {
+    if (request.type === "trainer") {
+      await db
+        .delete(serviceTrainerAssignments)
+        .where(eq(serviceTrainerAssignments.id, request.assignmentId));
+    } else if (request.type === "board") {
+      await db
+        .delete(serviceBoardAssignments)
+        .where(eq(serviceBoardAssignments.id, request.assignmentId));
+    }
+  }
+);

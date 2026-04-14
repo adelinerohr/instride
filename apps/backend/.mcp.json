@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "encore-mcp": {
+      "args": ["mcp", "run", "--app=instride-zeai"],
+      "command": "encore"
+    }
+  }
+}

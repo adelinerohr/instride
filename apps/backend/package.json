@@ -1,0 +1,37 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Backend for Instride",
+  "license": "MPL-2.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "dev": "encore run",
+    "auth:generate": "encore exec -- pnpm dlx auth@latest generate --config=./src/services/auth/auth.ts",
+    "db:generate": "drizzle-kit generate --config=./drizzle.config.ts",
+    "db:seed": "encore exec -- pnpm dlx tsx src/database/seed.ts"
+  },
+  "dependencies": {
+    "@better-auth/expo": "^1.6.2",
+    "@instride/shared": "workspace:*",
+    "better-auth": "^1.6.2",
+    "busboy": "^1.6.0",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "1.0.0-beta.20",
+    "encore.dev": "^1.56.2",
+    "pg": "^8.20.0",
+    "resend": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/busboy": "^1.5.4",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "1.0.0-beta.20",
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.13.0"
+  }
+}
