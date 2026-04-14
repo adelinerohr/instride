@@ -121,6 +121,12 @@ export function useAssignToBoard({
           assignment
         );
       }
+      queryClient.invalidateQueries({
+        queryKey: boardKeys.list(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: boardAssignmentKeys.list(),
+      });
       onSuccess?.(assignment, ...args);
     },
   });

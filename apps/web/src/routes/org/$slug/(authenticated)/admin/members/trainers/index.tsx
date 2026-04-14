@@ -1,5 +1,4 @@
-import { membersOptions } from "@instride/api";
-import type { MemberWithUser } from "@instride/shared/interfaces";
+import { membersOptions, type types } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Table } from "@tanstack/react-table";
@@ -12,40 +11,25 @@ import { DataTableToolbar } from "@/shared/components/data-table/toolbar";
 import { DataTableSortList } from "@/shared/components/data-table/toolbar/sort-list";
 import { Button } from "@/shared/components/ui/button";
 import { useDataTable } from "@/shared/hooks/use-data-table";
-import {
-  resetPageOnFilterChange,
-  tableSearchParams,
-  validateFilterKeys,
-  validateSortColumns,
-} from "@/shared/lib/search/table";
 
-import { getMembersTableColumns } from "./-columns";
+import { getTrainersTableColumns } from "./-columns";
 
 export const Route = createFileRoute(
-  "/org/$slug/(authenticated)/admin/members/"
+  "/org/$slug/(authenticated)/admin/members/trainers/"
 )({
   component: RouteComponent,
-  validateSearch: tableSearchParams,
-  search: {
-    middlewares: [
-      resetPageOnFilterChange(),
-      validateSortColumns(["name", "role", "createdAt"]),
-      validateFilterKeys(["role"]),
-    ],
-  },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(membersOptions.all());
+    await context.queryClient.ensureQueryData(membersOptions.trainers());
   },
 });
 
 function RouteComponent() {
-  const search = Route.useSearch();
-  const { data, isLoading } = useSuspenseQuery(membersOptions.all());
+  const { data, isLoading } = useSuspenseQuery(membersOptions.trainers());
 
-  const columns = React.useMemo(() => getMembersTableColumns(), []);
+  const columns = React.useMemo(() => getTrainersTableColumns(), []);
   const pageCount = React.useMemo(() => {
-    return Math.ceil(data.length / search.perPage);
-  }, [data, search.perPage]);
+    return Math.ceil(data.length / 10);
+  }, [data]);
 
   const table = useDataTable({
     data,
@@ -62,9 +46,9 @@ function RouteComponent() {
       <DataTable
         table={table}
         className="p-4"
-        actionBar={<MembersActionBar table={table} />}
+        actionBar={<TrainersActionBar table={table} />}
       >
-        <DataTableToolbar table={table} searchPlaceholder="Search members...">
+        <DataTableToolbar table={table} searchPlaceholder="Search trainers...">
           <DataTableSortList table={table} align="end" />
         </DataTableToolbar>
       </DataTable>
@@ -72,7 +56,7 @@ function RouteComponent() {
   );
 }
 
-function MembersActionBar({ table }: { table: Table<MemberWithUser> }) {
+function TrainersActionBar({ table }: { table: Table<types.Trainer> }) {
   return (
     <DataTableActionBar table={table}>
       {({ rows }) => (

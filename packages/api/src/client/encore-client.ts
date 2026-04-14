@@ -1903,12 +1903,12 @@ export namespace services {
         creditPrice: number
         maxRiders: number
         isRestricted?: boolean
-        description?: string
+        description?: string | null
         canRiderAdd?: boolean
-        creditAdditionalPrice?: number
+        creditAdditionalPrice?: number | null
         isPrivate?: boolean
         canRecurBook?: boolean
-        restrictedToLevelId?: string
+        restrictedToLevelId?: string | null
         isAllTrainers?: boolean
         isActive?: boolean
         boardIds?: string[]
@@ -1941,12 +1941,12 @@ export namespace services {
         creditPrice?: number
         maxRiders?: number
         isRestricted?: boolean
-        description?: string
+        description?: string | null
         canRiderAdd?: boolean
-        creditAdditionalPrice?: number
+        creditAdditionalPrice?: number | null
         isPrivate?: boolean
         canRecurBook?: boolean
-        restrictedToLevelId?: string
+        restrictedToLevelId?: string | null
         isAllTrainers?: boolean
         isActive?: boolean
         boardIds?: string[]
@@ -2090,6 +2090,7 @@ export namespace types {
         riderId: string | null
         trainer?: Trainer | null
         rider?: Rider | null
+        board?: Board | null
     }
 
     export interface DayHours {

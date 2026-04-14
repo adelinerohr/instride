@@ -5,18 +5,24 @@ import {
   servicesOptions,
   useUpdateService,
 } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, CircleIcon, CoinsIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { ServiceForm } from "@/features/organization/components/services/form";
 import {
   buildServiceDefaultValues,
   serviceFormOpts,
 } from "@/features/organization/lib/service.form";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
+import { DetailLayout } from "@/shared/components/layout/detail-layout";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { FieldGroup } from "@/shared/components/ui/field";
+import {
+  InputGroupAddon,
+  InputGroupText,
+} from "@/shared/components/ui/input-group";
 import { useAppForm } from "@/shared/hooks/form";
 
 export const Route = createFileRoute(
@@ -50,11 +56,7 @@ function RouteComponent() {
       updateService.mutateAsync(
         {
           serviceId: id,
-          request: {
-            ...value,
-            boardIds: value.boardIds.map((b) => b.id),
-            trainerIds: value.trainerIds.map((t) => t.id),
-          },
+          request: value,
         },
         {
           onSuccess: () => {
@@ -101,24 +103,223 @@ function RouteComponent() {
           </form.AppForm>
         </div>
       </div>
-      <ScrollArea className="min-h-0 w-full flex-1">
-        <div className="flex max-w-6xl flex-col-reverse items-start gap-6 p-4 md:flex-row">
-          <div className="flex w-full flex-1 flex-col gap-4">
-            <ServiceForm
-              form={form}
-              trainers={trainers}
-              levels={levels}
-              boards={boards}
-            />
-          </div>
-          <div className="flex w-full flex-col gap-1 rounded-md border border-primary bg-secondary px-4 py-2 text-secondary-foreground md:max-w-sm">
-            <span className="font-semibold text-lg">About services</span>
-            <p className="text-secondary-foreground/60">
-              Services define the types of appointments that can be booked.
-            </p>
-          </div>
-        </div>
-      </ScrollArea>
+      <DetailLayout
+        title="About services"
+        description="Services define the types of appointments that can be booked."
+      >
+        {/* Basic info */}
+        <FieldGroup className="rounded-md border bg-card p-4 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">Basic Information</h2>
+          <form.AppField
+            name="name"
+            children={(field) => (
+              <field.TextField
+                label="Service Name"
+                placeholder="Private Lesson, Flat Lesson, Training Ride..."
+              />
+            )}
+          />
+          <form.AppField
+            name="description"
+            children={(field) => (
+              <field.TextareaField
+                label="Description"
+                placeholder="Describe the service"
+              />
+            )}
+          />
+        </FieldGroup>
+
+        {/* Boards */}
+        <FieldGroup className="rounded-md border bg-card p-4 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">Boards</h2>
+          <form.AppField
+            name="boardIds"
+            children={(field) => (
+              <field.MultiSelectField
+                items={boards}
+                description="Choose which boards this service will be available on."
+                itemToValue={(item) => item.id}
+                itemToLabel={(item) => item.name}
+                renderValue={(item) => item.name}
+                placeholder="Select boards"
+              />
+            )}
+          />
+        </FieldGroup>
+
+        {/* Trainers */}
+        <FieldGroup className="rounded-md border bg-card p-4 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">Trainers</h2>
+          <form.AppField
+            name="trainerIds"
+            children={(field) => (
+              <field.MultiSelectField
+                items={trainers}
+                description="Choose which trainers will be available for this board."
+                itemToValue={(item) => item.id}
+                itemToLabel={(item) => getUser({ trainer: item }).name}
+                renderValue={(item) => (
+                  <UserAvatarItem user={getUser({ trainer: item })} />
+                )}
+                placeholder="Select trainers"
+              />
+            )}
+          />
+        </FieldGroup>
+
+        {/* Pricing */}
+        <FieldGroup className="rounded-md border bg-card p-4 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">Pricing</h2>
+          <form.AppField
+            name="price"
+            children={(field) => (
+              <field.TextField
+                type="number"
+                label="Price"
+                placeholder="0"
+                inputGroup
+              >
+                <InputGroupAddon align="inline-start">
+                  <InputGroupText>$</InputGroupText>
+                </InputGroupAddon>
+              </field.TextField>
+            )}
+          />
+          <form.AppField
+            name="creditPrice"
+            children={(field) => (
+              <field.TextField
+                type="number"
+                label="Price in credits"
+                placeholder="0"
+                inputGroup
+              >
+                <InputGroupAddon align="inline-start">
+                  <CoinsIcon className="size-4" />
+                </InputGroupAddon>
+              </field.TextField>
+            )}
+          />
+          <form.AppField
+            name="creditAdditionalPrice"
+            children={(field) => (
+              <field.TextField
+                type="number"
+                label="Additional charge when using credits"
+                placeholder="0"
+                inputGroup
+              >
+                <InputGroupAddon align="inline-start">
+                  <InputGroupText>$</InputGroupText>
+                </InputGroupAddon>
+              </field.TextField>
+            )}
+          />
+        </FieldGroup>
+
+        {/* Booking Conditions */}
+        <FieldGroup className="rounded-md border bg-card p-4 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">Booking Conditions</h2>
+          <form.AppField
+            name="isPrivate"
+            listeners={{
+              onChange: ({ value }) => {
+                if (value === false) {
+                  form.setFieldValue("maxRiders", 1);
+                }
+              },
+            }}
+            children={(field) => (
+              <field.SwitchField
+                label="Make service private"
+                onCheckedChange={(checked) => {
+                  field.handleChange(checked);
+                  if (checked) form.setFieldValue("maxRiders", 1);
+                }}
+              />
+            )}
+          />
+          <form.AppField
+            name="canRecurBook"
+            children={(field) => (
+              <field.SwitchField label="Allow riders to book recurring lessons" />
+            )}
+          />
+          <form.AppField
+            name="canRiderAdd"
+            children={(field) => (
+              <field.SwitchField label="Allow riders to add this lesson to the schedule" />
+            )}
+          />
+          <form.AppField
+            name="isRestricted"
+            listeners={{
+              onChange: ({ value }) => {
+                if (value === false) {
+                  form.setFieldValue("restrictedToLevelId", undefined);
+                }
+              },
+            }}
+            children={(field) => (
+              <field.SwitchField label="Restrict booking to riders with specific levels" />
+            )}
+          />
+          <form.Subscribe selector={(state) => state.values.isRestricted}>
+            {(isRestricted) =>
+              isRestricted && (
+                <form.AppField
+                  name="restrictedToLevelId"
+                  children={(field) => (
+                    <field.SelectField
+                      placeholder="Select a level"
+                      items={levels}
+                      itemToValue={(level) => level.id}
+                      renderValue={(level) => (
+                        <div className="flex items-center gap-2">
+                          <CircleIcon stroke={level.color} fill={level.color} />
+                          <span>{level.name}</span>
+                        </div>
+                      )}
+                    />
+                  )}
+                />
+              )
+            }
+          </form.Subscribe>
+          <form.Subscribe selector={(state) => state.values.isPrivate}>
+            {(isPrivate) =>
+              !isPrivate && (
+                <form.AppField
+                  name="maxRiders"
+                  children={(field) => (
+                    <field.TextField
+                      type="number"
+                      label="Maximum Riders"
+                      placeholder="1"
+                    />
+                  )}
+                />
+              )
+            }
+          </form.Subscribe>
+          <form.AppField
+            name="duration"
+            children={(field) => (
+              <field.TextField
+                type="number"
+                label="Duration (minutes)"
+                placeholder="30"
+                inputGroup
+              >
+                <InputGroupAddon align="inline-end">
+                  <InputGroupText>minutes</InputGroupText>
+                </InputGroupAddon>
+              </field.TextField>
+            )}
+          />
+        </FieldGroup>
+      </DetailLayout>
     </form>
   );
 }

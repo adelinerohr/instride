@@ -32,17 +32,19 @@ function DetailLayout({
   description: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col-reverse sm:flex-row gap-6 p-0 sm:p-4 items-start",
-        className
-      )}
-      {...props}
-    >
-      <div className="flex flex-1 flex-col gap-4 w-full">{children}</div>
-      <div className="w-full sm:w-1/3 px-4 py-2 bg-secondary text-secondary-foreground border border-secondary-border rounded-md flex flex-col gap-1">
-        <span className="text-lg font-semibold">{title}</span>
-        <p className="text-secondary-foreground/60">{description}</p>
+    <div className="h-full overflow-y-auto">
+      <div
+        className={cn(
+          "flex flex-col-reverse sm:flex-row gap-6 p-0 sm:p-4 items-start relative",
+          className
+        )}
+        {...props}
+      >
+        <div className="flex flex-1 flex-col gap-4 w-full">{children}</div>
+        <div className="sticky top-4 w-full sm:w-1/3 px-4 py-2 bg-secondary/50 text-secondary-foreground border border-secondary-border rounded-md flex flex-col gap-1">
+          <span className="text-lg font-semibold">{title}</span>
+          <p className="text-secondary-foreground/60">{description}</p>
+        </div>
       </div>
     </div>
   );

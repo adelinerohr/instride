@@ -61,13 +61,14 @@ export function ClearableSelectField<T extends object>({
   const selectElement = (
     <Select
       name={field.name}
+      itemToStringValue={(item) => itemToValue(item) ?? ""}
       value={currentItem}
       onValueChange={(value) => {
-        const stringValue = typeof value === "string" ? value : null;
+        const next = value == null ? null : itemToValue(value);
         if (onChange) {
-          onChange(stringValue);
+          onChange(next);
         } else {
-          field.handleChange(stringValue);
+          field.handleChange(next);
         }
       }}
       disabled={disabled && !disabledHint} // ← only truly disable if no hint

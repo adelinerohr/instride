@@ -68,7 +68,7 @@ export function useJoinOrganization({
 
 export function useUpdateRider({
   mutationConfig,
-}: MutationHookOptions<typeof membersMutations.updateRider>) {
+}: MutationHookOptions<typeof membersMutations.updateRider> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 

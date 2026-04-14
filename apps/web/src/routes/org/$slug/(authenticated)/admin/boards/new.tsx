@@ -1,13 +1,15 @@
 import { membersOptions, servicesOptions, useCreateBoard } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { BoardForm } from "@/features/organization/components/boards/form";
 import { boardFormOpts } from "@/features/organization/lib/board.form";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
+import { DetailLayout } from "@/shared/components/layout/detail-layout";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/form";
 
 export const Route = createFileRoute(
@@ -36,8 +38,8 @@ function RouteComponent() {
         {
           name: value.name,
           canRiderAdd: false,
-          trainerIds: value.trainerIds.map((t) => t.id),
-          serviceIds: value.serviceIds.map((s) => s.id),
+          trainerIds: value.trainerIds,
+          serviceIds: value.serviceIds,
         },
         {
           onSuccess: () => {
@@ -84,20 +86,67 @@ function RouteComponent() {
           </form.AppForm>
         </div>
       </div>
-      <ScrollArea className="min-h-0 w-full flex-1">
-        <div className="flex max-w-6xl flex-col-reverse items-start gap-6 p-4 md:flex-row">
-          <div className="flex w-full flex-1 flex-col gap-4">
-            <BoardForm form={form} trainers={trainers} services={services} />
-          </div>
-          <div className="flex w-full flex-col gap-1 rounded-md border border-primary bg-secondary px-4 py-2 text-secondary-foreground md:max-w-sm">
-            <span className="font-semibold text-lg">About boards</span>
-            <p className="text-secondary-foreground/60">
-              Boards help you keep your schedule organized. You can create
-              boards for specific appointment types, space rentals, etc.
-            </p>
-          </div>
-        </div>
-      </ScrollArea>
+      <DetailLayout
+        title="About boards"
+        description="Add staff and/or venues to this board so they can be booked for appointments. Add services to define the types of appointments that will be bookable."
+      >
+        {/* Basic info */}
+        <FieldGroup className="rounded-md border bg-card p-4">
+          <h2 className="text-xl font-semibold">Basic Information</h2>
+          <form.AppField
+            name="name"
+            children={(field) => (
+              <field.TextField
+                label="Board Name"
+                placeholder="School Barn, Boarder Lessons..."
+              />
+            )}
+          />
+          <form.AppField
+            name="canRiderAdd"
+            children={(field) => (
+              <field.SwitchField
+                label="Riders can add lessons"
+                description="Allow riders to add lessons to this board"
+              />
+            )}
+          />
+        </FieldGroup>
+        <FieldGroup className="rounded-md border bg-card p-4">
+          <h2 className="text-xl font-semibold">Trainers</h2>
+          <form.AppField
+            name="trainerIds"
+            children={(field) => (
+              <field.MultiSelectField
+                items={trainers}
+                description="Choose which trainers will be available for this board."
+                itemToValue={(item) => item.id}
+                itemToLabel={(item) => getUser({ trainer: item }).name}
+                renderValue={(item) => (
+                  <UserAvatarItem user={getUser({ trainer: item })} />
+                )}
+                placeholder="Select trainers"
+              />
+            )}
+          />
+        </FieldGroup>
+        <FieldGroup className="rounded-md border bg-card p-4">
+          <h2 className="text-xl font-semibold">Services</h2>
+          <form.AppField
+            name="serviceIds"
+            children={(field) => (
+              <field.MultiSelectField
+                items={services}
+                description="Choose which services will be available for this board."
+                itemToValue={(item) => item.id}
+                itemToLabel={(item) => item.name}
+                renderValue={(item) => item.name}
+                placeholder="Select services"
+              />
+            )}
+          />
+        </FieldGroup>
+      </DetailLayout>
     </form>
   );
 }

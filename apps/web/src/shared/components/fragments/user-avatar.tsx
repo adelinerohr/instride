@@ -42,7 +42,10 @@ function UserAvatarItem({
       {...rest}
     >
       <ItemMedia>
-        <UserAvatar user={user} size={size === "xs" ? "sm" : "default"} />
+        <UserAvatar
+          user={user}
+          size={!size || size === "xs" ? "sm" : "default"}
+        />
       </ItemMedia>
       <ItemContent>
         <ItemTitle>{user.name}</ItemTitle>

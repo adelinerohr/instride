@@ -1,63 +1,52 @@
 import type { types } from "@instride/api";
-import { serviceInputSchema } from "@instride/shared";
+import { serviceInputSchema, type ServiceInputSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
-import { z } from "zod";
 
-export const serviceSchema = serviceInputSchema.extend({
-  boardIds: z.array(z.object({ id: z.string() })),
-  trainerIds: z.array(z.object({ id: z.string() })),
-});
-
-export type ServiceFormValues = z.infer<typeof serviceSchema>;
-
-const serviceDefaultValues: ServiceFormValues = {
+const serviceDefaultValues: ServiceInputSchema = {
   name: "",
-  description: "",
+  description: null,
   price: 0,
   creditPrice: 0,
-  creditAdditionalPrice: undefined,
+  creditAdditionalPrice: null,
   maxRiders: 1,
   isPrivate: false,
   canRecurBook: false,
   isRestricted: false,
-  restrictedToLevelId: "",
+  restrictedToLevelId: null,
   duration: 30,
   canRiderAdd: false,
   boardIds: [],
-  trainerIds: [{ id: "" }],
+  trainerIds: [],
 };
 
 export const serviceFormOpts = formOptions({
   defaultValues: serviceDefaultValues,
   validators: {
-    onSubmit: serviceSchema,
+    onSubmit: serviceInputSchema,
   },
 });
 
 export function buildServiceDefaultValues(
   service: types.Service
-): ServiceFormValues {
+): ServiceInputSchema {
   if (!service) return serviceDefaultValues;
   return {
     name: service.name,
-    description: service.description ?? undefined,
+    description: service.description,
     price: service.price,
     creditPrice: service.creditPrice,
-    creditAdditionalPrice: service.creditAdditionalPrice ?? undefined,
+    creditAdditionalPrice: service.creditAdditionalPrice,
     maxRiders: service.maxRiders,
     isPrivate: service.isPrivate,
     canRecurBook: service.canRecurBook,
     isRestricted: service.isRestricted,
-    restrictedToLevelId: service.restrictedToLevelId ?? undefined,
+    restrictedToLevelId: service.restrictedToLevelId,
     duration: service.duration,
     canRiderAdd: service.canRiderAdd,
     boardIds:
-      service.boardAssignments?.map((assignment) => ({
-        id: assignment.boardId,
-      })) ?? [],
+      service.boardAssignments?.map((assignment) => assignment.boardId) ?? [],
     trainerIds:
-      service.trainerAssignments?.map((assignment) => ({
-        id: assignment.trainerId,
-      })) ?? [],
+      service.trainerAssignments?.map((assignment) => assignment.trainerId) ??
+      [],
   };
 }
