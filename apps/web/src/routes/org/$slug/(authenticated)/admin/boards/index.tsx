@@ -73,8 +73,6 @@ function RouteComponent() {
                 (assignment) => assignment.riderId !== null
               );
 
-              console.log(assignedTrainers, assignedRiders);
-
               return (
                 <Link
                   key={board.id}
