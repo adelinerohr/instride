@@ -49,12 +49,17 @@ const router = createRouter({
       input: ({ url }) => {
         const parts = url.hostname.split(".");
 
-        // Check if we're on a subdomain (not app.instrideapp.com or instrideapp.com)
+        // Check if we're on a subdomain (not root or app subdomain)
         const isRootDomain =
-          parts.length === 2 || // instrideapp.com
-          (parts.length === 3 && parts[0] === "app"); // app.instrideapp.com
+          parts.length === 2 || // instride.vercel.app or instrideapp.com
+          (parts.length === 3 && parts[0] === "app"); // app.instride.vercel.app
 
-        if (!isRootDomain && parts.slice(-2).join(".") === "instrideapp.com") {
+        // Check which domain we're on
+        const baseDomain = parts.slice(-2).join(".");
+        const isVercelDomain = baseDomain === "vercel.app";
+        const isCustomDomain = baseDomain === "instrideapp.com";
+
+        if (!isRootDomain && (isVercelDomain || isCustomDomain)) {
           const slug = parts[0];
           url.pathname = `/org/${slug}${url.pathname === "/" ? "" : url.pathname}`;
         }
@@ -65,7 +70,9 @@ const router = createRouter({
         const match = url.pathname.match(/^\/org\/([^/]+)(.*)$/);
         if (match) {
           const [, slug, rest] = match;
-          url.hostname = `${slug}.instrideapp.com`;
+          // Keep the same domain, just change subdomain
+          const currentDomain = url.hostname.split(".").slice(-2).join(".");
+          url.hostname = `${slug}.${currentDomain}`;
           url.pathname = rest || "/";
         }
         return url;

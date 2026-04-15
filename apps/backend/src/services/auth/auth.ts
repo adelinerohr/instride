@@ -28,15 +28,20 @@ export const auth = betterAuth({
 
   trustedOrigins: isProd
     ? [
+        // Custom domain (when ready)
         "https://app.instrideapp.com",
         "https://instrideapp.com",
         "https://*.instrideapp.com",
+
+        // Vercel domain (for testing)
+        "https://instride.vercel.app",
+        "https://*.instride.vercel.app",
       ]
     : [
         "http://localhost:4000",
         "http://127.0.0.1:4000",
         "http://localhost:3000",
-        "http://127.0.0.1:3000", // Add this
+        "http://127.0.0.1:3000",
       ],
 
   database: drizzleAdapter(db, {
@@ -147,7 +152,10 @@ export const auth = betterAuth({
 
     ...(isProd && {
       cookieAttributes: {
-        domain: ".instrideapp.com",
+        // Cookie domain depends on which domain you're using
+        // For Vercel: ".instride.vercel.app"
+        // For custom: ".instrideapp.com"
+        domain: ".instride.vercel.app", // or ".instrideapp.com"
         sameSite: "lax",
         secure: true,
         httpOnly: true,
