@@ -1,5 +1,5 @@
 import type { types } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { differenceInMinutes, format } from "date-fns";
 import { CalendarIcon, CircleIcon, ClipboardIcon } from "lucide-react";
 

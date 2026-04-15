@@ -3,7 +3,7 @@ import {
   getDOWInTimeZone,
   getLocalParts,
   makeUTCDateFromLocalParts,
-} from "@instride/utils";
+} from "@instride/shared";
 import { addMinutes } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 

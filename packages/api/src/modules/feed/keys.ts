@@ -1,4 +1,4 @@
-import type { FeedFilters } from "@instride/shared";
+import type { feed } from "#client";
 
 /**
  * Key Hierarchy:
@@ -13,7 +13,7 @@ const getFeedRootKey = ["feed"] as const;
 export const feedKeys = {
   all: () => getFeedRootKey,
   posts: () => [...getFeedRootKey, "posts"] as const,
-  postsList: (filters: FeedFilters) =>
+  postsList: (filters: feed.ListFeedRequest) =>
     [...getFeedRootKey, "posts", filters] as const,
   postById: (id: string) => [...getFeedRootKey, "posts", id] as const,
 };

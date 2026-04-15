@@ -5,7 +5,7 @@ import {
   useUpdateTimeBlock,
   type types,
 } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { format } from "date-fns";
 import * as React from "react";
 import { toast } from "sonner";

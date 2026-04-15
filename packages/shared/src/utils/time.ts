@@ -44,12 +44,3 @@ export function normalizeTimeSlot(
     ? snappedValue
     : fallback;
 }
-
-export function formatTimeLabel(raw: string | null | undefined): string {
-  if (raw == null || raw === "") {
-    return "—";
-  }
-  const slot = normalizeTimeSlot(raw, "00:00");
-  const opt = TIME_OPTIONS.find((t) => t.value === slot);
-  return opt?.label ?? slot;
-}

@@ -5,18 +5,14 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./src/index.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js",
-      "development": "./src/index.ts"
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
     }
   },
   "scripts": {
@@ -24,6 +20,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
+    "@instride/api": "workspace:*",
+    "date-fns-tz": "^3.2.0",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { APIError, ErrCode, useMembers } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { toast } from "sonner";
 import z from "zod";

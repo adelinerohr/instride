@@ -1,4 +1,3 @@
-import type { FeedFilters } from "@instride/shared";
 import {
   infiniteQueryOptions,
   queryOptions,
@@ -7,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 
 import { STALE } from "#_internal/constants";
-import { apiClient } from "#client";
+import { apiClient, type feed } from "#client";
 
 import { feedKeys } from "./keys";
 
@@ -17,7 +16,7 @@ interface FeedPageParam {
 }
 
 export const feedOptions = {
-  posts: (filters: FeedFilters = {}) =>
+  posts: (filters: feed.ListFeedRequest = {}) =>
     infiniteQueryOptions({
       queryKey: feedKeys.postsList(filters),
       queryFn: async ({ pageParam }) => {
@@ -49,7 +48,7 @@ export const feedOptions = {
     }),
 };
 
-export function useFeedPosts(filters: FeedFilters = {}) {
+export function useFeedPosts(filters: feed.ListFeedRequest = {}) {
   return useInfiniteQuery(feedOptions.posts(filters));
 }
 

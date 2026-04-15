@@ -1,4 +1,3 @@
-import type { MarkAttendanceRequest } from "@instride/shared";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
@@ -39,14 +38,11 @@ export const enrollmentsMutations = {
   unenrollFromInstance: async (instanceId: string) => {
     await apiClient.lessons.unenrollFromInstance(instanceId);
   },
-  markAttendance: async ({
-    enrollmentId,
-    request,
-  }: {
+  markAttendance: async (input: {
     enrollmentId: string;
-    request: MarkAttendanceRequest;
+    request: enrollments.MarkAttendanceRequest;
   }) => {
-    await apiClient.lessons.markAttendance(enrollmentId, request);
+    await apiClient.lessons.markAttendance(input.enrollmentId, input.request);
   },
 };
 

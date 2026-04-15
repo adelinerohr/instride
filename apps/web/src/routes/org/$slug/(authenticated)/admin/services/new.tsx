@@ -4,7 +4,7 @@ import {
   useCreateService,
   levelOptions,
 } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon, CircleIcon, CoinsIcon } from "lucide-react";

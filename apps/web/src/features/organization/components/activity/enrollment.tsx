@@ -1,5 +1,5 @@
 import { useGetLessonInstance, useMember, type types } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { useLoaderData } from "@tanstack/react-router";
 import { format } from "date-fns";
 

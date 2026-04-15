@@ -1,6 +1,10 @@
 import { invitationOptions, membersOptions, type types } from "@instride/api";
-import { InvitationStatus, MembershipRole } from "@instride/shared";
-import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/utils";
+import {
+  InvitationStatus,
+  MembershipRole,
+  ROLE_LABELS,
+  ROLE_VARIANTS,
+} from "@instride/shared";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   CheckIcon,

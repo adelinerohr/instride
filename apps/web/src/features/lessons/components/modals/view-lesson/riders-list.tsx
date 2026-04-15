@@ -1,5 +1,5 @@
 import { useMarkAttendance, type types } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { isAfter, isSameDay } from "date-fns";
 import { ArrowDownIcon, BanIcon, EllipsisVerticalIcon } from "lucide-react";

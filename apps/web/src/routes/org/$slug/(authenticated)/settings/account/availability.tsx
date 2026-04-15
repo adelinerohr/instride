@@ -6,12 +6,13 @@ import {
   useUpsertTrainerBusinessHours,
   type types,
 } from "@instride/api";
-import { availabilityDaysFormSchema, DayOfWeek } from "@instride/shared";
 import {
+  availabilityDaysFormSchema,
+  DayOfWeek,
   buildEmptyWeek,
   normalizeTimeSlot,
   type DayHours,
-} from "@instride/utils";
+} from "@instride/shared";
 import type { FormValidateOrFn } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";

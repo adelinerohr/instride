@@ -9,12 +9,12 @@
       "outputs": ["dist/**"]
     },
     "@instride/backend#dev": {
-      "dependsOn": ["@instride/shared#build", "@instride/utils#build"],
+      "dependsOn": ["@instride/shared#build"],
       "cache": false,
       "persistent": true
     },
     "@instride/web#dev": {
-      "dependsOn": ["@instride/shared#build", "@instride/utils#build"],
+      "dependsOn": ["@instride/shared#build"],
       "cache": false,
       "persistent": true
     },

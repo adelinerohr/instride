@@ -1,5 +1,5 @@
 import type { types } from "@instride/api";
-import { getDayOfWeek, timeToMinutes } from "@instride/utils";
+import { getDayOfWeek, timeToMinutes } from "@instride/shared";
 
 import type { EffectiveBusinessHours } from "../lib/types";
 

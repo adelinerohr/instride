@@ -2,5 +2,11 @@
   "extends": "@instride/config/tsconfig.base.json",
   "compilerOptions": {
     "strictNullChecks": true
-  }
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./apps/backend" },
+    { "path": "./apps/web" }
+  ]
 }

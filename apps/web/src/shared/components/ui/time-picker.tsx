@@ -5,7 +5,7 @@ import {
   setDateByType,
   type Period,
   type TimePickerType,
-} from "@instride/utils";
+} from "@instride/shared";
 import * as React from "react";
 
 import { cn } from "@/shared/lib/utils";

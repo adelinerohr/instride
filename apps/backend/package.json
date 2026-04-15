@@ -8,6 +8,7 @@
   "scripts": {
     "test": "vitest",
     "dev": "encore run",
+    "check-types": "tsc --noEmit",
     "auth:generate": "encore exec -- pnpm dlx auth@latest generate --config=./src/services/auth/auth.ts",
     "db:generate": "drizzle-kit generate --config=./drizzle.config.ts",
     "db:seed": "encore exec -- pnpm dlx tsx src/database/seed.ts"
@@ -15,7 +16,6 @@
   "dependencies": {
     "@better-auth/expo": "^1.6.2",
     "@instride/shared": "workspace:*",
-    "@instride/utils": "workspace:*",
     "@react-email/components": "^1.0.12",
     "better-auth": "^1.6.2",
     "busboy": "^1.6.0",

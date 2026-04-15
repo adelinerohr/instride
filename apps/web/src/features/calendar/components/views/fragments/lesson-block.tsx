@@ -1,5 +1,5 @@
 import type { types } from "@instride/api";
-import { getUser } from "@instride/utils";
+import { getUser } from "@instride/shared";
 import { cva, type VariantProps } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
 import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";

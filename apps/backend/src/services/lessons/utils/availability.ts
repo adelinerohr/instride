@@ -1,5 +1,5 @@
 import { EventScope, LessonInstanceStatus } from "@instride/shared";
-import { getDayOfWeek } from "@instride/utils";
+import { getDayOfWeek } from "@instride/shared";
 
 import { db } from "@/database";
 import { resolveEffectiveWeekHours } from "@/services/availability/business-hours/utils";
