@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "lint": "oxlint",
     "build": "vite build",
     "serve": "vite preview",
     "start": "vite",

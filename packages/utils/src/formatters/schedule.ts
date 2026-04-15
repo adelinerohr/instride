@@ -17,3 +17,13 @@ export const RECURRENCE_OPTIONS: {
   { value: RecurrenceFrequency.WEEKLY, label: "Weekly" },
   { value: RecurrenceFrequency.BIWEEKLY, label: "Every 2 weeks" },
 ];
+
+export const DAY_LABEL_MAP: Record<DayOfWeek, string> = {
+  [DayOfWeek.MON]: "Monday",
+  [DayOfWeek.TUE]: "Tuesday",
+  [DayOfWeek.WED]: "Wednesday",
+  [DayOfWeek.THU]: "Thursday",
+  [DayOfWeek.FRI]: "Friday",
+  [DayOfWeek.SAT]: "Saturday",
+  [DayOfWeek.SUN]: "Sunday",
+} as const;

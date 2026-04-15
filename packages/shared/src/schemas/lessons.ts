@@ -8,7 +8,6 @@ import {
   LessonSeriesStatus,
   RecurrenceFrequency,
 } from "../models/enums";
-import { dateLikeSchema } from "../utils/schema";
 
 // --- Base Schemas ------------------------------------------------------------
 
@@ -20,15 +19,15 @@ export const lessonInstanceEnrollmentSchema = z.object({
   attended: z.boolean().nullable(),
   riderMemberId: z.string(),
   enrolledByMemberId: z.string().nullable(),
-  enrolledAt: dateLikeSchema,
+  enrolledAt: z.coerce.date(),
   waitlistPosition: z.number().nullable(),
-  attendedAt: dateLikeSchema.nullable(),
+  attendedAt: z.coerce.date().nullable(),
   markedByMemberId: z.string().nullable(),
   fromSeriesEnrollmentId: z.string().nullable(),
-  unenrolledAt: dateLikeSchema.nullable(),
+  unenrolledAt: z.coerce.date().nullable(),
   unenrolledByMemberId: z.string().nullable(),
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const lessonSeriesEnrollmentSchema = z.object({
@@ -40,16 +39,16 @@ export const lessonSeriesEnrollmentSchema = z.object({
   startDate: z.string(),
   endDate: z.string().nullable(),
   enrolledByMemberId: z.string().nullable(),
-  enrolledAt: dateLikeSchema,
-  endedAt: dateLikeSchema.nullable(),
+  enrolledAt: z.coerce.date(),
+  endedAt: z.coerce.date().nullable(),
   endedByMemberId: z.string().nullable(),
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const lessonInstanceSchema = z.object({
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
   id: z.string(),
   organizationId: z.string(),
   status: z.enum(LessonInstanceStatus),
@@ -64,8 +63,8 @@ export const lessonInstanceSchema = z.object({
 });
 
 export const lessonSeriesSchema = z.object({
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
   id: z.string(),
   organizationId: z.string(),
   status: z.enum(LessonSeriesStatus),

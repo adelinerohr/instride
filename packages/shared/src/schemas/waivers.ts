@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { WaiverStatus } from "../models/enums";
-import { dateLikeSchema } from "../utils/schema";
 
 // --- Base Schema ------------------------------------------------------------
 
@@ -12,8 +11,8 @@ export const waiverSchema = z.object({
   content: z.string(),
   version: z.string(),
   status: z.enum(WaiverStatus),
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const waiverSignatureSchema = z.object({
@@ -23,10 +22,10 @@ export const waiverSignatureSchema = z.object({
   waiverVersion: z.string(),
   signerMemberId: z.string(),
   onBehalfOfMemberId: z.string().nullable(),
-  signedAt: dateLikeSchema.nullable(),
+  signedAt: z.coerce.date().nullable(),
   ipAddress: z.string().nullable(),
   isValid: z.boolean(),
-  invalidatedAt: dateLikeSchema.nullable(),
+  invalidatedAt: z.coerce.date().nullable(),
   invalidatedReason: z.string().nullable(),
 });
 

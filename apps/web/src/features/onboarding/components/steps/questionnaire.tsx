@@ -1,9 +1,7 @@
 import { questionnaireOptions } from "@instride/api";
 import type { types } from "@instride/api";
-import {
-  QuestionnaireQuestionType,
-  replaceYouWithThey,
-} from "@instride/shared";
+import { QuestionnaireQuestionType } from "@instride/shared";
+import { replaceYouWithThey } from "@instride/utils";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";

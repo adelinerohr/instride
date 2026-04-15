@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { dateLikeSchema } from "../utils/schema";
-
 export const userSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -13,9 +11,9 @@ export const userSchema = z.object({
   role: z.string(),
   banned: z.boolean(),
   banReason: z.string().nullable(),
-  banExpires: dateLikeSchema.nullable(),
-  createdAt: dateLikeSchema,
-  updatedAt: dateLikeSchema,
+  banExpires: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const createUserInputSchema = userSchema.omit({

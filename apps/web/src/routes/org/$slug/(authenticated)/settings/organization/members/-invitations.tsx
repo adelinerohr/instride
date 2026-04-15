@@ -1,9 +1,6 @@
 import { invitationOptions, membersOptions, type types } from "@instride/api";
-import {
-  InvitationStatus,
-  MembershipRole,
-  ROLE_LABELS,
-} from "@instride/shared";
+import { InvitationStatus, MembershipRole } from "@instride/shared";
+import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/utils";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   CheckIcon,
@@ -46,7 +43,6 @@ import {
 import { authClient } from "@/shared/lib/auth/client";
 import { hasAnyRole, isAdmin } from "@/shared/lib/auth/roles";
 import { cn } from "@/shared/lib/utils";
-import { ROLE_VARIANTS } from "@/shared/lib/utils/format";
 
 import { Route } from "./index";
 

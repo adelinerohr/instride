@@ -34,8 +34,9 @@ export const organizationSchema = z.object({
 
 export const memberRoleSchema = z.enum([
   MembershipRole.ADMIN,
-  MembershipRole.MEMBER,
+  MembershipRole.RIDER,
   MembershipRole.TRAINER,
+  MembershipRole.GUARDIAN,
 ]);
 
 export const memberCapabilitySchema = z.enum([

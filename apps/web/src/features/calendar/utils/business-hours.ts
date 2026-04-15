@@ -1,5 +1,5 @@
 import type { types } from "@instride/api";
-import { dateToDayOfWeek, timeToMinutes } from "@instride/shared";
+import { getDayOfWeek, timeToMinutes } from "@instride/utils";
 
 import type { EffectiveBusinessHours } from "../lib/types";
 
@@ -32,7 +32,7 @@ export function isWorkingHour(
 ): boolean {
   if (!businessHours) return false; // ← treat missing hours as non-working
 
-  const dayKey = dateToDayOfWeek(day);
+  const dayKey = getDayOfWeek(day);
   const dayHours = businessHours[dayKey];
 
   if (!dayHours?.isOpen || !dayHours.startTime || !dayHours.endTime)

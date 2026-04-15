@@ -1,4 +1,5 @@
-import { DayOfWeek, formatDayOfWeek } from "@instride/shared";
+import { DayOfWeek } from "@instride/shared";
+import { DAY_LABEL_MAP } from "@instride/utils";
 import {
   formatTimeLabel,
   normalizeTimeSlot,
@@ -76,7 +77,7 @@ export const DayRow = withFieldGroup({
             name="isOpen"
             children={(field) => (
               <field.CheckboxField
-                label={formatDayOfWeek(dayOfWeek).slice(0, 3)}
+                label={DAY_LABEL_MAP[dayOfWeek].slice(0, 3)}
                 labelClassName={cn(
                   "text-sm font-medium w-10",
                   (!isOpen || isInheriting) && "text-muted-foreground"
