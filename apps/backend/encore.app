@@ -3,7 +3,7 @@
 	"lang": "typescript",
   "build": {
     "hooks": {
-      "prebuild": "npx turbo build --filter=@instride/backend^..."
+      "prebuild": "npx turbo build --filter=backend^..."
     }
   }
 }
