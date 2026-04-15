@@ -26,7 +26,7 @@ export function DayColumn({ trainer }: DayColumnProps) {
   );
 
   return (
-    <div className="relative">
+    <div className="relative flex-1">
       {HOURS.map((hour, index) => {
         const isDisabled = !isWorkingHour(
           selectedDate,

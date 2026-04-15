@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Button } from "@/shared/components/ui/button";
 import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
 import { Separator } from "@/shared/components/ui/separator";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 
 export const Route = createFileRoute("/org/$slug/(unauthenticated)/login")({

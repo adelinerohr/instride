@@ -1,14 +1,3 @@
-/**
- * Key Hierarchy:
- *   ["members", orgId]                               ← nuke everything
- *   ["members", orgId, memberId]                     ← one member
- *   ["members", orgId, "me"]                         ← current user's membership
- *   ["members", orgId, "riders"]                     ← all riders
- *   ["members", orgId, "riders", riderId]            ← one rider
- *   ["members", orgId, "trainers"]                   ← all trainers
- *   ["members", orgId, "trainers", trainerId]        ← one trainer
- */
-
 import type { members } from "#client";
 
 const getMemberRootKey = ["members"] as const;

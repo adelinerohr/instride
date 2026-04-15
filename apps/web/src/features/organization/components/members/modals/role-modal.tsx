@@ -14,7 +14,7 @@ import {
   DialogPortal,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { getFirstName } from "@/shared/lib/utils/format";
 
 const allRoles = [

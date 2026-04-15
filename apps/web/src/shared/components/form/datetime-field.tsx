@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from "@/shared/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/shared/components/ui/scroll-area";
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
 type DatetimeFieldProps = {

@@ -5,16 +5,13 @@ import {
   useUpdateTimeBlock,
   type types,
 } from "@instride/api";
+import { getUser } from "@instride/utils";
 import { format } from "date-fns";
 import * as React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -27,10 +24,8 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useAppForm } from "@/shared/hooks/form";
-import { getInitials } from "@/shared/lib/utils/format";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 function toLocalInputValue(date: Date) {
   return format(date, "yyyy-MM-dd'T'HH:mm");
@@ -194,19 +189,7 @@ export function TimeBlockModalForm({
                 items={trainers}
                 itemToValue={(trainer) => trainer?.id ?? null}
                 renderValue={(value) => (
-                  <Item size="xs" className="w-full p-0">
-                    <ItemMedia>
-                      <Avatar className="size-4">
-                        <AvatarImage
-                          src={value?.member?.authUser?.image ?? undefined}
-                        />
-                        <AvatarFallback className="text-[8px]">
-                          {getInitials(value?.member?.authUser?.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </ItemMedia>
-                    <ItemContent>{value?.member?.authUser?.name}</ItemContent>
-                  </Item>
+                  <UserAvatarItem user={getUser({ trainer: value })} />
                 )}
               />
             )}

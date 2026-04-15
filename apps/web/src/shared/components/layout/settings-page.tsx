@@ -10,12 +10,12 @@ export function SettingsPage({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { isAdmin, organization } = useRouteContext({
+  const { isAdmin, isTrainer, organization } = useRouteContext({
     from: "/org/$slug/(authenticated)/settings",
   });
   const { pathname } = useLocation();
 
-  const navItems = getSettingsNavItems(organization.slug, isAdmin);
+  const navItems = getSettingsNavItems(organization.slug, isAdmin, isTrainer);
 
   let currentNavItem = null;
 

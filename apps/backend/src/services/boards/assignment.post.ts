@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -47,8 +47,15 @@ export const removeFromBoard = api(
     auth: true,
   },
   async ({ assignmentId }: { assignmentId: string }): Promise<void> => {
+    const { organizationId } = requireOrganizationAuth();
+
     await db
       .delete(boardAssignments)
-      .where(eq(boardAssignments.id, assignmentId));
+      .where(
+        and(
+          eq(boardAssignments.id, assignmentId),
+          eq(boardAssignments.organizationId, organizationId)
+        )
+      );
   }
 );

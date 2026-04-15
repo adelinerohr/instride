@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 import { Route } from "./index";
 

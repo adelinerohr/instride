@@ -1,4 +1,4 @@
-import { useSession } from "@instride/api";
+import { APIError, ErrCode, useSession } from "@instride/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
@@ -16,8 +16,8 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // don't retry on auth errors
         if (
-          error instanceof Error &&
-          error.message.includes("unauthenticated")
+          error instanceof APIError &&
+          error.code === ErrCode.Unauthenticated
         ) {
           return false;
         }
@@ -48,13 +48,17 @@ const router = createRouter({
     rewrite: {
       input: ({ url }) => {
         const parts = url.hostname.split(".");
-        if (
-          parts.length >= 3 &&
-          parts.slice(-2).join(".") === "instrideapp.com"
-        ) {
+
+        // Check if we're on a subdomain (not app.instrideapp.com or instrideapp.com)
+        const isRootDomain =
+          parts.length === 2 || // instrideapp.com
+          (parts.length === 3 && parts[0] === "app"); // app.instrideapp.com
+
+        if (!isRootDomain && parts.slice(-2).join(".") === "instrideapp.com") {
           const slug = parts[0];
           url.pathname = `/org/${slug}${url.pathname === "/" ? "" : url.pathname}`;
         }
+
         return url;
       },
       output: ({ url }) => {
@@ -77,7 +81,7 @@ declare module "@tanstack/react-router" {
 }
 
 function App() {
-  const { data: session, isPending } = useSession();
+  const { data: sessionResponse, isPending } = useSession();
 
   if (isPending) {
     return <Loader />;
@@ -87,7 +91,7 @@ function App() {
     <RouterProvider
       router={router}
       context={{
-        isAuthenticated: !!session,
+        isAuthenticated: !!sessionResponse?.session,
       }}
     />
   );

@@ -15,7 +15,9 @@
       "@/*": ["./src/*"],
       "@instride/shared": ["../../packages/shared/src/index.ts"],
       "@instride/shared/*": ["../../packages/shared/src/*"],
-      "@instride/api": ["../../packages/api/src/index.ts"]
+      "@instride/api": ["../../packages/api/src/index.ts"],
+      "@instride/utils": ["../../packages/utils/src/index.ts"],
+      "@instride/utils/*": ["../../packages/utils/src/*"]
     }
   }
 }

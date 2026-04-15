@@ -1,6 +1,6 @@
 import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 import { states } from "@/shared/lib/states";
 
 import { organizationOnboardingFormOpts } from "../../lib/organization/form";

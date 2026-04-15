@@ -10,7 +10,9 @@
       "~encore/*": ["./encore.gen/*"],
       "@/*": ["./src/*"],
       "@instride/shared": ["../../packages/shared/src/index.ts"],
-      "@instride/shared/*": ["../../packages/shared/src/*"]
+      "@instride/shared/*": ["../../packages/shared/src/*"],
+      "@instride/utils": ["../../packages/utils/src/index.ts"],
+      "@instride/utils/*": ["../../packages/utils/src/*"]
     },
 
     /* Workspace Settings */
@@ -31,5 +33,9 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["**/*.ts", "../../packages/shared/src/**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "../../packages/shared/src/**/*.ts",
+    "../../packages/utils/src/**/*.ts"
+  ]
 }

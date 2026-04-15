@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -71,14 +71,26 @@ export const unassignFromService = api(
     auth: true,
   },
   async (request: UnassignFromServiceRequest): Promise<void> => {
+    const { organizationId } = requireOrganizationAuth();
+
     if (request.type === "trainer") {
       await db
         .delete(serviceTrainerAssignments)
-        .where(eq(serviceTrainerAssignments.id, request.assignmentId));
+        .where(
+          and(
+            eq(serviceTrainerAssignments.id, request.assignmentId),
+            eq(serviceTrainerAssignments.organizationId, organizationId)
+          )
+        );
     } else if (request.type === "board") {
       await db
         .delete(serviceBoardAssignments)
-        .where(eq(serviceBoardAssignments.id, request.assignmentId));
+        .where(
+          and(
+            eq(serviceBoardAssignments.id, request.assignmentId),
+            eq(serviceBoardAssignments.organizationId, organizationId)
+          )
+        );
     }
   }
 );

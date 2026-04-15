@@ -3,6 +3,8 @@ import { SQLDatabase } from "encore.dev/storage/sqldb";
 import { Pool } from "pg";
 
 import { activityRelations } from "@/services/activity/schema/relations";
+import { eventsRelations } from "@/services/events/schema/relations";
+import { kioskRelations } from "@/services/kiosk/schema/relations";
 import { notificationsRelations } from "@/services/notifications/schema/relations";
 
 import { authRelations } from "../services/auth/schema/relations";
@@ -44,5 +46,7 @@ export const db = drizzle({
     ...waiversRelations,
     ...activityRelations,
     ...notificationsRelations,
+    ...kioskRelations,
+    ...eventsRelations,
   },
 });

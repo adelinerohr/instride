@@ -6,25 +6,46 @@ export const dayHoursSchema = z
   .object({
     dayOfWeek: z.enum(DayOfWeek),
     isOpen: z.boolean(),
-    openTime: z.string().nullable(), // "HH:MM" 24-hour
-    closeTime: z.string().nullable(),
+    openTime: z
+      .union([z.string(), z.null()])
+      .optional()
+      .transform((v) => v ?? null),
+    closeTime: z
+      .union([z.string(), z.null()])
+      .optional()
+      .transform((v) => v ?? null),
   })
   .refine(
     (data) => {
       if (!data.isOpen) return true;
-      return data.openTime !== null && data.closeTime !== null;
+      const open = data.openTime;
+      const close = data.closeTime;
+      return open != null && open !== "" && close != null && close !== "";
     },
     { message: "Open days must have both open and close times" }
   )
   .refine(
     (data) => {
-      if (!data.isOpen || !data.openTime || !data.closeTime) return true;
-      return data.openTime < data.closeTime;
+      if (!data.isOpen) return true;
+      const open = data.openTime;
+      const close = data.closeTime;
+      if (open == null || close == null || open === "" || close === "")
+        return true;
+      return open < close;
     },
     { message: "Open time must be before close time" }
   );
 
 export type DayHoursSchema = z.infer<typeof dayHoursSchema>;
+
+/** Form state is only `days`; `boardId` is taken from route/props at submit. */
+export const availabilityDaysFormSchema = z.object({
+  days: z.array(dayHoursSchema).length(7),
+});
+
+export type AvailabilityDaysFormSchema = z.infer<
+  typeof availabilityDaysFormSchema
+>;
 
 export const organizationAvailabilitySchema = z.object({
   boardId: z.uuid().nullable(),

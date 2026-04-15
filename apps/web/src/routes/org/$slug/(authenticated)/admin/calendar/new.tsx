@@ -13,7 +13,7 @@ import {
   lessonFormOpts,
 } from "@/features/lessons/lib/new-lesson.form";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/admin/calendar/new"

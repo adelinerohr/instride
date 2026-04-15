@@ -6,7 +6,7 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Switch } from "@/shared/components/ui/switch";
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 
 type SwitchFieldProps = React.ComponentProps<typeof Switch> & {
   label: string;
@@ -32,7 +32,7 @@ export function SwitchField({
       <Switch
         id={field.name}
         name={field.name}
-        checked={field.state.value}
+        checked={field.state.value ?? false}
         onCheckedChange={field.handleChange}
         aria-invalid={isInvalid}
         {...props}

@@ -7,7 +7,7 @@ import {
 import { useStore } from "@tanstack/react-form";
 
 import { Badge } from "@/shared/components/ui/badge";
-import { withFieldGroup } from "@/shared/hooks/form";
+import { withFieldGroup } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
 export const DayRow = withFieldGroup({

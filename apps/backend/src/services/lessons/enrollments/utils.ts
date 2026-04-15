@@ -2,12 +2,17 @@ import {
   LessonInstanceEnrollmentStatus,
   LessonSeriesEnrollmentStatus,
 } from "@instride/shared";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 
-import { lessonInstanceEnrollments, lessonSeriesEnrollments } from "../schema";
+import {
+  lessonInstanceEnrollments,
+  lessonInstances,
+  lessonSeriesEnrollments,
+} from "../schema";
+import { lessonEnrolled } from "../topics";
 import {
   LessonInstance,
   LessonInstanceEnrollment,
@@ -67,66 +72,157 @@ export async function createSeriesEnrollment({
 }
 
 interface CreateInstanceEnrollmentParams {
-  instance: LessonInstance;
+  instanceId: string;
   riderId: string;
   enrolledByMemberId: string;
   fromSeriesEnrollmentId?: string;
 }
 
 export async function createInstanceEnrollment({
-  instance,
+  instanceId,
   riderId,
   enrolledByMemberId,
   fromSeriesEnrollmentId,
 }: CreateInstanceEnrollmentParams): Promise<LessonInstanceEnrollment> {
-  const existing = await db.query.lessonInstanceEnrollments.findFirst({
-    where: { instanceId: instance.id, riderId },
-  });
+  return db.transaction(async (tx) => {
+    // 1) Lock the instance row so all capacity-changing operations for this
+    // instance serialize behind the same lock.
+    const lockedRows = await tx
+      .select()
+      .from(lessonInstances)
+      .where(eq(lessonInstances.id, instanceId))
+      .for("update");
 
-  if (
-    existing &&
-    existing.status !== LessonInstanceEnrollmentStatus.CANCELLED
-  ) {
-    throw APIError.alreadyExists("Already enrolled in this lesson");
-  }
+    const lockedInstance = lockedRows[0];
 
-  const enrolledCount = await db.$count(
-    lessonInstanceEnrollments,
-    and(
-      eq(lessonInstanceEnrollments.instanceId, instance.id),
-      eq(
-        lessonInstanceEnrollments.status,
-        LessonInstanceEnrollmentStatus.ENROLLED
-      )
-    )
-  );
+    if (!lockedInstance) {
+      throw APIError.notFound("Lesson instance not found");
+    }
 
-  const isFull = enrolledCount >= instance.maxRiders;
+    if (lockedInstance.status !== "scheduled") {
+      throw APIError.failedPrecondition("Lesson instance is not bookable");
+    }
 
-  if (isFull) throw APIError.resourceExhausted("Lesson instance is full");
+    // 2) Check whether this rider already has an enrollment row.
+    const existing = await tx.query.lessonInstanceEnrollments.findFirst({
+      where: {
+        instanceId,
+        riderId,
+      },
+    });
 
-  const data = {
-    organizationId: instance.organizationId,
-    instanceId: instance.id,
-    riderId,
-    status: LessonInstanceEnrollmentStatus.ENROLLED,
-    waitlistPosition: null,
-    enrolledByMemberId,
-    fromSeriesEnrollmentId: fromSeriesEnrollmentId ?? null,
-  };
+    if (
+      existing &&
+      existing.status !== LessonInstanceEnrollmentStatus.CANCELLED
+    ) {
+      throw APIError.alreadyExists("Already enrolled in this lesson");
+    }
 
-  if (existing) {
-    const [updated] = await db
-      .update(lessonInstanceEnrollments)
-      .set(data)
-      .where(eq(lessonInstanceEnrollments.id, existing.id))
+    // 3) Count active enrolled riders while still holding the instance lock.
+    const [{ count: enrolledCount }] = await tx
+      .select({
+        count: sql<number>`count(*)::int`,
+      })
+      .from(lessonInstanceEnrollments)
+      .where(
+        and(
+          eq(lessonInstanceEnrollments.instanceId, instanceId),
+          eq(
+            lessonInstanceEnrollments.status,
+            LessonInstanceEnrollmentStatus.ENROLLED
+          )
+        )
+      );
+
+    // If reactivating a cancelled row, it still consumes a slot again,
+    // so capacity check still applies.
+    if (enrolledCount >= lockedInstance.maxRiders) {
+      throw APIError.resourceExhausted("Lesson instance is full");
+    }
+
+    const data = {
+      organizationId: lockedInstance.organizationId,
+      instanceId: lockedInstance.id,
+      riderId,
+      status: LessonInstanceEnrollmentStatus.ENROLLED,
+      waitlistPosition: null,
+      enrolledByMemberId,
+      fromSeriesEnrollmentId: fromSeriesEnrollmentId ?? null,
+      unenrolledAt: null,
+      unenrolledByMemberId: null,
+    };
+
+    if (existing) {
+      const [updated] = await tx
+        .update(lessonInstanceEnrollments)
+        .set(data)
+        .where(eq(lessonInstanceEnrollments.id, existing.id))
+        .returning();
+
+      return {
+        ...updated,
+        instance: lockedInstance as LessonInstance,
+      };
+    }
+
+    const [created] = await tx
+      .insert(lessonInstanceEnrollments)
+      .values(data)
       .returning();
-    return { ...updated, instance: instance as LessonInstance };
-  }
 
-  const [enrollment] = await db
-    .insert(lessonInstanceEnrollments)
-    .values(data)
-    .returning();
-  return { ...enrollment, instance: instance as LessonInstance };
+    const rider = await tx.query.riders.findFirst({
+      where: {
+        id: riderId,
+      },
+      with: {
+        member: {
+          with: {
+            authUser: true,
+          },
+        },
+      },
+    });
+
+    if (!rider || !rider.member || !rider.member.authUser) {
+      throw APIError.notFound("Rider not found");
+    }
+
+    const trainer = await tx.query.trainers.findFirst({
+      where: {
+        id: lockedInstance.trainerId,
+      },
+      with: {
+        member: {
+          with: {
+            authUser: true,
+          },
+        },
+      },
+    });
+
+    if (!trainer || !trainer.member || !trainer.member.authUser) {
+      throw APIError.notFound("Trainer not found");
+    }
+
+    lessonEnrolled.publish({
+      instanceId: lockedInstance.id,
+      seriesId: lockedInstance.seriesId,
+      organizationId: lockedInstance.organizationId,
+      riderId: riderId,
+      riderMemberId: rider.memberId,
+      riderName: rider.member.authUser.name,
+      enrolledByMemberId: enrolledByMemberId,
+      trainerId: lockedInstance.trainerId,
+      trainerMemberId: lockedInstance.trainerId,
+      trainerName: trainer.member.authUser.name,
+      startTime: lockedInstance.start.toISOString(),
+      endTime: lockedInstance.end.toISOString(),
+      lessonName: lockedInstance.name,
+    });
+
+    return {
+      ...created,
+      instance: lockedInstance as LessonInstance,
+    };
+  });
 }

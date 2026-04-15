@@ -45,7 +45,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 import { getInitials } from "@/shared/lib/utils/format";
 

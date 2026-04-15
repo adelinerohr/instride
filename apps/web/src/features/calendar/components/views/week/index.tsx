@@ -19,6 +19,7 @@ import { cn } from "@/shared/lib/utils";
 
 import { HourCell } from "../fragments/hour-cell";
 import { LessonBlock } from "../fragments/lesson-block";
+import { MultiDayRow } from "../fragments/multi-day-row";
 import { CalendarTimeline } from "../fragments/timeline";
 
 export function WeekView() {
@@ -29,28 +30,31 @@ export function WeekView() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="relative z-20 flex border-b">
-        <div className="w-18" />
-        <div className="grid flex-1 grid-cols-7 divide-x border-l">
-          {weekDays.map((day, index) => (
-            <span
-              key={index}
-              className={cn(
-                "py-2 text-center text-xs font-medium text-muted-foreground",
-                isSameDay(day, new Date()) && "text-blue-500"
-              )}
-            >
-              {format(day, "EE")}
+      <div>
+        <MultiDayRow />
+        <div className="relative z-20 flex border-b">
+          <div className="w-18" />
+          <div className="grid flex-1 grid-cols-7 divide-x border-l">
+            {weekDays.map((day, index) => (
               <span
+                key={index}
                 className={cn(
-                  "ml-1 font-semibold text-foreground",
+                  "py-2 text-center text-xs font-medium text-muted-foreground",
                   isSameDay(day, new Date()) && "text-blue-500"
                 )}
               >
-                {format(day, "d")}
+                {format(day, "EE")}
+                <span
+                  className={cn(
+                    "ml-1 font-semibold text-foreground",
+                    isSameDay(day, new Date()) && "text-blue-500"
+                  )}
+                >
+                  {format(day, "d")}
+                </span>
               </span>
-            </span>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
       <ScrollArea className="h-full">

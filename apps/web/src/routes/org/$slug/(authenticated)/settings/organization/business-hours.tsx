@@ -6,12 +6,13 @@ import {
   type types,
 } from "@instride/api";
 import {
+  availabilityDaysFormSchema,
   buildEmptyWeek,
   DayOfWeek,
-  organizationAvailabilitySchema,
   type DayHours,
 } from "@instride/shared";
 import { normalizeTimeSlot } from "@instride/utils";
+import type { FormValidateOrFn } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcwIcon } from "lucide-react";
@@ -48,7 +49,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/settings/organization/business-hours"
@@ -236,12 +237,22 @@ export function OrgBusinessHoursForm({
 
   const form = useAppForm({
     defaultValues: { days: initialDays },
+    canSubmitWhenInvalid: true,
     validators: {
-      onSubmit: organizationAvailabilitySchema,
+      onSubmit: availabilityDaysFormSchema as FormValidateOrFn<{
+        days: DayHours[];
+      }>,
     },
-    onSubmit: ({ value }) => {
-      console.log(value);
-      upsert.mutateAsync(
+    onSubmitInvalid: ({ formApi }) => {
+      const first = formApi.state.errors[0];
+      toast.error(
+        typeof first === "string"
+          ? first
+          : "Please fix the highlighted fields and try again."
+      );
+    },
+    onSubmit: async ({ value }) => {
+      await upsert.mutateAsync(
         { boardId, days: value.days },
         {
           onSuccess: () => {

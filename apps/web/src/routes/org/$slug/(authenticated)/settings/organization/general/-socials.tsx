@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/brand-icons";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { InputGroupAddon } from "@/shared/components/ui/input-group";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 import { Route } from "./index";
 

@@ -2,9 +2,20 @@
   "extends": "@instride/config/tsconfig.base.json",
   "compilerOptions": {
     "strictNullChecks": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "skipLibCheck": true,
     "paths": {
       "@instride/shared": ["../../packages/shared/src/index.ts"],
       "@instride/shared/*": ["../../packages/shared/src/*"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

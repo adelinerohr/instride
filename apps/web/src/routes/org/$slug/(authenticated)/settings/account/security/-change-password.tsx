@@ -9,7 +9,7 @@ import {
   InputGroupAddon,
   InputGroupButton,
 } from "@/shared/components/ui/input-group";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 import { passwordValidator } from "@/shared/lib/auth/password";
 

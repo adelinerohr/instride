@@ -1,9 +1,15 @@
+import { ClockIcon } from "lucide-react";
 import * as React from "react";
 
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
+import { cn } from "@/shared/lib/utils";
 
 import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
-import { InputGroup, InputGroupInput } from "../ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "../ui/input-group";
 
 type TextFieldProps = React.ComponentProps<"input"> & {
   label: string;
@@ -19,6 +25,7 @@ export function TextField({
   inputGroup = false,
   children,
   className,
+  type = "text",
   ...props
 }: TextFieldProps) {
   const field = useFieldContext<string | number | undefined | null>();
@@ -26,7 +33,7 @@ export function TextField({
   const errors = field.state.meta.errors;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (props.type === "number") {
+    if (type === "number") {
       const value = e.target.value === "" ? undefined : e.target.valueAsNumber;
       field.handleChange(value);
     } else {
@@ -46,9 +53,20 @@ export function TextField({
           onChange={handleChange}
           aria-invalid={isInvalid}
           placeholder={placeholder ?? label}
+          step={type === "time" ? 1 : props.step}
+          type={type}
+          className={cn(
+            type === "time" &&
+              "appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          )}
           {...props}
         />
         {inputGroup && children}
+        {type === "time" && (
+          <InputGroupAddon align="inline-start">
+            <ClockIcon />
+          </InputGroupAddon>
+        )}
       </InputGroup>
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={errors} />}

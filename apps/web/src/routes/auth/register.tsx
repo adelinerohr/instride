@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 
-export const Route = createFileRoute("/(unauthenticated)/register")({
+export const Route = createFileRoute("/auth/register")({
   component: RouteComponent,
 });
 
@@ -83,7 +83,7 @@ function RouteComponent() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-foreground underline">
+          <Link to="/auth/login" className="text-foreground underline">
             Sign in
           </Link>
         </p>

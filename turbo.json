@@ -1,19 +1,21 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": ["NODE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "env": ["NODE_ENV"]
     },
     "@instride/backend#dev": {
-      "dependsOn": ["@instride/shared#build"],
+      "dependsOn": ["@instride/shared#build", "@instride/utils#build"],
       "cache": false,
       "persistent": true
     },
     "@instride/web#dev": {
-      "dependsOn": ["@instride/shared#build"],
+      "dependsOn": ["@instride/shared#build", "@instride/utils#build"],
       "cache": false,
       "persistent": true
     },
@@ -25,7 +27,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "globalEnv": ["NODE_ENV"]
     }
   }
 }

@@ -1,6 +1,6 @@
 import { LessonInstanceStatus } from "@instride/shared";
-import { eq } from "drizzle-orm";
-import { api } from "encore.dev/api";
+import { and, eq } from "drizzle-orm";
+import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
 import { db } from "@/database";
@@ -9,6 +9,7 @@ import { requireOrganizationAuth } from "@/shared/auth";
 import { listInstanceEnrollments } from "../enrollments/get";
 import { enrollInInstance, unenrollFromInstance } from "../enrollments/post";
 import { lessonInstances } from "../schema";
+import { lessonCreated } from "../topics";
 import { GetLessonInstanceResponse } from "../types/contracts";
 
 interface CreateLessonInstanceRequest {
@@ -20,10 +21,9 @@ interface CreateLessonInstanceRequest {
   seriesId: string;
   end: string;
   occurrenceKey: string;
-  name?: string;
-  status?: LessonInstanceStatus;
-  levelId?: string;
-  notes?: string;
+  name?: string | null;
+  levelId?: string | null;
+  notes?: string | null;
 }
 
 export const createLessonInstance = api(
@@ -39,16 +39,61 @@ export const createLessonInstance = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const [instance] = await db
-      .insert(lessonInstances)
-      .values({
-        ...request,
-        start: new Date(request.start),
-        end: new Date(request.end),
-        organizationId,
-        createdByMemberId: member.id,
-      })
-      .returning();
+    const instance = await db.transaction(async (tx) => {
+      const [instance] = await tx
+        .insert(lessonInstances)
+        .values({
+          ...request,
+          start: new Date(request.start),
+          end: new Date(request.end),
+          status: LessonInstanceStatus.SCHEDULED,
+          organizationId,
+          createdByMemberId: member.id,
+        })
+        .returning();
+
+      return await tx.query.lessonInstances.findFirst({
+        where: {
+          id: instance.id,
+        },
+        with: {
+          series: {
+            with: {
+              trainer: {
+                with: {
+                  member: {
+                    with: {
+                      authUser: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    if (!instance || !instance.series) {
+      throw APIError.internal("Failed to create lesson instance");
+    }
+
+    lessonCreated.publish({
+      instanceId: instance.id,
+      seriesId: instance.seriesId,
+      organizationId,
+      trainerId: instance.trainerId,
+      trainerMemberId: instance.series.trainer?.memberId ?? "",
+      trainerName: instance.series.trainer?.member?.authUser?.name ?? "",
+      boardId: instance.boardId,
+      serviceId: instance.serviceId,
+      levelId: instance.levelId ?? null,
+      startTime: instance.start.toISOString(),
+      endTime: instance.end.toISOString(),
+      maxRiders: instance.maxRiders,
+      name: instance.name,
+      isRecurring: instance.series?.isRecurring ?? false,
+    });
 
     return { instance };
   }
@@ -79,6 +124,7 @@ export const updateLessonInstance = api(
   async (
     request: UpdateLessonInstanceRequest
   ): Promise<GetLessonInstanceResponse> => {
+    const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
     const { instanceId, ...rest } = request;
 
@@ -91,7 +137,12 @@ export const updateLessonInstance = api(
         updatedByMemberId: member.id,
         updatedAt: new Date(),
       })
-      .where(eq(lessonInstances.id, instanceId))
+      .where(
+        and(
+          eq(lessonInstances.id, instanceId),
+          eq(lessonInstances.organizationId, organizationId)
+        )
+      )
       .returning();
 
     if (request.riderIds) {
@@ -138,6 +189,7 @@ export const cancelLessonInstance = api(
   async (
     request: CancelLessonInstanceRequest
   ): Promise<GetLessonInstanceResponse> => {
+    const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
     const [instance] = await db
@@ -148,7 +200,12 @@ export const cancelLessonInstance = api(
         cancelReason: request.reason ?? null,
         canceledByMemberId: member.id,
       })
-      .where(eq(lessonInstances.id, request.instanceId))
+      .where(
+        and(
+          eq(lessonInstances.id, request.instanceId),
+          eq(lessonInstances.organizationId, organizationId)
+        )
+      )
       .returning();
 
     return { instance };

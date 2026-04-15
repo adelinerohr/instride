@@ -25,7 +25,7 @@ import {
   AlertTitle,
 } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute("/(authenticated)/create-organization")({
   component: RouteComponent,

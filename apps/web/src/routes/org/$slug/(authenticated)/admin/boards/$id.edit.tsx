@@ -18,7 +18,7 @@ import { DetailLayout } from "@/shared/components/layout/detail-layout";
 import { Page, PageHeader } from "@/shared/components/layout/page";
 import { buttonVariants } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/admin/boards/$id/edit"

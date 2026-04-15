@@ -1,4 +1,4 @@
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 
 import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
 import { PhoneInput } from "../ui/phone-input";

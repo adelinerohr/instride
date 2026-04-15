@@ -1,6 +1,12 @@
-import Client, { Local } from "./encore-client";
+import Client, { Local, Environment, type BaseURL } from "./encore-client";
 
-export const serverBaseURL = Local;
+function getServerBaseURL(): BaseURL {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  return isProduction ? Environment("production") : Local;
+}
+
+export const serverBaseURL = getServerBaseURL();
 
 export const apiClient = new Client(serverBaseURL, {
   requestInit: {

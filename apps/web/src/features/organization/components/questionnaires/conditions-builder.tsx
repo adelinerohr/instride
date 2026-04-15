@@ -12,7 +12,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/shared/components/ui/field";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { questionnaireFormOpts } from "../../lib/questionnaire.form";
 

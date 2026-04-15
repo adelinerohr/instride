@@ -1,5 +1,4 @@
 import {
-  LessonInstanceWithEnrollments,
   LessonInstanceEnrollment,
   LessonSeriesEnrollment,
   LessonInstance,
@@ -53,12 +52,12 @@ export interface ListInstancesRequest {
 }
 
 export interface GetInstanceResponse {
-  instance: LessonInstance;
+  instance: Omit<LessonInstance, "enrollments">;
   enrollments: LessonInstanceEnrollment[];
 }
 
 export interface ListInstancesResponse {
-  instances: LessonInstanceWithEnrollments[];
+  instances: LessonInstance[];
 }
 
 export interface CancelInstanceRequest {

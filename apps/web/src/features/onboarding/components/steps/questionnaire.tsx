@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
-import { withFieldGroup } from "@/shared/hooks/form";
+import { withFieldGroup } from "@/shared/hooks/use-form";
 
 import { isQuestionVisible } from "../../lib/member/questionnaire.schema";
 
@@ -36,6 +36,15 @@ export const QuestionnaireStep = withFieldGroup({
 
     const responses = useStore(group.store, (state) => state.values.responses);
     const questions = activeQuestionnaire.questions;
+
+    React.useEffect(() => {
+      if (!activeQuestionnaire?.id) {
+        return;
+      }
+      if (group.getFieldValue("questionnaireId") !== activeQuestionnaire.id) {
+        group.setFieldValue("questionnaireId", activeQuestionnaire.id);
+      }
+    }, [activeQuestionnaire?.id, group]);
 
     React.useEffect(() => {
       // Clean up responses for hidden questions when visibility changes
@@ -115,18 +124,29 @@ export const QuestionnaireStep = withFieldGroup({
         </div>
 
         <FieldGroup>
-          {orderedQuestions.map((question, index) => {
+          {orderedQuestions.map((question) => {
             const isVisible = isQuestionVisible(question, responses);
 
             if (!isVisible) {
               return null;
             }
 
+            const responseIndex = responses.findIndex(
+              (r) => r.questionId === question.id
+            );
+            if (responseIndex === -1) {
+              return null;
+            }
+
+            const responseValuePath =
+              `responses[${responseIndex}].responseValue` as const;
+
             switch (question.type) {
               case QuestionnaireQuestionType.BOOLEAN:
                 return (
                   <group.AppField
-                    name={`responses[${index}].responseValue`}
+                    key={question.id}
+                    name={responseValuePath}
                     children={(field) => (
                       <field.SwitchField
                         onCheckedChange={(value) =>
@@ -141,7 +161,8 @@ export const QuestionnaireStep = withFieldGroup({
               case QuestionnaireQuestionType.MULTIPLE_CHOICE:
                 return (
                   <group.Field
-                    name={`responses[${index}].responseValue`}
+                    key={question.id}
+                    name={responseValuePath}
                     children={(field) => {
                       const isInvalid =
                         field.state.meta.isTouched && !field.state.meta.isValid;
@@ -161,7 +182,7 @@ export const QuestionnaireStep = withFieldGroup({
                           >
                             {question.options?.map((option) => (
                               <Field
-                                key={option}
+                                key={`${question.id}-${option}`}
                                 orientation="horizontal"
                                 data-invalid={isInvalid}
                               >

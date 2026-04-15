@@ -12,6 +12,7 @@ import { SwitchField } from "@/shared/components/form/switch-field";
 import { TextField } from "@/shared/components/form/text-field";
 import { TextareaField } from "@/shared/components/form/textarea-field";
 
+import { DateField } from "../components/form/date-field";
 import { BooleanRadioField } from "../components/form/radio-field";
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
@@ -20,6 +21,7 @@ export const { fieldContext, useFieldContext, formContext, useFormContext } =
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
   fieldComponents: {
     TextField,
+    DateField,
     SelectField,
     ClearableSelectField,
     SwitchField,

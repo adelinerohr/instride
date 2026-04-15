@@ -7,7 +7,7 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { organizationOnboardingFormOpts } from "../../lib/organization/form";
 

@@ -1,6 +1,6 @@
 import { FieldGroup } from "@/shared/components/ui/field";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
-import { withFieldGroup } from "@/shared/hooks/form";
+import { withFieldGroup } from "@/shared/hooks/use-form";
 
 import { defaultMemberOnboardingValues } from "../../lib/member/form";
 

@@ -43,7 +43,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Field } from "@/shared/components/ui/field";
 import { Label } from "@/shared/components/ui/label";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 import { DetailsSection } from "./details";
 import { RidersSection } from "./riders";

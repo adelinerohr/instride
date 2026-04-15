@@ -9,8 +9,8 @@ export interface ListLessonSeriesResponse {
   series: LessonSeries[];
 }
 
-export interface GetLessonSeriesResponse {
-  series: LessonSeries;
+export interface GetLessonSeriesResponse extends LessonSeries {
+  timezone: string;
 }
 
 export interface ListLessonInstancesResponse {

@@ -27,8 +27,17 @@ export const trainerBusinessHoursMutations = {
     request: business_hours.UpdateTrainerBusinessHoursRequest;
   }) =>
     await apiClient.availability.updateTrainerBusinessHours(trainerId, request),
-  reset: async ({ boardId }: { boardId: string }) =>
-    await apiClient.availability.resetBoardBusinessHours(boardId),
+  resetBoard: async ({
+    trainerId,
+    boardId,
+  }: {
+    trainerId: string;
+    boardId: string;
+  }) =>
+    await apiClient.availability.resetTrainerBoardBusinessHours(
+      trainerId,
+      boardId
+    ),
 };
 
 export function useUpsertOrganizationBusinessHours({
@@ -97,19 +106,27 @@ export function useUpsertTrainerBusinessHours({
 export function useResetTrainerBusinessHours({
   trainerId,
   mutationConfig,
-}: MutationHookOptions<typeof trainerBusinessHoursMutations.reset> & {
+}: MutationHookOptions<
+  (vars: {
+    boardId: string;
+  }) => ReturnType<typeof trainerBusinessHoursMutations.resetBoard>
+> & {
   trainerId: string;
 }) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(trainerBusinessHoursMutations.reset, {
-    ...config,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: businessHoursKeys.trainer(trainerId),
-      });
-      onSuccess?.(...args);
-    },
-  });
+  return useWrappedMutation(
+    ({ boardId }: { boardId: string }) =>
+      trainerBusinessHoursMutations.resetBoard({ trainerId, boardId }),
+    {
+      ...config,
+      onSuccess: (...args) => {
+        queryClient.invalidateQueries({
+          queryKey: businessHoursKeys.trainer(trainerId),
+        });
+        onSuccess?.(...args);
+      },
+    }
+  );
 }

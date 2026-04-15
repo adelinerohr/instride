@@ -13,7 +13,7 @@ import { PageHeader } from "@/shared/components/layout/page";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/settings/organization/questionnaires/new"

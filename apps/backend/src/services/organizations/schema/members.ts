@@ -62,6 +62,7 @@ export const members = p.pgTable(
 
     // Membership access
     isPlaceholder: p.boolean("is_placeholder").default(false).notNull(),
+    kioskPin: p.text("kiosk_pin"),
     roles: membershipRoleEnum("roles")
       .array()
       .notNull()
@@ -107,6 +108,12 @@ export const trainers = p.pgTable(
 
     // Trainer information
     bio: p.text("bio"),
+
+    // Trainer preferences
+    allowSameDayBookings: p
+      .boolean("allow_same_day_bookings")
+      .notNull()
+      .default(false),
 
     deletedAt: p.timestamp("deleted_at"),
     createdAt: p.timestamp("created_at").notNull().defaultNow(),

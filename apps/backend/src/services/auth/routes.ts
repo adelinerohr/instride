@@ -1,7 +1,5 @@
 import { isAPIError } from "better-auth/api";
-import { api, APIError } from "encore.dev/api";
-
-import { requireAuth } from "@/shared/auth";
+import { api, APIError, Cookie } from "encore.dev/api";
 
 import { auth } from "./auth";
 import { Session } from "./handler";
@@ -96,13 +94,30 @@ export const updateUser = api<UpdateUserRequest, void>(
 );
 
 interface GetSessionResponse {
-  session: Session;
+  session: Session | null;
 }
 
-export const getSession = api<void, GetSessionResponse>(
-  { expose: true, method: "GET", path: "/session", auth: true },
-  async () => {
-    const { session } = requireAuth();
+interface GetSessionParams {
+  sessionToken?: Cookie<"better-auth.session_token">;
+}
+
+export const getSession = api(
+  { expose: true, method: "GET", path: "/session" },
+  async (params: GetSessionParams): Promise<GetSessionResponse> => {
+    if (!params.sessionToken?.value) {
+      return { session: null };
+    }
+
+    const session = await auth.api.getSession({
+      headers: new Headers({
+        cookie: `better-auth.session_token=${params.sessionToken.value}`,
+      }),
+    });
+
+    if (!session) {
+      return { session: null };
+    }
+
     return { session };
   }
 );

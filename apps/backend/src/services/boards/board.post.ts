@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 import { boards as boardsApi } from "~encore/clients";
 
@@ -73,13 +73,20 @@ export const updateBoard = api(
     auth: true,
   },
   async (request: UpdateBoardRequest): Promise<GetBoardResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
     const [board] = await db
       .update(boards)
       .set({
         name: request.name,
         canRiderAdd: request.canRiderAdd,
       })
-      .where(eq(boards.id, request.boardId))
+      .where(
+        and(
+          eq(boards.id, request.boardId),
+          eq(boards.organizationId, organizationId)
+        )
+      )
       .returning();
 
     // 1. Get existing trainer and service assignments
@@ -150,6 +157,12 @@ export const deleteBoard = api(
     auth: true,
   },
   async ({ boardId }: { boardId: string }): Promise<void> => {
-    await db.delete(boards).where(eq(boards.id, boardId));
+    const { organizationId } = requireOrganizationAuth();
+
+    await db
+      .delete(boards)
+      .where(
+        and(eq(boards.id, boardId), eq(boards.organizationId, organizationId))
+      );
   }
 );

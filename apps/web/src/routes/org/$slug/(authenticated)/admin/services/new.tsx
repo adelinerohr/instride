@@ -19,7 +19,7 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/admin/services/new"

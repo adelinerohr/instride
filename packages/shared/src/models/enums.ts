@@ -168,3 +168,14 @@ export const FileUploadAction = {
 
 export type FileUploadAction =
   (typeof FileUploadAction)[keyof typeof FileUploadAction];
+
+/**
+ * Event scope
+ */
+export const EventScope = {
+  ORGANIZATION: "organization",
+  BOARD: "board",
+  TRAINER: "trainer",
+} as const;
+
+export type EventScope = (typeof EventScope)[keyof typeof EventScope];

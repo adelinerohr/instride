@@ -8,12 +8,14 @@ import { Button } from "@/shared/components/ui/button";
  * Description: Non-org user landing page, redirects based on auth state
  */
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/(authenticated)/")({
   component: HomeComponent,
   beforeLoad: ({ context }) => {
     if (!context.isAuthenticated) {
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/auth/login" });
     }
+
+    // TODO: Check if user is part of an organization
   },
 });
 

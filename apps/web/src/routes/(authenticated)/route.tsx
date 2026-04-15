@@ -1,20 +1,21 @@
+import { authOptions } from "@instride/api";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-
-import { authClient } from "@/shared/lib/auth/client";
 
 export const Route = createFileRoute("/(authenticated)")({
   component: Outlet,
   beforeLoad: async ({ context }) => {
     if (!context.isAuthenticated) {
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/auth/login" });
     }
 
-    const { data } = await authClient.getSession();
+    const { session } = await context.queryClient.ensureQueryData(
+      authOptions.session()
+    );
 
-    if (!data?.user) {
-      throw redirect({ to: "/login" });
+    if (!session) {
+      throw redirect({ to: "/auth/login" });
     }
 
-    return { user: data.user, session: data.session };
+    return { user: session.user, session: session };
   },
 });

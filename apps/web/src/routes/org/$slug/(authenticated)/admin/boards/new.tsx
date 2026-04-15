@@ -10,7 +10,7 @@ import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { DetailLayout } from "@/shared/components/layout/detail-layout";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/admin/boards/new"

@@ -2,16 +2,18 @@ import {
   boardsOptions,
   businessHoursOptions,
   useResetTrainerBusinessHours,
-  useUpsertOrganizationBusinessHours,
+  useUpdateTrainer,
+  useUpsertTrainerBusinessHours,
   type types,
 } from "@instride/api";
 import {
+  availabilityDaysFormSchema,
   buildEmptyWeek,
   DayOfWeek,
-  organizationAvailabilitySchema,
   type DayHours,
 } from "@instride/shared";
 import { normalizeTimeSlot } from "@instride/utils";
+import type { FormValidateOrFn } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { RotateCcwIcon } from "lucide-react";
@@ -19,20 +21,11 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { DayRow } from "@/features/organization/components/business-hours/day-row";
+import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
 import {
   AnnotatedLayout,
   AnnotatedSection,
 } from "@/shared/components/layout/annotated";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -42,13 +35,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/settings/account/availability"
@@ -82,10 +77,8 @@ function RouteComponent() {
   const { data: boards } = useSuspenseQuery(boardsOptions.list());
 
   const resetBoard = useResetTrainerBusinessHours({ trainerId: trainer.id });
+  const updateTrainer = useUpdateTrainer();
 
-  const [resetConfirmBoardId, setResetConfirmBoardId] = React.useState<
-    string | null
-  >(null);
   const [activeTab, setActiveTab] = React.useState<"defaults" | string>(
     "defaults"
   );
@@ -122,9 +115,10 @@ function RouteComponent() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <OrgBusinessHoursForm
-                    existing={availability.defaults}
+                  <TrainerBusinessHoursForm
                     boardId={null}
+                    existing={availability.defaults}
+                    trainerId={trainer.id}
                   />
                 </CardContent>
               </Card>
@@ -156,7 +150,22 @@ function RouteComponent() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setResetConfirmBoardId(board.id)}
+                            onClick={() =>
+                              confirmationModalHandler.openWithPayload({
+                                title: "Reset to organization defaults?",
+                                description:
+                                  "This will remove the custom hours for this board and fall back to the organization-wide defaults. This cannot be undone.",
+                                onConfirm: () => {
+                                  resetBoard.mutateAsync({ boardId: board.id });
+                                  setActiveTab("defaults");
+                                  toast.success(
+                                    "Board hours reset to organization defaults"
+                                  );
+                                },
+                                confirmLabel: "Reset",
+                                cancelLabel: "Cancel",
+                              })
+                            }
                           >
                             <RotateCcwIcon className="h-3.5 w-3.5 mr-1.5" />
                             Reset to defaults
@@ -165,9 +174,10 @@ function RouteComponent() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <OrgBusinessHoursForm
-                        existing={effectiveHours}
+                      <TrainerBusinessHoursForm
                         boardId={board.id}
+                        existing={effectiveHours}
+                        trainerId={trainer.id}
                       />
                     </CardContent>
                   </Card>
@@ -175,59 +185,58 @@ function RouteComponent() {
               );
             })}
           </Tabs>
-
-          {/* Reset confirmation */}
-          <AlertDialog
-            open={resetConfirmBoardId !== null}
-            onOpenChange={(open) => !open && setResetConfirmBoardId(null)}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Reset to organization defaults?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will remove the custom hours for this board and fall back
-                  to the organization-wide defaults. This cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={async () => {
-                    if (!resetConfirmBoardId) return;
-                    await resetBoard.mutateAsync({
-                      boardId: resetConfirmBoardId,
-                    });
-                    setResetConfirmBoardId(null);
-                    setActiveTab("defaults");
-                    toast.success("Board hours reset to organization defaults");
-                  }}
-                >
-                  Reset
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
+      </AnnotatedSection>
+      <AnnotatedSection
+        title="Trainer preferences"
+        description="Set your preferences as a trainer."
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Trainer Preferences</CardTitle>
+            <CardDescription>
+              These preferences apply to all boards.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="allowSameDayBookings">
+                Allow same day bookings
+              </FieldLabel>
+              <Switch
+                id="allowSameDayBookings"
+                checked={trainer.allowSameDayBookings}
+                onCheckedChange={(value) =>
+                  updateTrainer.mutateAsync({
+                    trainerId: trainer.id,
+                    request: {
+                      allowSameDayBookings: value,
+                    },
+                  })
+                }
+              />
+            </Field>
+          </CardContent>
+        </Card>
       </AnnotatedSection>
     </AnnotatedLayout>
   );
 }
 
-interface OrgBusinessHoursFormProps {
-  /** Existing saved data to pre-populate (7 rows, one per day) */
-  existing: types.OrganizationBusinessHours[];
+interface TrainerBusinessHoursFormProps {
+  trainerId: string;
+  /** Existing saved rows to pre-populate (7 days, one row per day when present) */
+  existing: (types.TrainerBusinessHours | types.OrganizationBusinessHours)[];
   boardId: string | null;
 }
 
-export function OrgBusinessHoursForm({
+export function TrainerBusinessHoursForm({
+  trainerId,
   existing,
   boardId,
-}: OrgBusinessHoursFormProps) {
-  const upsert = useUpsertOrganizationBusinessHours();
+}: TrainerBusinessHoursFormProps) {
+  const upsert = useUpsertTrainerBusinessHours({ trainerId });
 
-  // Build initial days: fill from existing or use empty defaults
   const initialDays: DayHours[] = Object.values(DayOfWeek).map((dow) => {
     const saved = existing.find((r) => r.dayOfWeek === dow);
     if (saved) {
@@ -249,22 +258,47 @@ export function OrgBusinessHoursForm({
 
   const form = useAppForm({
     defaultValues: { days: initialDays },
+    // Without this, handleSubmit can bail before running validators when
+    // `canSubmit` is false (e.g. first click after fields become "invalid").
+    canSubmitWhenInvalid: true,
     validators: {
-      onSubmit: organizationAvailabilitySchema,
+      onSubmit: availabilityDaysFormSchema as FormValidateOrFn<{
+        days: DayHours[];
+      }>,
     },
-    onSubmit: ({ value }) => {
-      console.log(value);
-      upsert.mutateAsync(
-        { boardId, days: value.days },
-        {
-          onSuccess: () => {
-            toast.success("Business hours saved");
-          },
-          onError: () => {
-            toast.error("Failed to save business hours");
-          },
-        }
+    onSubmitInvalid: ({ formApi }) => {
+      const first = formApi.state.errors[0];
+      toast.error(
+        typeof first === "string"
+          ? first
+          : "Please fix the highlighted fields and try again."
       );
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        await upsert.mutateAsync(
+          {
+            trainerId,
+            request: {
+              boardId,
+              days: value.days.map((day) => ({
+                ...day,
+                inheritsFromOrg: false,
+              })),
+            },
+          },
+          {
+            onSuccess: () => {
+              toast.success("Availability saved");
+            },
+            onError: () => {
+              toast.error("Failed to save availability");
+            },
+          }
+        );
+      } catch {
+        // Errors are surfaced via onError above
+      }
     },
   });
 

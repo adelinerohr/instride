@@ -19,7 +19,7 @@ import {
   InputGroupText,
 } from "@/shared/components/ui/input-group";
 import { Switch } from "@/shared/components/ui/switch";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
 export const DetailsSection = withForm({

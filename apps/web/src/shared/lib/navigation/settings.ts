@@ -4,6 +4,7 @@ import {
   ClipboardIcon,
   ClockIcon,
   FileTextIcon,
+  LaptopIcon,
   ShieldIcon,
   ShieldUserIcon,
   UserIcon,
@@ -19,10 +20,10 @@ export const getSettingsNavItems = (
     return getAdminSettingsNavItems(slug, isTrainer);
   }
 
-  return getPortalSettingsNavItems(slug);
+  return getPortalSettingsNavItems(slug, isTrainer);
 };
 
-export const getPortalSettingsNavItems = (slug: string) => {
+export const getPortalSettingsNavItems = (slug: string, isTrainer: boolean) => {
   return [
     {
       title: "Personal",
@@ -33,6 +34,16 @@ export const getPortalSettingsNavItems = (slug: string) => {
           to: "/org/$slug/settings/account/profile",
           params: { slug },
         },
+        ...(isTrainer
+          ? [
+              {
+                title: "Trainer Availability",
+                icon: ClockIcon,
+                to: "/org/$slug/settings/account/availability",
+                params: { slug },
+              },
+            ]
+          : []),
       ]),
     },
   ];
@@ -86,6 +97,12 @@ export const getAdminSettingsNavItems = (slug: string, isTrainer: boolean) => {
           title: "Members",
           icon: UsersIcon,
           to: "/org/$slug/settings/organization/members",
+          params: { slug },
+        },
+        {
+          title: "Kiosks",
+          icon: LaptopIcon,
+          to: "/org/$slug/settings/organization/kiosk",
           params: { slug },
         },
         {

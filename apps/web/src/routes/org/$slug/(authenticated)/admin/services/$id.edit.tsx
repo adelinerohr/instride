@@ -23,7 +23,7 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/admin/services/$id/edit"
@@ -257,7 +257,7 @@ function RouteComponent() {
             listeners={{
               onChange: ({ value }) => {
                 if (value === false) {
-                  form.setFieldValue("restrictedToLevelId", undefined);
+                  form.setFieldValue("restrictedToLevelId", null);
                 }
               },
             }}

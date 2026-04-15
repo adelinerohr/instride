@@ -22,7 +22,7 @@ import {
   DialogClose,
 } from "@/shared/components/ui/dialog";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const editRiderModalHandler = DialogHandler.createHandle<{
   rider: types.Rider;

@@ -5,7 +5,7 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { questionnaireFormOpts } from "../../lib/questionnaire.form";
 import { createEmptyRule } from "../../utils/questionnaire";

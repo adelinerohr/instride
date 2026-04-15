@@ -9,3 +9,5 @@ export * from "@/services/guardians/schema";
 export * from "@/services/waivers/schema";
 export * from "@/services/notifications/schema";
 export * from "@/services/activity/schema";
+export * from "@/services/kiosk/schema";
+export * from "@/services/events/schema";

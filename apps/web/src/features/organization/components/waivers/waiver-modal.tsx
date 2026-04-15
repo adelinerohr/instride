@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const waiverModalHandler = DialogHandler.createHandle<{
   waiver: Awaited<ReturnType<typeof useWaiver>["data"]>;

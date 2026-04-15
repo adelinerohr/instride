@@ -4,6 +4,7 @@ import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 import { auth } from "@/services/auth/auth";
+import { assertAdmin } from "@/services/auth/gates";
 import { requireAuth } from "@/shared/auth";
 
 import { members, organizations } from "../schema";
@@ -123,7 +124,10 @@ export const updateOrganization = api(
   async (
     request: UpdateOrganizationRequest
   ): Promise<GetOrganizationResponse> => {
+    const { userID } = requireAuth();
     const { organizationId, ...data } = request;
+
+    await assertAdmin(organizationId, userID);
 
     const existing = await db.query.organizations.findFirst({
       where: { id: organizationId },

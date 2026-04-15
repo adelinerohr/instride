@@ -31,7 +31,7 @@ import {
   InputGroupText,
 } from "@/shared/components/ui/input-group";
 import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { lessonFormOpts } from "../../lib/new-lesson.form";
 

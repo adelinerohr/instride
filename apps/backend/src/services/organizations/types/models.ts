@@ -31,6 +31,7 @@ export interface Organization {
 export interface Member {
   organizationId: string;
   id: string;
+  kioskPin: string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
   userId: string;
@@ -68,6 +69,7 @@ export interface Trainer {
   deletedAt: Date | string | null;
   memberId: string;
   bio: string | null;
+  allowSameDayBookings: boolean;
   member?: Member | null;
   boardAssignments?: BoardAssignment[] | null;
 }

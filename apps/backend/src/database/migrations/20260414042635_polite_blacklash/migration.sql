@@ -1,0 +1,1 @@
+ALTER TABLE "trainers" ADD COLUMN "allow_same_day_bookings" boolean DEFAULT false NOT NULL;

@@ -18,7 +18,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { changeRoleModalHandler } from "@/features/organization/components/members/modals/role-modal";
-import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -30,7 +30,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Empty, EmptyHeader, EmptyMedia } from "@/shared/components/ui/empty";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
 import {
   Tabs,
   TabsContent,
@@ -95,8 +101,13 @@ export function TeamMembersCard() {
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
-                    <UserPlusIcon className="size-6" />
+                    <UserPlusIcon />
                   </EmptyMedia>
+                  <EmptyTitle>No pending invitations</EmptyTitle>
+                  <EmptyDescription>
+                    Place an invitation to a team member by email and assign
+                    them a role.
+                  </EmptyDescription>
                 </EmptyHeader>
               </Empty>
             )}
@@ -184,6 +195,8 @@ function MemberRow(props: MemberRowProps) {
     return <Icon className="size-3 shrink-0" />;
   };
 
+  const activeUser = !isInvitationRow ? props.member.authUser : null;
+
   return (
     <div className="flex gap-4 items-center justify-between">
       {isInvitationRow ? (
@@ -208,17 +221,11 @@ function MemberRow(props: MemberRowProps) {
           </small>
         </div>
       ) : (
-        <div className="flex items-center gap-4">
-          <UserAvatar user={props.member.authUser!} />
-          <div className="flex flex-col">
-            <strong className="font-medium leading-none">
-              {props.member.authUser?.name}
-            </strong>
-            <small className="text-foreground/60">
-              {props.member.authUser?.email}
-            </small>
-          </div>
-        </div>
+        <UserAvatarItem
+          user={activeUser!}
+          description={activeUser?.email}
+          size="sm"
+        />
       )}
 
       <div className="flex flex-row items-center gap-2">

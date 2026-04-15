@@ -52,7 +52,7 @@ export function AgendaView() {
 
           return (
             <div className="space-y-4">
-              <div className="sticky top-0 flex items-center gap-4 bg-background py-4">
+              <div className="sticky top-0 flex items-center gap-4 bg-background">
                 <p className="text-sm font-semibold">
                   {format(dayGroup.date, "EEEE, MMMM d, yyyy")}
                 </p>

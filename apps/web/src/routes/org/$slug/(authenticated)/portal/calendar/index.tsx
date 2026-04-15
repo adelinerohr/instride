@@ -91,8 +91,7 @@ function RouteComponent() {
       boards={boards}
       lessons={lessons}
       timeBlocks={timeBlocks}
-      isPortal={true}
-      isLoading={isLoading}
+      type="portal"
     >
       <Calendar />
     </CalendarProvider>

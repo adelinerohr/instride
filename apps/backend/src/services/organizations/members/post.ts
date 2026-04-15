@@ -1,5 +1,5 @@
 import { MembershipRole } from "@instride/shared/models/enums";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -39,6 +39,7 @@ interface CreateTrainerRequest {
   organizationId: string;
   memberId: string;
   bio?: string | null;
+  allowSameDayBookings?: boolean;
 }
 
 export const createTrainer = api(
@@ -66,12 +67,17 @@ export const updateRider = api(
     auth: true,
   },
   async (request: UpdateRiderRequest): Promise<GetRiderResponse> => {
+    const { organizationId } = requireOrganizationAuth();
     const { riderId, ...data } = request;
+
     const [rider] = await db
       .update(riders)
       .set(data)
-      .where(eq(riders.id, riderId))
+      .where(
+        and(eq(riders.id, riderId), eq(riders.organizationId, organizationId))
+      )
       .returning();
+
     return { rider };
   }
 );
@@ -88,12 +94,20 @@ export const updateTrainer = api(
     auth: true,
   },
   async (request: UpdateTrainerRequest): Promise<GetTrainerResponse> => {
+    const { organizationId } = requireOrganizationAuth();
     const { trainerId, ...data } = request;
+
     const [trainer] = await db
       .update(trainers)
       .set(data)
-      .where(eq(trainers.id, trainerId))
+      .where(
+        and(
+          eq(trainers.id, trainerId),
+          eq(trainers.organizationId, organizationId)
+        )
+      )
       .returning();
+
     return { trainer };
   }
 );

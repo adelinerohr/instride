@@ -6,6 +6,8 @@ import type { WizardStep } from "../lib/types";
 
 type OnboardingWizardProps = {
   steps: WizardStep[];
+  title?: string;
+  description?: string;
   currentStepIndex: number;
   onGoToStep: (step: WizardStep["id"]) => void;
   children: React.ReactNode;
@@ -13,6 +15,8 @@ type OnboardingWizardProps = {
 
 export function OnboardingWizard({
   steps,
+  title = "Set up your organization",
+  description = "You can update these details later",
   currentStepIndex,
   onGoToStep,
   children,
@@ -20,10 +24,8 @@ export function OnboardingWizard({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-semibold">Set up your organization</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          You can update these details later
-        </p>
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 
       <div className="mb-8 flex items-center gap-3">

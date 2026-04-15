@@ -21,7 +21,7 @@ import {
   InputGroupButton,
   InputGroupText,
 } from "@/shared/components/ui/input-group";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { lessonFormOpts } from "../../lib/new-lesson.form";
 

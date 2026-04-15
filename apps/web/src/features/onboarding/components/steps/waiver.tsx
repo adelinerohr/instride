@@ -1,6 +1,6 @@
 import { FieldGroup } from "@/shared/components/ui/field";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { withFieldGroup } from "@/shared/hooks/form";
+import { withFieldGroup } from "@/shared/hooks/use-form";
 
 import { defaultMemberOnboardingValues } from "../../lib/member/form";
 

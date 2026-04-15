@@ -20,7 +20,7 @@ export interface LessonInstance {
   boardId: string;
   maxRiders: number;
   serviceId: string;
-  trainerMemberId: string;
+  trainerId: string;
   levelId: string | null;
   notes: string | null;
   start: Date | string;
@@ -32,8 +32,9 @@ export interface LessonInstance {
   canceledAt: Date | string | null;
   canceledByMemberId: string | null;
   cancelReason: string | null;
-  service: Service;
-  board: Board;
+  service?: Service | null;
+  board?: Board | null;
+  enrollments?: Omit<LessonInstanceEnrollment, "instance">[] | null;
 }
 
 export interface LessonSeriesEnrollment {
@@ -99,11 +100,4 @@ export interface LessonSeries {
 
 export interface LessonSeriesWithRiders extends LessonSeries {
   enrollments: Rider[];
-}
-
-export interface LessonInstanceWithEnrollments extends Omit<
-  LessonInstance,
-  "service" | "board"
-> {
-  enrollments: Omit<LessonInstanceEnrollment, "instance">[];
 }

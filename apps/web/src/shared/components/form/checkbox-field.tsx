@@ -5,7 +5,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/shared/components/ui/field";
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
 import { Checkbox } from "../ui/checkbox";

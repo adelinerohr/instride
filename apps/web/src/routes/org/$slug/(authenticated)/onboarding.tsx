@@ -22,7 +22,7 @@ import {
   AlertTitle,
 } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/onboarding")({
   component: RouteComponent,
@@ -109,6 +109,8 @@ function RouteComponent() {
       steps={memberOnboardingSteps}
       currentStepIndex={currentStepIndex}
       onGoToStep={goToStep}
+      title="Set up your membership"
+      description="Complete the following steps to get started"
     >
       <form
         onSubmit={(e) => {

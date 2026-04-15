@@ -44,6 +44,10 @@ export const boardsRelations = defineRelationsPart(schema, (r) => ({
       from: r.boards.id,
       to: r.questionnaires.defaultBoardId,
     }),
+    eventsSchedulingBlocks: r.many.eventSchedulingBlocks({
+      from: r.boards.id,
+      to: r.eventSchedulingBlocks.boardId,
+    }),
   },
 
   boardAssignments: {

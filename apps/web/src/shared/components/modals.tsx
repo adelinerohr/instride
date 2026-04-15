@@ -1,3 +1,4 @@
+import { EventModal } from "@/features/calendar/components/modals/event-modal";
 import { TimeBlockModal } from "@/features/calendar/components/modals/time-block-form";
 import { LessonModal } from "@/features/lessons/components/modals/new-lesson";
 import { ViewLessonModal } from "@/features/lessons/components/modals/view-lesson";
@@ -19,6 +20,7 @@ export function Modals() {
       <LevelModal />
       <TimeBlockModal />
       <LessonModal />
+      <EventModal />
     </>
   );
 }

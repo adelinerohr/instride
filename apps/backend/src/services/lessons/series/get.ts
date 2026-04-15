@@ -44,14 +44,32 @@ export const getLessonSeries = api(
         id,
       },
       with: {
+        organization: {
+          columns: {
+            timezone: true,
+          },
+        },
         enrollments: {
           with: riderRelationQuery,
+        },
+        trainer: {
+          with: {
+            member: {
+              with: {
+                authUser: true,
+              },
+            },
+          },
         },
       },
     });
 
     if (!series) throw APIError.notFound("Lesson series not found");
 
-    return { series };
+    if (!series.organization || !series.organization.timezone) {
+      throw APIError.internal("Organization timezone not found");
+    }
+
+    return { ...series, timezone: series.organization.timezone };
   }
 );

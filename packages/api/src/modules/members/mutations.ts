@@ -1,9 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 
-import type {
-  MutationHookOptions,
-  OrganizationMutationHookOptions,
-} from "#_internal/types";
+import type { MutationHookOptions } from "#_internal/types";
 import { useWrappedMutation } from "#_internal/types";
 import { apiClient, type members } from "#client";
 
@@ -15,6 +12,9 @@ export const membersMutations = {
       await apiClient.organizations.joinOrganization(organizationId);
     return member;
   },
+
+  setPin: async (pin: string) =>
+    await apiClient.organizations.setKioskPin({ pin }),
 
   updateRider: async ({
     riderId,
@@ -30,6 +30,20 @@ export const membersMutations = {
     return rider;
   },
 
+  updateTrainer: async ({
+    trainerId,
+    request,
+  }: {
+    trainerId: string;
+    request: members.UpdateTrainerRequest;
+  }) => {
+    const { trainer } = await apiClient.organizations.updateTrainer(
+      trainerId,
+      request
+    );
+    return trainer;
+  },
+
   changeRole: async ({
     memberId,
     request,
@@ -43,7 +57,7 @@ export const membersMutations = {
 
 export function useJoinOrganization({
   mutationConfig,
-}: OrganizationMutationHookOptions<typeof membersMutations.joinOrganization>) {
+}: MutationHookOptions<typeof membersMutations.joinOrganization> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
@@ -66,6 +80,21 @@ export function useJoinOrganization({
   });
 }
 
+export function useSetPin({
+  mutationConfig,
+}: MutationHookOptions<typeof membersMutations.setPin> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(membersMutations.setPin, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: memberKeys.list() });
+      onSuccess?.(...args);
+    },
+  });
+}
+
 export function useUpdateRider({
   mutationConfig,
 }: MutationHookOptions<typeof membersMutations.updateRider> = {}) {
@@ -82,6 +111,21 @@ export function useUpdateRider({
         queryKey: memberKeys.riderById(rider.id),
       });
       onSuccess?.(rider, ...args);
+    },
+  });
+}
+
+export function useUpdateTrainer({
+  mutationConfig,
+}: MutationHookOptions<typeof membersMutations.updateTrainer> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(membersMutations.updateTrainer, {
+    ...config,
+    onSuccess: (trainer, ...args) => {
+      queryClient.setQueryData(memberKeys.trainerById(trainer.id), trainer);
+      onSuccess?.(trainer, ...args);
     },
   });
 }

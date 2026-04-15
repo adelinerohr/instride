@@ -2,6 +2,7 @@ import {
   HeadContent,
   Outlet,
   createRootRouteWithContext,
+  redirect,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "sonner";
@@ -32,6 +33,51 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
     ],
   }),
+  beforeLoad: async ({ context, location }) => {
+    const { isAuthenticated } = context as RouterContext;
+
+    // Public routes that don't require auth
+    const publicPaths = [
+      "/auth/login", // Root domain login
+      "/auth/register", // Root domain register
+      "/auth/callback", // OAuth callback
+    ];
+
+    // Check if current path is public
+    const isPublicPath = publicPaths.some((path) =>
+      location.pathname.startsWith(path)
+    );
+
+    // Also check for org-specific login/register pages
+    const isOrgAuthPage = location.pathname.match(
+      /^\/org\/[^/]+\/auth\/(login|register)$/ // CHANGED: Added /auth/ to path
+    );
+
+    if (!isAuthenticated && !isPublicPath && !isOrgAuthPage) {
+      const currentPath = location.pathname;
+      const orgMatch = currentPath.match(/^\/org\/([^/]+)/);
+
+      if (orgMatch) {
+        throw redirect({
+          to: "/org/$slug/auth/login", // CHANGED: Added /auth/
+          params: { slug: orgMatch[1] },
+          search: {
+            redirect:
+              currentPath.replace(`/org/${orgMatch[1]}`, "") || "/dashboard",
+          },
+        });
+      }
+
+      throw redirect({
+        to: "/auth/login",
+        search: {
+          redirect: currentPath,
+        },
+      });
+    }
+
+    return context;
+  },
 });
 
 function RootComponent() {

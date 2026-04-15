@@ -95,6 +95,14 @@ export const organizationsRelations = defineRelationsPart(schema, (r) => ({
       from: r.organizations.id,
       to: r.notificationPushTokens.organizationId,
     }),
+    kioskSessions: r.many.kioskSessions({
+      from: r.organizations.id,
+      to: r.kioskSessions.organizationId,
+    }),
+    events: r.many.events({
+      from: r.organizations.id,
+      to: r.events.organizationId,
+    }),
   },
 
   members: {
@@ -150,6 +158,14 @@ export const organizationsRelations = defineRelationsPart(schema, (r) => ({
       from: r.members.id,
       to: r.activity.ownerMemberId,
     }),
+    kioskSessions: r.many.kioskSessions({
+      from: r.members.id,
+      to: r.kioskSessions.actingMemberId,
+    }),
+    events: r.many.events({
+      from: r.members.id,
+      to: r.events.createdByMemberId,
+    }),
   },
 
   trainers: {
@@ -184,6 +200,10 @@ export const organizationsRelations = defineRelationsPart(schema, (r) => ({
     boardAssignments: r.many.boardAssignments({
       from: r.trainers.id,
       to: r.boardAssignments.trainerId,
+    }),
+    eventsSchedulingBlocks: r.many.eventSchedulingBlocks({
+      from: r.trainers.id,
+      to: r.eventSchedulingBlocks.trainerId,
     }),
   },
 

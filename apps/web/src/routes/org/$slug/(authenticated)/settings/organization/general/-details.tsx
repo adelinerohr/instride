@@ -3,7 +3,7 @@ import z from "zod";
 
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { states } from "@/shared/lib/states";
 
 import { Route } from "./index";

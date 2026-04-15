@@ -1,5 +1,9 @@
-import { Link, useParams } from "@tanstack/react-router";
-import { CalendarPlusIcon, ClockIcon, PlusIcon } from "lucide-react";
+import {
+  CalendarPlusIcon,
+  ClockIcon,
+  PartyPopperIcon,
+  PlusIcon,
+} from "lucide-react";
 
 import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 import { Button } from "@/shared/components/ui/button";
@@ -12,13 +16,13 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 
 import { useCalendar } from "../../hooks/use-calendar";
+import { eventModalHandler } from "../modals/event-modal";
 import { timeBlockModalHandler } from "../modals/time-block-form";
 import { DateNavigator } from "./date-navigator";
 import { CalendarFilters } from "./filters";
 import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
-  const { slug } = useParams({ strict: false });
   const { selectedTrainerIds, selectedBoardId } = useCalendar();
 
   return (
@@ -33,17 +37,14 @@ export function CalendarHeader() {
               <PlusIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-fit">
-              <DropdownMenuItem
-                render={
-                  <Link
-                    to="/org/$slug/admin/calendar/new"
-                    params={{ slug: slug ?? "" }}
-                  />
-                }
+              <DialogTrigger
+                handle={eventModalHandler}
+                nativeButton={false}
+                render={<DropdownMenuItem />}
               >
-                <CalendarPlusIcon />
+                <PartyPopperIcon />
                 <span>Add new event</span>
-              </DropdownMenuItem>
+              </DialogTrigger>
               <DialogTrigger
                 handle={lessonModalHandler}
                 nativeButton={false}

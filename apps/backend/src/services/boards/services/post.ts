@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -88,11 +88,18 @@ export const updateService = api(
     auth: true,
   },
   async (request: UpdateServiceRequest): Promise<GetServiceResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
     // 1. Update the service
     const [service] = await db
       .update(services)
       .set(request)
-      .where(eq(services.id, request.id))
+      .where(
+        and(
+          eq(services.id, request.id),
+          eq(services.organizationId, organizationId)
+        )
+      )
       .returning();
 
     const { assignments: currentBoardAssignments } =
@@ -168,6 +175,12 @@ export const deleteService = api(
     auth: true,
   },
   async ({ id }: { id: string }): Promise<void> => {
-    await db.delete(services).where(eq(services.id, id));
+    const { organizationId } = requireOrganizationAuth();
+
+    await db
+      .delete(services)
+      .where(
+        and(eq(services.id, id), eq(services.organizationId, organizationId))
+      );
   }
 );

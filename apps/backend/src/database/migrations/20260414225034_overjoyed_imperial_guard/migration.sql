@@ -1,0 +1,1 @@
+ALTER TABLE "kiosk_sessions" ADD COLUMN "updated_at" timestamp with time zone NOT NULL;

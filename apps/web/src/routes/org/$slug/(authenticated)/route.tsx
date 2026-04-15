@@ -36,7 +36,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       throw redirect({ to: "/" });
     }
 
-    // 4. must be onboarded
+    // TODO: must be onboarded
 
     return {
       user: session.user,

@@ -1,0 +1,1 @@
+ALTER TABLE "kiosk_acting_tokens" RENAME TO "kiosk_sessions";

@@ -1,5 +1,7 @@
 import * as p from "drizzle-orm/pg-core";
 
+import { db } from "@/database";
+
 export const timeStamps = {
   createdAt: p.timestamp("created_at").defaultNow().notNull(),
   updatedAt: p
@@ -9,3 +11,5 @@ export const timeStamps = {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 };
+
+export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];

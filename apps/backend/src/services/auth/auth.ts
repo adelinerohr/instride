@@ -2,6 +2,7 @@ import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
+import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 
 import { db } from "../../database";
@@ -16,18 +17,28 @@ import {
 const authSecret = secret("AuthSecret");
 const googleClientId = secret("GoogleClientId");
 const googleClientSecret = secret("GoogleClientSecret");
+const baseURL = appMeta().apiBaseUrl;
+const isProd = appMeta().environment.type === "production";
 
 export const auth = betterAuth({
   /** Configuration */
   basePath: "/auth",
-  baseURL: "http://localhost:4000",
+  baseURL,
   secret: authSecret(),
-  trustedOrigins: [
-    "http://red-coat-farm.localhost:3000",
-    "http://localhost:4000",
-    "http://127.0.0.1:4000",
-    "http://localhost:3000",
-  ],
+
+  trustedOrigins: isProd
+    ? [
+        "https://app.instrideapp.com",
+        "https://instrideapp.com",
+        "https://*.instrideapp.com",
+      ]
+    : [
+        "http://localhost:4000",
+        "http://127.0.0.1:4000",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000", // Add this
+      ],
+
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -133,6 +144,16 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
+
+    ...(isProd && {
+      cookieAttributes: {
+        domain: ".instrideapp.com",
+        sameSite: "lax",
+        secure: true,
+        httpOnly: true,
+      },
+    }),
+
     additionalFields: {
       contextOrganizationId: { type: "string", required: false },
     },
@@ -148,7 +169,7 @@ export const auth = betterAuth({
     modelName: "authAccounts",
     accountLinking: {
       enabled: true,
-      trustedProviders: ["google"],
+      trustedProviders: ["google", "email-password"],
     },
   },
   verification: {

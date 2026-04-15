@@ -6,12 +6,13 @@ import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { getCurrentLessons } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
+import { MultiDayRow } from "../fragments/multi-day-row";
 import { SingleCalendar } from "../fragments/single-calendar";
 import { CalendarTimeline } from "../fragments/timeline";
 import { DayColumn } from "./column";
 
 export function DayView() {
-  const { selectedDate, selectedTrainerIds, trainers, lessons } = useCalendar();
+  const { selectedTrainerIds, trainers, lessons } = useCalendar();
 
   const selectedTrainers = trainers.filter((trainer) =>
     selectedTrainerIds.includes(trainer.id)
@@ -27,14 +28,19 @@ export function DayView() {
     <div className="flex h-full">
       <div className="flex flex-1 flex-col">
         {/* Day header */}
-        <div className="relative z-20 flex border-b">
-          <div className="w-18"></div>
-          <span className="flex-1 border-l py-2 text-center text-xs font-medium text-muted-foreground">
-            {format(selectedDate, "EE")}{" "}
-            <span className="font-semibold text-foreground">
-              {format(selectedDate, "d")}
-            </span>
-          </span>
+        <div>
+          <MultiDayRow />
+          <div className="relative z-20 flex border-b">
+            <div className="w-18"></div>
+            {selectedTrainers.map((trainer) => (
+              <span
+                key={trainer.id}
+                className="flex-1 border-l py-2 text-center text-xs font-medium text-muted-foreground"
+              >
+                {trainer.member?.authUser?.name}
+              </span>
+            ))}
+          </div>
         </div>
 
         <ScrollArea className="h-full">
@@ -59,13 +65,13 @@ export function DayView() {
             </div>
 
             {/* Day grid */}
-            <div className="relative flex-1 border-l">
-              {selectedTrainers.map((trainer) => (
+            {selectedTrainers.map((trainer) => (
+              <div className="relative flex-1 border-l">
                 <DayColumn key={trainer.id} trainer={trainer} />
-              ))}
+              </div>
+            ))}
 
-              <CalendarTimeline />
-            </div>
+            <CalendarTimeline />
           </div>
         </ScrollArea>
       </div>
@@ -87,7 +93,7 @@ export function DayView() {
             </div>
           ) : (
             <p className="p-4 text-center text-sm italic text-muted-foreground">
-              No appointments or consultations at the moment
+              No lessons scheduled at the moment.
             </p>
           )}
 

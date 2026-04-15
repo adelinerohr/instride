@@ -1,0 +1,1 @@
+ALTER TABLE "kiosk_sessions" ALTER COLUMN "location_name" SET NOT NULL;

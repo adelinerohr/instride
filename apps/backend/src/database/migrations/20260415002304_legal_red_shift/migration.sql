@@ -1,0 +1,1 @@
+ALTER TABLE "members" ALTER COLUMN "kiosk_pin" SET DATA TYPE text USING "kiosk_pin"::text;

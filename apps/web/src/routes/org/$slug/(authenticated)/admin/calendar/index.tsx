@@ -1,5 +1,6 @@
 import {
   boardsOptions,
+  eventOptions,
   instanceOptions,
   membersOptions,
   servicesOptions,
@@ -14,6 +15,8 @@ import {
   subMonths,
   subWeeks,
   addWeeks,
+  endOfMonth,
+  startOfMonth,
 } from "date-fns";
 
 import { Calendar } from "@/features/calendar/components";
@@ -42,27 +45,26 @@ export const Route = createFileRoute(
       });
     }
   },
-  loaderDeps: ({ search }) => ({ search }),
+  loaderDeps: ({ search }) => ({
+    // Only refetch when moving to a different month
+    month: startOfMonth(search.date).toISOString(),
+    view: search.view,
+  }),
   loader: async ({ context, deps }) => {
-    const from =
-      deps.search.view === CalendarView.DAY
-        ? subDays(deps.search.date, 1)
-        : deps.search.view === CalendarView.AGENDA
-          ? subMonths(deps.search.date, 1)
-          : subWeeks(deps.search.date, 1);
+    const monthStart = new Date(deps.month);
 
-    const to =
-      deps.search.view === CalendarView.DAY
-        ? addDays(deps.search.date, 1)
-        : deps.search.view === CalendarView.AGENDA
-          ? addMonths(deps.search.date, 1)
-          : addWeeks(deps.search.date, 1);
+    // Fetch the entire month
+    const from = startOfMonth(monthStart);
+    const to = endOfMonth(monthStart);
 
     context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
     context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to));
     context.queryClient.ensureQueryData(membersOptions.trainers());
     context.queryClient.ensureQueryData(boardsOptions.list());
     context.queryClient.ensureQueryData(servicesOptions.all());
+    context.queryClient.ensureQueryData(
+      eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+    );
 
     return {
       from,
@@ -73,29 +75,46 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
+  const { date, view } = Route.useSearch();
 
-  const { data: trainers, isLoading: isLoadingTrainers } = useSuspenseQuery(
-    membersOptions.trainers()
-  );
-  const { data: boards, isLoading: isLoadingBoards } = useSuspenseQuery(
-    boardsOptions.list()
-  );
-  const { data: lessons, isLoading: isLoadingLessons } = useSuspenseQuery(
+  const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
+  const { data: boards } = useSuspenseQuery(boardsOptions.list());
+  const { data: allLessons } = useSuspenseQuery(
     instanceOptions.inRange(from, to)
   );
-  const { data: timeBlocks, isLoading: isLoadingTimeBlocks } = useSuspenseQuery(
+  const { data: allTimeBlocks } = useSuspenseQuery(
     timeBlockOptions.inRange(from, to)
   );
+  const { data: allEvents } = useSuspenseQuery(
+    eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+  );
 
-  const isLoading =
-    isLoadingTrainers ||
-    isLoadingBoards ||
-    isLoadingLessons ||
-    isLoadingTimeBlocks;
+  // Calculate visible range based on current view
+  const visibleFrom =
+    view === CalendarView.DAY
+      ? subDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? subMonths(date, 1)
+        : subWeeks(date, 1);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const visibleTo =
+    view === CalendarView.DAY
+      ? addDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? addMonths(date, 1)
+        : addWeeks(date, 1);
+
+  // Filter to visible range
+  const lessons = allLessons.filter((lesson) => {
+    const lessonDate = new Date(lesson.start);
+    return lessonDate >= visibleFrom && lessonDate <= visibleTo;
+  });
+
+  const timeBlocks = allTimeBlocks.filter((block) => {
+    const blockStart = new Date(block.start);
+    const blockEnd = new Date(block.end);
+    return blockStart >= visibleFrom && blockEnd <= visibleTo;
+  });
 
   return (
     <CalendarProvider
@@ -103,8 +122,8 @@ function RouteComponent() {
       boards={boards}
       lessons={lessons}
       timeBlocks={timeBlocks}
-      isPortal={false}
-      isLoading={isLoading}
+      events={allEvents}
+      type="admin"
     >
       <Calendar />
     </CalendarProvider>

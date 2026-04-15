@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { useAppForm } from "@/shared/hooks/form";
+import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 
 import { Route } from "./index";
@@ -79,6 +79,9 @@ export function InviteMember() {
                   label: role,
                   value: role,
                 }))}
+                itemToValue={(item) => item.value}
+                renderValue={(item) => item.label}
+                itemToLabel={(item) => item.label}
               />
             )}
           />

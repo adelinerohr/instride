@@ -2,11 +2,23 @@ import { instanceOptions, membersOptions, type types } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { endOfDay, endOfWeek, format, startOfDay, startOfWeek } from "date-fns";
-import { ClipboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  ChevronRightIcon,
+  ClipboardIcon,
+  UsersIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 import { AgendaLessonCard } from "@/features/calendar/components/views/agenda/lesson-card";
 import { CalendarView } from "@/features/calendar/lib/types";
 import { Page, PageHeader } from "@/shared/components/layout/page";
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "@/shared/components/ui/alert";
 import { buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
@@ -23,6 +35,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
+import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
   component: RouteComponent,
@@ -42,6 +55,9 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
 });
 
 function RouteComponent() {
+  const { member } = Route.useRouteContext();
+  const { slug } = Route.useParams();
+
   const { data: riderStats } = useSuspenseQuery(membersOptions.riderStats());
   const { data: lessonStats } = useSuspenseQuery(instanceOptions.stats());
   const { data: lessonsThisWeek } = useSuspenseQuery(
@@ -58,10 +74,34 @@ function RouteComponent() {
   const weekStart = startOfWeek(now, { weekStartsOn: 0 }); // Sunday
   const weekEnd = endOfWeek(now, { weekStartsOn: 0 }); // Saturday
 
+  const hasPin = member.kioskPin !== null;
+
   return (
-    <Page>
+    <Page className="min-h-0 flex-1">
       <PageHeader title="Dashboard" />
-      <div className="flex flex-col gap-6 px-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4">
+        {!hasPin && (
+          <Alert className="w-full border-destructive bg-destructive/10 text-destructive">
+            <AlertTriangleIcon />
+            <AlertTitle>No Kiosk PIN set</AlertTitle>
+            <AlertDescription>
+              You don't have a Kiosk PIN set. Please set a PIN to use the Kiosk.
+            </AlertDescription>
+            <AlertAction>
+              <Link
+                to="/org/$slug/settings/account/profile"
+                params={{ slug }}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "bg-transparent border-destructive hover:bg-destructive/20"
+                )}
+              >
+                Set PIN
+                <ChevronRightIcon />
+              </Link>
+            </AlertAction>
+          </Alert>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* riders */}
           <StatsCard

@@ -1,6 +1,6 @@
 import { ColorPicker } from "@/shared/components/ui/color-picker";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 
 type ColorPickerFieldProps = {
   label?: string;

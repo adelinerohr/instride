@@ -1,4 +1,5 @@
 import { businessHoursOptions, type types } from "@instride/api";
+import { EventScope } from "@instride/shared";
 import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import * as React from "react";
@@ -23,6 +24,8 @@ interface CalendarContext {
   trainerBusinessHours: TrainerEffectiveBusinessHours;
   lessons: types.LessonInstance[];
   timeBlocks: types.TimeBlock[];
+  organizationEvents: types.GetEventResponse[];
+  events: types.GetEventResponse[];
   selectedView: CalendarView;
   setSelectedView: (view: CalendarView) => void;
   selectedBoardId: string | undefined;
@@ -35,24 +38,27 @@ const CalendarContext = React.createContext<CalendarContext | undefined>(
 );
 
 interface CalendarProviderProps {
-  isPortal: boolean;
-  isLoading: boolean;
+  type: "portal" | "admin" | "kiosk";
   trainers: types.Trainer[];
   boards: types.Board[];
   lessons: types.LessonInstance[];
   timeBlocks: types.TimeBlock[];
+  events: types.GetEventResponse[];
   children: React.ReactNode;
 }
 
 export function CalendarProvider({
   children,
-  isPortal,
+  type,
   trainers,
   boards,
-  isLoading,
   lessons,
   timeBlocks,
+  events,
 }: CalendarProviderProps) {
+  const kioskRouteApi = getRouteApi(
+    "/org/$slug/(authenticated)/kiosk/$sessionId/calendar"
+  );
   const portalRouteApi = getRouteApi(
     "/org/$slug/(authenticated)/portal/calendar/"
   );
@@ -60,7 +66,12 @@ export function CalendarProvider({
     "/org/$slug/(authenticated)/admin/calendar/"
   );
 
-  const routeApi = isPortal ? portalRouteApi : adminRouteApi;
+  const routeApi =
+    type === "kiosk"
+      ? kioskRouteApi
+      : type === "portal"
+        ? portalRouteApi
+        : adminRouteApi;
 
   const {
     date: selectedDate,
@@ -71,10 +82,44 @@ export function CalendarProvider({
   const navigate = routeApi.useNavigate();
 
   const date = new Date(selectedDate);
-  const {
-    data: organizationBusinessHours,
-    isLoading: isLoadingOrganizationBusinessHours,
-  } = useSuspenseQuery(businessHoursOptions.organization());
+  const { data: organizationBusinessHours } = useSuspenseQuery(
+    businessHoursOptions.organization()
+  );
+
+  const organizationEvents = React.useMemo(() => {
+    return events.filter((event) => event.scope === EventScope.ORGANIZATION);
+  }, [events]);
+
+  const filteredEvents = React.useMemo(() => {
+    return events.filter((event) => {
+      // Organization-scoped events - always show
+      if (event.scope === EventScope.ORGANIZATION) {
+        return true;
+      }
+
+      // Board-scoped events
+      if (
+        event.scope === EventScope.BOARD &&
+        selectedBoardId &&
+        event.boardIds?.includes(selectedBoardId)
+      ) {
+        return true;
+      }
+
+      // Trainer-scoped events - show if ANY selected trainer is in the event's trainerIds
+      if (
+        event.scope === EventScope.TRAINER &&
+        selectedTrainerIds.length > 0 &&
+        event.trainerIds?.some((trainerId) =>
+          selectedTrainerIds.includes(trainerId)
+        )
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+  }, [events, selectedBoardId, selectedTrainerIds]);
 
   const filteredLessons = React.useMemo(() => {
     return lessons.filter((lesson) => {
@@ -89,7 +134,7 @@ export function CalendarProvider({
       }
       return true;
     });
-  }, [lessons, date]);
+  }, [lessons, selectedTrainerIds, selectedBoardId]);
 
   const filteredTimeBlocks = React.useMemo(() => {
     return timeBlocks.filter((timeBlock) => {
@@ -104,7 +149,7 @@ export function CalendarProvider({
       }
       return true;
     });
-  }, [timeBlocks, date]);
+  }, [timeBlocks, selectedTrainerIds, selectedBoardId]);
 
   const trainerIdsToFetch = React.useMemo(
     () =>
@@ -184,10 +229,6 @@ export function CalendarProvider({
     [lessonModalHandler]
   );
 
-  if (isLoading || isLoadingOrganizationBusinessHours) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <CalendarContext.Provider
       value={{
@@ -201,6 +242,8 @@ export function CalendarProvider({
         setSelectedView,
         trainers,
         boards,
+        organizationEvents,
+        events: filteredEvents,
         organizationBusinessHours: effectiveOrganizationBusinessHours,
         trainerBusinessHours: effectiveTrainerBusinessHours,
         lessons: filteredLessons,

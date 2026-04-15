@@ -14,7 +14,7 @@ import {
   FieldSet,
 } from "@/shared/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
-import { withForm } from "@/shared/hooks/form";
+import { withForm } from "@/shared/hooks/use-form";
 
 import { questionnaireFormOpts } from "../../lib/questionnaire.form";
 import {

@@ -4,7 +4,11 @@ import { api, APIError } from "encore.dev/api";
 import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { quickbooksClientId, quickbooksRedirectUri } from "./encore.service";
+import {
+  quickbooksClientId,
+  quickbooksClientSecret,
+  quickbooksRedirectUri,
+} from "./encore.service";
 import { quickbooksConnections } from "./schema";
 
 interface ConnectQuickBooksResponse {
@@ -147,7 +151,7 @@ export const refreshAccessToken = api(
     }
 
     const auth = Buffer.from(
-      `${process.env.QUICKBOOKS_CLIENT_ID}:${process.env.QUICKBOOKS_CLIENT_SECRET}`
+      `${quickbooksClientId()}:${quickbooksClientSecret()}`
     ).toString("base64");
 
     const response = await fetch(

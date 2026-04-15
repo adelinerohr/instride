@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useFieldContext } from "@/shared/hooks/form";
+import { useFieldContext } from "@/shared/hooks/use-form";
 
 import {
   Combobox,

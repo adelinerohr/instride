@@ -1,5 +1,5 @@
 import { MembershipRole } from "@instride/shared";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import {
   LayoutDashboardIcon,
   LogOutIcon,
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
 
 export function UserDropdown() {
+  const navigate = useNavigate();
   const { user, organization, member, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
@@ -27,6 +28,7 @@ export function UserDropdown() {
 
   const handleSignOut = async () => {
     await authClient.signOut();
+    navigate({ to: "/org/$slug/login", params: { slug: organization.slug } });
   };
 
   return (

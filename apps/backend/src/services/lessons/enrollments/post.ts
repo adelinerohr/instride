@@ -26,9 +26,10 @@ import { createInstanceEnrollment, createSeriesEnrollment } from "./utils";
 interface EnrollInInstanceRequest {
   instanceId: string;
   riderIds: string | string[];
+  enrolledByMemberId?: string;
 }
 
-interface EnrollInInstanceResponse {
+export interface EnrollInInstanceResponse {
   enrollment: LessonInstanceEnrollment | LessonInstanceEnrollment[];
 }
 
@@ -67,9 +68,11 @@ export const enrollInInstance = api(
       const enrollments = await Promise.all(
         request.riderIds.map((riderId) =>
           createInstanceEnrollment({
-            instance,
+            instanceId: instance.id,
             riderId,
-            enrolledByMemberId: member.id,
+            enrolledByMemberId: request.enrolledByMemberId
+              ? request.enrolledByMemberId
+              : member.id,
           })
         )
       );
@@ -78,9 +81,11 @@ export const enrollInInstance = api(
 
     return {
       enrollment: await createInstanceEnrollment({
-        instance,
+        instanceId: instance.id,
         riderId: request.riderIds as string,
-        enrolledByMemberId: member.id,
+        enrolledByMemberId: request.enrolledByMemberId
+          ? request.enrolledByMemberId
+          : member.id,
       }),
     };
   }
@@ -94,10 +99,11 @@ export const unenrollFromInstance = api(
     auth: true,
   },
   async ({ enrollmentId }: { enrollmentId: string }): Promise<void> => {
+    const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
     const enrollment = await db.query.lessonInstanceEnrollments.findFirst({
-      where: { id: enrollmentId },
+      where: { id: enrollmentId, organizationId },
     });
 
     if (!enrollment) {
