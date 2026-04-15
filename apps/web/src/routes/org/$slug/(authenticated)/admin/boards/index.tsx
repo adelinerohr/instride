@@ -1,5 +1,9 @@
-import { useDeleteBoard, boardsOptions, type types } from "@instride/api";
-import { getUser } from "@instride/shared";
+import {
+  getUser,
+  useDeleteBoard,
+  boardsOptions,
+  type types,
+} from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {

@@ -1,4 +1,5 @@
 import {
+  getUser,
   useAssignToBoard,
   useBoards,
   useLevels,
@@ -6,7 +7,6 @@ import {
   useUpdateRider,
   type types,
 } from "@instride/api";
-import { getUser } from "@instride/shared";
 import { CircleIcon } from "lucide-react";
 import { toast } from "sonner";
 

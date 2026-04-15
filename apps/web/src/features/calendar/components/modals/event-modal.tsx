@@ -4,10 +4,10 @@ import {
   useCreateEvent,
   useTrainers,
   useUpdateEvent,
+  getUser,
   type types,
 } from "@instride/api";
 import { eventInputSchema, EventScope } from "@instride/shared";
-import { getUser } from "@instride/shared";
 import * as React from "react";
 import { toast } from "sonner";
 

@@ -14,3 +14,4 @@ export * from "./modules/questionnaires";
 export * from "./modules/activity";
 export * from "./modules/kiosk";
 export * from "./modules/events";
+export * from "./utils/member";

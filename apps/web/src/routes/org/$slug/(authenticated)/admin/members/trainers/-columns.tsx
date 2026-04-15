@@ -1,5 +1,4 @@
-import type { types } from "@instride/api";
-import { getUser } from "@instride/shared";
+import { getUser, type types } from "@instride/api";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {

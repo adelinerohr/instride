@@ -1,34 +1,38 @@
-import { type Member, MembershipRole } from "@instride/shared";
+import type { types } from "@instride/api";
+import { MembershipRole } from "@instride/shared";
 
-export function isAdmin(member: Member): boolean {
+export function isAdmin(member: types.Member): boolean {
   return member.roles.includes(MembershipRole.ADMIN);
 }
 
-export function isTrainer(member: Member): boolean {
+export function isTrainer(member: types.Member): boolean {
   return member.roles.includes(MembershipRole.TRAINER);
 }
 
-export function isRider(member: Member): boolean {
+export function isRider(member: types.Member): boolean {
   return member.roles.includes(MembershipRole.RIDER);
 }
 
-export function isGuardian(member: Member): boolean {
+export function isGuardian(member: types.Member): boolean {
   return member.roles.includes(MembershipRole.GUARDIAN);
 }
 
-export function isAdminOrTrainer(member: Member): boolean {
+export function isAdminOrTrainer(member: types.Member): boolean {
   return isAdmin(member) || isTrainer(member);
 }
 
-export function isOnlyRider(member: Member): boolean {
+export function isOnlyRider(member: types.Member): boolean {
   return member.roles.length === 1 && isRider(member);
 }
 
-export function hasAnyRole(member: Member, roles: MembershipRole[]): boolean {
+export function hasAnyRole(
+  member: types.Member,
+  roles: MembershipRole[]
+): boolean {
   return roles.some((role) => member.roles.includes(role));
 }
 
-export function hasRole(member: Member, role: MembershipRole): boolean {
+export function hasRole(member: types.Member, role: MembershipRole): boolean {
   return member.roles.includes(role);
 }
 

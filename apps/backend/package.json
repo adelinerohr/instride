@@ -6,7 +6,7 @@
   "license": "MPL-2.0",
   "type": "module",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest --run --passWithNoTests",
     "dev": "encore run",
     "check-types": "tsc --noEmit",
     "auth:generate": "encore exec -- pnpm dlx auth@latest generate --config=./src/services/auth/auth.ts",

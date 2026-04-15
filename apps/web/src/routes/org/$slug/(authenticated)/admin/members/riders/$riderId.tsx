@@ -1,5 +1,4 @@
-import { activityQueries, membersOptions } from "@instride/api";
-import { getUser } from "@instride/shared";
+import { activityQueries, getUser, membersOptions } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { format } from "date-fns";

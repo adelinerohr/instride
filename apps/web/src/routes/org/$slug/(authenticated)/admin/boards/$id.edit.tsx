@@ -3,8 +3,8 @@ import {
   boardsOptions,
   membersOptions,
   servicesOptions,
+  getUser,
 } from "@instride/api";
-import { getUser } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
