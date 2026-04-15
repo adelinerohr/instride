@@ -1,10 +1,10 @@
 import { DayOfWeek } from "@instride/shared";
-import { DAY_LABEL_MAP } from "@instride/utils";
 import {
   formatTimeLabel,
   normalizeTimeSlot,
+  DAY_LABEL_MAP,
   TIME_OPTIONS,
-} from "@instride/utils";
+} from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 
 import { Badge } from "@/shared/components/ui/badge";
