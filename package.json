@@ -27,7 +27,7 @@
     "lefthook": "latest",
     "oxfmt": "latest",
     "oxlint": "latest",
-    "turbo": "^2.8.12",
+    "turbo": "^2.9.6",
     "typescript": "^5",
     "ultracite": "7.4.0"
   },

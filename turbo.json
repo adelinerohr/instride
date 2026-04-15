@@ -1,13 +1,12 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "https://v2-9-6.turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": ["NODE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"],
-      "env": ["NODE_ENV"]
+      "outputs": ["dist/**"]
     },
     "@instride/backend#dev": {
       "dependsOn": ["@instride/shared#build", "@instride/utils#build"],
@@ -27,8 +26,7 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "globalEnv": ["NODE_ENV"]
+      "persistent": true
     }
   }
 }
