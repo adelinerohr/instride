@@ -103,18 +103,18 @@ export function validateResponses(
 
     if (
       question.type === QuestionnaireQuestionType.BOOLEAN &&
-      typeof response.value !== "boolean"
+      typeof response.responseValue !== "boolean"
     ) {
       throw new Error(`Question ${question.id} expects boolean answer`);
     }
 
     if (question.type === QuestionnaireQuestionType.MULTIPLE_CHOICE) {
-      if (typeof response.value !== "string") {
+      if (typeof response.responseValue !== "string") {
         throw new Error(
           `Question ${question.id} expects string answer for MultipleChoice`
         );
       }
-      if (!question.options?.includes(response.value)) {
+      if (!question.options?.includes(response.responseValue)) {
         throw new Error(`Question ${question.id} answer not in valid options`);
       }
     }
@@ -132,9 +132,9 @@ export function shouldShowQuestion(
   );
 
   // If the dependent question hasn't been answered yet, don't show this question
-  if (!dependentResponse || dependentResponse.value === undefined) {
+  if (!dependentResponse || dependentResponse.responseValue === undefined) {
     return false;
   }
 
-  return dependentResponse.value === question.showIf.responseValue;
+  return dependentResponse.responseValue === question.showIf.responseValue;
 }

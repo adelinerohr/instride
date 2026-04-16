@@ -10,7 +10,7 @@ export interface ListLessonSeriesResponse {
 }
 
 export interface GetLessonSeriesResponse extends LessonSeries {
-  timezone: string;
+  timezone?: string;
 }
 
 export interface ListLessonInstancesResponse {

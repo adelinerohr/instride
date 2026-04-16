@@ -1,7 +1,5 @@
-import {
-  QuestionnaireQuestionType,
-  type QuestionnaireQuestion,
-} from "@instride/shared";
+import type { types } from "@instride/api";
+import { QuestionnaireQuestionType } from "@instride/shared";
 import { useStore } from "@tanstack/react-store";
 import { TrashIcon } from "lucide-react";
 
@@ -27,7 +25,7 @@ export const QuestionBuilder = withForm({
   ...questionnaireFormOpts,
   props: {
     index: 0,
-    question: {} as QuestionnaireQuestion,
+    question: {} as types.QuestionnaireQuestion,
   },
   render: ({ form, index, question }) => {
     const questions = useStore(form.store, (state) => state.values.questions);

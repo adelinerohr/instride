@@ -1,5 +1,5 @@
 import { levelOptions, useUpdateRider } from "@instride/api";
-import type { Level, MemberWithRoles } from "@instride/shared";
+import { type types } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Field, FieldLabel } from "@/shared/components/ui/field";
@@ -12,31 +12,27 @@ import {
 } from "@/shared/components/ui/select";
 
 export interface RiderLevelProps {
-  member: MemberWithRoles;
+  member: types.Member;
 }
 
 export function RiderLevel({ member }: RiderLevelProps) {
-  const { data: levels } = useSuspenseQuery(
-    levelOptions(member.organizationId).all()
-  );
-  const updateRider = useUpdateRider({
-    memberId: member.id,
-  });
+  const { data: levels } = useSuspenseQuery(levelOptions.list());
+  const updateRider = useUpdateRider();
 
   if (!levels) return null;
 
-  if (!member.riderProfile) return null;
+  if (!member.rider) return null;
 
   return (
     <div className="p-4">
       <Field>
         <FieldLabel>Level</FieldLabel>
         <Select
-          defaultValue={member.riderProfile.ridingLevelId ?? null}
-          value={member.riderProfile.ridingLevelId ?? null}
+          defaultValue={member.rider.ridingLevelId ?? null}
+          value={member.rider.ridingLevelId ?? null}
           onValueChange={(value) => {
             updateRider.mutate({
-              memberId: member.id,
+              riderId: member.id,
               request: {
                 ridingLevelId: value === null ? undefined : value,
               },
@@ -45,7 +41,7 @@ export function RiderLevel({ member }: RiderLevelProps) {
         >
           <SelectTrigger>
             <SelectValue>
-              {(value: Level | null) => (
+              {(value: types.Level | null) => (
                 <div className="flex items-center gap-2">
                   <div
                     className="size-2 rounded-full"

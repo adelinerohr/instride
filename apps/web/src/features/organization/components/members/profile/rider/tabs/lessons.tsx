@@ -1,5 +1,4 @@
 import { enrollmentOptions } from "@instride/api";
-import type { MemberWithRoles } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Clock2Icon } from "lucide-react";
@@ -12,16 +11,10 @@ import {
   TimelineTitle,
 } from "@/shared/components/ui/timeline";
 
-interface RiderLessonsTabProps {
-  member: MemberWithRoles;
-}
-
-export function RiderLessonsTab({ member }: RiderLessonsTabProps) {
+export function RiderLessonsTab() {
   const {
     data: { instanceEnrollments },
-  } = useSuspenseQuery(
-    enrollmentOptions(member.organizationId).myEnrollments()
-  );
+  } = useSuspenseQuery(enrollmentOptions.myEnrollments());
 
   if (!instanceEnrollments) return null;
 
@@ -31,13 +24,14 @@ export function RiderLessonsTab({ member }: RiderLessonsTabProps) {
         instanceEnrollments.map((instanceEnrollment) => (
           <TimelineItem>
             <TimelineTitle>
-              {instanceEnrollment.instance.name ??
-                instanceEnrollment.instance.service.name}
+              {instanceEnrollment.instance?.name ??
+                instanceEnrollment.instance?.service?.name ??
+                "Unknown lesson"}
             </TimelineTitle>
             <TimelineDate>
               <Clock2Icon className="size-3" />
               {format(
-                new Date(instanceEnrollment.instance.start),
+                new Date(instanceEnrollment.instance?.start ?? ""),
                 "MMM d, yyyy"
               )}
             </TimelineDate>

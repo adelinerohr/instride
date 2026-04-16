@@ -39,6 +39,10 @@ export const generateLessonInstances = api(
   ): Promise<GenerateLessonInstancesResponse> => {
     const series = await getLessonSeries({ id: request.seriesId });
 
+    if (!series.timezone) {
+      throw new Error("Lesson series timezone not found");
+    }
+
     const { instances, skipped } = series.isRecurring
       ? await generateRecurringInstances({
           series,

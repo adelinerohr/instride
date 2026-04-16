@@ -122,10 +122,9 @@ export const RuleBuilder = withForm({
                     <field.SelectField
                       label="Assign to Board"
                       placeholder="Select a board"
-                      items={boards.map((board) => ({
-                        label: board.name,
-                        value: board.id,
-                      }))}
+                      items={boards}
+                      renderValue={(value) => value.name}
+                      itemToValue={(item) => item.id}
                     />
                   )}
                 />

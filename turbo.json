@@ -8,12 +8,12 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**"]
     },
-    "@instride/backend#dev": {
+    "backend#dev": {
       "dependsOn": ["@instride/shared#build"],
       "cache": false,
       "persistent": true
     },
-    "@instride/web#dev": {
+    "web#dev": {
       "dependsOn": ["@instride/shared#build"],
       "cache": false,
       "persistent": true

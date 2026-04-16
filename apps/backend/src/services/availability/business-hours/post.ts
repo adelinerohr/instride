@@ -1,4 +1,4 @@
-import { dateToDayOfWeek, isWithinHours } from "@instride/shared/utils/time";
+import { getDayOfWeek, isWithinHours } from "@instride/shared";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
@@ -33,7 +33,7 @@ export const checkLessonHours = api(
     request: CheckLessonHoursRequest
   ): Promise<CheckLessonHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const dayOfWeek = dateToDayOfWeek(new Date(request.date));
+    const dayOfWeek = getDayOfWeek(new Date(request.date));
 
     const effectiveOrgHours = await resolveEffectiveDayHours({
       organizationId,

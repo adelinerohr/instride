@@ -116,10 +116,9 @@ export const ConditionsBuilder = withForm({
 
                             return value;
                           }}
-                          items={questions.map((question) => ({
-                            label: question.text || "Untitled question",
-                            value: question.id,
-                          }))}
+                          items={questions}
+                          renderValue={(value) => value.text}
+                          itemToValue={(item) => item.id}
                         />
                       )}
                     />
@@ -139,6 +138,8 @@ export const ConditionsBuilder = withForm({
                               value: QuestionnaireQuestionOperator.NOT_EQUALS,
                             },
                           ]}
+                          renderValue={(value) => value.label}
+                          itemToValue={(item) => item.value}
                         />
                       )}
                     />
@@ -174,6 +175,8 @@ export const ConditionsBuilder = withForm({
                               value: option,
                             })
                           )}
+                          renderValue={(value) => value.label}
+                          itemToValue={(item) => item.value}
                         />
                       )}
                     />

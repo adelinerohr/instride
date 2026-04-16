@@ -3,7 +3,7 @@ import {
   LessonInstanceStatus,
   LessonSeriesStatus,
   RecurrenceFrequency,
-} from "@instride/shared/models/enums";
+} from "@instride/shared";
 import { addWeeks } from "date-fns";
 import { and, eq, gte } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
@@ -113,7 +113,7 @@ export const createLessonSeries = api(
       until: addWeeks(new Date(), 4),
     });
 
-    return { series };
+    return series;
   }
 );
 
@@ -191,7 +191,7 @@ export const updateLessonSeries = api(
       return updated;
     });
 
-    return { series };
+    return series;
   }
 );
 

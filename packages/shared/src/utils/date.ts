@@ -1,6 +1,6 @@
-import { DayOfWeek } from "@instride/shared";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
+import { DayOfWeek } from "../models/enums";
 import { DAYS_OF_WEEK } from "./formatters";
 
 export interface LocalParts {

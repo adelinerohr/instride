@@ -38,7 +38,7 @@ export default function CreateLessonScreen() {
     defaultValues: {
       name: "",
       boardId: "",
-      start: new Date(),
+      start: new Date().toISOString(),
       trainerId: "",
       levelId: "",
       serviceId: "",
@@ -63,12 +63,10 @@ export default function CreateLessonScreen() {
       createLesson.mutateAsync(
         {
           ...value,
-          start: data.start.toISOString(),
-          recurrenceEnd: data.recurrenceEnd?.toISOString() ?? null,
+          start: data.start,
           effectiveFrom: data.effectiveFrom?.toISOString() ?? null,
-          lastPlannedUntil: data.lastPlannedUntil?.toISOString() ?? null,
           levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
-          riderIds: riderIds.map((rider) => rider.id),
+          riderIds,
         },
         {
           onSuccess: () => {

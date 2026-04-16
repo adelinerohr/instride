@@ -1,5 +1,5 @@
 import { DayOfWeek } from "@instride/shared";
-import { timeToMinutes } from "@instride/shared/utils/time";
+import { timeToMinutes } from "@instride/shared";
 import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 

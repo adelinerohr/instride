@@ -110,7 +110,7 @@ async function assertMaySubmitForMember({
 function responseMap(
   responses: QuestionnaireQuestionResponse[]
 ): Map<string, string | boolean> {
-  return new Map(responses.map((r) => [r.questionId, r.value]));
+  return new Map(responses.map((r) => [r.questionId, r.responseValue]));
 }
 
 function isQuestionVisible(

@@ -1,4 +1,4 @@
-import type { MemberWithRoles } from "@instride/shared";
+import { type types } from "@instride/api";
 import { format } from "date-fns";
 import { CalendarIcon, MailIcon, PencilIcon, PhoneIcon } from "lucide-react";
 
@@ -20,23 +20,21 @@ import { getInitials } from "@/shared/lib/utils/format";
 import { RiderBoardsTab } from "./boards";
 import { RiderLevel } from "./level";
 
-export interface RiderOverviewProps {
-  member: MemberWithRoles;
-}
-
-export function RiderOverview({ member }: RiderOverviewProps) {
+export function RiderOverview({ member }: { member: types.Member }) {
   return (
     <div className="bg-card border rounded-md h-fit">
       <div className="flex flex-col items-center justify-center gap-2 p-8">
         <Avatar className="size-1/4">
           <AvatarImage
-            src={member.authUser.image ?? undefined}
-            alt={member.authUser.name}
+            src={member.authUser?.image ?? undefined}
+            alt={member.authUser?.name ?? ""}
           />
-          <AvatarFallback>{getInitials(member.authUser.name)}</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(member.authUser?.name ?? "")}
+          </AvatarFallback>
         </Avatar>
         <h4 className="text-lg font-semibold lg:text-2xl">
-          {member.authUser.name}
+          {member.authUser?.name ?? ""}
         </h4>
         <div className="flex items-center justify-center gap-2 text-muted-foreground">
           <CalendarIcon className="size-3" />
@@ -59,7 +57,7 @@ export function RiderOverview({ member }: RiderOverviewProps) {
                 <span>Email</span>
               </TableCell>
               <TableCell>
-                <span>{member.authUser.email ?? "No email set"}</span>
+                <span>{member.authUser?.email ?? "No email set"}</span>
               </TableCell>
             </TableRow>
             <TableRow className="border-b-0">
@@ -68,7 +66,7 @@ export function RiderOverview({ member }: RiderOverviewProps) {
                 <span>Phone</span>
               </TableCell>
               <TableCell>
-                <span>{member.authUser.phone ?? "No phone number set"}</span>
+                <span>{member.authUser?.phone ?? "No phone number set"}</span>
               </TableCell>
             </TableRow>
             {/*

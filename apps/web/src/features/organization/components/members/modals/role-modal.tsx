@@ -1,5 +1,5 @@
-import { useChangeRole } from "@instride/api";
-import { MembershipRole, type MemberWithUser } from "@instride/shared";
+import { useChangeRole, type types } from "@instride/api";
+import { MembershipRole } from "@instride/shared";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -24,7 +24,7 @@ const allRoles = [
 ];
 
 export const changeRoleModalHandler = DialogHandler.createHandle<{
-  member: MemberWithUser;
+  member: types.Member;
 }>();
 
 export function ChangeRoleModal() {
@@ -51,7 +51,7 @@ function ChangeRoleForm({
   member,
   onSuccess,
 }: {
-  member: MemberWithUser;
+  member: types.Member;
   onSuccess: () => void;
 }) {
   const changeRole = useChangeRole();
@@ -91,7 +91,7 @@ function ChangeRoleForm({
       >
         <DialogHeader>
           <DialogTitle>
-            Change {getFirstName(member.authUser.name)}'s role(s)
+            Change {getFirstName(member.authUser?.name ?? "")}'s role(s)
           </DialogTitle>
         </DialogHeader>
         <form.AppField

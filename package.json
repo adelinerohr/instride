@@ -5,7 +5,6 @@
     "apps/*",
     "packages/*"
   ],
-  "type": "module",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
