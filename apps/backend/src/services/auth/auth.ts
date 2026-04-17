@@ -26,6 +26,35 @@ export const auth = betterAuth({
   baseURL,
   secret: authSecret(),
 
+  cors: {
+    enabled: true,
+    origin: isProd
+      ? [
+          "https://instride.vercel.app",
+          /^https:\/\/.*\.instride\.vercel\.app$/, // Regex for preview deployments
+          "https://instrideapp.com",
+          "https://app.instrideapp.com",
+          /^https:\/\/.*\.instrideapp\.com$/, // Regex for subdomains
+        ]
+      : [
+          "http://localhost:3000",
+          "http://localhost:4000",
+          "http://localhost:5173",
+          "http://127.0.0.1:3000",
+          "http://127.0.0.1:4000",
+        ],
+    credentials: true, // CRITICAL for cookie-based sessions
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cookie",
+      "X-Requested-With",
+    ],
+    exposedHeaders: ["Set-Cookie"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    maxAge: 86400,
+  },
+
   trustedOrigins: isProd
     ? [
         // Custom domain (when ready)
@@ -98,7 +127,8 @@ export const auth = betterAuth({
         const url = new URL(
           existingUser
             ? `/org/${organization.slug}/login`
-            : `/org/${organization.slug}/register`
+            : `/org/${organization.slug}/register`,
+          baseURL
         );
 
         url.searchParams.set("invitationId", id);
