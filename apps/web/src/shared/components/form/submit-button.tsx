@@ -5,7 +5,7 @@ import { Spinner } from "../ui/spinner";
 
 type SubmitButtonProps = React.ComponentProps<typeof Button> & {
   label: string;
-  loadingLabel: string;
+  loadingLabel?: string;
 };
 
 export function SubmitButton({
@@ -26,7 +26,8 @@ export function SubmitButton({
           {...props}
         >
           {isSubmitting && <Spinner data-icon="inline-start" />}
-          {isSubmitting ? loadingLabel : label}
+          {isSubmitting && loadingLabel}
+          {!isSubmitting && label}
         </Button>
       )}
     </form.Subscribe>

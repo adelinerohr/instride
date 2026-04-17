@@ -60,6 +60,30 @@ export const listMemberAssignments = api(
       where: {
         ...whereCondition,
       },
+      with: {
+        board: {
+          with: {
+            assignments: {
+              where: {
+                trainerId: {
+                  isNotNull: true,
+                },
+              },
+              with: {
+                trainer: {
+                  with: {
+                    member: {
+                      with: {
+                        authUser: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     return { assignments };

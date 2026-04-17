@@ -1,6 +1,6 @@
 import { getUser, type types } from "@instride/api";
 import { differenceInMinutes, format } from "date-fns";
-import { CalendarIcon, CircleIcon, ClipboardIcon } from "lucide-react";
+import { CircleIcon } from "lucide-react";
 
 import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
 import { Badge } from "@/shared/components/ui/badge";
@@ -8,7 +8,6 @@ import {
   Item,
   ItemContent,
   ItemDescription,
-  ItemMedia,
   ItemTitle,
 } from "@/shared/components/ui/item";
 
@@ -34,15 +33,12 @@ export function LessonDetails({ instance }: LessonDetailsProps) {
 
       {instance.trainer && (
         <DetailSection label="Trainer">
-          <UserAvatarItem user={trainer} variant="outline" size="default" />
+          <UserAvatarItem user={trainer} variant="muted" size="default" />
         </DetailSection>
       )}
 
       <DetailSection label="Details">
-        <Item variant="outline">
-          <ItemMedia variant="icon">
-            <CalendarIcon />
-          </ItemMedia>
+        <Item variant="default">
           <ItemContent>
             <ItemTitle>{format(start, "EEEE, MMMM d, yyyy")}</ItemTitle>
             <div className="flex items-center gap-2">
@@ -55,10 +51,7 @@ export function LessonDetails({ instance }: LessonDetailsProps) {
             </div>
           </ItemContent>
         </Item>
-        <Item variant="outline">
-          <ItemMedia variant="icon">
-            <ClipboardIcon />
-          </ItemMedia>
+        <Item variant="default">
           <ItemContent>
             <div className="flex items-center gap-2 justify-between">
               <ItemTitle>Service: {instance.service?.name}</ItemTitle>

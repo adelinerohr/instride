@@ -11,13 +11,12 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@instride/shared": path.resolve(__dirname, "../../packages/shared/src"),
-      "@instride/api": path.resolve(
-        __dirname,
-        "../../packages/api/src/index.ts"
-      ),
     },
   },
   server: {
     port: 3000,
+  },
+  optimizeDeps: {
+    exclude: ["@instride/shared"],
   },
 });

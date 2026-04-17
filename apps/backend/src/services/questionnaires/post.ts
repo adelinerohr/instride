@@ -116,7 +116,7 @@ interface SubmitQuestionnaireResponseRequest {
   userId?: string;
   responses: {
     questionId: string;
-    value: string | boolean;
+    responseValue: string | boolean;
   }[];
 }
 

@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
 import { apiClient, type business_hours } from "#client";
 
-import { businessHoursKeys } from "../keys";
+import { availabilityKeys } from "../keys";
 
 export const businessHoursMutations = {
   checkLessonHours: async (request: business_hours.CheckLessonHoursRequest) =>
@@ -50,7 +50,7 @@ export function useUpsertOrganizationBusinessHours({
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: businessHoursKeys.list(),
+        queryKey: availabilityKeys.listBusinessHours(),
       });
       onSuccess?.(...args);
     },
@@ -67,7 +67,7 @@ export function useResetOrganizationBusinessHours({
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: businessHoursKeys.list(),
+        queryKey: availabilityKeys.listBusinessHours(),
       });
       onSuccess?.(...args);
     },
@@ -96,7 +96,7 @@ export function useUpsertTrainerBusinessHours({
     ...config,
     onSuccess: (result, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: businessHoursKeys.trainer(trainerId),
+        queryKey: availabilityKeys.trainerBusinessHours(trainerId),
       });
       onSuccess?.(result, ...args);
     },
@@ -123,7 +123,7 @@ export function useResetTrainerBusinessHours({
       ...config,
       onSuccess: (...args) => {
         queryClient.invalidateQueries({
-          queryKey: businessHoursKeys.trainer(trainerId),
+          queryKey: availabilityKeys.trainerBusinessHours(trainerId),
         });
         onSuccess?.(...args);
       },

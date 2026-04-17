@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 
-import type { MutationHookOptions } from "#_internal";
-import { mutation } from "#_internal/wrappers";
+import { useWrappedMutation, type MutationHookOptions } from "#_internal";
 import { apiClient, type auth } from "#client";
 
 import { authKeys } from "./keys";
@@ -18,7 +17,7 @@ export function useUpdateCurrentUser({
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return mutation.base(authMutations.updateCurrentUser, {
+  return useWrappedMutation(authMutations.updateCurrentUser, {
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: authKeys.session });

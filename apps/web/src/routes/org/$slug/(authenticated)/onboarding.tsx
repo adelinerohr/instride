@@ -1,5 +1,12 @@
-import { useUpdateCurrentUser, waiverOptions } from "@instride/api";
-import { WaiverStatus } from "@instride/shared";
+import {
+  useCompleteOnboarding,
+  useJoinOrganization,
+  useSignWaiver,
+  useSubmitQuestionnaireResponse,
+  useUpdateCurrentUser,
+  waiverOptions,
+} from "@instride/api";
+import { MembershipRole, WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -11,11 +18,11 @@ import { WaiverStep } from "@/features/onboarding/components/steps/waiver";
 import { OnboardingWizard } from "@/features/onboarding/components/wizard";
 import {
   buildMemberOnboardingDefaultValues,
+  MemberOnboardingStep,
   memberOnboardingFormOpts,
   memberOnboardingSteps,
+  type MemberOnboardingFormValues,
 } from "@/features/onboarding/lib/member/form";
-import { MemberOnboardingStep } from "@/features/onboarding/lib/member/validators";
-import type { WizardStep } from "@/features/onboarding/lib/types";
 import {
   Alert,
   AlertDescription,
@@ -27,82 +34,190 @@ import { useAppForm } from "@/shared/hooks/use-form";
 export const Route = createFileRoute("/org/$slug/(authenticated)/onboarding")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
+    if (context.member.onboardingComplete) {
+      throw Route.redirect({ to: "/org/$slug/portal" });
+    }
+  },
+  loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(waiverOptions.list());
   },
 });
 
 function RouteComponent() {
   const { user, organization } = Route.useRouteContext();
-  const updateCurrentUser = useUpdateCurrentUser();
   const navigate = Route.useNavigate();
   const [error, setError] = React.useState<string | null>(null);
 
   const { data: waivers } = useSuspenseQuery(waiverOptions.list());
+  const updateCurrentUser = useUpdateCurrentUser();
+  const signWaiver = useSignWaiver();
+  const submitQuestionnaireResponse = useSubmitQuestionnaireResponse();
+  const joinOrganization = useJoinOrganization();
+  const updateMember = useCompleteOnboarding();
 
-  const waiverContent =
-    waivers.find((w) => w.status === WaiverStatus.ACTIVE)?.content ?? "";
+  const activeWaiver = waivers.find((w) => w.status === WaiverStatus.ACTIVE);
+
+  const completeOnboarding = async (value: MemberOnboardingFormValues) => {
+    setError(null);
+
+    const roles: MembershipRole[] = [];
+
+    if (value.accountType.isGuardian) {
+      roles.push(MembershipRole.GUARDIAN);
+    }
+
+    if (value.accountType.isRider) {
+      roles.push(MembershipRole.RIDER);
+    }
+
+    let imageUrl = value.personalDetails.image;
+
+    if (value.personalDetails.imageFile) {
+      const formData = new FormData();
+      formData.append("file", value.personalDetails.imageFile);
+      const response = await fetch("/upload/avatar/user", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      const { url } = await response.json();
+      imageUrl = url;
+    }
+
+    await updateCurrentUser.mutateAsync({
+      name: value.personalDetails.name,
+      phone: value.personalDetails.phone,
+      image: value.personalDetails.removeImage ? null : imageUrl,
+      dateOfBirth: value.personalDetails.dateOfBirth,
+    });
+
+    const member = await joinOrganization.mutateAsync({
+      organizationId: organization.id,
+      request: {
+        roles,
+      },
+    });
+
+    if (activeWaiver) {
+      await signWaiver.mutateAsync({
+        waiverId: activeWaiver.id,
+        request: {},
+      });
+    }
+
+    await submitQuestionnaireResponse.mutateAsync({
+      questionnaireId: value.questionnaire.questionnaireId,
+      request: {
+        responses: value.questionnaire.responses,
+      },
+    });
+
+    await updateMember.mutateAsync({
+      memberId: member.id,
+    });
+
+    navigate({
+      to: "/org/$slug/portal",
+      params: { slug: organization.slug },
+    });
+  };
 
   const form = useAppForm({
     ...memberOnboardingFormOpts,
     defaultValues: buildMemberOnboardingDefaultValues(user),
     onSubmit: async ({ value, formApi }) => {
-      switch (value.section) {
-        case MemberOnboardingStep.PersonalDetails:
-          console.log("PersonalDetails:", value.personalDetails);
-          formApi.setFieldValue("section", MemberOnboardingStep.Questionnaire);
-          break;
-        case MemberOnboardingStep.Questionnaire:
-          console.log("Questionnaire:", value.questionnaire);
-          formApi.setFieldValue("section", MemberOnboardingStep.Waiver);
-          break;
-        case MemberOnboardingStep.Waiver:
-          console.log("Waiver:", value.waiver);
-          try {
-            // 1. Update user
-            let imageUrl = value.personalDetails.image;
+      const { section, accountType } = value;
 
-            if (value.personalDetails.imageFile) {
-              const formData = new FormData();
-              formData.append("file", value.personalDetails.imageFile);
-              const response = await fetch("/upload/avatar/user", {
-                method: "POST",
-                body: formData,
-                credentials: "include",
-              });
-              const { url } = await response.json();
-              imageUrl = url;
-            }
+      const isGuardianOnly =
+        accountType.isGuardian && accountType.isRider === false;
 
-            await updateCurrentUser.mutateAsync({
-              name: value.personalDetails.name,
-              phone: value.personalDetails.phone,
-              image: value.personalDetails.removeImage ? null : imageUrl,
-            });
+      // Validate current step
+      try {
+        if (section === MemberOnboardingStep.PersonalDetails) {
+          await formApi.validateField("personalDetails", "submit");
+          formApi.setFieldValue("section", MemberOnboardingStep.AccountType);
+          return;
+        }
 
-            navigate({
-              to: "/org/$slug/portal",
-              params: {
-                slug: organization.slug,
-              },
-            });
-          } catch (error) {
-            console.error(error);
-            setError("Failed to create member.");
+        if (section === MemberOnboardingStep.AccountType) {
+          if (accountType.isGuardian && accountType.isRider === null) {
+            setError("Please select whether you'll also be riding");
+            return;
           }
-          break;
+
+          await formApi.validateField("accountType", "submit");
+          formApi.setFieldValue(
+            "section",
+            MemberOnboardingStep.PersonalDetails
+          );
+          return;
+        }
+
+        if (section === MemberOnboardingStep.Questionnaire) {
+          await formApi.validateField("questionnaire", "submit");
+
+          // If guardian-only, skip to completion
+          if (isGuardianOnly) {
+            await completeOnboarding(value);
+          } else {
+            formApi.setFieldValue("section", MemberOnboardingStep.Waiver);
+          }
+          return;
+        }
+
+        if (section === MemberOnboardingStep.Waiver) {
+          await formApi.validateField("waiver", "submit");
+
+          // All validation passed - submit the onboarding
+          await completeOnboarding(value);
+          return;
+        }
+      } catch (err) {
+        // Validation failed - form will show errors
+        if (section === MemberOnboardingStep.Waiver) {
+          console.error(err);
+          setError("Failed to complete onboarding. Please try again.");
+        }
       }
     },
   });
 
   const section = useStore(form.store, (state) => state.values.section);
+  const accountType = useStore(form.store, (state) => state.values.accountType);
 
-  const currentStepIndex = memberOnboardingSteps.findIndex(
-    (s) => s.id === section
-  )!;
+  const isGuardianOnly =
+    accountType.isGuardian && accountType.isRider === false;
 
-  const goToStep = (step: WizardStep["id"]) => {
-    form.setFieldValue("section", step as MemberOnboardingStep);
+  // Filter steps based on account type
+  const visibleSteps = React.useMemo(() => {
+    if (isGuardianOnly) {
+      return memberOnboardingSteps.filter(
+        (step) =>
+          step.id === MemberOnboardingStep.AccountType ||
+          step.id === MemberOnboardingStep.PersonalDetails
+      );
+    }
+    return memberOnboardingSteps;
+  }, [isGuardianOnly]);
+
+  const currentStepIndex = visibleSteps.findIndex((s) => s.id === section);
+
+  const goToStep = (stepId: MemberOnboardingStep) => {
+    const targetIndex = visibleSteps.findIndex((s) => s.id === stepId);
+    if (targetIndex < currentStepIndex) {
+      form.setFieldValue("section", stepId);
+    }
   };
+
+  const canGoBack = currentStepIndex > 0;
+  const isLastStep =
+    section === MemberOnboardingStep.Waiver ||
+    (isGuardianOnly && section === MemberOnboardingStep.AccountType);
+
+  const name = useStore(
+    form.store,
+    (state) => state.values.personalDetails.name
+  );
 
   return (
     <OnboardingWizard
@@ -122,6 +237,7 @@ function RouteComponent() {
         {section === MemberOnboardingStep.PersonalDetails && (
           <PersonalDetailsStep form={form} fields="personalDetails" />
         )}
+
         {section === MemberOnboardingStep.Questionnaire && (
           <QuestionnaireStep
             form={form}
@@ -129,14 +245,17 @@ function RouteComponent() {
             isDependent={false}
           />
         )}
+
         {section === MemberOnboardingStep.Waiver && (
           <WaiverStep
             form={form}
             fields="waiver"
-            waiverContent={waiverContent}
+            waiverContent={activeWaiver?.content ?? ""}
+            name={name}
           />
         )}
-        {error && section === MemberOnboardingStep.Waiver && (
+
+        {error && (
           <Alert
             variant="destructive"
             className="bg-destructive/10 border-destructive"
@@ -145,25 +264,24 @@ function RouteComponent() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+
         <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={currentStepIndex === 0}
-            onClick={() =>
-              goToStep(memberOnboardingSteps[currentStepIndex - 1].id)
-            }
-          >
-            Back
-          </Button>
+          {canGoBack && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                goToStep(memberOnboardingSteps[currentStepIndex - 1].id)
+              }
+            >
+              Back
+            </Button>
+          )}
+
           <form.AppForm>
             <form.SubmitButton
-              label={
-                section === MemberOnboardingStep.Waiver
-                  ? "Complete Onboarding"
-                  : "Next"
-              }
-              loadingLabel="Loading..."
+              label={isLastStep ? "Complete Onboarding" : "Next"}
+              loadingLabel={isLastStep ? "Submitting..." : "Validating..."}
             />
           </form.AppForm>
         </div>

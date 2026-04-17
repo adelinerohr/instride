@@ -1,6 +1,7 @@
 import { MembershipRole } from "@instride/shared";
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import {
+  LaptopIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   SettingsIcon,
@@ -28,7 +29,10 @@ export function UserDropdown() {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    navigate({ to: "/org/$slug/login", params: { slug: organization.slug } });
+    navigate({
+      to: "/org/$slug/auth/login",
+      params: { slug: organization.slug },
+    });
   };
 
   return (
@@ -55,17 +59,31 @@ export function UserDropdown() {
         Account Settings
       </DropdownMenuItem>
       {isAdminOrTrainer && (
-        <DropdownMenuItem
-          render={
-            <Link
-              to="/org/$slug/settings/organization/general"
-              params={{ slug: organization.slug }}
-            />
-          }
-        >
-          <SettingsIcon />
-          Organization Settings
-        </DropdownMenuItem>
+        <>
+          <DropdownMenuItem
+            render={
+              <Link
+                to="/org/$slug/settings/organization/general"
+                params={{ slug: organization.slug }}
+              />
+            }
+          >
+            <SettingsIcon />
+            Organization Settings
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            render={
+              <Link
+                to="/org/$slug/kiosk"
+                params={{ slug: organization.slug }}
+              />
+            }
+          >
+            <LaptopIcon />
+            Kiosk Mode
+          </DropdownMenuItem>
+        </>
       )}
 
       <DropdownMenuSeparator />

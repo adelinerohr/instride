@@ -1,16 +1,36 @@
 import { useFieldContext } from "@/shared/hooks/use-form";
 
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "../ui/field";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 type BooleanRadioFieldProps = React.ComponentProps<typeof RadioGroup> & {
-  trueLabel?: string;
-  falseLabel?: string;
+  label: string;
+  trueConfig?: {
+    label?: string;
+    description?: string;
+  };
+  falseConfig?: {
+    label?: string;
+    description?: string;
+  };
 };
 
 export function BooleanRadioField({
-  trueLabel = "Yes",
-  falseLabel = "No",
+  label,
+  trueConfig = {
+    label: "Yes",
+  },
+  falseConfig = {
+    label: "No",
+  },
   ...props
 }: BooleanRadioFieldProps) {
   const field = useFieldContext<boolean>();
@@ -18,7 +38,8 @@ export function BooleanRadioField({
   const errors = field.state.meta.errors;
 
   return (
-    <Field data-invalid={isInvalid}>
+    <FieldSet>
+      <FieldLegend>{label}</FieldLegend>
       <RadioGroup
         name={field.name}
         value={field.state.value ? "true" : "false"}
@@ -26,15 +47,33 @@ export function BooleanRadioField({
         {...props}
       >
         <Field orientation="horizontal">
-          <RadioGroupItem value="true" id={`${field.name}-true`} />
-          <FieldLabel htmlFor={`${field.name}-true`}>{trueLabel}</FieldLabel>
+          <RadioGroupItem
+            value="true"
+            id={`${field.name}-true`}
+            aria-invalid={isInvalid}
+          />
+          <FieldContent>
+            <FieldTitle>{trueConfig.label}</FieldTitle>
+            {trueConfig.description && (
+              <FieldDescription>{trueConfig.description}</FieldDescription>
+            )}
+          </FieldContent>
         </Field>
         <Field orientation="horizontal">
-          <RadioGroupItem value="false" id={`${field.name}-false`} />
-          <FieldLabel htmlFor={`${field.name}-false`}>{falseLabel}</FieldLabel>
+          <RadioGroupItem
+            value="false"
+            id={`${field.name}-false`}
+            aria-invalid={isInvalid}
+          />
+          <FieldContent>
+            <FieldTitle>{falseConfig.label}</FieldTitle>
+            {falseConfig.description && (
+              <FieldDescription>{falseConfig.description}</FieldDescription>
+            )}
+          </FieldContent>
         </Field>
       </RadioGroup>
       {isInvalid && <FieldError errors={errors} />}
-    </Field>
+    </FieldSet>
   );
 }

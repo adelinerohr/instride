@@ -17,6 +17,7 @@ export interface AuthUser {
   role?: string | null;
   banReason?: string | null;
   banExpires?: Date | string | null;
+  dateOfBirth?: string | null;
 }
 
 export interface Invitation {

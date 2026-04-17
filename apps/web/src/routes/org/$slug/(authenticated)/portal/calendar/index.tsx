@@ -1,6 +1,7 @@
 import {
   boardAssignmentsOptions,
   boardsOptions,
+  eventOptions,
   instanceOptions,
   membersOptions,
   timeBlockOptions,
@@ -38,7 +39,6 @@ export const Route = createFileRoute(
   },
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context, deps }) => {
-    const memberId = context.member.id;
     const { from, to } = getCalendarRange(deps.search.view, deps.search.date);
 
     context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
@@ -47,7 +47,10 @@ export const Route = createFileRoute(
       membersOptions.trainers({ boardId: deps.search.boardId })
     );
     context.queryClient.ensureQueryData(
-      boardsOptions.list({ memberId, isTrainer: false })
+      boardsOptions.list({ riderId: context.rider.id })
+    );
+    context.queryClient.ensureQueryData(
+      eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
     );
 
     return {
@@ -59,20 +62,23 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
-  const { member } = Route.useRouteContext();
+  const { rider } = Route.useRouteContext();
   const search = Route.useSearch();
 
   const { data: trainers, isLoading: isLoadingTrainers } = useSuspenseQuery(
     membersOptions.trainers({ boardId: search.boardId })
   );
   const { data: boards, isLoading: isLoadingBoards } = useSuspenseQuery(
-    boardsOptions.list({ memberId: member.id, isTrainer: false })
+    boardsOptions.list({ riderId: rider.id })
   );
   const { data: lessons, isLoading: isLoadingLessons } = useSuspenseQuery(
     instanceOptions.inRange(from, to)
   );
   const { data: timeBlocks, isLoading: isLoadingTimeBlocks } = useSuspenseQuery(
     timeBlockOptions.inRange(from, to)
+  );
+  const { data: allEvents } = useSuspenseQuery(
+    eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
   );
 
   const isLoading =
@@ -87,6 +93,7 @@ function RouteComponent() {
 
   return (
     <CalendarProvider
+      events={allEvents}
       trainers={trainers}
       boards={boards}
       lessons={lessons}

@@ -5,5 +5,21 @@
     "hooks": {
       "prebuild": "npx turbo build --filter=backend^..."
     }
-  }
+  },
+  "global_cors": {
+    "allow_origins_without_credentials": [
+      "http://localhost:3000",
+      "https://instride.vercel.app",
+      "https://*.instride.vercel.app",
+      "https://instrideapp.com",
+      "https://*.instrideapp.com"
+    ],
+    "allow_origins_with_credentials": [
+      "http://localhost:3000",
+      "https://instride.vercel.app",
+      "https://*.instride.vercel.app",
+      "https://instrideapp.com",
+      "https://*.instrideapp.com"
+    ]
+  },
 }

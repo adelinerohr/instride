@@ -37,6 +37,7 @@ interface CreateLessonSeriesRequest {
   lastPlannedUntil?: string | null;
   updatedByMemberId?: string | null;
   riderIds?: string[];
+  overrideAvailability?: boolean;
 }
 
 export const createLessonSeries = api(
@@ -52,16 +53,18 @@ export const createLessonSeries = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const violations = await checkLessonAvailability({
-      organizationId,
-      window: {
-        date: request.start,
-        startTime: request.start,
-        endTime: request.start + request.duration,
-        trainerId: request.trainerId,
-        boardId: request.boardId,
-      },
-    });
+    const violations = request.overrideAvailability
+      ? []
+      : await checkLessonAvailability({
+          organizationId,
+          window: {
+            date: request.start,
+            startTime: request.start,
+            endTime: request.start + request.duration,
+            trainerId: request.trainerId,
+            boardId: request.boardId,
+          },
+        });
 
     if (violations.length > 0) {
       throw APIError.invalidArgument(

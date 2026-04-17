@@ -5,6 +5,8 @@ import * as React from "react";
 import { getSettingsNavItems } from "@/shared/lib/navigation/settings";
 import { cn } from "@/shared/lib/utils";
 
+import { ScrollArea } from "../ui/scroll-area";
+
 export function SettingsPage({
   children,
   className,
@@ -60,7 +62,7 @@ export function SettingsPage({
         </div>
       </div>
       <div className="grow overflow-hidden">
-        <div className="h-full overflow-y-auto">{children}</div>
+        <ScrollArea className="h-full">{children}</ScrollArea>
       </div>
     </div>
   );

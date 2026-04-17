@@ -1,18 +1,24 @@
+import { signWaiverInputSchema, updateUserSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
+import z from "zod";
 
-import { personalDetailsSchema } from "../validators";
-import {
-  memberOnboardingSchema,
-  MemberOnboardingStep,
-  questionnaireStepSchema,
-  waiverStepSchema,
-  type MemberOnboardingFormValues,
-} from "./validators";
+import { questionnaireResponseSchema } from "./questionnaire.schema";
+
+export enum MemberOnboardingStep {
+  PersonalDetails = "personal-details",
+  AccountType = "account-type",
+  Questionnaire = "questionnaire",
+  Waiver = "waiver",
+}
 
 export const memberOnboardingSteps = [
   {
     id: MemberOnboardingStep.PersonalDetails,
     label: "Personal Details",
+  },
+  {
+    id: MemberOnboardingStep.AccountType,
+    label: "Account Type",
   },
   {
     id: MemberOnboardingStep.Questionnaire,
@@ -24,15 +30,48 @@ export const memberOnboardingSteps = [
   },
 ];
 
+const personalDetailsSchema = updateUserSchema.extend({
+  imageFile: z.file().nullable(),
+  removeImage: z.boolean(),
+});
+
+const signWaiverSchema = signWaiverInputSchema.extend({
+  signedBy: z.string().min(1, "Signature is required"),
+  termsAgreed: z.boolean().refine((value) => value, {
+    message: "You must agree to the terms",
+  }),
+  signatureAcknowledgement: z.boolean().refine((value) => value, {
+    message: "You must acknowledge your signature",
+  }),
+});
+
+export const memberOnboardingSchema = z.object({
+  section: z.enum(MemberOnboardingStep),
+  personalDetails: personalDetailsSchema,
+  accountType: z.object({
+    isGuardian: z.boolean(),
+    isRider: z.boolean().nullable(),
+  }),
+  questionnaire: questionnaireResponseSchema,
+  waiver: signWaiverSchema,
+});
+
+export type MemberOnboardingFormValues = z.infer<typeof memberOnboardingSchema>;
+
 export const defaultMemberOnboardingValues: MemberOnboardingFormValues = {
   section: MemberOnboardingStep.PersonalDetails,
   personalDetails: {
     name: "",
     email: "",
+    dateOfBirth: "",
     phone: null,
     image: null,
     imageFile: null,
     removeImage: false,
+  },
+  accountType: {
+    isGuardian: false,
+    isRider: null,
   },
   questionnaire: {
     questionnaireId: "",
@@ -50,25 +89,6 @@ export const defaultMemberOnboardingValues: MemberOnboardingFormValues = {
 
 export const memberOnboardingFormOpts = formOptions({
   defaultValues: defaultMemberOnboardingValues,
-  validators: {
-    onSubmit: ({ value, formApi }) => {
-      if (value.section === MemberOnboardingStep.PersonalDetails) {
-        return formApi.parseValuesWithSchema(
-          personalDetailsSchema as typeof memberOnboardingSchema
-        );
-      }
-      if (value.section === MemberOnboardingStep.Questionnaire) {
-        return formApi.parseValuesWithSchema(
-          questionnaireStepSchema as typeof memberOnboardingSchema
-        );
-      }
-      if (value.section === MemberOnboardingStep.Waiver) {
-        return formApi.parseValuesWithSchema(
-          waiverStepSchema as typeof memberOnboardingSchema
-        );
-      }
-    },
-  },
 });
 
 export function buildMemberOnboardingDefaultValues(user: {
@@ -82,10 +102,15 @@ export function buildMemberOnboardingDefaultValues(user: {
     personalDetails: {
       name: user.name,
       email: user.email,
+      dateOfBirth: "",
       phone: user.phone ?? null,
       image: user.image ?? null,
       imageFile: null,
       removeImage: false,
+    },
+    accountType: {
+      isGuardian: false,
+      isRider: null,
     },
     questionnaire: {
       questionnaireId: "",

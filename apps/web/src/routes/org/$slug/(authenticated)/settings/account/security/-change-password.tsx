@@ -1,3 +1,4 @@
+import { passwordValidator } from "@instride/shared";
 import { useRouter } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
 import * as React from "react";
@@ -11,7 +12,6 @@ import {
 } from "@/shared/components/ui/input-group";
 import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
-import { passwordValidator } from "@/shared/lib/auth/password";
 
 export function ChangePassword() {
   const router = useRouter();

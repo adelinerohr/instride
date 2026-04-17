@@ -1,31 +1,37 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.email(),
-  emailVerified: z.boolean(),
+export const baseUserSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(64, "Name must be less than 64 characters"),
+  email: z
+    .email("Enter a valid email address")
+    .trim()
+    .min(1, "Email is required")
+    .max(255, "Maximum 255 characters allowed"),
   image: z.string().nullable(),
   phone: z.string().nullable(),
-  profilePictureUrl: z.string().nullable(),
-  role: z.string(),
-  banned: z.boolean(),
-  banReason: z.string().nullable(),
-  banExpires: z.coerce.date().nullable(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  role: z.enum(["admin", "user"]),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
 });
 
-export const createUserInputSchema = userSchema.omit({
-  id: true,
-  emailVerified: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createUserSchema = baseUserSchema;
 
-export const updateUserInputSchema = userSchema.pick({
-  name: true,
-  image: true,
-  phone: true,
-  email: true,
+export const updateUserSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(64, "Name must be less than 64 characters"),
+  email: z
+    .email("Enter a valid email address")
+    .trim()
+    .min(1, "Email is required")
+    .max(255, "Maximum 255 characters allowed"),
+  image: z.string().nullable(),
+  phone: z.string().nullable(),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  imageFile: z.file().nullable(),
+  removeImage: z.boolean(),
 });

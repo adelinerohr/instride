@@ -1,3 +1,4 @@
+import { LessonInstanceStatus } from "@instride/shared/models/enums";
 import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -11,6 +12,9 @@ import {
 interface ListLessonInstancesRequest {
   from: string;
   to: string;
+  boardId?: string;
+  trainerId?: string;
+  status?: LessonInstanceStatus;
 }
 
 export const listLessonInstances = api(
@@ -31,6 +35,9 @@ export const listLessonInstances = api(
           gte: new Date(request.from),
           lte: new Date(request.to),
         },
+        ...(request.boardId && { boardId: request.boardId }),
+        ...(request.trainerId && { trainerId: request.trainerId }),
+        ...(request.status && { status: request.status }),
       },
       orderBy: {
         start: "asc",

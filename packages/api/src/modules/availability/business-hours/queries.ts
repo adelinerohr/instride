@@ -2,20 +2,20 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import { apiClient } from "#client";
 
-import { businessHoursKeys } from "../keys";
+import { availabilityKeys } from "../keys";
 
 // ---- Query Options ------------------------------------------------------------
 
 export const businessHoursOptions = {
   organization: () =>
     queryOptions({
-      queryKey: businessHoursKeys.organization(),
+      queryKey: availabilityKeys.organizationBusinessHours(),
       queryFn: async () =>
         await apiClient.availability.listOrganizationBusinessHours(),
     }),
   trainer: (trainerId: string) =>
     queryOptions({
-      queryKey: businessHoursKeys.trainer(trainerId),
+      queryKey: availabilityKeys.trainerBusinessHours(trainerId),
       queryFn: async () =>
         await apiClient.availability.listTrainerBusinessHours(trainerId),
     }),

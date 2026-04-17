@@ -6,8 +6,8 @@ import { requireOrganizationAuth } from "@/shared/auth";
 import { GetBoardResponse, ListBoardsResponse } from "./types/contracts";
 
 interface ListBoardsRequest {
-  memberId?: string;
-  isTrainer?: boolean;
+  riderId?: string;
+  trainerId?: string;
 }
 
 export const listBoards = api(
@@ -22,17 +22,16 @@ export const listBoards = api(
 
     let memberCondition: {} | undefined = undefined;
 
-    if (request.memberId && request.isTrainer !== undefined) {
+    if (request.trainerId) {
       memberCondition = {
         assignments: {
-          memberId: request.memberId,
-          isTrainer: request.isTrainer,
+          trainerId: request.trainerId,
         },
       };
-    } else if (request.memberId) {
+    } else if (request.riderId) {
       memberCondition = {
         assignments: {
-          memberId: request.memberId,
+          riderId: request.riderId,
         },
       };
     }
@@ -56,7 +55,11 @@ export const listBoards = api(
             },
           },
         },
-        serviceBoardAssignments: true,
+        serviceBoardAssignments: {
+          with: {
+            service: true,
+          },
+        },
       },
     });
 

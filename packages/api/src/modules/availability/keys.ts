@@ -6,26 +6,34 @@
 //   ["availability", orgId, "org"]                             ← org availability windows
 //   ["availability", orgId, "trainer", trainerId]              ← trainer availability windows
 
-const getBusinessHoursRootKey = ["business-hours"] as const;
-const getTimeBlocksRootKey = ["time-blocks"] as const;
+import type { availability } from "#client";
 
-export const businessHoursKeys = {
-  list: () => getBusinessHoursRootKey,
-  organization: () => [...getBusinessHoursRootKey, "org"] as const,
-  trainer: (trainerId: string) =>
-    [...getBusinessHoursRootKey, "trainer", trainerId] as const,
-};
+const availableSlotsRootKey = ["available-slots"] as const;
 
-export const timeBlockKeys = {
-  all: () => getTimeBlocksRootKey,
-  byId: (id: string) => [...getTimeBlocksRootKey, id] as const,
-  inRange: (from: Date, to: Date) =>
+const businessHoursRootKey = [
+  ...availableSlotsRootKey,
+  "business-hours",
+] as const;
+const timeBlocksRootKey = [...availableSlotsRootKey, "time-blocks"] as const;
+
+export const availabilityKeys = {
+  listBusinessHours: () => businessHoursRootKey,
+  organizationBusinessHours: () => [...businessHoursRootKey, "org"] as const,
+  trainerBusinessHours: (trainerId: string) =>
+    [...businessHoursRootKey, "trainer", trainerId] as const,
+
+  listTimeBlocks: () => timeBlocksRootKey,
+  timeBlockById: (id: string) => [...timeBlocksRootKey, id] as const,
+  timeBlocksInRange: (from: Date, to: Date) =>
     [
-      ...getTimeBlocksRootKey,
+      ...timeBlocksRootKey,
       "range",
       from.toISOString(),
       to.toISOString(),
     ] as const,
-  forTrainer: (trainerId: string) =>
-    [...getTimeBlocksRootKey, "trainer", trainerId] as const,
+  timeBlocksForTrainer: (trainerId: string) =>
+    [...timeBlocksRootKey, "trainer", trainerId] as const,
+
+  availableSlots: (params: availability.AvailableSlotsParams) =>
+    [...availableSlotsRootKey, params] as const,
 };

@@ -5,10 +5,11 @@ import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 
 function Page({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
+    <div className={cn("flex flex-col h-full", className)} {...props}>
       {children}
     </div>
   );
@@ -62,4 +63,20 @@ function PageHeader({
   );
 }
 
-export { Page, PageHeader };
+function PageBody({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div className="grow overflow-hidden">
+      <ScrollArea className="h-full">
+        <div className={cn("p-4", className)} {...props}>
+          {children}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+}
+
+export { Page, PageHeader, PageBody };

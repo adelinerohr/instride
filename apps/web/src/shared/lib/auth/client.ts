@@ -1,5 +1,6 @@
 import { serverBaseURL } from "@instride/api";
 import {
+  adminClient,
   inferAdditionalFields,
   organizationClient,
 } from "better-auth/client/plugins";
@@ -22,6 +23,7 @@ export const authClient = createAuthClient({
     credentials: "include",
   },
   plugins: [
+    adminClient(),
     organizationClient({
       schema: {
         organization: {
@@ -64,6 +66,10 @@ export const authClient = createAuthClient({
           required: false,
         },
         profilePictureUrl: {
+          type: "string",
+          required: false,
+        },
+        dateOfBirth: {
           type: "string",
           required: false,
         },

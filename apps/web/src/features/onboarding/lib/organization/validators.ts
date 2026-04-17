@@ -1,10 +1,9 @@
 import {
   createOrganizationInputSchema,
   updateOrganizationInputSchema,
+  updateUserSchema,
 } from "@instride/shared";
 import { z } from "zod";
-
-import { personalDetailsSchema } from "../validators";
 
 export enum OnboardingOrganizationStep {
   PersonalDetails = "personal-details",
@@ -14,6 +13,10 @@ export enum OnboardingOrganizationStep {
 
 export const organizationSetupSchema = z.object({
   organizationSetup: createOrganizationInputSchema,
+});
+
+export const personalDetailsSchema = z.object({
+  personalDetails: updateUserSchema.shape,
 });
 
 export const organizationDetailsSchema = z.object({

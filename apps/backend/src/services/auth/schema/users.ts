@@ -14,6 +14,7 @@ export const authUsers = p.pgTable(
     banned: p.boolean("banned").default(false),
     banReason: p.text("ban_reason"),
     banExpires: p.timestamp("ban_expires"),
+    dateOfBirth: p.text("date_of_birth"),
     createdAt: p.timestamp("created_at").defaultNow().notNull(),
     updatedAt: p
       .timestamp("updated_at")

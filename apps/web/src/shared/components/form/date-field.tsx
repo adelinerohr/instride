@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -19,14 +19,18 @@ interface DateFieldProps extends Omit<
   "mode" | "selected" | "onSelect"
 > {
   label: string;
+  valueFormat?: string;
   placeholder?: string;
   className?: string;
+  icon?: LucideIcon;
 }
 
 export function DateField({
   label,
+  valueFormat = "PPP",
   placeholder = "Select date",
   className,
+  icon: Icon,
   ...props
 }: DateFieldProps) {
   const field = useFieldContext<string>();
@@ -41,6 +45,7 @@ export function DateField({
             <Button
               variant="outline"
               data-empty={!field.state.value}
+              aria-invalid={isInvalid}
               className={cn(
                 "justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
                 className
@@ -48,9 +53,9 @@ export function DateField({
             />
           }
         >
-          <CalendarIcon />
+          {Icon && <Icon />}
           {field.state.value ? (
-            format(new Date(field.state.value), "PPP")
+            format(new Date(field.state.value), valueFormat)
           ) : (
             <span>{placeholder}</span>
           )}

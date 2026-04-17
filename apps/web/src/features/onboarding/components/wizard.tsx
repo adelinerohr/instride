@@ -1,5 +1,6 @@
 import { CheckIcon } from "lucide-react";
 
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 
 import type { WizardStep } from "../lib/types";
@@ -22,7 +23,7 @@ export function OnboardingWizard({
   children,
 }: OnboardingWizardProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+    <div className="flex flex-col items-center justify-center bg-background px-4 pt-24">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-semibold">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
@@ -72,11 +73,9 @@ export function OnboardingWizard({
         })}
       </div>
 
-      <div className="w-full max-w-md">
-        <div className="rounded-lg border bg-card p-6 shadow-sm">
-          {children}
-        </div>
-      </div>
+      <Card className="w-full max-w-md">
+        <CardContent>{children}</CardContent>
+      </Card>
     </div>
   );
 }

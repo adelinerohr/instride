@@ -48,6 +48,7 @@ export function ActAsModal() {
           memberId: value.memberId,
           pin: value.pin,
         });
+        formApi.reset();
         toast.success("You are now in an active session");
         actAsModalHandler.close();
       } catch (error) {

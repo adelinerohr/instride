@@ -1,3 +1,5 @@
+import { useUpdateCurrentUser } from "@instride/api";
+import { toast } from "sonner";
 import z from "zod";
 
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
@@ -14,12 +16,14 @@ enum FileUploadAction {
 
 export function PersonalDetails() {
   const { user } = Route.useRouteContext();
+  const updateUser = useUpdateCurrentUser();
 
   const form = useAppForm({
     defaultValues: {
       name: user.name,
       email: user.email,
       image: user.image,
+      dateOfBirth: user.dateOfBirth,
       newImage: null as File | null,
       imageAction: FileUploadAction.NONE,
       phone: user.phone,
@@ -33,11 +37,27 @@ export function PersonalDetails() {
         imageAction: z.enum(FileUploadAction, {
           error: "Invalid file upload action",
         }),
+        dateOfBirth: z.string().trim().min(1, "Date of birth is required"),
         phone: z.string().nullable(),
       }),
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      await updateUser.mutateAsync(
+        {
+          name: value.name,
+          image: value.image,
+          dateOfBirth: value.dateOfBirth,
+          phone: value.phone,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Profile updated successfully");
+          },
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
     },
   });
 
@@ -84,7 +104,19 @@ export function PersonalDetails() {
           />
           <form.AppField
             name="phone"
-            children={(field) => <field.PhoneField label="Phone" />}
+            children={(field) => (
+              <field.PhoneField label="Phone" placeholder="(123) 456-7890" />
+            )}
+          />
+          <form.AppField
+            name="dateOfBirth"
+            children={(field) => (
+              <field.DateField
+                label="Date of birth"
+                captionLayout="dropdown"
+                valueFormat="M/dd/yyyy"
+              />
+            )}
           />
         </CardContent>
         <CardFooter className="flex w-full justify-end">

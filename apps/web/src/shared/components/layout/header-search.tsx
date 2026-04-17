@@ -1,12 +1,13 @@
+import { getUser, useBoards, useMembers, useServices } from "@instride/api";
+import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/shared";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import {
-  getAdminNavItems,
-  getPortalNavItems,
-} from "@/shared/lib/navigation/app";
+import { getPortalNavItems } from "@/shared/lib/navigation/app";
 
+import { UserAvatar } from "../fragments/user-avatar";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Command,
@@ -18,7 +19,15 @@ import {
   CommandList,
   CommandSeparator,
 } from "../ui/command";
+import {
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+  ItemActions,
+} from "../ui/item";
 import { Kbd } from "../ui/kbd";
+import { Skeleton } from "../ui/skeleton";
 
 type HeaderSearchProps = {
   type: "admin" | "portal";
@@ -31,8 +40,11 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
     from: "/org/$slug/(authenticated)",
   });
 
+  const { data: members, isPending: isPendingMembers } = useMembers();
+  const { data: boards, isPending: isPendingBoards } = useBoards();
+  const { data: services, isPending: isPendingServices } = useServices();
+
   const portalNavItems = getPortalNavItems(organization.slug);
-  const adminNavItems = getAdminNavItems(organization.slug);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -48,7 +60,7 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
   const renderPortalNavItems = () => (
     <CommandGroup>
       {portalNavItems.map((item) => (
-        <CommandItem key={item.title}>
+        <CommandItem key={item.title} disableCheck>
           <item.icon />
           <span>{item.title}</span>
         </CommandItem>
@@ -56,51 +68,87 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
     </CommandGroup>
   );
 
-  const renderAdminNavItems = () => (
-    <>
-      <CommandGroup heading="Main">
-        {adminNavItems.main?.map((item) => (
-          <CommandItem key={item.title}>
-            {!!item.icon && <item.icon />}
-            <span>{item.title}</span>
+  const renderBoardGroup = () =>
+    boards && (
+      <CommandGroup heading="Boards">
+        {boards.map((board) => (
+          <CommandItem key={board.id} disableCheck>
+            <span>{board.name}</span>
           </CommandItem>
         ))}
       </CommandGroup>
+    );
+
+  const renderServiceGroup = () =>
+    services && (
+      <CommandGroup heading="Services">
+        {services.map((service) => {
+          const boardIds = (service.boardAssignments ?? []).map(
+            (a) => a.boardId
+          );
+          const boardNames = (boards ?? [])
+            .filter((b) => boardIds.includes(b.id))
+            .map((b) => b.name);
+          return (
+            <CommandItem key={service.id} disableCheck>
+              <span>{service.name}</span>
+              <div className="ml-auto flex items-center gap-2">
+                {boardNames.map((name) => (
+                  <Badge key={name} variant="outline">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            </CommandItem>
+          );
+        })}
+      </CommandGroup>
+    );
+
+  const renderMemberGroup = () =>
+    members && (
+      <CommandGroup heading="Members">
+        {isPendingMembers ? (
+          <CommandItem>
+            <Skeleton className="w-full h-4" />
+          </CommandItem>
+        ) : (
+          members.map((member) => {
+            const user = getUser({ member });
+            return (
+              <CommandItem key={member.id} disableCheck>
+                <Item size="xs" className="p-0">
+                  <ItemMedia>
+                    <UserAvatar user={user} />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>{user.name}</ItemTitle>
+                  </ItemContent>
+                  <ItemActions className="pr-0">
+                    {member.roles.map((role) => (
+                      <Badge
+                        key={`${member.id}-${role}`}
+                        variant={ROLE_VARIANTS[role]}
+                      >
+                        {ROLE_LABELS[role]}
+                      </Badge>
+                    ))}
+                  </ItemActions>
+                </Item>
+              </CommandItem>
+            );
+          })
+        )}
+      </CommandGroup>
+    );
+
+  const renderAdminNavItems = () => (
+    <>
+      {renderMemberGroup()}
       <CommandSeparator />
-      {adminNavItems.groups?.map((route) => (
-        <React.Fragment key={route.title}>
-          <CommandGroup heading={route.title}>
-            {route.links.map((item) =>
-              "links" in item ? (
-                item.links.map((link) => (
-                  <CommandItem
-                    key={link.title}
-                    onSelect={() => {
-                      setOpen(false);
-                      router.navigate({ ...link });
-                    }}
-                  >
-                    {!!item.icon && <item.icon />}
-                    <span>{link.title}</span>
-                  </CommandItem>
-                ))
-              ) : (
-                <CommandItem
-                  key={item.title}
-                  onSelect={() => {
-                    setOpen(false);
-                    router.navigate({ ...item });
-                  }}
-                >
-                  {!!item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </CommandItem>
-              )
-            )}
-          </CommandGroup>
-          <CommandSeparator />
-        </React.Fragment>
-      ))}
+      {renderBoardGroup()}
+      <CommandSeparator />
+      {renderServiceGroup()}
     </>
   );
 
@@ -122,7 +170,7 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
           <SearchIcon />
         </Button>
       </div>
-      <CommandDialog onOpenChange={setOpen} open={open}>
+      <CommandDialog onOpenChange={setOpen} open={open} className="max-w-lg!">
         <Command>
           <CommandInput placeholder="Type a command or search..." />
           <CommandList>

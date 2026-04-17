@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
 import { apiClient, type time_blocks, type types } from "#client";
 
-import { timeBlockKeys } from "../keys";
+import { availabilityKeys } from "../keys";
 
 // ---- Standalone functions ----------------------------------------------
 
@@ -43,10 +43,10 @@ export function useCreateTimeBlock({
     ...config,
     onSuccess: (timeBlock, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: timeBlockKeys.all(),
+        queryKey: availabilityKeys.listTimeBlocks(),
       });
       queryClient.invalidateQueries({
-        queryKey: timeBlockKeys.forTrainer(timeBlock.trainerId),
+        queryKey: availabilityKeys.timeBlocksForTrainer(timeBlock.trainerId),
       });
       onSuccess?.(timeBlock, ...args);
     },
@@ -66,7 +66,10 @@ export function useUpdateTimeBlock({
     onSuccess: (timeBlock, ...args) => {
       if (!timeBlock) return;
 
-      queryClient.setQueryData(timeBlockKeys.byId(timeBlock.id), timeBlock);
+      queryClient.setQueryData(
+        availabilityKeys.timeBlockById(timeBlock.id),
+        timeBlock
+      );
       onSuccess?.(timeBlock, ...args);
     },
   });
@@ -87,10 +90,10 @@ export function useDeleteTimeBlock({
       if (!timeBlock) return;
 
       queryClient.removeQueries({
-        queryKey: timeBlockKeys.byId(timeBlock.id),
+        queryKey: availabilityKeys.timeBlockById(timeBlock.id),
       });
       queryClient.setQueryData(
-        timeBlockKeys.all(),
+        availabilityKeys.listTimeBlocks(),
         (oldData: types.TimeBlock[]) => {
           if (!oldData) return oldData;
           return oldData.filter(
@@ -99,7 +102,7 @@ export function useDeleteTimeBlock({
         }
       );
       queryClient.setQueryData(
-        timeBlockKeys.forTrainer(timeBlock.trainerId),
+        availabilityKeys.timeBlocksForTrainer(timeBlock.trainerId),
         (oldData: types.TimeBlock[]) => {
           if (!oldData) return oldData;
           return oldData.filter(

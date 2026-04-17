@@ -23,6 +23,18 @@ export const waiverMutations = {
   archive: async (waiverId: string) => {
     await apiClient.waivers.archiveWaiver(waiverId);
   },
+
+  // Signatures
+  sign: async (input: {
+    waiverId: string;
+    request: waivers.SignWaiverRequest;
+  }) => {
+    const { signature } = await apiClient.waivers.signWaiver(
+      input.waiverId,
+      input.request
+    );
+    return signature;
+  },
 };
 
 export function useCreateWaiver({
@@ -73,6 +85,23 @@ export function useArchiveWaiver({
         queryKey: waiverKeys.list(),
       });
       onSuccess?.(...args);
+    },
+  });
+}
+
+export function useSignWaiver({
+  mutationConfig,
+}: MutationHookOptions<typeof waiverMutations.sign> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(waiverMutations.sign, {
+    ...config,
+    onSuccess: (signature, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: waiverKeys.byId(signature.waiverId),
+      });
+      onSuccess?.(signature, ...args);
     },
   });
 }

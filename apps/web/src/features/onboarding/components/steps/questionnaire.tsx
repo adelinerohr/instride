@@ -14,6 +14,7 @@ import {
 } from "@/shared/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { withFieldGroup } from "@/shared/hooks/use-form";
+import { formatError } from "@/shared/lib/utils/errors";
 
 import { isQuestionVisible } from "../../lib/member/questionnaire.schema";
 
@@ -33,31 +34,32 @@ export const QuestionnaireStep = withFieldGroup({
       questionnaires.find((q) => q.isActive) ?? questionnaires[0];
 
     const responses = useStore(group.store, (state) => state.values.responses);
-    const questions = activeQuestionnaire.questions;
+    const questions = activeQuestionnaire?.questions ?? [];
 
     React.useEffect(() => {
-      if (!activeQuestionnaire?.id) {
-        return;
-      }
+      if (!activeQuestionnaire?.id) return;
+
       if (group.getFieldValue("questionnaireId") !== activeQuestionnaire.id) {
         group.setFieldValue("questionnaireId", activeQuestionnaire.id);
       }
     }, [activeQuestionnaire?.id, group]);
 
     React.useEffect(() => {
-      // Clean up responses for hidden questions when visibility changes
       const currentResponses = group.getFieldValue("responses");
       const updatedResponses = [...currentResponses];
       let hasChanges = false;
 
       questions.forEach((question) => {
-        const isVisible = isQuestionVisible(question, currentResponses);
+        const isVisible = isQuestionVisible({
+          question,
+          questions,
+          responses: currentResponses,
+        });
         const existingResponse = currentResponses.find(
           (r) => r.questionId === question.id
         );
 
         if (isVisible && !existingResponse) {
-          // Initialize response for newly visible question
           updatedResponses.push({
             questionId: question.id,
             responseValue:
@@ -67,7 +69,6 @@ export const QuestionnaireStep = withFieldGroup({
           });
           hasChanges = true;
         } else if (!isVisible && existingResponse) {
-          // Remove response for hidden question
           const index = updatedResponses.findIndex(
             (r) => r.questionId === question.id
           );
@@ -84,10 +85,7 @@ export const QuestionnaireStep = withFieldGroup({
     }, [questions, group, responses]);
 
     const renderedQuestion = (text: string) => {
-      if (isDependent) {
-        return replaceYouWithThey(text);
-      }
-      return text;
+      return isDependent ? replaceYouWithThey(text) : text;
     };
 
     const updateResponse = (questionId: string, value: string | boolean) => {
@@ -96,21 +94,30 @@ export const QuestionnaireStep = withFieldGroup({
         (r) => r.questionId === questionId
       );
 
-      let updatedResponses: types.QuestionnaireQuestionResponse[];
-      if (responseIndex !== -1) {
-        updatedResponses = [...currentResponses];
-        updatedResponses[responseIndex] = { questionId, responseValue: value };
-      } else {
-        updatedResponses = [
-          ...currentResponses,
-          { questionId, responseValue: value },
-        ];
-      }
+      const updatedResponses =
+        responseIndex !== -1
+          ? currentResponses.map((r, i) =>
+              i === responseIndex ? { questionId, responseValue: value } : r
+            )
+          : [...currentResponses, { questionId, responseValue: value }];
 
       group.setFieldValue("responses", updatedResponses);
     };
 
     const orderedQuestions = [...questions].sort((a, b) => a.order - b.order);
+
+    if (!activeQuestionnaire) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-semibold">Questionnaire</h2>
+            <p className="mt-1 text-muted-foreground">
+              No questionnaire available.
+            </p>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-6">
@@ -123,18 +130,19 @@ export const QuestionnaireStep = withFieldGroup({
 
         <FieldGroup>
           {orderedQuestions.map((question) => {
-            const isVisible = isQuestionVisible(question, responses);
+            const isVisible = isQuestionVisible({
+              question,
+              questions,
+              responses,
+            });
 
-            if (!isVisible) {
-              return null;
-            }
+            if (!isVisible) return null;
 
             const responseIndex = responses.findIndex(
               (r) => r.questionId === question.id
             );
-            if (responseIndex === -1) {
-              return null;
-            }
+
+            if (responseIndex === -1) return null;
 
             const responseValuePath =
               `responses[${responseIndex}].responseValue` as const;
@@ -145,25 +153,44 @@ export const QuestionnaireStep = withFieldGroup({
                   <group.AppField
                     key={question.id}
                     name={responseValuePath}
-                    children={(field) => (
-                      <field.SwitchField
-                        onCheckedChange={(value) =>
-                          updateResponse(question.id, value)
+                    validators={{
+                      onSubmit: ({ value }) => {
+                        if (question.required && !value) {
+                          return formatError("This field is required");
                         }
+                      },
+                    }}
+                    children={(field) => (
+                      <field.BooleanRadioField
                         label={renderedQuestion(question.text)}
                         required={question.required}
                       />
                     )}
                   />
                 );
+
               case QuestionnaireQuestionType.MULTIPLE_CHOICE:
                 return (
                   <group.Field
                     key={question.id}
                     name={responseValuePath}
+                    validators={{
+                      onSubmit: ({ value }) => {
+                        if (
+                          question.required &&
+                          (!value ||
+                            (typeof value === "string" &&
+                              value.trim().length === 0))
+                        ) {
+                          return formatError("Please select an option");
+                        }
+                      },
+                    }}
                     children={(field) => {
                       const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0;
+
                       return (
                         <Field data-invalid={isInvalid}>
                           <FieldLabel>
@@ -173,7 +200,11 @@ export const QuestionnaireStep = withFieldGroup({
                             )}
                           </FieldLabel>
                           <RadioGroup
-                            value={field.state.value ?? ""}
+                            value={
+                              typeof field.state.value === "string"
+                                ? field.state.value
+                                : ""
+                            }
                             onValueChange={(value) =>
                               updateResponse(question.id, value)
                             }

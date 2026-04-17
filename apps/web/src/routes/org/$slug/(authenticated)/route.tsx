@@ -1,5 +1,5 @@
 import { authOptions, membersOptions } from "@instride/api";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 /**
  * Path: /org/[slug]/(authenticated)
@@ -7,12 +7,11 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
  */
 export const Route = createFileRoute("/org/$slug/(authenticated)")({
   component: Outlet,
-  beforeLoad: async ({ context, params }) => {
+  beforeLoad: async ({ context }) => {
     // 1. must be authenticated
     if (!context.isAuthenticated) {
-      throw redirect({
-        to: "/org/$slug/login",
-        params,
+      throw Route.redirect({
+        to: "/org/$slug/auth/login",
       });
     }
 
@@ -21,9 +20,8 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       authOptions.session()
     );
     if (!session?.user) {
-      throw redirect({
-        to: "/org/$slug/login",
-        params,
+      throw Route.redirect({
+        to: "/org/$slug/auth/login",
       });
     }
 
@@ -33,10 +31,8 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
     );
 
     if (!member) {
-      throw redirect({ to: "/" });
+      throw Route.redirect({ to: "/" });
     }
-
-    // TODO: must be onboarded
 
     return {
       user: session.user,
@@ -45,5 +41,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
         roles: member.roles!,
       },
     };
+  },
+  loader: async ({ context, location }) => {
+    if (
+      !context.member.onboardingComplete &&
+      !location.pathname.includes("onboarding")
+    ) {
+      throw Route.redirect({ to: "/org/$slug/onboarding" });
+    }
   },
 });

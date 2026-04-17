@@ -1,8 +1,12 @@
-import { isAPIError } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import { api, APIError, Cookie } from "encore.dev/api";
+
+import { db } from "@/database";
+import { requireAuth } from "@/shared/auth";
 
 import { auth } from "./auth";
 import { Session } from "./handler";
+import { authUsers } from "./schema";
 
 // Better Auth expects a Web Request, but Encore raw endpoints receive
 // a Node.js IncomingMessage. We convert between the two formats.
@@ -75,21 +79,25 @@ interface UpdateUserRequest {
   name?: string | undefined;
   image?: string | null | undefined;
   phone?: string | null | undefined;
+  dateOfBirth?: string | null | undefined;
 }
 
 export const updateUser = api<UpdateUserRequest, void>(
   { expose: true, method: "POST", path: "/users", auth: true },
   async (request) => {
-    try {
-      const { status } = await auth.api.updateUser({
-        body: request,
-      });
-      if (status) return;
-    } catch (error) {
-      if (isAPIError(error)) {
-        throw APIError.internal(error.message, error);
-      }
+    const { userID } = requireAuth();
+
+    const [updatedUser] = await db
+      .update(authUsers)
+      .set(request)
+      .where(eq(authUsers.id, userID))
+      .returning();
+
+    if (!updatedUser) {
+      throw APIError.notFound("User not found");
     }
+
+    return updatedUser;
   }
 );
 

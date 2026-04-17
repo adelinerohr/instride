@@ -45,8 +45,8 @@ export function CheckboxField({
           {label}
         </FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
+        {isInvalid && <FieldError errors={errors} />}
       </FieldContent>
-      {isInvalid && <FieldError errors={errors} />}
     </Field>
   );
 }

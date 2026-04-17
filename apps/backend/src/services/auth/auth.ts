@@ -171,6 +171,7 @@ export const auth = betterAuth({
     additionalFields: {
       phone: { type: "string", required: false },
       profilePictureUrl: { type: "string", required: false },
+      dateOfBirth: { type: "string", required: false },
     },
   },
   account: {

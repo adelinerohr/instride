@@ -7,9 +7,14 @@ import { apiClient, type members } from "#client";
 import { memberKeys } from "./keys";
 
 export const membersMutations = {
-  joinOrganization: async ({ organizationId }: { organizationId: string }) => {
-    const { member } =
-      await apiClient.organizations.joinOrganization(organizationId);
+  joinOrganization: async (input: {
+    organizationId: string;
+    request: members.JoinOrganizationRequest;
+  }) => {
+    const { member } = await apiClient.organizations.joinOrganization(
+      input.organizationId,
+      input.request
+    );
     return member;
   },
 
@@ -53,6 +58,10 @@ export const membersMutations = {
   }) => {
     await apiClient.organizations.changeRole(memberId, request);
   },
+
+  completeOnboarding: async ({ memberId }: { memberId: string }) => {
+    await apiClient.organizations.completeOnboarding(memberId);
+  },
 };
 
 export function useJoinOrganization({
@@ -64,14 +73,6 @@ export function useJoinOrganization({
   return useWrappedMutation(membersMutations.joinOrganization, {
     ...config,
     onSuccess: (member, ...args) => {
-      queryClient.setQueryData(
-        memberKeys.list(),
-        (
-          old: Awaited<
-            ReturnType<typeof apiClient.organizations.listMembers>
-          >["members"]
-        ) => [...old, member]
-      );
       queryClient.invalidateQueries({
         queryKey: [memberKeys.list(), memberKeys.byId(member.id)],
       });
@@ -142,6 +143,21 @@ export function useChangeRole({
       queryClient.invalidateQueries({
         queryKey: memberKeys.list(),
       });
+      onSuccess?.(...args);
+    },
+  });
+}
+
+export function useCompleteOnboarding({
+  mutationConfig,
+}: MutationHookOptions<typeof membersMutations.completeOnboarding> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(membersMutations.completeOnboarding, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: memberKeys.me() });
       onSuccess?.(...args);
     },
   });

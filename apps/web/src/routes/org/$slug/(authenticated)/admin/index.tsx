@@ -12,7 +12,7 @@ import {
 
 import { AgendaLessonCard } from "@/features/calendar/components/views/agenda/lesson-card";
 import { CalendarView } from "@/features/calendar/lib/types";
-import { Page, PageHeader } from "@/shared/components/layout/page";
+import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import {
   Alert,
   AlertAction,
@@ -78,8 +78,8 @@ function RouteComponent() {
 
   return (
     <Page className="min-h-0 flex-1">
-      <PageHeader title="Dashboard" />
-      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4">
+      <PageHeader title="Dashboard" backButton={false} />
+      <PageBody className="space-y-4">
         {!hasPin && (
           <Alert className="w-full border-destructive bg-destructive/10 text-destructive">
             <AlertTriangleIcon />
@@ -102,7 +102,7 @@ function RouteComponent() {
             </AlertAction>
           </Alert>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* riders */}
           <StatsCard
             title="Total Riders"
@@ -141,7 +141,7 @@ function RouteComponent() {
           emptyDescription="You don't have any lessons scheduled for this week."
           emptyIcon={ClipboardIcon}
         />
-      </div>
+      </PageBody>
     </Page>
   );
 }

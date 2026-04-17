@@ -13,19 +13,20 @@ import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authenticatedIndexRouteImport } from './routes/(authenticated)/index'
 import { Route as OrgSlugRouteImport } from './routes/org/$slug'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as authenticatedJoinOrganizationRouteImport } from './routes/(authenticated)/join-organization'
 import { Route as authenticatedCreateOrganizationRouteImport } from './routes/(authenticated)/create-organization'
 import { Route as OrgSlugAuthRouteRouteImport } from './routes/org/$slug/auth/route'
-import { Route as OrgSlugunauthenticatedRouteRouteImport } from './routes/org/$slug/(unauthenticated)/route'
 import { Route as OrgSlugauthenticatedRouteRouteImport } from './routes/org/$slug/(authenticated)/route'
 import { Route as OrgSlugauthenticatedIndexRouteImport } from './routes/org/$slug/(authenticated)/index'
+import { Route as OrgSlugAuthResetPasswordRouteImport } from './routes/org/$slug/auth/reset-password'
 import { Route as OrgSlugAuthRegisterRouteImport } from './routes/org/$slug/auth/register'
 import { Route as OrgSlugAuthLoginRouteImport } from './routes/org/$slug/auth/login'
-import { Route as OrgSlugunauthenticatedRegisterRouteImport } from './routes/org/$slug/(unauthenticated)/register'
-import { Route as OrgSlugunauthenticatedLoginRouteImport } from './routes/org/$slug/(unauthenticated)/login'
+import { Route as OrgSlugAuthForgotPasswordRouteImport } from './routes/org/$slug/auth/forgot-password'
 import { Route as OrgSlugauthenticatedOnboardingRouteImport } from './routes/org/$slug/(authenticated)/onboarding'
 import { Route as OrgSlugauthenticatedSettingsRouteRouteImport } from './routes/org/$slug/(authenticated)/settings/route'
 import { Route as OrgSlugauthenticatedPortalRouteRouteImport } from './routes/org/$slug/(authenticated)/portal/route'
@@ -35,6 +36,7 @@ import { Route as OrgSlugauthenticatedPortalIndexRouteImport } from './routes/or
 import { Route as OrgSlugauthenticatedKioskIndexRouteImport } from './routes/org/$slug/(authenticated)/kiosk/index'
 import { Route as OrgSlugauthenticatedAdminIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/index'
 import { Route as OrgSlugauthenticatedPortalFeedRouteImport } from './routes/org/$slug/(authenticated)/portal/feed'
+import { Route as OrgSlugauthenticatedInvitationInvitationIdRouteImport } from './routes/org/$slug/(authenticated)/invitation/$invitationId'
 import { Route as OrgSlugauthenticatedAdminFeedRouteImport } from './routes/org/$slug/(authenticated)/admin/feed'
 import { Route as OrgSlugauthenticatedKioskSessionIdRouteRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/route'
 import { Route as OrgSlugauthenticatedPortalCalendarIndexRouteImport } from './routes/org/$slug/(authenticated)/portal/calendar/index'
@@ -47,6 +49,7 @@ import { Route as OrgSlugauthenticatedSettingsOrganizationKioskRouteImport } fro
 import { Route as OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/business-hours'
 import { Route as OrgSlugauthenticatedSettingsAccountGuardianRouteImport } from './routes/org/$slug/(authenticated)/settings/account/guardian'
 import { Route as OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport } from './routes/org/$slug/(authenticated)/settings/account/availability'
+import { Route as OrgSlugauthenticatedPortalLessonsCreateRouteImport } from './routes/org/$slug/(authenticated)/portal/lessons/create'
 import { Route as OrgSlugauthenticatedKioskSessionIdCalendarRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
 import { Route as OrgSlugauthenticatedAdminServicesNewRouteImport } from './routes/org/$slug/(authenticated)/admin/services/new'
 import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/new'
@@ -91,6 +94,11 @@ const OrgSlugRoute = OrgSlugRouteImport.update({
   path: '/org/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -99,6 +107,11 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -123,11 +136,6 @@ const OrgSlugAuthRouteRoute = OrgSlugAuthRouteRouteImport.update({
   path: '/auth',
   getParentRoute: () => OrgSlugRoute,
 } as any)
-const OrgSlugunauthenticatedRouteRoute =
-  OrgSlugunauthenticatedRouteRouteImport.update({
-    id: '/(unauthenticated)',
-    getParentRoute: () => OrgSlugRoute,
-  } as any)
 const OrgSlugauthenticatedRouteRoute =
   OrgSlugauthenticatedRouteRouteImport.update({
     id: '/(authenticated)',
@@ -139,6 +147,12 @@ const OrgSlugauthenticatedIndexRoute =
     path: '/',
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
   } as any)
+const OrgSlugAuthResetPasswordRoute =
+  OrgSlugAuthResetPasswordRouteImport.update({
+    id: '/reset-password',
+    path: '/reset-password',
+    getParentRoute: () => OrgSlugAuthRouteRoute,
+  } as any)
 const OrgSlugAuthRegisterRoute = OrgSlugAuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -149,17 +163,11 @@ const OrgSlugAuthLoginRoute = OrgSlugAuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => OrgSlugAuthRouteRoute,
 } as any)
-const OrgSlugunauthenticatedRegisterRoute =
-  OrgSlugunauthenticatedRegisterRouteImport.update({
-    id: '/register',
-    path: '/register',
-    getParentRoute: () => OrgSlugunauthenticatedRouteRoute,
-  } as any)
-const OrgSlugunauthenticatedLoginRoute =
-  OrgSlugunauthenticatedLoginRouteImport.update({
-    id: '/login',
-    path: '/login',
-    getParentRoute: () => OrgSlugunauthenticatedRouteRoute,
+const OrgSlugAuthForgotPasswordRoute =
+  OrgSlugAuthForgotPasswordRouteImport.update({
+    id: '/forgot-password',
+    path: '/forgot-password',
+    getParentRoute: () => OrgSlugAuthRouteRoute,
   } as any)
 const OrgSlugauthenticatedOnboardingRoute =
   OrgSlugauthenticatedOnboardingRouteImport.update({
@@ -214,6 +222,12 @@ const OrgSlugauthenticatedPortalFeedRoute =
     id: '/feed',
     path: '/feed',
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
+  } as any)
+const OrgSlugauthenticatedInvitationInvitationIdRoute =
+  OrgSlugauthenticatedInvitationInvitationIdRouteImport.update({
+    id: '/invitation/$invitationId',
+    path: '/invitation/$invitationId',
+    getParentRoute: () => OrgSlugauthenticatedRouteRoute,
   } as any)
 const OrgSlugauthenticatedAdminFeedRoute =
   OrgSlugauthenticatedAdminFeedRouteImport.update({
@@ -286,6 +300,12 @@ const OrgSlugauthenticatedSettingsAccountAvailabilityRoute =
     id: '/account/availability',
     path: '/account/availability',
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
+  } as any)
+const OrgSlugauthenticatedPortalLessonsCreateRoute =
+  OrgSlugauthenticatedPortalLessonsCreateRouteImport.update({
+    id: '/lessons/create',
+    path: '/lessons/create',
+    getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
   } as any)
 const OrgSlugauthenticatedKioskSessionIdCalendarRoute =
   OrgSlugauthenticatedKioskSessionIdCalendarRouteImport.update({
@@ -441,22 +461,25 @@ export interface FileRoutesByFullPath {
   '/create-organization': typeof authenticatedCreateOrganizationRoute
   '/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/org/$slug': typeof OrgSlugunauthenticatedRouteRouteWithChildren
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/org/$slug': typeof OrgSlugauthenticatedRouteRouteWithChildren
   '/': typeof authenticatedIndexRoute
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
   '/org/$slug/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
   '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/login': typeof OrgSlugunauthenticatedLoginRoute
-  '/org/$slug/register': typeof OrgSlugunauthenticatedRegisterRoute
+  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
+  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
   '/org/$slug/': typeof OrgSlugauthenticatedIndexRoute
   '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
+  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
   '/org/$slug/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
@@ -467,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
+  '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
   '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
@@ -502,18 +526,21 @@ export interface FileRoutesByTo {
   '/create-organization': typeof authenticatedCreateOrganizationRoute
   '/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/org/$slug': typeof OrgSlugauthenticatedIndexRoute
   '/': typeof authenticatedIndexRoute
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
   '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/login': typeof OrgSlugunauthenticatedLoginRoute
-  '/org/$slug/register': typeof OrgSlugunauthenticatedRegisterRoute
+  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
+  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
   '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
+  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
   '/org/$slug/admin': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/kiosk': typeof OrgSlugauthenticatedKioskIndexRoute
@@ -524,6 +551,7 @@ export interface FileRoutesByTo {
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
+  '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
   '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
@@ -560,24 +588,26 @@ export interface FileRoutesById {
   '/(authenticated)/create-organization': typeof authenticatedCreateOrganizationRoute
   '/(authenticated)/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/org/$slug': typeof OrgSlugRouteWithChildren
   '/(authenticated)/': typeof authenticatedIndexRoute
   '/org/$slug/(authenticated)': typeof OrgSlugauthenticatedRouteRouteWithChildren
-  '/org/$slug/(unauthenticated)': typeof OrgSlugunauthenticatedRouteRouteWithChildren
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
   '/org/$slug/(authenticated)/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/(authenticated)/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/(authenticated)/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
   '/org/$slug/(authenticated)/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/(unauthenticated)/login': typeof OrgSlugunauthenticatedLoginRoute
-  '/org/$slug/(unauthenticated)/register': typeof OrgSlugunauthenticatedRegisterRoute
+  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
+  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
   '/org/$slug/(authenticated)/': typeof OrgSlugauthenticatedIndexRoute
   '/org/$slug/(authenticated)/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/(authenticated)/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
+  '/org/$slug/(authenticated)/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/(authenticated)/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
   '/org/$slug/(authenticated)/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/(authenticated)/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
@@ -588,6 +618,7 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/(authenticated)/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/(authenticated)/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
+  '/org/$slug/(authenticated)/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
   '/org/$slug/(authenticated)/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/(authenticated)/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
   '/org/$slug/(authenticated)/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
@@ -625,8 +656,10 @@ export interface FileRouteTypes {
     | '/create-organization'
     | '/join-organization'
     | '/auth/callback'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/org/$slug'
     | '/'
     | '/org/$slug/auth'
@@ -634,13 +667,14 @@ export interface FileRouteTypes {
     | '/org/$slug/portal'
     | '/org/$slug/settings'
     | '/org/$slug/onboarding'
-    | '/org/$slug/login'
-    | '/org/$slug/register'
+    | '/org/$slug/auth/forgot-password'
     | '/org/$slug/auth/login'
     | '/org/$slug/auth/register'
+    | '/org/$slug/auth/reset-password'
     | '/org/$slug/'
     | '/org/$slug/kiosk/$sessionId'
     | '/org/$slug/admin/feed'
+    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/portal/feed'
     | '/org/$slug/admin/'
     | '/org/$slug/kiosk/'
@@ -651,6 +685,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/services/new'
     | '/org/$slug/kiosk/$sessionId/calendar'
+    | '/org/$slug/portal/lessons/create'
     | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
     | '/org/$slug/settings/organization/business-hours'
@@ -686,18 +721,21 @@ export interface FileRouteTypes {
     | '/create-organization'
     | '/join-organization'
     | '/auth/callback'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/org/$slug'
     | '/'
     | '/org/$slug/auth'
     | '/org/$slug/onboarding'
-    | '/org/$slug/login'
-    | '/org/$slug/register'
+    | '/org/$slug/auth/forgot-password'
     | '/org/$slug/auth/login'
     | '/org/$slug/auth/register'
+    | '/org/$slug/auth/reset-password'
     | '/org/$slug/kiosk/$sessionId'
     | '/org/$slug/admin/feed'
+    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/portal/feed'
     | '/org/$slug/admin'
     | '/org/$slug/kiosk'
@@ -708,6 +746,7 @@ export interface FileRouteTypes {
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/services/new'
     | '/org/$slug/kiosk/$sessionId/calendar'
+    | '/org/$slug/portal/lessons/create'
     | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
     | '/org/$slug/settings/organization/business-hours'
@@ -743,24 +782,26 @@ export interface FileRouteTypes {
     | '/(authenticated)/create-organization'
     | '/(authenticated)/join-organization'
     | '/auth/callback'
+    | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/reset-password'
     | '/org/$slug'
     | '/(authenticated)/'
     | '/org/$slug/(authenticated)'
-    | '/org/$slug/(unauthenticated)'
     | '/org/$slug/auth'
     | '/org/$slug/(authenticated)/admin'
     | '/org/$slug/(authenticated)/portal'
     | '/org/$slug/(authenticated)/settings'
     | '/org/$slug/(authenticated)/onboarding'
-    | '/org/$slug/(unauthenticated)/login'
-    | '/org/$slug/(unauthenticated)/register'
+    | '/org/$slug/auth/forgot-password'
     | '/org/$slug/auth/login'
     | '/org/$slug/auth/register'
+    | '/org/$slug/auth/reset-password'
     | '/org/$slug/(authenticated)/'
     | '/org/$slug/(authenticated)/kiosk/$sessionId'
     | '/org/$slug/(authenticated)/admin/feed'
+    | '/org/$slug/(authenticated)/invitation/$invitationId'
     | '/org/$slug/(authenticated)/portal/feed'
     | '/org/$slug/(authenticated)/admin/'
     | '/org/$slug/(authenticated)/kiosk/'
@@ -771,6 +812,7 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/admin/lessons/new'
     | '/org/$slug/(authenticated)/admin/services/new'
     | '/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
+    | '/org/$slug/(authenticated)/portal/lessons/create'
     | '/org/$slug/(authenticated)/settings/account/availability'
     | '/org/$slug/(authenticated)/settings/account/guardian'
     | '/org/$slug/(authenticated)/settings/organization/business-hours'
@@ -838,6 +880,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/register'
@@ -850,6 +899,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/auth/callback': {
@@ -880,13 +936,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugAuthRouteRouteImport
       parentRoute: typeof OrgSlugRoute
     }
-    '/org/$slug/(unauthenticated)': {
-      id: '/org/$slug/(unauthenticated)'
-      path: ''
-      fullPath: '/org/$slug'
-      preLoaderRoute: typeof OrgSlugunauthenticatedRouteRouteImport
-      parentRoute: typeof OrgSlugRoute
-    }
     '/org/$slug/(authenticated)': {
       id: '/org/$slug/(authenticated)'
       path: ''
@@ -900,6 +949,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/org/$slug/'
       preLoaderRoute: typeof OrgSlugauthenticatedIndexRouteImport
       parentRoute: typeof OrgSlugauthenticatedRouteRoute
+    }
+    '/org/$slug/auth/reset-password': {
+      id: '/org/$slug/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/org/$slug/auth/reset-password'
+      preLoaderRoute: typeof OrgSlugAuthResetPasswordRouteImport
+      parentRoute: typeof OrgSlugAuthRouteRoute
     }
     '/org/$slug/auth/register': {
       id: '/org/$slug/auth/register'
@@ -915,19 +971,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugAuthLoginRouteImport
       parentRoute: typeof OrgSlugAuthRouteRoute
     }
-    '/org/$slug/(unauthenticated)/register': {
-      id: '/org/$slug/(unauthenticated)/register'
-      path: '/register'
-      fullPath: '/org/$slug/register'
-      preLoaderRoute: typeof OrgSlugunauthenticatedRegisterRouteImport
-      parentRoute: typeof OrgSlugunauthenticatedRouteRoute
-    }
-    '/org/$slug/(unauthenticated)/login': {
-      id: '/org/$slug/(unauthenticated)/login'
-      path: '/login'
-      fullPath: '/org/$slug/login'
-      preLoaderRoute: typeof OrgSlugunauthenticatedLoginRouteImport
-      parentRoute: typeof OrgSlugunauthenticatedRouteRoute
+    '/org/$slug/auth/forgot-password': {
+      id: '/org/$slug/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/org/$slug/auth/forgot-password'
+      preLoaderRoute: typeof OrgSlugAuthForgotPasswordRouteImport
+      parentRoute: typeof OrgSlugAuthRouteRoute
     }
     '/org/$slug/(authenticated)/onboarding': {
       id: '/org/$slug/(authenticated)/onboarding'
@@ -991,6 +1040,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/org/$slug/portal/feed'
       preLoaderRoute: typeof OrgSlugauthenticatedPortalFeedRouteImport
       parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
+    }
+    '/org/$slug/(authenticated)/invitation/$invitationId': {
+      id: '/org/$slug/(authenticated)/invitation/$invitationId'
+      path: '/invitation/$invitationId'
+      fullPath: '/org/$slug/invitation/$invitationId'
+      preLoaderRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRouteImport
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute
     }
     '/org/$slug/(authenticated)/admin/feed': {
       id: '/org/$slug/(authenticated)/admin/feed'
@@ -1075,6 +1131,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/org/$slug/settings/account/availability'
       preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport
       parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
+    }
+    '/org/$slug/(authenticated)/portal/lessons/create': {
+      id: '/org/$slug/(authenticated)/portal/lessons/create'
+      path: '/lessons/create'
+      fullPath: '/org/$slug/portal/lessons/create'
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRouteImport
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
     }
     '/org/$slug/(authenticated)/kiosk/$sessionId/calendar': {
       id: '/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
@@ -1264,14 +1327,18 @@ const authenticatedRouteRouteWithChildren =
 
 interface AuthRouteRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -1369,6 +1436,7 @@ const OrgSlugauthenticatedAdminRouteRouteWithChildren =
 interface OrgSlugauthenticatedPortalRouteRouteChildren {
   OrgSlugauthenticatedPortalFeedRoute: typeof OrgSlugauthenticatedPortalFeedRoute
   OrgSlugauthenticatedPortalIndexRoute: typeof OrgSlugauthenticatedPortalIndexRoute
+  OrgSlugauthenticatedPortalLessonsCreateRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRoute
   OrgSlugauthenticatedPortalCalendarIndexRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRoute
 }
 
@@ -1376,6 +1444,8 @@ const OrgSlugauthenticatedPortalRouteRouteChildren: OrgSlugauthenticatedPortalRo
   {
     OrgSlugauthenticatedPortalFeedRoute: OrgSlugauthenticatedPortalFeedRoute,
     OrgSlugauthenticatedPortalIndexRoute: OrgSlugauthenticatedPortalIndexRoute,
+    OrgSlugauthenticatedPortalLessonsCreateRoute:
+      OrgSlugauthenticatedPortalLessonsCreateRoute,
     OrgSlugauthenticatedPortalCalendarIndexRoute:
       OrgSlugauthenticatedPortalCalendarIndexRoute,
   }
@@ -1458,6 +1528,7 @@ interface OrgSlugauthenticatedRouteRouteChildren {
   OrgSlugauthenticatedOnboardingRoute: typeof OrgSlugauthenticatedOnboardingRoute
   OrgSlugauthenticatedIndexRoute: typeof OrgSlugauthenticatedIndexRoute
   OrgSlugauthenticatedKioskSessionIdRouteRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
+  OrgSlugauthenticatedInvitationInvitationIdRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   OrgSlugauthenticatedKioskIndexRoute: typeof OrgSlugauthenticatedKioskIndexRoute
 }
 
@@ -1473,6 +1544,8 @@ const OrgSlugauthenticatedRouteRouteChildren: OrgSlugauthenticatedRouteRouteChil
     OrgSlugauthenticatedIndexRoute: OrgSlugauthenticatedIndexRoute,
     OrgSlugauthenticatedKioskSessionIdRouteRoute:
       OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren,
+    OrgSlugauthenticatedInvitationInvitationIdRoute:
+      OrgSlugauthenticatedInvitationInvitationIdRoute,
     OrgSlugauthenticatedKioskIndexRoute: OrgSlugauthenticatedKioskIndexRoute,
   }
 
@@ -1481,30 +1554,18 @@ const OrgSlugauthenticatedRouteRouteWithChildren =
     OrgSlugauthenticatedRouteRouteChildren,
   )
 
-interface OrgSlugunauthenticatedRouteRouteChildren {
-  OrgSlugunauthenticatedLoginRoute: typeof OrgSlugunauthenticatedLoginRoute
-  OrgSlugunauthenticatedRegisterRoute: typeof OrgSlugunauthenticatedRegisterRoute
-}
-
-const OrgSlugunauthenticatedRouteRouteChildren: OrgSlugunauthenticatedRouteRouteChildren =
-  {
-    OrgSlugunauthenticatedLoginRoute: OrgSlugunauthenticatedLoginRoute,
-    OrgSlugunauthenticatedRegisterRoute: OrgSlugunauthenticatedRegisterRoute,
-  }
-
-const OrgSlugunauthenticatedRouteRouteWithChildren =
-  OrgSlugunauthenticatedRouteRoute._addFileChildren(
-    OrgSlugunauthenticatedRouteRouteChildren,
-  )
-
 interface OrgSlugAuthRouteRouteChildren {
+  OrgSlugAuthForgotPasswordRoute: typeof OrgSlugAuthForgotPasswordRoute
   OrgSlugAuthLoginRoute: typeof OrgSlugAuthLoginRoute
   OrgSlugAuthRegisterRoute: typeof OrgSlugAuthRegisterRoute
+  OrgSlugAuthResetPasswordRoute: typeof OrgSlugAuthResetPasswordRoute
 }
 
 const OrgSlugAuthRouteRouteChildren: OrgSlugAuthRouteRouteChildren = {
+  OrgSlugAuthForgotPasswordRoute: OrgSlugAuthForgotPasswordRoute,
   OrgSlugAuthLoginRoute: OrgSlugAuthLoginRoute,
   OrgSlugAuthRegisterRoute: OrgSlugAuthRegisterRoute,
+  OrgSlugAuthResetPasswordRoute: OrgSlugAuthResetPasswordRoute,
 }
 
 const OrgSlugAuthRouteRouteWithChildren =
@@ -1512,14 +1573,11 @@ const OrgSlugAuthRouteRouteWithChildren =
 
 interface OrgSlugRouteChildren {
   OrgSlugauthenticatedRouteRoute: typeof OrgSlugauthenticatedRouteRouteWithChildren
-  OrgSlugunauthenticatedRouteRoute: typeof OrgSlugunauthenticatedRouteRouteWithChildren
   OrgSlugAuthRouteRoute: typeof OrgSlugAuthRouteRouteWithChildren
 }
 
 const OrgSlugRouteChildren: OrgSlugRouteChildren = {
   OrgSlugauthenticatedRouteRoute: OrgSlugauthenticatedRouteRouteWithChildren,
-  OrgSlugunauthenticatedRouteRoute:
-    OrgSlugunauthenticatedRouteRouteWithChildren,
   OrgSlugAuthRouteRoute: OrgSlugAuthRouteRouteWithChildren,
 }
 

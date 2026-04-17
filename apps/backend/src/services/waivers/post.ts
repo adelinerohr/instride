@@ -1,6 +1,7 @@
 import { WaiverStatus } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
+import { organizations } from "~encore/clients";
 
 import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
@@ -81,8 +82,6 @@ export const signWaiver = api(
     auth: true,
   },
   async (request: SignWaiverRequest): Promise<GetSignatureResponse> => {
-    const { userID } = requireOrganizationAuth();
-
     const waiver = await db.query.waivers.findFirst({
       where: {
         id: request.waiverId,
@@ -93,11 +92,13 @@ export const signWaiver = api(
       throw APIError.notFound("Waiver not found");
     }
 
+    const { member } = await organizations.getMember();
+
     // Check for existing valid signature
     const existing = await db.query.waiverSignatures.findFirst({
       where: {
         waiverId: request.waiverId,
-        signerMemberId: userID,
+        signerMemberId: member.id,
         isValid: true,
         onBehalfOfMemberId: request.onBehalfOfMemberId ?? undefined,
       },
@@ -112,7 +113,7 @@ export const signWaiver = api(
       .values({
         organizationId: waiver.organizationId,
         waiverId: request.waiverId,
-        signerMemberId: userID,
+        signerMemberId: member.id,
         onBehalfOfMemberId: request.onBehalfOfMemberId ?? undefined,
         waiverVersion: waiver.version,
       })

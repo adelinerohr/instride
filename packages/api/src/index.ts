@@ -7,7 +7,6 @@ export * from "./modules/feed";
 export * from "./modules/availability";
 export * from "./modules/waivers";
 export * from "./client";
-export * from "./_internal/runtime";
 export * from "./modules/auth";
 export * from "./modules/guardians";
 export * from "./modules/questionnaires";

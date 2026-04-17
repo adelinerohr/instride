@@ -14,7 +14,6 @@
       "persistent": true
     },
     "web#dev": {
-      "dependsOn": ["@instride/shared#build"],
       "cache": false,
       "persistent": true
     },

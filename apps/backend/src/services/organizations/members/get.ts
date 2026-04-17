@@ -126,6 +126,11 @@ export const listTrainers = api(
             authUser: true,
           },
         },
+        boardAssignments: {
+          with: {
+            board: true,
+          },
+        },
       },
     });
 

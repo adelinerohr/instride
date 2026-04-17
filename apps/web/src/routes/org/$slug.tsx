@@ -1,22 +1,12 @@
 import { organizationOptions } from "@instride/api";
-import { registerRuntime } from "@instride/api";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { authClient } from "@/shared/lib/auth/client";
+
 /**
  * Path: /org/[slug]
  * Description: Main organization route, loads organization
  */
-function isPublicOrgRoute(slug: string, pathname: string): boolean {
-  const path = pathname.replace(/\/$/, "") || "/";
-  const base = `/org/${slug}`;
-  return (
-    path === `${base}/login` ||
-    path === `${base}/register` ||
-    path.startsWith(`${base}/auth`)
-  );
-}
-
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
   beforeLoad: async ({ params, context, location }) => {
@@ -25,28 +15,23 @@ export const Route = createFileRoute("/org/$slug")({
     );
 
     if (!organization) {
-      throw redirect({ to: "/" });
+      throw Route.redirect({ to: "/" });
     }
+
+    // Check if current route is a public auth route
+    const isPublicRoute = location.pathname.includes("auth");
 
     if (!context.isAuthenticated) {
-      if (isPublicOrgRoute(organization.slug, location.pathname)) {
-        registerRuntime({
-          getOrganizationId: () => organization.id,
-        });
+      if (isPublicRoute) {
         return {
           organization,
-          isPortal: location.pathname.includes("/portal"),
+          isPortal: false,
         };
       }
-      throw redirect({
-        to: "/org/$slug/login",
-        params: { slug: organization.slug },
+      throw Route.redirect({
+        to: "/org/$slug/auth/login",
       });
     }
-
-    registerRuntime({
-      getOrganizationId: () => organization.id,
-    });
 
     const isPortal = location.pathname.includes("/portal");
 
@@ -63,7 +48,7 @@ export const Route = createFileRoute("/org/$slug")({
 
     if (error || organizationError) {
       console.error(error, organizationError);
-      throw redirect({ to: "/" });
+      throw Route.redirect({ to: "/" });
     }
 
     return { organization, isPortal };

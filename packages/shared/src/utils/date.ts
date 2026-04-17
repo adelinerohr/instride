@@ -143,7 +143,7 @@ export function getDOWInTimeZone(input: {
     Sat: 6,
   };
 
-  if (!map[dayName]) {
+  if (!(dayName in map)) {
     throw Error("Invalid date");
   }
 
@@ -193,4 +193,19 @@ export function makeUTCDateFromLocalParts(input: {
     )}:${(input.parts.second ?? 0).toString().padStart(2, "0")}`;
 
   return fromZonedTime(isoLocal, input.timeZone);
+}
+
+/**
+ * Convert minutes to hours and minutes
+ * @param minutes - The minutes to convert to hours and minutes
+ * @returns The hours and minutes
+ */
+export function minutesToHourMinute(minutes: number): {
+  hour: number;
+  minute: number;
+} {
+  return {
+    hour: Math.floor(minutes / 60),
+    minute: minutes % 60,
+  };
 }

@@ -15,6 +15,7 @@ import { resolveEffectiveBusinessHours } from "../utils/business-hours";
 
 interface CalendarContext {
   selectedDate: Date;
+  type: "portal" | "admin" | "kiosk";
   setSelectedDate: (date: Date | undefined) => void;
   selectedTrainerIds: string[];
   setSelectedTrainerIds: (trainerIds: string[]) => void;
@@ -30,7 +31,11 @@ interface CalendarContext {
   setSelectedView: (view: CalendarView) => void;
   selectedBoardId: string | undefined;
   setSelectedBoardId: (boardId: string | undefined) => void;
-  createLesson: (start: Date, boardId: string, trainerId?: string) => void;
+  createLesson: (params: {
+    start?: Date;
+    boardId?: string;
+    trainerId?: string;
+  }) => void;
 }
 
 const CalendarContext = React.createContext<CalendarContext | undefined>(
@@ -219,12 +224,18 @@ export function CalendarProvider({
   );
 
   const createLesson = React.useCallback(
-    (start: Date, boardId: string, trainerId?: string) => {
-      lessonModalHandler.openWithPayload({
-        start: start.toISOString(),
-        boardId,
-        trainerId,
-      });
+    (params: { start?: Date; boardId?: string; trainerId?: string }) => {
+      if (type === "admin") {
+        lessonModalHandler.openWithPayload({
+          start: params.start?.toISOString(),
+          boardId: params.boardId,
+          trainerId: params.trainerId,
+        });
+      } else {
+        navigate({
+          to: "/org/$slug/portal/lessons/create",
+        });
+      }
     },
     [lessonModalHandler]
   );
@@ -232,6 +243,7 @@ export function CalendarProvider({
   return (
     <CalendarContext.Provider
       value={{
+        type,
         selectedDate: date,
         setSelectedDate,
         selectedTrainerIds,

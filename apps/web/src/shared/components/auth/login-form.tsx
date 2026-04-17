@@ -1,5 +1,7 @@
+import { loginSchema } from "@instride/shared";
 import { Link, linkOptions, useParams } from "@tanstack/react-router";
-import { z } from "zod";
+import { APIError } from "better-auth";
+import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
@@ -7,11 +9,6 @@ import { Separator } from "@/shared/components/ui/separator";
 import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 import { oAuthProviders } from "@/shared/lib/auth/oauth-providers";
-
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
 
 interface LoginFormProps {
   orgName?: string;
@@ -25,13 +22,24 @@ export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
 
   const form = useAppForm({
     defaultValues: { email: "", password: "" },
-    validators: { onSubmit: formSchema },
+    validators: { onSubmit: loginSchema },
     onSubmit: async ({ value }) => {
-      await authClient.signIn.email({
-        email: value.email,
-        password: value.password,
-      });
-      onSuccess();
+      await authClient.signIn.email(
+        {
+          email: value.email,
+          password: value.password,
+        },
+        {
+          onSuccess: () => {
+            onSuccess();
+          },
+          onError: (error) => {
+            toast.error(
+              error instanceof APIError ? error.message : "Failed to sign in"
+            );
+          },
+        }
+      );
     },
   });
 
@@ -77,22 +85,6 @@ export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
         <p className="text-sm text-muted-foreground">Sign in to your account</p>
       </div>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleSignIn}
-        type="button"
-      >
-        <oAuthProviders.google.icon />
-        Continue with Google
-      </Button>
-
-      <div className="flex items-center gap-2">
-        <Separator className="flex-1" />
-        <span className="text-xs text-muted-foreground">or</span>
-        <Separator className="flex-1" />
-      </div>
-
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -100,6 +92,27 @@ export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
         }}
         className="space-y-4"
       >
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+              type="button"
+              disabled={isSubmitting}
+            >
+              <oAuthProviders.google.icon />
+              Continue with Google
+            </Button>
+          )}
+        </form.Subscribe>
+
+        <div className="flex items-center gap-2">
+          <Separator className="flex-1" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <Separator className="flex-1" />
+        </div>
+
         <FieldSet>
           <FieldGroup>
             <form.AppField

@@ -3,6 +3,7 @@ import { APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 
+import { ListBusinessHoursResponse } from "../types/contracts";
 import {
   DayHours,
   EffectiveDayHours,
@@ -174,4 +175,40 @@ function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
     }
   }
   return map;
+}
+
+export interface CalendarBusinessHours {
+  isOpen: boolean;
+  boardId: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  dayOfWeek: DayOfWeek;
+}
+
+export type EffectiveBusinessHours = Record<DayOfWeek, CalendarBusinessHours>;
+export type TrainerEffectiveBusinessHours = Record<
+  string,
+  EffectiveBusinessHours
+>;
+
+export function resolveEffectiveBusinessHours(
+  businessHours: ListBusinessHoursResponse,
+  boardId?: string
+): EffectiveBusinessHours {
+  const rows =
+    (boardId && businessHours.boardOverrides[boardId]) ||
+    businessHours.defaults;
+
+  return Object.fromEntries(
+    rows.map((day) => [
+      day.dayOfWeek,
+      {
+        isOpen: day.isOpen,
+        startTime: day.openTime?.slice(0, 5) ?? null,
+        endTime: day.closeTime?.slice(0, 5) ?? null,
+        dayOfWeek: day.dayOfWeek,
+        boardId: boardId ?? null,
+      },
+    ])
+  ) as EffectiveBusinessHours;
 }

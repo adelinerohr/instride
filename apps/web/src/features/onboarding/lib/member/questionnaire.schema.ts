@@ -2,7 +2,7 @@ import type { types } from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { z } from "zod";
 
-export const questionnaireSchema = z.object({
+export const questionnaireResponseSchema = z.object({
   questionnaireId: z.uuid(),
   responses: z.array(
     z.object({
@@ -33,7 +33,7 @@ export function buildQuestionnaireResponsesSchema(
     .superRefine((responses, ctx) => {
       questions.forEach((question) => {
         // Skip hidden questions
-        if (!isQuestionVisible(question, responses)) {
+        if (!isQuestionVisible({ question, questions, responses })) {
           return;
         }
 
@@ -46,6 +46,7 @@ export function buildQuestionnaireResponsesSchema(
           (r) => r.questionId === question.id
         )?.responseValue;
 
+        // Boolean values are always valid (checkboxes can't be "empty")
         if (typeof value === "boolean") {
           return;
         }
@@ -78,6 +79,10 @@ export function buildInitialResponses(
           questionId: question.id,
           responseValue: "",
         });
+      } else if (question.type === QuestionnaireQuestionType.BOOLEAN) {
+        // Don't initialize boolean questions - let user make explicit choice
+        // Or initialize to false if you want a default:
+        // responses.push({ questionId: question.id, responseValue: false });
       }
     }
   }
@@ -92,16 +97,17 @@ export function buildInitialResponses(
 /**
  * Check if a question should be visible based on its showIf condition
  */
-export function isQuestionVisible(
-  question: types.QuestionnaireQuestion,
-  responses: types.QuestionnaireQuestionResponse[]
-): boolean {
-  if (!question.showIf) {
+export function isQuestionVisible(input: {
+  question: types.QuestionnaireQuestion;
+  questions: types.QuestionnaireQuestion[];
+  responses: types.QuestionnaireQuestionResponse[];
+}): boolean {
+  if (!input.question.showIf) {
     return true;
   }
 
-  const dependentResponse = responses.find(
-    (response) => response.questionId === question.showIf?.questionId
+  const dependentResponse = input.responses.find(
+    (response) => response.questionId === input.question.showIf?.questionId
   )?.responseValue;
 
   // If the dependent question hasn't been answered yet, don't show this question
@@ -109,7 +115,7 @@ export function isQuestionVisible(
     return false;
   }
 
-  return dependentResponse === question.showIf.responseValue;
+  return dependentResponse === input.question.showIf.responseValue;
 }
 
 /**
@@ -121,6 +127,6 @@ export function filterVisibleResponses(
 ): types.QuestionnaireQuestionResponse[] {
   return responses.filter((response) => {
     const question = questions.find((q) => q.id === response.questionId);
-    return question && isQuestionVisible(question, [response]);
+    return question && isQuestionVisible({ question, questions, responses });
   });
 }

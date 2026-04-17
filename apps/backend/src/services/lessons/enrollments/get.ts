@@ -92,7 +92,35 @@ export const listMyEnrollments = api(
           organizationId,
         },
         with: {
-          instance: true,
+          instance: {
+            with: {
+              series: true,
+              service: true,
+              board: true,
+              trainer: {
+                with: {
+                  member: {
+                    with: {
+                      authUser: true,
+                    },
+                  },
+                },
+              },
+              enrollments: {
+                with: {
+                  rider: {
+                    with: {
+                      member: {
+                        with: {
+                          authUser: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
 

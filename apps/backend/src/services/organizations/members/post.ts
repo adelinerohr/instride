@@ -13,6 +13,28 @@ import {
   GetTrainerResponse,
 } from "../types/contracts";
 
+export const completeOnboarding = api(
+  {
+    expose: true,
+    method: "POST",
+    path: "/members/:memberId/complete-onboarding",
+    auth: true,
+  },
+  async ({ memberId }: { memberId: string }): Promise<void> => {
+    const { organizationId } = requireOrganizationAuth();
+
+    await db
+      .update(members)
+      .set({ onboardingComplete: true })
+      .where(
+        and(
+          eq(members.id, memberId),
+          eq(members.organizationId, organizationId)
+        )
+      );
+  }
+);
+
 interface CreateRiderRequest {
   organizationId: string;
   memberId: string;
@@ -204,6 +226,11 @@ export const changeRole = api(
   }
 );
 
+interface JoinOrganizationRequest {
+  organizationId: string;
+  roles?: MembershipRole[];
+}
+
 export const joinOrganization = api(
   {
     expose: true,
@@ -213,10 +240,17 @@ export const joinOrganization = api(
   },
   async ({
     organizationId,
-  }: {
-    organizationId: string;
-  }): Promise<GetMemberResponse> => {
-    const { userID } = requireAuth();
+    roles,
+  }: JoinOrganizationRequest): Promise<GetMemberResponse> => {
+    const { userID, session } = requireAuth();
+
+    const email = session?.user?.email;
+
+    if (!email) {
+      throw APIError.permissionDenied(
+        "You must be logged in to join an organization"
+      );
+    }
 
     const organization = await db.query.organizations.findFirst({
       where: { id: organizationId },
@@ -240,7 +274,7 @@ export const joinOrganization = api(
     });
 
     if (existing) {
-      throw APIError.alreadyExists("Already a member of this organization");
+      return { member: existing };
     }
 
     const authMemberRow = await auth.api.addMember({
@@ -261,7 +295,7 @@ export const joinOrganization = api(
         userId: userID,
         organizationId: organization.id,
         authMemberId: authMemberRow.id,
-        roles: [MembershipRole.RIDER],
+        roles: roles ?? [MembershipRole.RIDER],
       })
       .returning();
 

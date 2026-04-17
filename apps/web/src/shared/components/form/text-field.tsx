@@ -1,4 +1,4 @@
-import { ClockIcon } from "lucide-react";
+import { ClockIcon, MailIcon } from "lucide-react";
 import * as React from "react";
 
 import { useFieldContext } from "@/shared/hooks/use-form";
@@ -11,11 +11,14 @@ import {
   InputGroupInput,
 } from "../ui/input-group";
 
+type Variant = "default" | "email" | "password";
+
 type TextFieldProps = React.ComponentProps<"input"> & {
   label: string;
   placeholder?: string;
   description?: string;
   inputGroup?: boolean;
+  variant?: Variant;
 };
 
 export function TextField({
@@ -26,6 +29,7 @@ export function TextField({
   children,
   className,
   type = "text",
+  variant = "default",
   ...props
 }: TextFieldProps) {
   const field = useFieldContext<string | number | undefined | null>();
@@ -62,6 +66,11 @@ export function TextField({
           {...props}
         />
         {inputGroup && children}
+        {variant === "email" && (
+          <InputGroupAddon align="inline-start">
+            <MailIcon />
+          </InputGroupAddon>
+        )}
         {type === "time" && (
           <InputGroupAddon align="inline-start">
             <ClockIcon />

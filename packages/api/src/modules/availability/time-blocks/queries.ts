@@ -2,14 +2,14 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import { apiClient } from "#client";
 
-import { timeBlockKeys } from "../keys";
+import { availabilityKeys } from "../keys";
 
 // ---- Query Options ------------------------------------------------------------
 
 export const timeBlockOptions = {
   all: () =>
     queryOptions({
-      queryKey: timeBlockKeys.all(),
+      queryKey: availabilityKeys.listTimeBlocks(),
       queryFn: async () => {
         const { timeBlocks } = await apiClient.availability.listTimeBlocks({});
         return timeBlocks;
@@ -17,7 +17,7 @@ export const timeBlockOptions = {
     }),
   byId: (id: string) =>
     queryOptions({
-      queryKey: timeBlockKeys.byId(id),
+      queryKey: availabilityKeys.timeBlockById(id),
       queryFn: async () => {
         const { timeBlock } = await apiClient.availability.getTimeBlock(id);
         return timeBlock;
@@ -25,7 +25,7 @@ export const timeBlockOptions = {
     }),
   inRange: (from: Date, to: Date) =>
     queryOptions({
-      queryKey: timeBlockKeys.inRange(from, to),
+      queryKey: availabilityKeys.timeBlocksInRange(from, to),
       queryFn: async () => {
         const { timeBlocks } = await apiClient.availability.listTimeBlocks({
           from: from.toISOString(),
@@ -36,7 +36,7 @@ export const timeBlockOptions = {
     }),
   forTrainer: (trainerId: string) =>
     queryOptions({
-      queryKey: timeBlockKeys.forTrainer(trainerId),
+      queryKey: availabilityKeys.timeBlocksForTrainer(trainerId),
       queryFn: async () => {
         const { timeBlocks } = await apiClient.availability.listTimeBlocks({
           trainerId: trainerId,

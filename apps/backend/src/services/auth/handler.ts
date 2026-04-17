@@ -24,6 +24,7 @@ export type Session = {
     updatedAt: Date;
     email: string;
     emailVerified: boolean;
+    dateOfBirth?: string | null | undefined;
     name: string;
     image?: string | null | undefined | undefined;
     phone?: string | null | undefined;

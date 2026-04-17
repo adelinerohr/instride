@@ -1,5 +1,6 @@
 import {
   boardsOptions,
+  eventOptions,
   instanceOptions,
   kioskOptions,
   membersOptions,
@@ -62,6 +63,12 @@ export const Route = createFileRoute(
     context.queryClient.ensureQueryData(membersOptions.trainers());
     context.queryClient.ensureQueryData(boardsOptions.list());
     context.queryClient.ensureQueryData(servicesOptions.all());
+    context.queryClient.ensureQueryData(
+      eventOptions.list({
+        from: from.toISOString(),
+        to: to.toISOString(),
+      })
+    );
 
     context.queryClient.ensureQueryData(kioskOptions.session(params.sessionId));
 
@@ -89,6 +96,12 @@ function RouteComponent() {
   );
   const { data: allTimeBlocks } = useSuspenseQuery(
     timeBlockOptions.inRange(from, to)
+  );
+  const { data: allEvents } = useSuspenseQuery(
+    eventOptions.list({
+      from: from.toISOString(),
+      to: to.toISOString(),
+    })
   );
 
   // Calculate visible range based on current view
@@ -122,6 +135,7 @@ function RouteComponent() {
 
   return (
     <CalendarProvider
+      events={allEvents}
       trainers={trainers}
       boards={boards}
       lessons={lessons}

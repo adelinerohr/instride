@@ -14,6 +14,9 @@ import { TextareaField } from "@/shared/components/form/textarea-field";
 
 import { DateField } from "../components/form/date-field";
 import { BooleanRadioField } from "../components/form/radio-field";
+import { PasswordField } from "../components/form/variants/password-field";
+import { ServiceSelectField } from "../components/form/variants/service-select-field";
+import { TrainerSelectField } from "../components/form/variants/trainer-select-field";
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
   createFormHookContexts();
@@ -29,9 +32,12 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     DatetimeField,
     MultiSelectField,
     PhoneField,
+    PasswordField,
     ColorPickerField,
+    TrainerSelectField,
     CheckboxField,
     BooleanRadioField,
+    ServiceSelectField,
   },
   formComponents: {
     SubmitButton,
