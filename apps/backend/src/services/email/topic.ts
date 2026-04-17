@@ -25,7 +25,7 @@ export const sendEmailTopic = new Topic<EmailEvent>("send-email", {
 const _ = new Subscription(sendEmailTopic, "send-email-via-resend", {
   handler: async (event) => {
     const { error } = await resend.emails.send({
-      from: "Instride <notifications@instride.com>",
+      from: "Instride <info@notifications.instrideapp.com>",
       to: event.to,
       subject: event.subject,
       html: event.html,

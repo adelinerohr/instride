@@ -16,7 +16,6 @@
   "dependencies": {
     "@better-auth/expo": "^1.6.2",
     "@instride/shared": "workspace:*",
-    "@react-email/components": "^1.0.12",
     "better-auth": "^1.6.2",
     "busboy": "^1.6.0",
     "date-fns": "^4.1.0",

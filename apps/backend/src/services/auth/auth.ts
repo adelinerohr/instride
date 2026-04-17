@@ -6,6 +6,10 @@ import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 
 import { db } from "../../database";
+import { invitationEmail } from "../email/templates/invitation";
+import { passwordResetEmail } from "../email/templates/password-reset";
+import { verificationEmail } from "../email/templates/verification";
+import { sendEmailTopic } from "../email/topic";
 import {
   ac,
   admin as adminRole,
@@ -25,35 +29,6 @@ export const auth = betterAuth({
   basePath: "/auth",
   baseURL,
   secret: authSecret(),
-
-  cors: {
-    enabled: true,
-    origin: isProd
-      ? [
-          "https://instride.vercel.app",
-          /^https:\/\/.*\.instride\.vercel\.app$/, // Regex for preview deployments
-          "https://instrideapp.com",
-          "https://app.instrideapp.com",
-          /^https:\/\/.*\.instrideapp\.com$/, // Regex for subdomains
-        ]
-      : [
-          "http://localhost:3000",
-          "http://localhost:4000",
-          "http://localhost:5173",
-          "http://127.0.0.1:3000",
-          "http://127.0.0.1:4000",
-        ],
-    credentials: true, // CRITICAL for cookie-based sessions
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cookie",
-      "X-Requested-With",
-    ],
-    exposedHeaders: ["Set-Cookie"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    maxAge: 86400,
-  },
 
   trustedOrigins: isProd
     ? [
@@ -81,12 +56,23 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      if (process.env.NODE_ENV === "development") {
+      if (!isProd) {
         console.log("─────────────────────────────────────");
         console.log("📧 Reset password");
         console.log(`To: ${user.email}`);
         console.log(`URL: ${url}`);
         console.log("─────────────────────────────────────");
+      } else {
+        const html = passwordResetEmail({
+          userName: user.name,
+          resetUrl: url,
+        });
+
+        await sendEmailTopic.publish({
+          to: user.email,
+          subject: "Reset your password",
+          html,
+        });
       }
     },
   },
@@ -94,12 +80,23 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      if (process.env.NODE_ENV === "development") {
+      if (!isProd) {
         console.log("─────────────────────────────────────");
         console.log("📧 Email verification");
         console.log(`To: ${user.email}`);
         console.log(`URL: ${url}`);
         console.log("─────────────────────────────────────");
+      } else {
+        const html = verificationEmail({
+          userName: user.name,
+          verificationUrl: url,
+        });
+
+        await sendEmailTopic.publish({
+          to: user.email,
+          subject: "Verify your email address",
+          html,
+        });
       }
     },
   },
@@ -141,6 +138,19 @@ export const auth = betterAuth({
           console.log(`Invited by: ${existingUser?.name}`);
           console.log(`URL: ${url.toString()}`);
           console.log("─────────────────────────────────────");
+        } else {
+          const html = invitationEmail({
+            invitedByName: existingUser?.name || "Someone",
+            organizationName: organization.name,
+            invitationUrl: url.toString(),
+            isExistingUser: !!existingUser,
+          });
+
+          await sendEmailTopic.publish({
+            to: email,
+            subject: `You've been invited to ${organization.name}`,
+            html,
+          });
         }
       },
       ac,
