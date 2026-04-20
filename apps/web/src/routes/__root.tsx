@@ -122,18 +122,20 @@ function RootComponent() {
         <Toaster richColors />
         <Modals />
       </ThemeProvider>
-      <TanStackDevtools
-        plugins={[
-          {
-            name: "TanStack Query",
-            render: <ReactQueryDevtoolsPanel />,
-          },
-          {
-            name: "TanStack Router",
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-        ]}
-      />
+      {import.meta.env.DEV && (
+        <TanStackDevtools
+          plugins={[
+            {
+              name: "TanStack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
+              name: "TanStack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
+      )}
     </TooltipProvider>
   );
 }
