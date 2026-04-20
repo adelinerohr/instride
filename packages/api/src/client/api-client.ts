@@ -1,9 +1,9 @@
-import Client, { Local, Environment, type BaseURL } from "./encore-client";
+import Client, { Local, type BaseURL } from "./encore-client";
 
 function getServerBaseURL(): BaseURL {
   const isProduction = process.env.NODE_ENV === "production";
 
-  return isProduction ? Environment("prod") : Local;
+  return isProduction ? "https://api.instrideapp.com" : Local;
 }
 
 export const serverBaseURL = getServerBaseURL();

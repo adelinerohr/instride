@@ -670,7 +670,8 @@ export namespace boards {
 
 export namespace email {
     export interface SendEmailRequest {
-        to: string
+        from?: string
+        to: string | string[]
         subject: string
         html: string
     }
@@ -1456,6 +1457,16 @@ export namespace notifications {
         unreadCount: number
     }
 
+    export interface UpdatePreferencesParams {
+        preferences: {
+            type: types.NotificationType
+            inAppEnabled: boolean
+            pushEnabled: boolean
+            emailEnabled: boolean
+            smsEnabled: boolean
+        }[]
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -1468,6 +1479,7 @@ export namespace notifications {
             this.handleSMSWebhook = this.handleSMSWebhook.bind(this)
             this.handleSMSWebhookFailover = this.handleSMSWebhookFailover.bind(this)
             this.markAsRead = this.markAsRead.bind(this)
+            this.updatePreferences = this.updatePreferences.bind(this)
         }
 
         public async createNotification(params: CreateNotificationRequest): Promise<types.GetNotificationResponse> {
@@ -1480,10 +1492,10 @@ export namespace notifications {
             await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/dispatch`, JSON.stringify(params))
         }
 
-        public async getPreferences(memberId: string): Promise<types.GetPreferencesResponse> {
+        public async getPreferences(memberId: string): Promise<types.NotificationPreference> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/notifications/${encodeURIComponent(memberId)}/preferences`)
-            return await resp.json() as types.GetPreferencesResponse
+            return await resp.json() as types.NotificationPreference
         }
 
         public async getUnread(memberId: string): Promise<GetUnreadResponse> {
@@ -1504,6 +1516,16 @@ export namespace notifications {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/read`)
             return await resp.json() as types.GetNotificationResponse
+        }
+
+        public async updatePreferences(memberId: string, params: UpdatePreferencesParams): Promise<{
+    preferences: types.NotificationPreference[]
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/notifications/${encodeURIComponent(memberId)}/preferences`, JSON.stringify(params))
+            return await resp.json() as {
+    preferences: types.NotificationPreference[]
+}
         }
     }
 }
@@ -2788,10 +2810,6 @@ export namespace types {
 
     export interface GetOrganizationResponse {
         organization: Organization
-    }
-
-    export interface GetPreferencesResponse {
-        preferences: NotificationPreference
     }
 
     export interface GetQuestionnaireResponse {
