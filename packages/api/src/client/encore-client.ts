@@ -8,3691 +8,4618 @@
 /**
  * BaseURL is the base URL for calling the Encore application's API.
  */
-export type BaseURL = string
+export type BaseURL = string;
 
-export const Local: BaseURL = "http://localhost:4000"
+export const Local: BaseURL = "http://localhost:4000";
 
 /**
  * Environment returns a BaseURL for calling the cloud environment with the given name.
  */
 export function Environment(name: string): BaseURL {
-    return `https://${name}-instride-zeai.encr.app`
+  return `https://${name}-instride-zeai.encr.app`;
 }
 
 /**
  * PreviewEnv returns a BaseURL for calling the preview environment with the given PR number.
  */
 export function PreviewEnv(pr: number | string): BaseURL {
-    return Environment(`pr${pr}`)
+  return Environment(`pr${pr}`);
 }
 
-const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
+const BROWSER = typeof globalThis === "object" && "window" in globalThis;
 
 /**
  * Client is an API client for the instride-zeai Encore application.
  */
 export default class Client {
-    public readonly activity: activity.ServiceClient
-    public readonly auth: auth.ServiceClient
-    public readonly availability: availability.ServiceClient
-    public readonly boards: boards.ServiceClient
-    public readonly email: email.ServiceClient
-    public readonly events: events.ServiceClient
-    public readonly feed: feed.ServiceClient
-    public readonly guardians: guardians.ServiceClient
-    public readonly kiosk: kiosk.ServiceClient
-    public readonly lessons: lessons.ServiceClient
-    public readonly notifications: notifications.ServiceClient
-    public readonly organizations: organizations.ServiceClient
-    public readonly payments: payments.ServiceClient
-    public readonly questionnaires: questionnaires.ServiceClient
-    public readonly quickbooks: quickbooks.ServiceClient
-    public readonly upload: upload.ServiceClient
-    public readonly waivers: waivers.ServiceClient
-    private readonly options: ClientOptions
-    private readonly target: string
+  public readonly activity: activity.ServiceClient;
+  public readonly auth: auth.ServiceClient;
+  public readonly availability: availability.ServiceClient;
+  public readonly boards: boards.ServiceClient;
+  public readonly email: email.ServiceClient;
+  public readonly events: events.ServiceClient;
+  public readonly feed: feed.ServiceClient;
+  public readonly guardians: guardians.ServiceClient;
+  public readonly kiosk: kiosk.ServiceClient;
+  public readonly lessons: lessons.ServiceClient;
+  public readonly notifications: notifications.ServiceClient;
+  public readonly organizations: organizations.ServiceClient;
+  public readonly payments: payments.ServiceClient;
+  public readonly questionnaires: questionnaires.ServiceClient;
+  public readonly quickbooks: quickbooks.ServiceClient;
+  public readonly upload: upload.ServiceClient;
+  public readonly waivers: waivers.ServiceClient;
+  private readonly options: ClientOptions;
+  private readonly target: string;
 
+  /**
+   * Creates a Client for calling the public and authenticated APIs of your Encore application.
+   *
+   * @param target  The target which the client should be configured to use. See Local and Environment for options.
+   * @param options Options for the client
+   */
+  constructor(target: BaseURL, options?: ClientOptions) {
+    this.target = target;
+    this.options = options ?? {};
+    const base = new BaseClient(this.target, this.options);
+    this.activity = new activity.ServiceClient(base);
+    this.auth = new auth.ServiceClient(base);
+    this.availability = new availability.ServiceClient(base);
+    this.boards = new boards.ServiceClient(base);
+    this.email = new email.ServiceClient(base);
+    this.events = new events.ServiceClient(base);
+    this.feed = new feed.ServiceClient(base);
+    this.guardians = new guardians.ServiceClient(base);
+    this.kiosk = new kiosk.ServiceClient(base);
+    this.lessons = new lessons.ServiceClient(base);
+    this.notifications = new notifications.ServiceClient(base);
+    this.organizations = new organizations.ServiceClient(base);
+    this.payments = new payments.ServiceClient(base);
+    this.questionnaires = new questionnaires.ServiceClient(base);
+    this.quickbooks = new quickbooks.ServiceClient(base);
+    this.upload = new upload.ServiceClient(base);
+    this.waivers = new waivers.ServiceClient(base);
+  }
 
-    /**
-     * Creates a Client for calling the public and authenticated APIs of your Encore application.
-     *
-     * @param target  The target which the client should be configured to use. See Local and Environment for options.
-     * @param options Options for the client
-     */
-    constructor(target: BaseURL, options?: ClientOptions) {
-        this.target = target
-        this.options = options ?? {}
-        const base = new BaseClient(this.target, this.options)
-        this.activity = new activity.ServiceClient(base)
-        this.auth = new auth.ServiceClient(base)
-        this.availability = new availability.ServiceClient(base)
-        this.boards = new boards.ServiceClient(base)
-        this.email = new email.ServiceClient(base)
-        this.events = new events.ServiceClient(base)
-        this.feed = new feed.ServiceClient(base)
-        this.guardians = new guardians.ServiceClient(base)
-        this.kiosk = new kiosk.ServiceClient(base)
-        this.lessons = new lessons.ServiceClient(base)
-        this.notifications = new notifications.ServiceClient(base)
-        this.organizations = new organizations.ServiceClient(base)
-        this.payments = new payments.ServiceClient(base)
-        this.questionnaires = new questionnaires.ServiceClient(base)
-        this.quickbooks = new quickbooks.ServiceClient(base)
-        this.upload = new upload.ServiceClient(base)
-        this.waivers = new waivers.ServiceClient(base)
-    }
-
-    /**
-     * Creates a new Encore client with the given client options set.
-     *
-     * @param options Client options to set. They are merged with existing options.
-     **/
-    public with(options: ClientOptions): Client {
-        return new Client(this.target, {
-            ...this.options,
-            ...options,
-        })
-    }
+  /**
+   * Creates a new Encore client with the given client options set.
+   *
+   * @param options Client options to set. They are merged with existing options.
+   **/
+  public with(options: ClientOptions): Client {
+    return new Client(this.target, {
+      ...this.options,
+      ...options,
+    });
+  }
 }
 
 /**
  * ClientOptions allows you to override any default behaviour within the generated Encore client.
  */
 export interface ClientOptions {
-    /**
-     * By default the client will use the inbuilt fetch function for making the API requests.
-     * however you can override it with your own implementation here if you want to run custom
-     * code on each API request made or response received.
-     */
-    fetcher?: Fetcher
+  /**
+   * By default the client will use the inbuilt fetch function for making the API requests.
+   * however you can override it with your own implementation here if you want to run custom
+   * code on each API request made or response received.
+   */
+  fetcher?: Fetcher;
 
-    /** Default RequestInit to be used for the client */
-    requestInit?: Omit<RequestInit, "headers"> & { headers?: Record<string, string> }
+  /** Default RequestInit to be used for the client */
+  requestInit?: Omit<RequestInit, "headers"> & {
+    headers?: Record<string, string>;
+  };
 
-    /**
-     * Allows you to set the authentication data to be used for each
-     * request either by passing in a static object or by passing in
-     * a function which returns a new object for each request.
-     */
-    auth?: auth.AuthParams | AuthDataGenerator
+  /**
+   * Allows you to set the authentication data to be used for each
+   * request either by passing in a static object or by passing in
+   * a function which returns a new object for each request.
+   */
+  auth?: auth.AuthParams | AuthDataGenerator;
 }
 
 export namespace activity {
-    export interface CreateActivityRequest {
-        metadata: types.ActivityMetadata
-        ownerMemberId: string
-        subjectType: types.ActivitySubjectType
-        subjectId: string
-        type: types.ActivityType
-        actorMemberId?: string | null
-        actorRole?: models.MembershipRole
+  export interface CreateActivityRequest {
+    metadata: types.ActivityMetadata;
+    ownerMemberId: string;
+    subjectType: types.ActivitySubjectType;
+    subjectId: string;
+    type: types.ActivityType;
+    actorMemberId?: string | null;
+    actorRole?: models.MembershipRole;
+  }
+
+  export interface ListActivityRequest {
+    riderId?: string;
+    trainerId?: string;
+    ownerMemberId: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createActivity = this.createActivity.bind(this);
+      this.listActivity = this.listActivity.bind(this);
     }
 
-    export interface ListActivityRequest {
-        riderId?: string
-        trainerId?: string
-        ownerMemberId: string
+    public async createActivity(
+      params: CreateActivityRequest
+    ): Promise<types.GetActivityResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/activity`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetActivityResponse;
     }
 
-    export class ServiceClient {
-        private baseClient: BaseClient
+    public async listActivity(
+      params: ListActivityRequest
+    ): Promise<types.ListActivityResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        ownerMemberId: params.ownerMemberId,
+        riderId: params.riderId,
+        trainerId: params.trainerId,
+      });
 
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createActivity = this.createActivity.bind(this)
-            this.listActivity = this.listActivity.bind(this)
-        }
-
-        public async createActivity(params: CreateActivityRequest): Promise<types.GetActivityResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/activity`, JSON.stringify(params))
-            return await resp.json() as types.GetActivityResponse
-        }
-
-        public async listActivity(params: ListActivityRequest): Promise<types.ListActivityResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                ownerMemberId: params.ownerMemberId,
-                riderId:       params.riderId,
-                trainerId:     params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/activity`, undefined, {query})
-            return await resp.json() as types.ListActivityResponse
-        }
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/activity`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListActivityResponse;
     }
+  }
 }
 
 export namespace auth {
-    export interface AuthParams {
-        host: string
-    }
-
-    export interface ExportUsersParams {
-        userIds: string[]
-    }
-
-    export interface ExportUsersResponse {
-        csv: string
-        filename: string
-    }
-
-    export interface GetSessionParams {
-    }
-
-    export interface GetSessionResponse {
-        session: types.Session | null
-    }
-
-    export interface ListUsersParams {
-        query?: string
-        limit: number
-        offset: number
-        sortBy: string
-        sortOrder: "asc" | "desc"
-        role?: ("admin" | "user")[]
-        banned?: ("active" | "banned")[]
-        emailVerified?: ("verified" | "pending")[]
-        createdAt?: ("today" | "this-week" | "this-month" | "older")[]
-    }
-
-    export interface ListUsersResponse {
-        users: types.AuthUser[]
-        total: number
-    }
-
-    export interface UpdateUserRequest {
-        name?: string
-        image?: string | null
-        phone?: string | null
-        dateOfBirth?: string | null
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.authRoutes = this.authRoutes.bind(this)
-            this.exportUsers = this.exportUsers.bind(this)
-            this.getSession = this.getSession.bind(this)
-            this.listUsers = this.listUsers.bind(this)
-            this.updateUser = this.updateUser.bind(this)
-        }
-
-        /**
-         * Better Auth expects a Web Request, but Encore raw endpoints receive
-         * a Node.js IncomingMessage. We convert between the two formats.
-         */
-        public async authRoutes(method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "HEAD" | "OPTIONS" | "TRACE", path: string[], body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/auth/${path.map(encodeURIComponent).join("/")}`, body, options)
-        }
-
-        public async exportUsers(params: ExportUsersParams): Promise<ExportUsersResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/admin/users/export`, JSON.stringify(params))
-            return await resp.json() as ExportUsersResponse
-        }
-
-        public async getSession(params: GetSessionParams): Promise<GetSessionResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/session`)
-            return await resp.json() as GetSessionResponse
-        }
-
-        public async listUsers(params: ListUsersParams): Promise<ListUsersResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                banned:        params.banned?.map((v) => String(v)),
-                createdAt:     params.createdAt?.map((v) => String(v)),
-                emailVerified: params.emailVerified?.map((v) => String(v)),
-                limit:         String(params.limit),
-                offset:        String(params.offset),
-                query:         params.query,
-                role:          params.role?.map((v) => String(v)),
-                sortBy:        params.sortBy,
-                sortOrder:     String(params.sortOrder),
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/admin/users`, undefined, {query})
-            return await resp.json() as ListUsersResponse
-        }
-
-        public async updateUser(params: UpdateUserRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/users`, JSON.stringify(params))
-        }
-    }
-}
-
-export namespace availability {
-    export interface AvailableSlot {
-        start: string
-        end: string
-        dayOfWeek: string
-        service: {
-            id: string
-            name: string
-            duration: number
-            price: number
-        }
-    }
-
-    export interface AvailableSlotResponse {
-        slots: AvailableSlot[]
-    }
-
-    export interface AvailableSlotsParams {
-        boardId: string
-        trainerId: string
-        serviceId: string
-        riderId: string
-        startDate: string
-        endDate: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.checkLessonHours = this.checkLessonHours.bind(this)
-            this.createTimeBlock = this.createTimeBlock.bind(this)
-            this.deleteTimeBlock = this.deleteTimeBlock.bind(this)
-            this.getAvailableSlots = this.getAvailableSlots.bind(this)
-            this.getTimeBlock = this.getTimeBlock.bind(this)
-            this.listOrganizationBusinessHours = this.listOrganizationBusinessHours.bind(this)
-            this.listTimeBlocks = this.listTimeBlocks.bind(this)
-            this.listTrainerBusinessHours = this.listTrainerBusinessHours.bind(this)
-            this.resetBoardBusinessHours = this.resetBoardBusinessHours.bind(this)
-            this.resetTrainerBoardBusinessHours = this.resetTrainerBoardBusinessHours.bind(this)
-            this.updateOrganizationBusinessHours = this.updateOrganizationBusinessHours.bind(this)
-            this.updateTimeBlock = this.updateTimeBlock.bind(this)
-            this.updateTrainerBusinessHours = this.updateTrainerBusinessHours.bind(this)
-        }
-
-        /**
-         * Check whether a proposed lesson falls inside the effective org and trainer hours.
-         * 
-         * "Within hours" means the entire [startTime, endTime) interval fits inside
-         * at least one slot of the effective day.
-         */
-        public async checkLessonHours(params: business_hours.CheckLessonHoursRequest): Promise<business_hours.CheckLessonHoursResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/business-hours/check-lesson`, JSON.stringify(params))
-            return await resp.json() as business_hours.CheckLessonHoursResponse
-        }
-
-        public async createTimeBlock(params: time_blocks.CreateTimeBlockParams): Promise<types.TimeBlock> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/time-blocks`, JSON.stringify(params))
-            return await resp.json() as types.TimeBlock
-        }
-
-        public async deleteTimeBlock(id: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/time-blocks/${encodeURIComponent(id)}`)
-        }
-
-        /**
-         * Get available time slots for booking a lesson
-         * 
-         * Generates time slots based on:
-         * - Organization business hours (multi-slot per day supported)
-         * - Trainer business hours (multi-slot per day supported)
-         * - Service duration
-         * - Date range
-         * 
-         * Filters out:
-         * - Times that conflict with existing lessons
-         * - Trainer time blocks (unavailability)
-         * - Past time slots
-         * - Slots restricted by rider level
-         */
-        public async getAvailableSlots(params: AvailableSlotsParams): Promise<AvailableSlotResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardId:   params.boardId,
-                endDate:   params.endDate,
-                riderId:   params.riderId,
-                serviceId: params.serviceId,
-                startDate: params.startDate,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/available-slots`, undefined, {query})
-            return await resp.json() as AvailableSlotResponse
-        }
-
-        public async getTimeBlock(id: string): Promise<types.TimeBlock> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/time-blocks/${encodeURIComponent(id)}`)
-            return await resp.json() as types.TimeBlock
-        }
-
-        public async listOrganizationBusinessHours(): Promise<types.ListOrganizationBusinessHoursResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/organization`)
-            return await resp.json() as types.ListOrganizationBusinessHoursResponse
-        }
-
-        public async listTimeBlocks(params: time_blocks.ListTimeBlocksParams): Promise<types.ListTimeBlocksResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                from:      params.from,
-                to:        params.to,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/time-blocks`, undefined, {query})
-            return await resp.json() as types.ListTimeBlocksResponse
-        }
-
-        public async listTrainerBusinessHours(trainerId: string): Promise<types.ListTrainerBusinessHoursResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/trainer/${encodeURIComponent(trainerId)}`)
-            return await resp.json() as types.ListTrainerBusinessHoursResponse
-        }
-
-        public async resetBoardBusinessHours(boardId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/business-hours/organization/boards/${encodeURIComponent(boardId)}`)
-        }
-
-        public async resetTrainerBoardBusinessHours(trainerId: string, boardId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/business-hours/trainer/${encodeURIComponent(trainerId)}/boards/${encodeURIComponent(boardId)}`)
-        }
-
-        /**
-         * Replace the organization (or board-override) business hours for the given days.
-         * 
-         * For each day:
-         * 1. Upsert the day-row (organizationId, boardId, dayOfWeek) with its isOpen flag.
-         * 2. Delete all existing slots for that day-row.
-         * 3. Insert the new slots (if the day is open).
-         * 
-         * All wrapped in a transaction so partial writes never leak through. The
-         * post-write list read happens on the same tx so we return a snapshot that's
-         * guaranteed consistent with what we just wrote.
-         * 
-         * The unique constraint on (organizationId, boardId, dayOfWeek) uses
-         * NULLS NOT DISTINCT so org-default rows (boardId = NULL) participate in
-         * uniqueness and the conflict path fires correctly.
-         */
-        public async updateOrganizationBusinessHours(params: business_hours.UpdateOrganizationBusinessHoursParams): Promise<types.ListOrganizationBusinessHoursResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/business-hours/organization`, JSON.stringify(params))
-            return await resp.json() as types.ListOrganizationBusinessHoursResponse
-        }
-
-        public async updateTimeBlock(id: string, params: time_blocks.UpdateTimeBlockParams): Promise<types.TimeBlock> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/time-blocks/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.TimeBlock
-        }
-
-        /**
-         * Replace a trainer's business hours for the given days.
-         * 
-         * Clamping: each trainer slot must fit entirely inside one of the effective
-         * org/board slots for that day. A trainer cannot open when the org is closed,
-         * and cannot open earlier or later than the org's slots allow.
-         */
-        public async updateTrainerBusinessHours(trainerId: string, params: business_hours.UpdateTrainerBusinessHoursParams): Promise<types.ListTrainerBusinessHoursResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/business-hours/trainer/${encodeURIComponent(trainerId)}`, JSON.stringify(params))
-            return await resp.json() as types.ListTrainerBusinessHoursResponse
-        }
-    }
-}
-
-export namespace boards {
-    export interface AssignToBoardRequest {
-        boardId: string
-        trainerId?: string
-        riderId?: string
-    }
-
-    export interface CreateBoardRequest {
-        name: string
-        canRiderAdd?: boolean
-        trainerIds?: string[]
-        serviceIds?: string[]
-    }
-
-    export interface ListBoardAssignmentsRequest {
-        type: "all" | "trainer" | "rider"
-    }
-
-    export interface ListBoardsRequest {
-        riderId?: string
-        trainerId?: string
-    }
-
-    export interface ListMemberAssignmentsRequest {
-        isTrainer: boolean
-    }
-
-    export interface UpdateBoardRequest {
-        name?: string
-        canRiderAdd?: boolean
-        trainerIds?: string[]
-        serviceIds?: string[]
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.assignToBoard = this.assignToBoard.bind(this)
-            this.assignToService = this.assignToService.bind(this)
-            this.createBoard = this.createBoard.bind(this)
-            this.createService = this.createService.bind(this)
-            this.deleteBoard = this.deleteBoard.bind(this)
-            this.deleteService = this.deleteService.bind(this)
-            this.getBoard = this.getBoard.bind(this)
-            this.getBoardsForRider = this.getBoardsForRider.bind(this)
-            this.getBoardsForTrainer = this.getBoardsForTrainer.bind(this)
-            this.getService = this.getService.bind(this)
-            this.getTrainerServiceAssignment = this.getTrainerServiceAssignment.bind(this)
-            this.listBoardAssignments = this.listBoardAssignments.bind(this)
-            this.listBoardServiceAssignments = this.listBoardServiceAssignments.bind(this)
-            this.listBoards = this.listBoards.bind(this)
-            this.listMemberAssignments = this.listMemberAssignments.bind(this)
-            this.listServices = this.listServices.bind(this)
-            this.listTrainerServiceAssignments = this.listTrainerServiceAssignments.bind(this)
-            this.removeFromBoard = this.removeFromBoard.bind(this)
-            this.unassignFromService = this.unassignFromService.bind(this)
-            this.updateBoard = this.updateBoard.bind(this)
-            this.updateService = this.updateService.bind(this)
-        }
-
-        public async assignToBoard(params: AssignToBoardRequest): Promise<types.GetBoardAssignmentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/boards/assignments`, JSON.stringify(params))
-            return await resp.json() as types.GetBoardAssignmentResponse
-        }
-
-        public async assignToService(params: services.AssignToServiceRequest): Promise<services.AssignToServiceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/services/assignments`, JSON.stringify(params))
-            return await resp.json() as services.AssignToServiceResponse
-        }
-
-        public async createBoard(params: CreateBoardRequest): Promise<types.GetBoardResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/boards`, JSON.stringify(params))
-            return await resp.json() as types.GetBoardResponse
-        }
-
-        public async createService(params: services.CreateServiceRequest): Promise<types.GetServiceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/services`, JSON.stringify(params))
-            return await resp.json() as types.GetServiceResponse
-        }
-
-        public async deleteBoard(boardId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/boards/${encodeURIComponent(boardId)}`)
-        }
-
-        public async deleteService(id: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/services/${encodeURIComponent(id)}`)
-        }
-
-        public async getBoard(boardId: string): Promise<types.GetBoardResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/${encodeURIComponent(boardId)}`)
-            return await resp.json() as types.GetBoardResponse
-        }
-
-        public async getBoardsForRider(riderId: string): Promise<types.ListBoardsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/rider/${encodeURIComponent(riderId)}`)
-            return await resp.json() as types.ListBoardsResponse
-        }
-
-        public async getBoardsForTrainer(trainerId: string): Promise<types.ListBoardsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/trainer/${encodeURIComponent(trainerId)}`)
-            return await resp.json() as types.ListBoardsResponse
-        }
-
-        public async getService(id: string): Promise<types.GetServiceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/services/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetServiceResponse
-        }
-
-        public async getTrainerServiceAssignment(assignmentId: string): Promise<types.GetTrainerServiceAssignmentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/services/assignments/trainer/${encodeURIComponent(assignmentId)}`)
-            return await resp.json() as types.GetTrainerServiceAssignmentResponse
-        }
-
-        public async listBoardAssignments(boardId: string, params: ListBoardAssignmentsRequest): Promise<types.ListBoardAssignmentsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                type: String(params.type),
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/${encodeURIComponent(boardId)}/assignments`, undefined, {query})
-            return await resp.json() as types.ListBoardAssignmentsResponse
-        }
-
-        public async listBoardServiceAssignments(params: services.ListBoardServiceAssignmentsRequest): Promise<types.ListBoardServiceAssignmentsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardId:   params.boardId,
-                serviceId: params.serviceId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/services/assignments/board`, undefined, {query})
-            return await resp.json() as types.ListBoardServiceAssignmentsResponse
-        }
-
-        public async listBoards(params: ListBoardsRequest): Promise<types.ListBoardsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                riderId:   params.riderId,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards`, undefined, {query})
-            return await resp.json() as types.ListBoardsResponse
-        }
-
-        public async listMemberAssignments(memberId: string, params: ListMemberAssignmentsRequest): Promise<types.ListBoardAssignmentsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                isTrainer: String(params.isTrainer),
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/boards/assignments/${encodeURIComponent(memberId)}`, undefined, {query})
-            return await resp.json() as types.ListBoardAssignmentsResponse
-        }
-
-        public async listServices(params: services.ListServicesRequest): Promise<types.ListServicesResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardId:   params.boardId,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/services`, undefined, {query})
-            return await resp.json() as types.ListServicesResponse
-        }
-
-        public async listTrainerServiceAssignments(params: services.ListTrainerServiceAssignmentsRequest): Promise<types.ListTrainerServiceAssignmentsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                serviceId: params.serviceId,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/services/assignments/trainer`, undefined, {query})
-            return await resp.json() as types.ListTrainerServiceAssignmentsResponse
-        }
-
-        public async removeFromBoard(assignmentId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/boards/assignments/${encodeURIComponent(assignmentId)}`)
-        }
-
-        public async unassignFromService(assignmentId: string, params: services.UnassignFromServiceRequest): Promise<void> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                type: String(params.type),
-            })
-
-            await this.baseClient.callTypedAPI("DELETE", `/services/assignments/${encodeURIComponent(assignmentId)}`, undefined, {query})
-        }
-
-        public async updateBoard(boardId: string, params: UpdateBoardRequest): Promise<types.GetBoardResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/boards/${encodeURIComponent(boardId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetBoardResponse
-        }
-
-        public async updateService(id: string, params: services.UpdateServiceRequest): Promise<types.GetServiceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/services/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetServiceResponse
-        }
-    }
-}
-
-export namespace email {
-    export interface SendEmailRequest {
-        from?: string
-        to: string | string[]
-        subject: string
-        html: string
-    }
-
-    export interface SendEmailResponse {
-        message: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.sendEmail = this.sendEmail.bind(this)
-        }
-
-        public async sendEmail(params: SendEmailRequest): Promise<SendEmailResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/email/send`, JSON.stringify(params))
-            return await resp.json() as SendEmailResponse
-        }
-    }
-}
-
-export namespace events {
-    export interface GetAffectedInstancesRequest {
-        startDate: string
-        endDate: string
-        startTime?: string
-        endTime?: string
-        scope: models.EventScope
-        boardIds?: string[]
-        trainerIds?: string[]
-    }
-
-    export interface ListEventsRequest {
-        from: string
-        to: string
-    }
-
-    export interface UpdateEventRequest {
-        title: string
-        description?: string | null
-        startDate: string
-        endDate: string
-        startTime?: string | null
-        endTime?: string | null
-        scope: models.EventScope
-        boardIds?: string[] | null
-        trainerIds?: string[] | null
-        blockScheduling: boolean
-        cancellationReason?: string
-    }
-
-    export interface UpsertEventRequest {
-        title: string
-        description?: string | null
-        startDate: string
-        endDate: string
-        startTime?: string | null
-        endTime?: string | null
-        scope: models.EventScope
-        boardIds?: string[] | null
-        trainerIds?: string[] | null
-        blockScheduling: boolean
-        cancellationReason?: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createEvent = this.createEvent.bind(this)
-            this.deleteEvent = this.deleteEvent.bind(this)
-            this.getAffectedInstances = this.getAffectedInstances.bind(this)
-            this.getEvent = this.getEvent.bind(this)
-            this.listEvents = this.listEvents.bind(this)
-            this.updateEvent = this.updateEvent.bind(this)
-        }
-
-        public async createEvent(params: UpsertEventRequest): Promise<types.GetEventResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/events`, JSON.stringify(params))
-            return await resp.json() as types.GetEventResponse
-        }
-
-        public async deleteEvent(id: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/events/${encodeURIComponent(id)}`)
-        }
-
-        public async getAffectedInstances(params: GetAffectedInstancesRequest): Promise<types.ListLessonInstancesResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardIds:   params.boardIds?.map((v) => v),
-                endDate:    params.endDate,
-                endTime:    params.endTime,
-                scope:      String(params.scope),
-                startDate:  params.startDate,
-                startTime:  params.startTime,
-                trainerIds: params.trainerIds?.map((v) => v),
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/events/affected-instances`, undefined, {query})
-            return await resp.json() as types.ListLessonInstancesResponse
-        }
-
-        public async getEvent(id: string): Promise<types.GetEventResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/events/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetEventResponse
-        }
-
-        public async listEvents(params: ListEventsRequest): Promise<types.ListEventsResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                from: params.from,
-                to:   params.to,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/events`, undefined, {query})
-            return await resp.json() as types.ListEventsResponse
-        }
-
-        public async updateEvent(id: string, params: UpdateEventRequest): Promise<types.GetEventResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/events/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetEventResponse
-        }
-    }
-}
-
-export namespace feed {
-    export interface CreateCommentRequest {
-        text: string
-        parentCommentId?: string | null
-    }
-
-    export interface CreatePostRequest {
-        text: string
-        boardId?: string | null
-        mediaUrls?: string[] | null
-    }
-
-    export interface ListFeedRequest {
-        searchQuery?: string
-        boardId?: string
-        authorMemberId?: string
-        limit?: number
-        cursorCreatedAt?: string
-        cursorId?: string
-    }
-
-    export interface ListFeedResponse {
-        nextCursor: {
-            createdAt: string
-            id: string
-        } | null
-        hasMore: boolean
-        posts: types.FeedPost[]
-    }
-
-    export interface UpdateCommentRequest {
-        text: string
-    }
-
-    export interface UpdatePostRequest {
-        text: string
-        boardId?: string | null
-        mediaUrls?: string[] | null
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createComment = this.createComment.bind(this)
-            this.createPost = this.createPost.bind(this)
-            this.deleteComment = this.deleteComment.bind(this)
-            this.deletePost = this.deletePost.bind(this)
-            this.getFeedPost = this.getFeedPost.bind(this)
-            this.likePost = this.likePost.bind(this)
-            this.listFeed = this.listFeed.bind(this)
-            this.unlikePost = this.unlikePost.bind(this)
-            this.updateComment = this.updateComment.bind(this)
-            this.updatePost = this.updatePost.bind(this)
-        }
-
-        public async createComment(postId: string, params: CreateCommentRequest): Promise<types.GetFeedCommentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/comments`, JSON.stringify(params))
-            return await resp.json() as types.GetFeedCommentResponse
-        }
-
-        public async createPost(params: CreatePostRequest): Promise<types.GetFeedPostResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/feed`, JSON.stringify(params))
-            return await resp.json() as types.GetFeedPostResponse
-        }
-
-        public async deleteComment(commentId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/feed/comments/${encodeURIComponent(commentId)}`)
-        }
-
-        public async deletePost(postId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/feed/${encodeURIComponent(postId)}`)
-        }
-
-        public async getFeedPost(id: string): Promise<types.GetFeedPostResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/feed/post/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetFeedPostResponse
-        }
-
-        public async likePost(postId: string): Promise<types.GetFeedLikeResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/feed/${encodeURIComponent(postId)}/like`)
-            return await resp.json() as types.GetFeedLikeResponse
-        }
-
-        public async listFeed(params: ListFeedRequest): Promise<ListFeedResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                authorMemberId:  params.authorMemberId,
-                boardId:         params.boardId,
-                cursorCreatedAt: params.cursorCreatedAt,
-                cursorId:        params.cursorId,
-                limit:           params.limit === undefined ? undefined : String(params.limit),
-                searchQuery:     params.searchQuery,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/feed`, undefined, {query})
-            return await resp.json() as ListFeedResponse
-        }
-
-        public async unlikePost(likeId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/feed/likes/${encodeURIComponent(likeId)}`)
-        }
-
-        public async updateComment(commentId: string, params: UpdateCommentRequest): Promise<types.GetFeedCommentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/feed/comments/${encodeURIComponent(commentId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetFeedCommentResponse
-        }
-
-        public async updatePost(postId: string, params: UpdatePostRequest): Promise<types.GetFeedPostResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/feed/${encodeURIComponent(postId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetFeedPostResponse
-        }
-    }
-}
-
-export namespace guardians {
-    export interface CreateGuardianRelationshipParams {
-        guardianMemberId: string
-        dependentMemberId: string
-        permissions: {
-            bookings?: {
-                canBookLessons: boolean
-                canJoinEvents: boolean
-                requiresApproval: boolean
-                canCancel: boolean
-            }
-            communication?: {
-                canPost: boolean
-                canComment: boolean
-                receiveEmailNotifications: boolean
-                receiveTextNotifications: boolean
-            }
-            profile?: {
-                canEdit: boolean
-            }
-        }
-        coppaConsentGiven: boolean
-        coppaConsentGivenAt: string | null
-    }
-
-    export interface CreatePlaceholderRelationshipParams {
-        placeholderProfile: {
-            name: string
-            email?: string
-            phone?: string | null
-            image?: string | null
-            dateOfBirth: string
-        }
-        permissions: {
-            bookings?: {
-                canBookLessons: boolean
-                canJoinEvents: boolean
-                requiresApproval: boolean
-                canCancel: boolean
-            }
-            communication?: {
-                canPost: boolean
-                canComment: boolean
-                receiveEmailNotifications: boolean
-                receiveTextNotifications: boolean
-            }
-            profile?: {
-                canEdit: boolean
-            }
-        }
-        questionnaire?: {
-            questionnaireId: string
-            responses: types.QuestionnaireQuestionResponse[]
-        }
-        waiver?: {
-            waiverId: string
-        }
-    }
-
-    export interface GetMyDependendentsResponse {
-        relationships: {
-            id: string
-            dependentMemberId: string
-            permissions: types.GuardianPermissions | null
-            createdAt: string
-            dependent: {
-                name: string
-                image: string | null
-                dateOfBirth: string | null
-                riderId: string
-                isRestricted: boolean
-                level: {
-                    id: string
-                    name: string
-                    color: string
-                } | null
-                boardAssignments: string[]
-            }
-        }[]
-    }
-
-    export interface SendInvitationParams {
-        email: string
-    }
-
-    export interface UpdateGuardianRelationshipRequest {
-        guardianMemberId?: string
-        dependentMemberId?: string
-        status?: models.GuardianRelationshipStatus
-        permissions?: {
-            bookings?: {
-                canBookLessons: boolean
-                canJoinEvents: boolean
-                requiresApproval: boolean
-                canCancel: boolean
-            }
-            communication?: {
-                canPost: boolean
-                canComment: boolean
-                receiveEmailNotifications: boolean
-                receiveTextNotifications: boolean
-            }
-            profile?: {
-                canEdit: boolean
-            }
-        }
-        coppaConsentGiven?: boolean
-        coppaConsentGivenAt?: string | null
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.acceptInvitation = this.acceptInvitation.bind(this)
-            this.acceptRelationship = this.acceptRelationship.bind(this)
-            this.canAccessOrganization = this.canAccessOrganization.bind(this)
-            this.createGuardianRelationship = this.createGuardianRelationship.bind(this)
-            this.createPlaceholderRelationship = this.createPlaceholderRelationship.bind(this)
-            this.getMyDependents = this.getMyDependents.bind(this)
-            this.getMyGuardians = this.getMyGuardians.bind(this)
-            this.getRelationshipById = this.getRelationshipById.bind(this)
-            this.listAllRelationships = this.listAllRelationships.bind(this)
-            this.listPendingGuardianRequests = this.listPendingGuardianRequests.bind(this)
-            this.revokeRelationship = this.revokeRelationship.bind(this)
-            this.sendInvitation = this.sendInvitation.bind(this)
-            this.updateGuardianRelationship = this.updateGuardianRelationship.bind(this)
-        }
-
-        public async acceptInvitation(token: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/guardians/invitations/${encodeURIComponent(token)}/accept`)
-        }
-
-        public async acceptRelationship(relationshipId: string): Promise<types.GuardianRelationship> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/accept`)
-            return await resp.json() as types.GuardianRelationship
-        }
-
-        public async canAccessOrganization(organizationId: string): Promise<{
-    canAccess: boolean
-    reason?: string
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(organizationId)}/can-access`)
-            return await resp.json() as {
-    canAccess: boolean
-    reason?: string
-}
-        }
-
-        public async createGuardianRelationship(params: CreateGuardianRelationshipParams): Promise<types.GuardianRelationship> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians`, JSON.stringify(params))
-            return await resp.json() as types.GuardianRelationship
-        }
-
-        public async createPlaceholderRelationship(params: CreatePlaceholderRelationshipParams): Promise<types.GuardianRelationship> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/placeholder`, JSON.stringify(params))
-            return await resp.json() as types.GuardianRelationship
-        }
-
-        public async getMyDependents(): Promise<GetMyDependendentsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-dependents`)
-            return await resp.json() as GetMyDependendentsResponse
-        }
-
-        public async getMyGuardians(): Promise<types.GuardianRelationshipWithGuardian> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-guardians`)
-            return await resp.json() as types.GuardianRelationshipWithGuardian
-        }
-
-        public async getRelationshipById(relationshipId: string): Promise<types.GuardianRelationshipWithMembers> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/${encodeURIComponent(relationshipId)}`)
-            return await resp.json() as types.GuardianRelationshipWithMembers
-        }
-
-        public async listAllRelationships(): Promise<{
-    relationships: types.GuardianRelationshipWithMembers[]
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians`)
-            return await resp.json() as {
-    relationships: types.GuardianRelationshipWithMembers[]
-}
-        }
-
-        public async listPendingGuardianRequests(): Promise<{
-    relationships: types.GuardianRelationship[]
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/pending`)
-            return await resp.json() as {
-    relationships: types.GuardianRelationship[]
-}
-        }
-
-        public async revokeRelationship(relationshipId: string): Promise<types.GuardianRelationship> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/revoke`)
-            return await resp.json() as types.GuardianRelationship
-        }
-
-        public async sendInvitation(relationshipId: string, params: SendInvitationParams): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/invitations`, JSON.stringify(params))
-        }
-
-        public async updateGuardianRelationship(relationshipId: string, params: UpdateGuardianRelationshipRequest): Promise<types.GuardianRelationship> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/update`, JSON.stringify(params))
-            return await resp.json() as types.GuardianRelationship
-        }
-    }
-}
-
-export namespace kiosk {
-    export interface ClearKioskIdentityRequest {
-        sessionId: string
-    }
-
-    export interface CreateKioskSessionRequest {
-        boardId?: string | null
-        locationName: string
-    }
-
-    export interface GetKioskSessionResponse {
-        session: types.KioskSession
-        acting: {
-            actingMemberId: string | null
-            scope: types.KioskScope
-            expiresAt: string | null
-        }
-    }
-
-    export interface ListKioskSessionsResponse {
-        sessions: {
-            id: string
-            locationName: string
-            boardId: string | null
-            boardName: string | null
-            currentlyActing: boolean
-            actingMemberId: string | null
-            scope: types.KioskScope
-        }[]
-    }
-
-    export interface UpdateKioskSessionRequest {
-        locationName: string
-        boardId?: string | null
-    }
-
-    export interface UpsertKioskSessionResponse {
-        session: {
-            id: string
-            locationName: string
-            boardId: string | null
-        }
-    }
-
-    export interface VerifyKioskIdentityRequest {
-        sessionId: string
-        memberId: string
-        pin: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.clearKioskIdentity = this.clearKioskIdentity.bind(this)
-            this.createKioskSession = this.createKioskSession.bind(this)
-            this.deleteKioskSession = this.deleteKioskSession.bind(this)
-            this.getKioskSession = this.getKioskSession.bind(this)
-            this.kioskEnrollInInstance = this.kioskEnrollInInstance.bind(this)
-            this.kioskMarkAttendance = this.kioskMarkAttendance.bind(this)
-            this.kioskUnenrollFromInstance = this.kioskUnenrollFromInstance.bind(this)
-            this.listKioskSessions = this.listKioskSessions.bind(this)
-            this.updateKioskSession = this.updateKioskSession.bind(this)
-            this.verifyKioskIdentity = this.verifyKioskIdentity.bind(this)
-        }
-
-        public async clearKioskIdentity(params: ClearKioskIdentityRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/kiosk/clear`, JSON.stringify(params))
-        }
-
-        public async createKioskSession(params: CreateKioskSessionRequest): Promise<UpsertKioskSessionResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/kiosk/sessions`, JSON.stringify(params))
-            return await resp.json() as UpsertKioskSessionResponse
-        }
-
-        public async deleteKioskSession(sessionId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/kiosk/sessions/${encodeURIComponent(sessionId)}`)
-        }
-
-        public async getKioskSession(sessionId: string): Promise<GetKioskSessionResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/kiosk/session/${encodeURIComponent(sessionId)}`)
-            return await resp.json() as GetKioskSessionResponse
-        }
-
-        public async kioskEnrollInInstance(instanceId: string, params: lessons.KioskEnrollInInstanceRequest): Promise<enrollments.EnrollInInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/kiosk/lessons/instances/${encodeURIComponent(instanceId)}/enroll`, JSON.stringify(params))
-            return await resp.json() as enrollments.EnrollInInstanceResponse
-        }
-
-        public async kioskMarkAttendance(enrollmentId: string, params: lessons.KioskMarkAttendanceRequest): Promise<types.GetInstanceEnrollmentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/kiosk/lessons/enrollments/${encodeURIComponent(enrollmentId)}/mark-attendance`, JSON.stringify(params))
-            return await resp.json() as types.GetInstanceEnrollmentResponse
-        }
-
-        public async kioskUnenrollFromInstance(enrollmentId: string, params: lessons.KioskUnenrollFromInstanceRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/kiosk/lessons/enrollments/${encodeURIComponent(enrollmentId)}/unenroll`, JSON.stringify(params))
-        }
-
-        public async listKioskSessions(): Promise<ListKioskSessionsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/kiosk/sessions`)
-            return await resp.json() as ListKioskSessionsResponse
-        }
-
-        public async updateKioskSession(sessionId: string, params: UpdateKioskSessionRequest): Promise<UpsertKioskSessionResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/kiosk/sessions/${encodeURIComponent(sessionId)}`, JSON.stringify(params))
-            return await resp.json() as UpsertKioskSessionResponse
-        }
-
-        public async verifyKioskIdentity(params: VerifyKioskIdentityRequest): Promise<types.KioskSessionResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/kiosk/verify`, JSON.stringify(params))
-            return await resp.json() as types.KioskSessionResponse
-        }
-    }
-}
-
-export namespace lessons {
-    export interface KioskEnrollInInstanceRequest {
-        sessionId: string
-        riderMemberId: string
-    }
-
-    export interface KioskMarkAttendanceRequest {
-        sessionId: string
-        attended: boolean
-    }
-
-    export interface KioskUnenrollFromInstanceRequest {
-        sessionId: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.cancelLessonInstance = this.cancelLessonInstance.bind(this)
-            this.cancelLessonSeries = this.cancelLessonSeries.bind(this)
-            this.createLessonInstance = this.createLessonInstance.bind(this)
-            this.createLessonSeries = this.createLessonSeries.bind(this)
-            this.enrollInInstance = this.enrollInInstance.bind(this)
-            this.enrollInSeries = this.enrollInSeries.bind(this)
-            this.getLessonInstance = this.getLessonInstance.bind(this)
-            this.getLessonSeries = this.getLessonSeries.bind(this)
-            this.getLessonStats = this.getLessonStats.bind(this)
-            this.listInstanceEnrollments = this.listInstanceEnrollments.bind(this)
-            this.listLessonInstances = this.listLessonInstances.bind(this)
-            this.listLessonSeries = this.listLessonSeries.bind(this)
-            this.listMyEnrollments = this.listMyEnrollments.bind(this)
-            this.listSeriesEnrollments = this.listSeriesEnrollments.bind(this)
-            this.markAttendance = this.markAttendance.bind(this)
-            this.unenrollFromInstance = this.unenrollFromInstance.bind(this)
-            this.unenrollFromSeries = this.unenrollFromSeries.bind(this)
-            this.updateLessonInstance = this.updateLessonInstance.bind(this)
-            this.updateLessonSeries = this.updateLessonSeries.bind(this)
-        }
-
-        public async cancelLessonInstance(instanceId: string, params: instances.CancelLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances/${encodeURIComponent(instanceId)}/cancel`, JSON.stringify(params))
-            return await resp.json() as types.GetLessonInstanceResponse
-        }
-
-        public async cancelLessonSeries(id: string, params: series.CancelLessonSeriesRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(id)}/cancel`, JSON.stringify(params))
-        }
-
-        public async createLessonInstance(params: instances.CreateLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances`, JSON.stringify(params))
-            return await resp.json() as types.GetLessonInstanceResponse
-        }
-
-        public async createLessonSeries(params: series.CreateLessonSeriesRequest): Promise<types.GetLessonSeriesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/series`, JSON.stringify(params))
-            return await resp.json() as types.GetLessonSeriesResponse
-        }
-
-        public async enrollInInstance(instanceId: string, params: enrollments.EnrollInInstanceRequest): Promise<enrollments.EnrollInInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances/${encodeURIComponent(instanceId)}/enroll`, JSON.stringify(params))
-            return await resp.json() as enrollments.EnrollInInstanceResponse
-        }
-
-        public async enrollInSeries(seriesId: string, params: enrollments.EnrollInSeriesRequest): Promise<enrollments.EnrollInSeriesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(seriesId)}/enroll`, JSON.stringify(params))
-            return await resp.json() as enrollments.EnrollInSeriesResponse
-        }
-
-        public async getLessonInstance(id: string): Promise<types.GetLessonInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetLessonInstanceResponse
-        }
-
-        public async getLessonSeries(id: string): Promise<types.GetLessonSeriesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetLessonSeriesResponse
-        }
-
-        public async getLessonStats(): Promise<instances.GetLessonStatsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/stats`)
-            return await resp.json() as instances.GetLessonStatsResponse
-        }
-
-        public async listInstanceEnrollments(id: string): Promise<types.ListLessonInstanceEnrollmentsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/${encodeURIComponent(id)}/enrollments`)
-            return await resp.json() as types.ListLessonInstanceEnrollmentsResponse
-        }
-
-        public async listLessonInstances(params: instances.ListLessonInstancesRequest): Promise<types.ListLessonInstancesResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardId:   params.boardId,
-                from:      params.from,
-                status:    params.status === undefined ? undefined : String(params.status),
-                to:        params.to,
-                trainerId: params.trainerId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances`, undefined, {query})
-            return await resp.json() as types.ListLessonInstancesResponse
-        }
-
-        public async listLessonSeries(): Promise<types.ListLessonSeriesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series`)
-            return await resp.json() as types.ListLessonSeriesResponse
-        }
-
-        public async listMyEnrollments(): Promise<enrollments.ListMyEnrollmentsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series/enrollments/me`)
-            return await resp.json() as enrollments.ListMyEnrollmentsResponse
-        }
-
-        public async listSeriesEnrollments(id: string): Promise<types.ListLessonSeriesEnrollmentsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series/${encodeURIComponent(id)}/enrollments`)
-            return await resp.json() as types.ListLessonSeriesEnrollmentsResponse
-        }
-
-        public async markAttendance(enrollmentId: string, params: enrollments.MarkAttendanceRequest): Promise<types.GetInstanceEnrollmentResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/lessons/instances/enrollments/${encodeURIComponent(enrollmentId)}/mark-attendance`, JSON.stringify(params))
-            return await resp.json() as types.GetInstanceEnrollmentResponse
-        }
-
-        public async unenrollFromInstance(enrollmentId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/lessons/instances/enrollments/${encodeURIComponent(enrollmentId)}/unenroll`)
-        }
-
-        public async unenrollFromSeries(seriesId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/lessons/series/${encodeURIComponent(seriesId)}/unenroll`)
-        }
-
-        public async updateLessonInstance(instanceId: string, params: instances.UpdateLessonInstanceRequest): Promise<types.GetLessonInstanceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/lessons/instances/${encodeURIComponent(instanceId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetLessonInstanceResponse
-        }
-
-        public async updateLessonSeries(id: string, params: series.UpdateLessonSeriesRequest): Promise<types.GetLessonSeriesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/lessons/series/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetLessonSeriesResponse
-        }
-    }
-}
-
-export namespace notifications {
-    export interface CreateNotificationRequest {
-        organizationId: string
-        recipientId: string
-        type: types.NotificationType
-        title: string
-        message: string
-        entityType: string
-        entityId?: string
-        deepLink?: string
-        /**
-         * Override default channels for this specific notification
-         */
-        channels?: types.NotificationChannel[]
-    }
-
-    export interface DispatchNotificationRequest {
-        channel: types.NotificationChannel
-    }
-
-    export interface GetUnreadResponse {
-        notifications: types.Notification[]
-        unreadCount: number
-    }
-
-    export interface UpdatePreferencesParams {
-        preferences: {
-            type: types.NotificationType
-            inAppEnabled: boolean
-            pushEnabled: boolean
-            emailEnabled: boolean
-            smsEnabled: boolean
-        }[]
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createNotification = this.createNotification.bind(this)
-            this.dispatch = this.dispatch.bind(this)
-            this.getPreferences = this.getPreferences.bind(this)
-            this.getUnread = this.getUnread.bind(this)
-            this.handleSMSWebhook = this.handleSMSWebhook.bind(this)
-            this.handleSMSWebhookFailover = this.handleSMSWebhookFailover.bind(this)
-            this.markAsRead = this.markAsRead.bind(this)
-            this.updatePreferences = this.updatePreferences.bind(this)
-        }
-
-        public async createNotification(params: CreateNotificationRequest): Promise<types.GetNotificationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/notifications`, JSON.stringify(params))
-            return await resp.json() as types.GetNotificationResponse
-        }
-
-        public async dispatch(notificationId: string, params: DispatchNotificationRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/dispatch`, JSON.stringify(params))
-        }
-
-        public async getPreferences(memberId: string): Promise<types.NotificationPreference> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/notifications/${encodeURIComponent(memberId)}/preferences`)
-            return await resp.json() as types.NotificationPreference
-        }
-
-        public async getUnread(memberId: string): Promise<GetUnreadResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/notifications/${encodeURIComponent(memberId)}/unread-count`)
-            return await resp.json() as GetUnreadResponse
-        }
-
-        public async handleSMSWebhook(method: "POST", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/webhooks/sms`, body, options)
-        }
-
-        public async handleSMSWebhookFailover(method: "POST", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/webhooks/sms/failover`, body, options)
-        }
-
-        public async markAsRead(notificationId: string): Promise<types.GetNotificationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/read`)
-            return await resp.json() as types.GetNotificationResponse
-        }
-
-        public async updatePreferences(memberId: string, params: UpdatePreferencesParams): Promise<{
-    preferences: types.NotificationPreference[]
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/notifications/${encodeURIComponent(memberId)}/preferences`, JSON.stringify(params))
-            return await resp.json() as {
-    preferences: types.NotificationPreference[]
-}
-        }
-    }
-}
-
-export namespace organizations {
-    export interface CheckSlugResponse {
-        available: boolean
-    }
-
-    export interface CreateOrganizationRequest {
-        slug: string
-        name: string
-        phone?: string | null
-        timezone: string
-        logoUrl?: string | null
-        primaryColor?: string | null
-        website?: string | null
-        facebook?: string | null
-        instagram?: string | null
-        youtube?: string | null
-        tiktok?: string | null
-        addressLine1?: string | null
-        addressLine2?: string | null
-        city?: string | null
-        state?: string | null
-        postalCode?: string | null
-        allowSameDayBookings?: boolean
-        allowPublicJoin?: boolean
-    }
-
-    export interface CreateOrganizationResponse {
-        membership: types.Member
-        organization: types.Organization
-    }
-
-    export interface ListMyOrganizationsResponse {
-        organizations: {
-            organization: types.Organization
-            roles: models.MembershipRole[]
-        }[]
-    }
-
-    export interface SendInvitationRequest {
-        email: string
-        role: models.MembershipRole[]
-        resend?: boolean
-    }
-
-    export interface UpdateOrganizationRequest {
-        slug?: string
-        name?: string
-        phone?: string | null
-        timezone?: string
-        logoUrl?: string | null
-        primaryColor?: string | null
-        website?: string | null
-        facebook?: string | null
-        instagram?: string | null
-        youtube?: string | null
-        tiktok?: string | null
-        addressLine1?: string | null
-        addressLine2?: string | null
-        city?: string | null
-        state?: string | null
-        postalCode?: string | null
-        allowSameDayBookings?: boolean
-        allowPublicJoin?: boolean
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.changeRole = this.changeRole.bind(this)
-            this.checkSlug = this.checkSlug.bind(this)
-            this.completeOnboarding = this.completeOnboarding.bind(this)
-            this.createLevel = this.createLevel.bind(this)
-            this.createOrganization = this.createOrganization.bind(this)
-            this.createRider = this.createRider.bind(this)
-            this.createTrainer = this.createTrainer.bind(this)
-            this.deleteLevel = this.deleteLevel.bind(this)
-            this.getById = this.getById.bind(this)
-            this.getBySlug = this.getBySlug.bind(this)
-            this.getLevel = this.getLevel.bind(this)
-            this.getMember = this.getMember.bind(this)
-            this.getMemberById = this.getMemberById.bind(this)
-            this.getRider = this.getRider.bind(this)
-            this.getRiderStats = this.getRiderStats.bind(this)
-            this.getTrainer = this.getTrainer.bind(this)
-            this.joinOrganization = this.joinOrganization.bind(this)
-            this.listInvitations = this.listInvitations.bind(this)
-            this.listLevels = this.listLevels.bind(this)
-            this.listMembers = this.listMembers.bind(this)
-            this.listMyOrganizations = this.listMyOrganizations.bind(this)
-            this.listOrganizations = this.listOrganizations.bind(this)
-            this.listRiders = this.listRiders.bind(this)
-            this.listTrainers = this.listTrainers.bind(this)
-            this.listUserInvitations = this.listUserInvitations.bind(this)
-            this.onboardMember = this.onboardMember.bind(this)
-            this.sendInvitation = this.sendInvitation.bind(this)
-            this.setKioskPin = this.setKioskPin.bind(this)
-            this.updateLevel = this.updateLevel.bind(this)
-            this.updateOrganization = this.updateOrganization.bind(this)
-            this.updateRider = this.updateRider.bind(this)
-            this.updateTrainer = this.updateTrainer.bind(this)
-        }
-
-        public async changeRole(memberId: string, params: members.ChangeRoleRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("PUT", `/members/${encodeURIComponent(memberId)}/role`, JSON.stringify(params))
-        }
-
-        public async checkSlug(slug: string): Promise<CheckSlugResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/check/${encodeURIComponent(slug)}`)
-            return await resp.json() as CheckSlugResponse
-        }
-
-        public async completeOnboarding(memberId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/members/${encodeURIComponent(memberId)}/complete-onboarding`)
-        }
-
-        public async createLevel(params: levels.CreateLevelRequest): Promise<types.GetLevelResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/levels`, JSON.stringify(params))
-            return await resp.json() as types.GetLevelResponse
-        }
-
-        public async createOrganization(params: CreateOrganizationRequest): Promise<CreateOrganizationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations`, JSON.stringify(params))
-            return await resp.json() as CreateOrganizationResponse
-        }
-
-        public async createRider(params: members.CreateRiderRequest): Promise<types.GetRiderResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/riders`, JSON.stringify(params))
-            return await resp.json() as types.GetRiderResponse
-        }
-
-        public async createTrainer(params: members.CreateTrainerRequest): Promise<types.GetTrainerResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/trainers`, JSON.stringify(params))
-            return await resp.json() as types.GetTrainerResponse
-        }
-
-        public async deleteLevel(id: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/levels/${encodeURIComponent(id)}`)
-        }
-
-        public async getById(id: string): Promise<types.GetOrganizationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetOrganizationResponse
-        }
-
-        public async getBySlug(slug: string): Promise<types.GetOrganizationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/by-slug/${encodeURIComponent(slug)}`)
-            return await resp.json() as types.GetOrganizationResponse
-        }
-
-        public async getLevel(levelId: string): Promise<types.GetLevelResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/levels/${encodeURIComponent(levelId)}`)
-            return await resp.json() as types.GetLevelResponse
-        }
-
-        public async getMember(): Promise<types.GetMemberResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/members/me`)
-            return await resp.json() as types.GetMemberResponse
-        }
-
-        public async getMemberById(memberId: string): Promise<types.GetMemberResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/members/${encodeURIComponent(memberId)}`)
-            return await resp.json() as types.GetMemberResponse
-        }
-
-        public async getRider(riderId: string): Promise<types.GetRiderResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/riders/${encodeURIComponent(riderId)}`)
-            return await resp.json() as types.GetRiderResponse
-        }
-
-        public async getRiderStats(): Promise<members.GetRiderStatsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/riders/stats`)
-            return await resp.json() as members.GetRiderStatsResponse
-        }
-
-        public async getTrainer(trainerId: string): Promise<types.GetTrainerResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/trainers/${encodeURIComponent(trainerId)}`)
-            return await resp.json() as types.GetTrainerResponse
-        }
-
-        public async joinOrganization(organizationId: string, params: members.JoinOrganizationRequest): Promise<types.GetMemberResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/join`, JSON.stringify(params))
-            return await resp.json() as types.GetMemberResponse
-        }
-
-        public async listInvitations(): Promise<types.ListInvitationsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/invitations`)
-            return await resp.json() as types.ListInvitationsResponse
-        }
-
-        public async listLevels(): Promise<types.ListLevelsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/levels`)
-            return await resp.json() as types.ListLevelsResponse
-        }
-
-        public async listMembers(): Promise<types.ListMembersResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/members`)
-            return await resp.json() as types.ListMembersResponse
-        }
-
-        public async listMyOrganizations(): Promise<ListMyOrganizationsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/my`)
-            return await resp.json() as ListMyOrganizationsResponse
-        }
-
-        public async listOrganizations(): Promise<types.ListOrganizationsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/organizations`)
-            return await resp.json() as types.ListOrganizationsResponse
-        }
-
-        public async listRiders(): Promise<types.ListRidersResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/riders`)
-            return await resp.json() as types.ListRidersResponse
-        }
-
-        public async listTrainers(params: members.ListTrainersRequest): Promise<types.ListTrainersResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                boardId: params.boardId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/trainers`, undefined, {query})
-            return await resp.json() as types.ListTrainersResponse
-        }
-
-        public async listUserInvitations(): Promise<types.ListInvitationsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/invitations/user`)
-            return await resp.json() as types.ListInvitationsResponse
-        }
-
-        public async onboardMember(params: members.OnboardMemberParams): Promise<types.BaseMember> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/members/onboard`, JSON.stringify(params))
-            return await resp.json() as types.BaseMember
-        }
-
-        public async sendInvitation(organizationId: string, params: SendInvitationRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/invitations`, JSON.stringify(params))
-        }
-
-        public async setKioskPin(params: members.SetKioskPinRequest): Promise<types.GetMemberResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/members/pin`, JSON.stringify(params))
-            return await resp.json() as types.GetMemberResponse
-        }
-
-        public async updateLevel(id: string, params: levels.UpdateLevelRequest): Promise<types.GetLevelResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/levels/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetLevelResponse
-        }
-
-        public async updateOrganization(organizationId: string, params: UpdateOrganizationRequest): Promise<types.GetOrganizationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/organizations/${encodeURIComponent(organizationId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetOrganizationResponse
-        }
-
-        public async updateRider(riderId: string, params: members.UpdateRiderRequest): Promise<types.GetRiderResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/riders/${encodeURIComponent(riderId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetRiderResponse
-        }
-
-        public async updateTrainer(trainerId: string, params: members.UpdateTrainerRequest): Promise<types.GetTrainerResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/trainers/${encodeURIComponent(trainerId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetTrainerResponse
-        }
-    }
-}
-
-export namespace payments {
-    export interface ChargeRequest {
-        amountCents: number
-        cardToken: string
-        lessonId: string
-    }
-
-    export interface ChargeResponse {
-        chargeId: string
-        status: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.charge = this.charge.bind(this)
-            this.cloverWebhook = this.cloverWebhook.bind(this)
-            this.refund = this.refund.bind(this)
-        }
-
-        public async charge(params: ChargeRequest): Promise<ChargeResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/payments/charge`, JSON.stringify(params))
-            return await resp.json() as ChargeResponse
-        }
-
-        public async cloverWebhook(method: "POST", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/payments/webhooks/clover`, body, options)
-        }
-
-        public async refund(params: {
-    chargeId: string
-    amountCents?: number
-}): Promise<{
-    status: string
-}> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/payments/refund`, JSON.stringify(params))
-            return await resp.json() as {
-    status: string
-}
-        }
-    }
-}
-
-export namespace questionnaires {
-    export interface CreateQuestionnaireRequest {
-        name: string
-        isActive?: boolean
-        version?: number
-        defaultBoardId?: string | null
-        questions: types.QuestionnaireQuestion[]
-        boardAssignmentRules: types.QuestionnaireBoardAssignmentRule[]
-    }
-
-    export interface SubmitQuestionnaireResponseRequest {
-        memberId?: string
-        responses: {
-            questionId: string
-            responseValue: string | boolean
-        }[]
-    }
-
-    export interface SubmitQuestionnaireResponseResponse {
-        responseId: string
-        assignedBoardIds: string[]
-    }
-
-    export interface UpdateQuestionnaireRequest {
-        name?: string
-        isActive?: boolean
-        version?: number
-        defaultBoardId?: string | null
-        questions?: types.QuestionnaireQuestion[]
-        boardAssignmentRules?: types.QuestionnaireBoardAssignmentRule[]
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createQuestionnaire = this.createQuestionnaire.bind(this)
-            this.deactivateQuestionnaire = this.deactivateQuestionnaire.bind(this)
-            this.getQuestionnaire = this.getQuestionnaire.bind(this)
-            this.getQuestionnaireResponse = this.getQuestionnaireResponse.bind(this)
-            this.listQuestionnaires = this.listQuestionnaires.bind(this)
-            this.submitResponse = this.submitResponse.bind(this)
-            this.updateQuestionnaire = this.updateQuestionnaire.bind(this)
-        }
-
-        public async createQuestionnaire(params: CreateQuestionnaireRequest): Promise<types.GetQuestionnaireResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/questionnaires`, JSON.stringify(params))
-            return await resp.json() as types.GetQuestionnaireResponse
-        }
-
-        public async deactivateQuestionnaire(id: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/questionnaires/${encodeURIComponent(id)}`)
-        }
-
-        public async getQuestionnaire(id: string): Promise<types.GetQuestionnaireResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetQuestionnaireResponse
-        }
-
-        public async getQuestionnaireResponse(questionnaireId: string): Promise<types.ListQuestionnaireResponsesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires/${encodeURIComponent(questionnaireId)}/responses`)
-            return await resp.json() as types.ListQuestionnaireResponsesResponse
-        }
-
-        public async listQuestionnaires(): Promise<types.ListQuestionnairesResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires`)
-            return await resp.json() as types.ListQuestionnairesResponse
-        }
-
-        public async submitResponse(questionnaireId: string, params: SubmitQuestionnaireResponseRequest): Promise<SubmitQuestionnaireResponseResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/questionnaires/${encodeURIComponent(questionnaireId)}/responses`, JSON.stringify(params))
-            return await resp.json() as SubmitQuestionnaireResponseResponse
-        }
-
-        public async updateQuestionnaire(id: string, params: UpdateQuestionnaireRequest): Promise<types.GetQuestionnaireResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/questionnaires/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetQuestionnaireResponse
-        }
-    }
-}
-
-export namespace quickbooks {
-    export interface ConnectQuickBooksResponse {
-        authUrl: string
-    }
-
-    export interface CreateQuickBooksInvoiceRequest {
-        customerId: string
-        amount: number
-        lineItems: {
-            description: string
-            amount: number
-            quantity?: number
-        }[]
-        lessonId?: string
-    }
-
-    export interface CreateQuickBooksInvoiceResponse {
-        id: string
-        quickbooksId: string
-        invoiceUrl?: string
-        status: string
-    }
-
-    export interface QuickBooksCallbackRequest {
-        code: string
-        state: string
-        realmId: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.createQuickBooksInvoice = this.createQuickBooksInvoice.bind(this)
-            this.disconnectQuickBooks = this.disconnectQuickBooks.bind(this)
-            this.getConnection = this.getConnection.bind(this)
-            this.getQuickbooksAuthUrl = this.getQuickbooksAuthUrl.bind(this)
-            this.handleQuickBooksCallback = this.handleQuickBooksCallback.bind(this)
-        }
-
-        public async createQuickBooksInvoice(params: CreateQuickBooksInvoiceRequest): Promise<CreateQuickBooksInvoiceResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/quickbooks/invoices`, JSON.stringify(params))
-            return await resp.json() as CreateQuickBooksInvoiceResponse
-        }
-
-        public async disconnectQuickBooks(): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/quickbooks/connection`)
-        }
-
-        public async getConnection(): Promise<void> {
-            await this.baseClient.callTypedAPI("GET", `/quickbooks/connection`)
-        }
-
-        public async getQuickbooksAuthUrl(): Promise<ConnectQuickBooksResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/quickbooks/auth-url`)
-            return await resp.json() as ConnectQuickBooksResponse
-        }
-
-        public async handleQuickBooksCallback(params: QuickBooksCallbackRequest): Promise<{
-    success: boolean
-}> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                code:    params.code,
-                realmId: params.realmId,
-                state:   params.state,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/quickbooks/callback`, undefined, {query})
-            return await resp.json() as {
-    success: boolean
-}
-        }
-    }
-}
-
-export namespace upload {
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.deleteOrganizationLogo = this.deleteOrganizationLogo.bind(this)
-            this.deleteUserAvatar = this.deleteUserAvatar.bind(this)
-            this.uploadOrganizationLogo = this.uploadOrganizationLogo.bind(this)
-            this.uploadUserAvatar = this.uploadUserAvatar.bind(this)
-        }
-
-        public async deleteOrganizationLogo(method: "DELETE", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/upload/avatar/organization`, body, options)
-        }
-
-        public async deleteUserAvatar(method: "DELETE", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/upload/avatar/user`, body, options)
-        }
-
-        public async uploadOrganizationLogo(method: "POST", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/upload/avatar/organization`, body, options)
-        }
-
-        public async uploadUserAvatar(method: "POST", body?: RequestInit["body"], options?: CallParameters): Promise<globalThis.Response> {
-            return this.baseClient.callAPI(method, `/upload/avatar/user`, body, options)
-        }
-    }
-}
-
-export namespace waivers {
-    export interface CreateWaiverRequest {
-        title: string
-        content: string
-    }
-
-    export interface ListSignaturesRequest {
-        signerMemberId?: string
-    }
-
-    export interface SignWaiverRequest {
-        onBehalfOfMemberId?: string | null
-    }
-
-    export interface UpdateWaiverRequest {
-        title?: string
-        content?: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.archiveWaiver = this.archiveWaiver.bind(this)
-            this.createWaiver = this.createWaiver.bind(this)
-            this.getSignatureForWaiver = this.getSignatureForWaiver.bind(this)
-            this.getWaiver = this.getWaiver.bind(this)
-            this.listSignatures = this.listSignatures.bind(this)
-            this.listWaivers = this.listWaivers.bind(this)
-            this.signWaiver = this.signWaiver.bind(this)
-            this.updateWaiver = this.updateWaiver.bind(this)
-        }
-
-        public async archiveWaiver(waiverId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("DELETE", `/waivers/${encodeURIComponent(waiverId)}/archive`)
-        }
-
-        public async createWaiver(params: CreateWaiverRequest): Promise<types.GetWaiverResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/waivers`, JSON.stringify(params))
-            return await resp.json() as types.GetWaiverResponse
-        }
-
-        public async getSignatureForWaiver(id: string, signatureId: string): Promise<types.GetSignatureResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(id)}/signatures/${encodeURIComponent(signatureId)}`)
-            return await resp.json() as types.GetSignatureResponse
-        }
-
-        public async getWaiver(id: string): Promise<types.GetWaiverResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetWaiverResponse
-        }
-
-        public async listSignatures(waiverId: string, params: ListSignaturesRequest): Promise<types.ListSignaturesResponse> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                signerMemberId: params.signerMemberId,
-            })
-
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/waivers/${encodeURIComponent(waiverId)}/signatures`, undefined, {query})
-            return await resp.json() as types.ListSignaturesResponse
-        }
-
-        public async listWaivers(): Promise<types.ListWaiversResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/waivers`)
-            return await resp.json() as types.ListWaiversResponse
-        }
-
-        public async signWaiver(waiverId: string, params: SignWaiverRequest): Promise<types.GetSignatureResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/waivers/${encodeURIComponent(waiverId)}/sign`, JSON.stringify(params))
-            return await resp.json() as types.GetSignatureResponse
-        }
-
-        public async updateWaiver(waiverId: string, params: UpdateWaiverRequest): Promise<types.GetWaiverResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("PUT", `/waivers/${encodeURIComponent(waiverId)}`, JSON.stringify(params))
-            return await resp.json() as types.GetWaiverResponse
-        }
-    }
-}
-
-export namespace business_hours {
-    export interface CheckLessonHoursRequest {
-        boardId: string
-        trainerId: string
-        date: string
-        startTime: string
-        endTime: string
-    }
-
-    export interface CheckLessonHoursResponse {
-        withinOrgHours: boolean
-        withinTrainerHours: boolean | null
-        effectiveOrgHours: types.BusinessHoursDay | null
-        effectiveTrainerHours: types.BusinessHoursDay | null
-        passes: boolean
-    }
-
-    export interface UpdateOrganizationBusinessHoursParams {
-        boardId: string | null
-        days: utils.DayHours[]
-    }
-
-    export interface UpdateTrainerBusinessHoursParams {
-        boardId: string | null
-        days: utils.DayHours[]
-    }
-}
-
-export namespace enrollments {
-    export interface EnrollInInstanceRequest {
-        riderIds: string | string[]
-        enrolledByMemberId?: string
-    }
-
-    export interface EnrollInInstanceResponse {
-        enrollment: types.LessonInstanceEnrollment | types.LessonInstanceEnrollment[]
-    }
-
-    export interface EnrollInSeriesRequest {
-        riderIds: string | string[]
-        startDate: string
-        endDate: string | null
-    }
-
-    export interface EnrollInSeriesResponse {
-        enrollment: types.LessonSeriesEnrollment | types.LessonSeriesEnrollment[]
-    }
-
-    export interface ListMyEnrollmentsResponse {
-        instanceEnrollments: types.LessonInstanceEnrollment[]
-        seriesEnrollments: types.LessonSeriesEnrollment[]
-    }
-
-    export interface MarkAttendanceRequest {
-        attended: boolean
-    }
-}
-
-export namespace instances {
-    export interface CancelLessonInstanceRequest {
-        reason?: string
-    }
-
-    export interface CreateLessonInstanceRequest {
-        boardId: string
-        trainerId: string
-        maxRiders: number
-        serviceId: string
-        start: string
-        seriesId: string
-        end: string
-        occurrenceKey: string
-        name?: string | null
-        levelId?: string | null
-        notes?: string | null
-    }
-
-    export interface GetLessonStatsResponse {
-        totalLessonInstancesThisMonth: number
-        totalLessonInstancesLastMonth: number
-        percentageChange: number
-    }
-
-    export interface ListLessonInstancesRequest {
-        from: string
-        to: string
-        boardId?: string
-        trainerId?: string
-        status?: models.LessonInstanceStatus
-    }
-
-    export interface UpdateLessonInstanceRequest {
-        boardId: string
-        trainerId: string
-        maxRiders: number
-        serviceId: string
-        start: string
-        end: string
-        name: string | null
-        status?: models.LessonInstanceStatus
-        levelId?: string | null
-        notes?: string | null
-        riderIds?: string[] | null
-    }
-}
-
-export namespace levels {
-    export interface CreateLevelRequest {
-        name: string
-        color: string
-        description?: string | null
-    }
-
-    export interface UpdateLevelRequest {
-        name?: string
-        color?: string
-        description?: string | null
-    }
-}
-
-export namespace members {
-    export interface ChangeRoleRequest {
-        roles: models.MembershipRole[]
-    }
-
-    export interface CreateRiderRequest {
-        organizationId: string
-        memberId: string
-        isRestricted?: boolean
-        emergencyContactName?: string | null
-        emergencyContactPhone?: string | null
-        ridingLevelId?: string | null
-    }
-
-    export interface CreateTrainerRequest {
-        organizationId: string
-        memberId: string
-        bio?: string | null
-        allowSameDayBookings?: boolean
-    }
-
-    export interface GetRiderStatsResponse {
-        totalRiders: number
-        newRidersThisMonth: number
-        newRidersLastMonth: number
-        percentageChange: number
-        ridersByLevel: {
-            levelName: string
-            count: number
-            color: string
-        }[]
-    }
-
-    export interface JoinOrganizationRequest {
-        roles?: models.MembershipRole[]
-    }
-
-    export interface ListTrainersRequest {
-        boardId?: string
-    }
-
-    export interface OnboardMemberParams {
-        organizationId: string
-        user: {
-            name: string
-            phone?: string | null
-            dateOfBirth?: string | null
-            image?: string | null
-            roles: models.MembershipRole[]
-        }
-        questionnaire?: {
-            questionnaireId: string
-            responses: types.QuestionnaireQuestionResponse[]
-        }
-        waiver?: {
-            waiverId: string
-        }
-    }
-
-    export interface SetKioskPinRequest {
-        pin: string
-    }
-
-    export interface UpdateRiderRequest {
-        organizationId?: string
-        memberId?: string
-        isRestricted?: boolean
-        emergencyContactName?: string | null
-        emergencyContactPhone?: string | null
-        ridingLevelId?: string | null
-    }
-
-    export interface UpdateTrainerRequest {
-        organizationId?: string
-        memberId?: string
-        bio?: string | null
-        allowSameDayBookings?: boolean
-    }
-}
-
-export namespace models {
-    export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
-
-    export type EventScope = "organization" | "board" | "trainer"
-
-    export type GuardianRelationshipStatus = "active" | "revoked" | "pending"
-
-    export type InvitationStatus = "pending" | "accepted" | "rejected" | "cancelled"
-
-    export type LessonInstanceEnrollmentStatus = "enrolled" | "waitlisted" | "cancelled" | "attended" | "no_show"
-
-    export type LessonInstanceStatus = "scheduled" | "completed" | "cancelled"
-
-    export type LessonSeriesEnrollmentStatus = "active" | "paused" | "cancelled"
-
-    export type LessonSeriesStatus = "active" | "paused" | "cancelled" | "completed"
-
-    export type MembershipRole = "admin" | "rider" | "trainer" | "guardian"
-
-    export type QuestionnaireQuestionOperator = "equals" | "not_equals"
-
-    export type QuestionnaireQuestionType = "boolean" | "multiple_choice"
-
-    export type RecurrenceFrequency = "weekly" | "biweekly"
-
-    export type WaiverStatus = "active" | "archived"
-}
-
-export namespace series {
-    export interface CancelLessonSeriesRequest {
-        reason?: string
-    }
-
-    export interface CreateLessonSeriesRequest {
-        duration: number
-        boardId: string
-        maxRiders: number
-        serviceId: string
-        trainerId: string
-        start: string
-        name?: string | null
-        status?: models.LessonSeriesStatus
-        levelId?: string | null
-        notes?: string | null
-        isRecurring?: boolean
-        recurrenceFrequency?: models.RecurrenceFrequency | null
-        recurrenceByDay?: models.DayOfWeek[] | null
-        recurrenceEnd?: string | null
-        effectiveFrom?: string | null
-        lastPlannedUntil?: string | null
-        updatedByMemberId?: string | null
-        riderIds?: string[]
-        overrideAvailability?: boolean
-    }
-
-    export interface UpdateLessonSeriesRequest {
-        effectiveFrom?: string | null
-        duration: number
-        boardId: string
-        maxRiders: number
-        serviceId: string
-        trainerId: string
-        start: string
-        name?: string | null
-        status?: models.LessonSeriesStatus
-        levelId?: string | null
-        notes?: string | null
-        isRecurring?: boolean
-        recurrenceFrequency?: models.RecurrenceFrequency | null
-        recurrenceByDay?: models.DayOfWeek[] | null
-        recurrenceEnd?: string | null
-        lastPlannedUntil?: string | null
-        updatedByMemberId?: string | null
-        riderIds?: string[]
-        overrideAvailability?: boolean
-    }
-}
-
-export namespace services {
-    export interface AssignToServiceRequest {
-        type: "trainer" | "board"
-        serviceId: string
-        trainerId?: string
-        boardId?: string
-        isActive?: boolean
-    }
-
-    export interface AssignToServiceResponse {
-        assignment: types.ServiceTrainerAssignment | types.ServiceBoardAssignment
-    }
-
-    export interface CreateServiceRequest {
-        name: string
-        duration: number
-        price: number
-        creditPrice: number
-        maxRiders: number
-        isRestricted?: boolean
-        description?: string | null
-        canRiderAdd?: boolean
-        creditAdditionalPrice?: number | null
-        isPrivate?: boolean
-        canRecurBook?: boolean
-        restrictedToLevelId?: string | null
-        isAllTrainers?: boolean
-        isActive?: boolean
-        boardIds?: string[]
-        trainerIds?: string[]
-    }
-
-    export interface ListBoardServiceAssignmentsRequest {
-        boardId?: string
-        serviceId?: string
-    }
-
-    export interface ListServicesRequest {
-        trainerId?: string
-        boardId?: string
-    }
-
-    export interface ListTrainerServiceAssignmentsRequest {
-        trainerId?: string
-        serviceId?: string
-    }
-
-    export interface UnassignFromServiceRequest {
-        type: "trainer" | "board"
-    }
-
-    export interface UpdateServiceRequest {
-        name?: string
-        duration?: number
-        price?: number
-        creditPrice?: number
-        maxRiders?: number
-        isRestricted?: boolean
-        description?: string | null
-        canRiderAdd?: boolean
-        creditAdditionalPrice?: number | null
-        isPrivate?: boolean
-        canRecurBook?: boolean
-        restrictedToLevelId?: string | null
-        isAllTrainers?: boolean
-        isActive?: boolean
-        boardIds?: string[]
-        trainerIds?: string[]
-    }
-}
-
-export namespace time_blocks {
-    export interface CreateTimeBlockParams {
-        trainerId: string
-        start: string
-        end: string
-        boardId?: string | null
-        reason?: string | null
-    }
-
-    export interface ListTimeBlocksParams {
-        trainerId?: string
-        from?: string
-        to?: string
-    }
-
-    export interface UpdateTimeBlockParams {
-        trainerId: string
-        start: string
-        end: string
-        boardId?: string | null
-        reason?: string | null
-    }
-}
-
-export namespace types {
-    export interface Activity {
-        id: string
-        createdAt: string
-        metadata: ActivityMetadata
-        organizationId: string
-        actorMemberId: string | null
-        ownerMemberId: string
-        trainerId: string | null
-        riderId: string | null
-        subjectType: ActivitySubjectType
-        subjectId: string
-        type: ActivityType
-        actorMember?: Member | null
-    }
-
-    export interface ActivityMetadata {
-        /**
-         * Lesson activities
-         */
-        lessonId?: string
-
-        instanceId?: string
-        trainerName?: string
-        trainerProfileId?: string
-        trainerMemberId?: string
-        riderName?: string
-        riderProfileId?: string
-        riderMemberId?: string
-        horseName?: string
-        horses?: {
-            id: string
-            name: string
-        }[]
-        riders?: {
-            name: string
-            profileId?: string
-            memberId?: string
-        }[]
-        otherRiders?: {
-            name: string
-        }[]
-        lessonName?: string
-        startTime?: string
-        endTime?: string
-        completedAt?: string
-        duration?: string
-        /**
-         * Post/social activities
-         */
-        postId?: string
-
-        content?: string
-        truncatedContent?: string
-        commentCount?: number
-        /**
-         * Questionnaire/Waiver activities
-         */
-        questionnaireId?: string
-
-        questionnaireName?: string
-        waiverType?: string
-        /**
-         * Generic fields
-         */
-        title?: string
-
-        description?: string
-        reason?: string
-        notes?: string
-    }
-
-    export type ActivitySubjectType = "lesson" | "post" | "payment" | "rider" | "trainer" | "other"
-
-    export type ActivityType = "enrollment_created" | "lesson_completed_as_rider" | "waiver_signed" | "questionnaire_submitted" | "level_updated" | "lesson_taught" | "student_assigned" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
-
-    export interface AuthUser {
-        id: string
-        createdAt: string
-        updatedAt: string
-        email: string
-        emailVerified: boolean
-        name: string
-        image?: string | null
-        phone?: string | null
-        profilePictureUrl?: string | null
-        banned?: boolean | null
-        role?: string | null
-        banReason?: string | null
-        banExpires?: string | null
-        dateOfBirth?: string | null
-    }
-
-    export interface BaseMember {
-        organizationId: string
-        id: string
-        kioskPin: string | null
-        createdAt: string
-        updatedAt: string
-        userId: string
-        authMemberId: string
-        isPlaceholder: boolean
-        roles: models.MembershipRole[]
-        onboardingComplete: boolean
-        deletedAt: string | null
-        authUser?: AuthUser | null
-    }
-
-    export interface Board {
-        organizationId: string
-        id: string
-        name: string
-        createdAt: string
-        updatedAt: string
-        canRiderAdd: boolean
-        assignments?: BoardAssignment[] | null
-        serviceBoardAssignments?: ServiceBoardAssignment[] | null
-    }
-
-    export interface BoardAssignment {
-        boardId: string
-        id: string
-        createdAt: string
-        organizationId: string
-        trainerId: string | null
-        riderId: string | null
-        trainer?: Trainer | null
-        rider?: Rider | null
-        board?: Board | null
-    }
-
-    export interface BusinessHoursDay {
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: utils.TimeSlot[]
-    }
-
-    export interface Event {
-        organizationId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        description: string | null
-        createdByMemberId: string | null
-        startDate: string
-        endDate: string
-        title: string
-        startTime: string | null
-        endTime: string | null
-        blockScheduling: boolean
-        schedulingBlocks?: EventSchedulingBlock[] | null
-    }
-
-    export interface EventSchedulingBlock {
-        id: string
-        scope: models.EventScope
-        boardId: string | null
-        trainerId: string | null
-        eventId: string
-    }
-
-    export interface FeedComment {
-        id: string
-        createdAt: string
-        updatedAt: string
-        deletedAt: string | null
-        memberId: string
-        text: string
-        postId: string
-        parentCommentId: string | null
-        member?: Member | null
-        replies?: FeedComment[] | null
-    }
-
-    export interface FeedLike {
-        id: string
-        createdAt: string
-        memberId: string
-        postId: string
-        member?: Member | null
-    }
-
-    export interface FeedPost {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        deletedAt: string | null
-        boardId: string | null
-        authorMemberId: string
-        text: string | null
-        mediaUrls: string[] | null
-        comments?: FeedComment[] | null
-        likes?: FeedLike[] | null
-        author?: Member | null
-        board?: Board | null
-    }
-
-    export interface GetActivityResponse {
-        activity: Activity
-    }
-
-    export interface GetBoardAssignmentResponse {
-        assignment: BoardAssignment
-    }
-
-    export interface GetBoardResponse {
-        board: Board
-    }
-
-    export interface GetEventResponse {
-        event: Event
-        scope?: models.EventScope
-        boardIds?: string[]
-        trainerIds?: string[]
-    }
-
-    export interface GetFeedCommentResponse {
-        comment: FeedComment
-    }
-
-    export interface GetFeedLikeResponse {
-        like: FeedLike
-    }
-
-    export interface GetFeedPostResponse {
-        post: FeedPost
-    }
-
-    export interface GetInstanceEnrollmentResponse {
-        enrollment: LessonInstanceEnrollment
-    }
-
-    export interface GetLessonInstanceResponse {
-        instance: LessonInstance
-    }
-
-    export interface GetLessonSeriesResponse {
-        timezone?: string
-        organizationId: string
-        id: string
-        name: string | null
-        createdAt: string
-        updatedAt: string
-        duration: number
-        status: models.LessonSeriesStatus
-        boardId: string
-        maxRiders: number
-        serviceId: string
-        trainerId: string
-        levelId: string | null
-        notes: string | null
-        start: string
-        isRecurring: boolean
-        recurrenceFrequency: models.RecurrenceFrequency | null
-        recurrenceByDay: models.DayOfWeek[] | null
-        recurrenceEnd: string | null
-        effectiveFrom: string | null
-        lastPlannedUntil: string | null
-        createdByMemberId: string | null
-        updatedByMemberId: string | null
-        enrollments?: LessonSeriesEnrollment[] | null
-        level?: Level | null
-    }
-
-    export interface GetLevelResponse {
-        level: Level
-    }
-
-    export interface GetMemberResponse {
-        member: Member
-    }
-
-    export interface GetNotificationResponse {
-        notification: Notification
-    }
-
-    export interface GetOrganizationResponse {
-        organization: Organization
-    }
-
-    export interface GetQuestionnaireResponse {
-        questionnaire: Questionnaire
-    }
-
-    export interface GetRiderResponse {
-        rider: Rider
-    }
-
-    export interface GetServiceResponse {
-        service: Service
-    }
-
-    export interface GetSignatureResponse {
-        signature: WaiverSignature
-    }
-
-    export interface GetTrainerResponse {
-        trainer: Trainer
-    }
-
-    export interface GetTrainerServiceAssignmentResponse {
-        assignment: ServiceTrainerAssignment
-    }
-
-    export interface GetWaiverResponse {
-        waiver: Waiver
-    }
-
-    export interface GuardianPermissions {
-        bookings: {
-            canBookLessons: boolean
-            canJoinEvents: boolean
-            requiresApproval: boolean
-            canCancel: boolean
-        }
-        communication: {
-            canPost: boolean
-            canComment: boolean
-            receiveEmailNotifications: boolean
-            receiveTextNotifications: boolean
-        }
-        profile: {
-            canEdit: boolean
-        }
-    }
-
-    export interface GuardianRelationship {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        guardianMemberId: string
-        dependentMemberId: string
-        permissions: GuardianPermissions | null
-        coppaConsentGiven: boolean
-        coppaConsentGivenAt: string | null
-    }
-
-    export interface GuardianRelationshipWithGuardian {
-        guardian: Member
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        guardianMemberId: string
-        dependentMemberId: string
-        permissions: GuardianPermissions | null
-        coppaConsentGiven: boolean
-        coppaConsentGivenAt: string | null
-    }
-
-    export interface GuardianRelationshipWithMembers {
-        guardian: Member
-        dependent: Member
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        guardianMemberId: string
-        dependentMemberId: string
-        permissions: GuardianPermissions | null
-        coppaConsentGiven: boolean
-        coppaConsentGivenAt: string | null
-    }
-
-    export interface Invitation {
-        id: string
-        organizationId: string
-        email: string
-        role: models.MembershipRole[]
-        status: models.InvitationStatus
-        inviterId: string
-        expiresAt: string
-        createdAt: string
-        organization?: Organization
-    }
-
-    export type KioskScope = "default" | "staff" | "self"
-
-    export interface KioskSession {
-        id: string
-        createdAt: string
-        organizationId: string
-        actingMemberId: string | null
-        boardId: string | null
-        locationName: string
-        scope: KioskScope
-        expiresAt: string | null
-    }
-
-    export interface KioskSessionResponse {
-        acting: {
-            actingMemberId: string | null
-            scope: KioskScope
-            expiresAt: string | null
-        }
-    }
-
-    export interface LessonInstance {
-        id: string
-        name: string | null
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        status: models.LessonInstanceStatus
-        boardId: string
-        maxRiders: number
-        serviceId: string
-        seriesId: string
-        trainerId: string
-        levelId: string | null
-        notes: string | null
-        start: string
-        createdByMemberId: string | null
-        updatedByMemberId: string | null
-        end: string
-        occurrenceKey: string
-        canceledAt: string | null
-        canceledByMemberId: string | null
-        cancelReason: string | null
-        enrollments?: LessonInstanceEnrollment[] | null
-        level?: Level | null
-        service?: Service | null
-        trainer?: Trainer | null
-        board?: Board | null
-        series?: LessonSeries | null
-    }
-
-    export interface LessonInstanceEnrollment {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        status: models.LessonInstanceEnrollmentStatus
-        attended: boolean | null
-        riderId: string
-        enrolledByMemberId: string | null
-        enrolledAt: string
-        instanceId: string
-        waitlistPosition: number | null
-        attendedAt: string | null
-        markedByMemberId: string | null
-        unenrolledAt: string | null
-        unenrolledByMemberId: string | null
-        instance?: LessonInstance | null
-        rider?: Rider | null
-    }
-
-    export interface LessonSeries {
-        organizationId: string
-        id: string
-        name: string | null
-        createdAt: string
-        updatedAt: string
-        duration: number
-        status: models.LessonSeriesStatus
-        boardId: string
-        maxRiders: number
-        serviceId: string
-        trainerId: string
-        levelId: string | null
-        notes: string | null
-        start: string
-        isRecurring: boolean
-        recurrenceFrequency: models.RecurrenceFrequency | null
-        recurrenceByDay: models.DayOfWeek[] | null
-        recurrenceEnd: string | null
-        effectiveFrom: string | null
-        lastPlannedUntil: string | null
-        createdByMemberId: string | null
-        updatedByMemberId: string | null
-        enrollments?: LessonSeriesEnrollment[] | null
-        level?: Level | null
-    }
-
-    export interface LessonSeriesEnrollment {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        status: models.LessonSeriesEnrollmentStatus
-        seriesId: string
-        riderId: string
-        startDate: string
-        endDate: string | null
-        enrolledByMemberId: string | null
-        enrolledAt: string
-        endedAt: string | null
-        endedByMemberId: string | null
-        rider?: Rider | null
-    }
-
-    export interface Level {
-        organizationId: string
-        id: string
-        name: string
-        createdAt: string
-        updatedAt: string
-        description: string | null
-        color: string
-    }
-
-    export interface ListActivityResponse {
-        activities: Activity[]
-    }
-
-    export interface ListBoardAssignmentsResponse {
-        assignments: BoardAssignment[]
-    }
-
-    export interface ListBoardServiceAssignmentsResponse {
-        assignments: ServiceBoardAssignment[]
-    }
-
-    export interface ListBoardsResponse {
-        boards: Board[]
-    }
-
-    export interface ListEventsResponse {
-        events: GetEventResponse[]
-    }
-
-    export interface ListInvitationsResponse {
-        invitations: Invitation[]
-    }
-
-    export interface ListLessonInstanceEnrollmentsResponse {
-        enrollments: LessonInstanceEnrollment[]
-    }
-
-    export interface ListLessonInstancesResponse {
-        instances: LessonInstance[]
-    }
-
-    export interface ListLessonSeriesEnrollmentsResponse {
-        enrollments: LessonSeriesEnrollment[]
-    }
-
-    export interface ListLessonSeriesResponse {
-        series: LessonSeries[]
-    }
-
-    export interface ListLevelsResponse {
-        levels: Level[]
-    }
-
-    export interface ListMembersResponse {
-        members: Member[]
-    }
-
-    export interface ListOrganizationBusinessHoursResponse {
-        defaults: OrganizationBusinessHours[]
-        boardOverrides: { [key: string]: OrganizationBoardBusinessHours[] }
-    }
-
-    export interface ListOrganizationsResponse {
-        organizations: Organization[]
-    }
-
-    export interface ListQuestionnaireResponsesResponse {
-        responses: QuestionnaireResponse[]
-    }
-
-    export interface ListQuestionnairesResponse {
-        questionnaires: Questionnaire[]
-    }
-
-    export interface ListRidersResponse {
-        riders: Rider[]
-    }
-
-    export interface ListServicesResponse {
-        services: Service[]
-    }
-
-    export interface ListSignaturesResponse {
-        signatures: WaiverSignature[]
-    }
-
-    export interface ListTimeBlocksResponse {
-        timeBlocks: TimeBlock[]
+  export interface AuthParams {
+    host: string;
+  }
+
+  export interface ExportUsersParams {
+    userIds: string[];
+  }
+
+  export interface ExportUsersResponse {
+    csv: string;
+    filename: string;
+  }
+
+  export interface GetSessionParams {}
+
+  export interface GetSessionResponse {
+    session: types.Session | null;
+  }
+
+  export interface ListUsersParams {
+    query?: string;
+    limit: number;
+    offset: number;
+    sortBy: string;
+    sortOrder: "asc" | "desc";
+    role?: ("admin" | "user")[];
+    banned?: ("active" | "banned")[];
+    emailVerified?: ("verified" | "pending")[];
+    createdAt?: ("today" | "this-week" | "this-month" | "older")[];
+  }
+
+  export interface ListUsersResponse {
+    users: types.AuthUser[];
+    total: number;
+  }
+
+  export interface UpdateUserRequest {
+    name?: string;
+    image?: string | null;
+    phone?: string | null;
+    dateOfBirth?: string | null;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.authRoutes = this.authRoutes.bind(this);
+      this.exportUsers = this.exportUsers.bind(this);
+      this.getSession = this.getSession.bind(this);
+      this.listUsers = this.listUsers.bind(this);
+      this.updateUser = this.updateUser.bind(this);
     }
 
     /**
-     * Business hours grouped into org-wide defaults vs per-board overrides.
-     * Both `defaults` and `boardOverrides[id]` contain day-rows with their slots inlined.
+     * Better Auth expects a Web Request, but Encore raw endpoints receive
+     * a Node.js IncomingMessage. We convert between the two formats.
      */
-    export interface ListTrainerBusinessHoursResponse {
-        defaults: TrainerBusinessHours[]
-        boardOverrides: { [key: string]: TrainerBoardBusinessHours[] }
+    public async authRoutes(
+      method:
+        | "GET"
+        | "POST"
+        | "PATCH"
+        | "PUT"
+        | "DELETE"
+        | "HEAD"
+        | "OPTIONS"
+        | "TRACE",
+      path: string[],
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/auth/${path.map(encodeURIComponent).join("/")}`,
+        body,
+        options
+      );
     }
 
-    export interface ListTrainerServiceAssignmentsResponse {
-        assignments: ServiceTrainerAssignment[]
+    public async exportUsers(
+      params: ExportUsersParams
+    ): Promise<ExportUsersResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/admin/users/export`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as ExportUsersResponse;
     }
 
-    export interface ListTrainersResponse {
-        trainers: Trainer[]
+    public async getSession(
+      params: GetSessionParams
+    ): Promise<GetSessionResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/session`);
+      return (await resp.json()) as GetSessionResponse;
     }
 
-    export interface ListWaiversResponse {
-        waivers: Waiver[]
+    public async listUsers(
+      params: ListUsersParams
+    ): Promise<ListUsersResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        banned: params.banned?.map((v) => String(v)),
+        createdAt: params.createdAt?.map((v) => String(v)),
+        emailVerified: params.emailVerified?.map((v) => String(v)),
+        limit: String(params.limit),
+        offset: String(params.offset),
+        query: params.query,
+        role: params.role?.map((v) => String(v)),
+        sortBy: params.sortBy,
+        sortOrder: String(params.sortOrder),
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/admin/users`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as ListUsersResponse;
     }
 
-    export interface Member {
-        organizationId: string
-        id: string
-        kioskPin: string | null
-        createdAt: string
-        updatedAt: string
-        userId: string
-        authMemberId: string
-        isPlaceholder: boolean
-        roles: models.MembershipRole[]
-        onboardingComplete: boolean
-        deletedAt: string | null
-        authUser?: AuthUser | null
-        rider?: Rider | null
-        trainer?: Trainer | null
+    public async updateUser(params: UpdateUserRequest): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/users`,
+        JSON.stringify(params)
+      );
+    }
+  }
+}
+
+export namespace availability {
+  export interface AvailableSlot {
+    start: string;
+    end: string;
+    dayOfWeek: string;
+    service: {
+      id: string;
+      name: string;
+      duration: number;
+      price: number;
+    };
+  }
+
+  export interface AvailableSlotResponse {
+    slots: AvailableSlot[];
+  }
+
+  export interface AvailableSlotsParams {
+    boardId: string;
+    trainerId: string;
+    serviceId: string;
+    riderId: string;
+    startDate: string;
+    endDate: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.checkLessonHours = this.checkLessonHours.bind(this);
+      this.createTimeBlock = this.createTimeBlock.bind(this);
+      this.deleteTimeBlock = this.deleteTimeBlock.bind(this);
+      this.getAvailableSlots = this.getAvailableSlots.bind(this);
+      this.getTimeBlock = this.getTimeBlock.bind(this);
+      this.listOrganizationBusinessHours =
+        this.listOrganizationBusinessHours.bind(this);
+      this.listTimeBlocks = this.listTimeBlocks.bind(this);
+      this.listTrainerBusinessHours = this.listTrainerBusinessHours.bind(this);
+      this.resetBoardBusinessHours = this.resetBoardBusinessHours.bind(this);
+      this.resetTrainerBoardBusinessHours =
+        this.resetTrainerBoardBusinessHours.bind(this);
+      this.updateOrganizationBusinessHours =
+        this.updateOrganizationBusinessHours.bind(this);
+      this.updateTimeBlock = this.updateTimeBlock.bind(this);
+      this.updateTrainerBusinessHours =
+        this.updateTrainerBusinessHours.bind(this);
     }
 
-    export interface Notification {
-        id: string
-        createdAt: string
-        organizationId: string
-        title: string
-        recipientId: string
-        type: NotificationType
-        message: string
-        entityType: string
-        entityId: string | null
-        deepLink: string | null
-        isRead: boolean
-        readAt: string | null
+    /**
+     * Check whether a proposed lesson falls inside the effective org and trainer hours.
+     *
+     * "Within hours" means the entire [startTime, endTime) interval fits inside
+     * at least one slot of the effective day.
+     */
+    public async checkLessonHours(
+      params: business_hours.CheckLessonHoursRequest
+    ): Promise<business_hours.CheckLessonHoursResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/business-hours/check-lesson`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as business_hours.CheckLessonHoursResponse;
     }
 
-    export type NotificationChannel = "email" | "sms" | "push" | "in_app"
-
-    export interface NotificationPreference {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        memberId: string
-        type: NotificationType
-        inAppEnabled: boolean
-        pushEnabled: boolean
-        emailEnabled: boolean
-        smsEnabled: boolean
+    public async createTimeBlock(
+      params: time_blocks.CreateTimeBlockParams
+    ): Promise<types.TimeBlock> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/time-blocks`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.TimeBlock;
     }
 
-    export type NotificationType = "enrollment_created" | "lesson_enrolled" | "lesson_cancelled" | "lesson_reminder" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
-
-    export interface Organization {
-        id: string
-        name: string
-        phone: string | null
-        createdAt: string
-        updatedAt: string
-        slug: string
-        timezone: string
-        authOrganizationId: string
-        logoUrl: string | null
-        primaryColor: string | null
-        website: string | null
-        facebook: string | null
-        instagram: string | null
-        youtube: string | null
-        tiktok: string | null
-        addressLine1: string | null
-        addressLine2: string | null
-        city: string | null
-        state: string | null
-        postalCode: string | null
-        allowSameDayBookings: boolean
-        allowPublicJoin: boolean
+    public async deleteTimeBlock(id: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/time-blocks/${encodeURIComponent(id)}`
+      );
     }
 
-    export interface OrganizationAvailabilitySlot {
-        id: string
-        createdAt: string
-        updatedAt: string
-        availabilityId: string
-        openTime: string
-        closeTime: string
+    /**
+     * Get available time slots for booking a lesson
+     *
+     * Generates time slots based on:
+     * - Organization business hours (multi-slot per day supported)
+     * - Trainer business hours (multi-slot per day supported)
+     * - Service duration
+     * - Date range
+     *
+     * Filters out:
+     * - Times that conflict with existing lessons
+     * - Trainer time blocks (unavailability)
+     * - Past time slots
+     * - Slots restricted by rider level
+     */
+    public async getAvailableSlots(
+      params: AvailableSlotsParams
+    ): Promise<AvailableSlotResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardId: params.boardId,
+        endDate: params.endDate,
+        riderId: params.riderId,
+        serviceId: params.serviceId,
+        startDate: params.startDate,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/available-slots`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as AvailableSlotResponse;
     }
 
-    export interface OrganizationBoardBusinessHours {
-        boardId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: OrganizationAvailabilitySlot[]
+    public async getTimeBlock(id: string): Promise<types.TimeBlock> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/time-blocks/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.TimeBlock;
     }
 
-    export interface OrganizationBusinessHours {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        boardId: string | null
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: OrganizationAvailabilitySlot[]
+    public async listOrganizationBusinessHours(): Promise<types.ListOrganizationBusinessHoursResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/business-hours/organization`
+      );
+      return (await resp.json()) as types.ListOrganizationBusinessHoursResponse;
     }
 
-    export interface Questionnaire {
-        organizationId: string
-        id: string
-        name: string
-        createdAt: string
-        updatedAt: string
-        isActive: boolean
-        version: number
-        defaultBoardId: string | null
-        questions: QuestionnaireQuestion[]
-        boardAssignmentRules: QuestionnaireBoardAssignmentRule[]
-        createdByMemberId: string | null
+    public async listTimeBlocks(
+      params: time_blocks.ListTimeBlocksParams
+    ): Promise<types.ListTimeBlocksResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        from: params.from,
+        to: params.to,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/time-blocks`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListTimeBlocksResponse;
     }
 
-    export interface QuestionnaireBoardAssignmentRule {
-        id: string
-        name: string
-        conditions: {
-            questionId: string
-            operator: models.QuestionnaireQuestionOperator
-            responseValue: ResponseValue
-        }[]
-        boardId: string
-        priority: number
+    public async listTrainerBusinessHours(
+      trainerId: string
+    ): Promise<types.ListTrainerBusinessHoursResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/business-hours/trainer/${encodeURIComponent(trainerId)}`
+      );
+      return (await resp.json()) as types.ListTrainerBusinessHoursResponse;
     }
 
-    export interface QuestionnaireQuestion {
-        id: string
-        text: string
-        type: models.QuestionnaireQuestionType
-        required: boolean
-        order: number
-        options: string[] | null
-        showIf: QuestionnaireQuestionResponse | null
+    public async resetBoardBusinessHours(boardId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/business-hours/organization/boards/${encodeURIComponent(boardId)}`
+      );
     }
 
-    export interface QuestionnaireQuestionResponse {
-        questionId: string
-        responseValue: string | boolean
+    public async resetTrainerBoardBusinessHours(
+      trainerId: string,
+      boardId: string
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/business-hours/trainer/${encodeURIComponent(trainerId)}/boards/${encodeURIComponent(boardId)}`
+      );
     }
 
-    export interface QuestionnaireResponse {
-        id: string
-        createdAt: string
-        organizationId: string
-        questionnaireId: string
-        questionnaireVersion: number
-        memberId: string
-        submittedByMemberId: string
-        responses: QuestionnaireQuestionResponse[]
-        assignedBoardIds: string[]
-        completedAt: string
+    /**
+     * Replace the organization (or board-override) business hours for the given days.
+     *
+     * For each day:
+     * 1. Upsert the day-row (organizationId, boardId, dayOfWeek) with its isOpen flag.
+     * 2. Delete all existing slots for that day-row.
+     * 3. Insert the new slots (if the day is open).
+     *
+     * All wrapped in a transaction so partial writes never leak through. The
+     * post-write list read happens on the same tx so we return a snapshot that's
+     * guaranteed consistent with what we just wrote.
+     *
+     * The unique constraint on (organizationId, boardId, dayOfWeek) uses
+     * NULLS NOT DISTINCT so org-default rows (boardId = NULL) participate in
+     * uniqueness and the conflict path fires correctly.
+     */
+    public async updateOrganizationBusinessHours(
+      params: business_hours.UpdateOrganizationBusinessHoursParams
+    ): Promise<types.ListOrganizationBusinessHoursResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/business-hours/organization`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.ListOrganizationBusinessHoursResponse;
     }
 
-    export type ResponseValue = string | boolean
-
-    export interface Rider {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        deletedAt: string | null
-        memberId: string
-        isRestricted: boolean
-        emergencyContactName: string | null
-        emergencyContactPhone: string | null
-        ridingLevelId: string | null
-        member?: Member | null
-        boardAssignments?: BoardAssignment[] | null
-        level?: Level | null
+    public async updateTimeBlock(
+      id: string,
+      params: time_blocks.UpdateTimeBlockParams
+    ): Promise<types.TimeBlock> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/time-blocks/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.TimeBlock;
     }
 
-    export interface Service {
-        id: string
-        name: string
-        createdAt: string
-        updatedAt: string
-        duration: number
-        organizationId: string
-        isRestricted: boolean
-        description: string | null
-        canRiderAdd: boolean
-        price: number
-        creditPrice: number
-        creditAdditionalPrice: number | null
-        maxRiders: number
-        isPrivate: boolean
-        canRecurBook: boolean
-        restrictedToLevelId: string | null
-        isAllTrainers: boolean
-        isActive: boolean
-        boardAssignments?: ServiceBoardAssignment[] | null
-        trainerAssignments?: ServiceTrainerAssignment[] | null
-        restrictedToLevel?: Level | null
+    /**
+     * Replace a trainer's business hours for the given days.
+     *
+     * Clamping: each trainer slot must fit entirely inside one of the effective
+     * org/board slots for that day. A trainer cannot open when the org is closed,
+     * and cannot open earlier or later than the org's slots allow.
+     */
+    public async updateTrainerBusinessHours(
+      trainerId: string,
+      params: business_hours.UpdateTrainerBusinessHoursParams
+    ): Promise<types.ListTrainerBusinessHoursResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/business-hours/trainer/${encodeURIComponent(trainerId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.ListTrainerBusinessHoursResponse;
+    }
+  }
+}
+
+export namespace boards {
+  export interface AssignToBoardRequest {
+    boardId: string;
+    trainerId?: string;
+    riderId?: string;
+  }
+
+  export interface CreateBoardRequest {
+    name: string;
+    canRiderAdd?: boolean;
+    trainerIds?: string[];
+    serviceIds?: string[];
+  }
+
+  export interface ListBoardAssignmentsRequest {
+    type: "all" | "trainer" | "rider";
+  }
+
+  export interface ListBoardsRequest {
+    riderId?: string;
+    trainerId?: string;
+  }
+
+  export interface ListMemberAssignmentsRequest {
+    isTrainer: boolean;
+  }
+
+  export interface UpdateBoardRequest {
+    name?: string;
+    canRiderAdd?: boolean;
+    trainerIds?: string[];
+    serviceIds?: string[];
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.assignToBoard = this.assignToBoard.bind(this);
+      this.assignToService = this.assignToService.bind(this);
+      this.createBoard = this.createBoard.bind(this);
+      this.createService = this.createService.bind(this);
+      this.deleteBoard = this.deleteBoard.bind(this);
+      this.deleteService = this.deleteService.bind(this);
+      this.getBoard = this.getBoard.bind(this);
+      this.getBoardsForRider = this.getBoardsForRider.bind(this);
+      this.getBoardsForTrainer = this.getBoardsForTrainer.bind(this);
+      this.getService = this.getService.bind(this);
+      this.getTrainerServiceAssignment =
+        this.getTrainerServiceAssignment.bind(this);
+      this.listBoardAssignments = this.listBoardAssignments.bind(this);
+      this.listBoardServiceAssignments =
+        this.listBoardServiceAssignments.bind(this);
+      this.listBoards = this.listBoards.bind(this);
+      this.listMemberAssignments = this.listMemberAssignments.bind(this);
+      this.listServices = this.listServices.bind(this);
+      this.listTrainerServiceAssignments =
+        this.listTrainerServiceAssignments.bind(this);
+      this.removeFromBoard = this.removeFromBoard.bind(this);
+      this.unassignFromService = this.unassignFromService.bind(this);
+      this.updateBoard = this.updateBoard.bind(this);
+      this.updateService = this.updateService.bind(this);
     }
 
-    export interface ServiceBoardAssignment {
-        organizationId: string
-        id: string
-        createdAt: string
-        boardId: string
-        isActive: boolean
-        serviceId: string
-        service?: Service | null
-        board?: Board | null
+    public async assignToBoard(
+      params: AssignToBoardRequest
+    ): Promise<types.GetBoardAssignmentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/boards/assignments`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetBoardAssignmentResponse;
     }
 
-    export interface ServiceTrainerAssignment {
-        organizationId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        isActive: boolean
-        serviceId: string
-        trainerId: string
-        service?: Service | null
-        trainer?: Trainer | null
+    public async assignToService(
+      params: services.AssignToServiceRequest
+    ): Promise<services.AssignToServiceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/services/assignments`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as services.AssignToServiceResponse;
     }
 
-    export interface Session {
-        session: {
-            id: string
-            createdAt: string
-            updatedAt: string
-            userId: string
-            expiresAt: string
-            token: string
-            ipAddress?: string | null
-            userAgent?: string | null
-            contextOrganizationId?: string | null
-            impersonatedBy?: string | null
-            activeOrganizationId?: string | null
-        }
-        user: {
-            id: string
-            createdAt: string
-            updatedAt: string
-            email: string
-            emailVerified: boolean
-            name: string
-            image?: string | null
-            phone?: string | null
-            profilePictureUrl?: string | null
-            dateOfBirth?: string | null
-            banned?: boolean | null
-            role?: string | null
-            banReason?: string | null
-            banExpires?: string | null
-        }
+    public async createBoard(
+      params: CreateBoardRequest
+    ): Promise<types.GetBoardResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/boards`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetBoardResponse;
     }
 
-    export interface TimeBlock {
-        organizationId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        boardId: string | null
-        trainerId: string
-        start: string
-        end: string
-        reason: string | null
+    public async createService(
+      params: services.CreateServiceRequest
+    ): Promise<types.GetServiceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/services`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetServiceResponse;
     }
 
-    export interface Trainer {
-        organizationId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        deletedAt: string | null
-        memberId: string
-        bio: string | null
-        allowSameDayBookings: boolean
-        member?: Member | null
-        boardAssignments?: BoardAssignment[] | null
+    public async deleteBoard(boardId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/boards/${encodeURIComponent(boardId)}`
+      );
     }
 
-    export interface TrainerAvailabilitySlot {
-        id: string
-        createdAt: string
-        updatedAt: string
-        availabilityId: string
-        openTime: string
-        closeTime: string
+    public async deleteService(id: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/services/${encodeURIComponent(id)}`
+      );
     }
 
-    export interface TrainerBoardBusinessHours {
-        boardId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        trainerId: string
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: TrainerAvailabilitySlot[]
+    public async getBoard(boardId: string): Promise<types.GetBoardResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards/${encodeURIComponent(boardId)}`
+      );
+      return (await resp.json()) as types.GetBoardResponse;
     }
 
-    export interface TrainerBusinessHours {
-        id: string
-        createdAt: string
-        updatedAt: string
-        organizationId: string
-        trainerId: string
-        boardId: string | null
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: TrainerAvailabilitySlot[]
+    public async getBoardsForRider(
+      riderId: string
+    ): Promise<types.ListBoardsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards/rider/${encodeURIComponent(riderId)}`
+      );
+      return (await resp.json()) as types.ListBoardsResponse;
     }
 
-    export interface Waiver {
-        organizationId: string
-        id: string
-        createdAt: string
-        updatedAt: string
-        status: models.WaiverStatus
-        version: string
-        title: string
-        content: string
-        signature?: WaiverSignature | null
+    public async getBoardsForTrainer(
+      trainerId: string
+    ): Promise<types.ListBoardsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards/trainer/${encodeURIComponent(trainerId)}`
+      );
+      return (await resp.json()) as types.ListBoardsResponse;
     }
 
-    export interface WaiverSignature {
-        organizationId: string
-        id: string
-        signerMemberId: string
-        waiverId: string
-        onBehalfOfMemberId: string | null
-        ipAddress: string | null
-        waiverVersion: string
-        signedAt: string
-        isValid: boolean
-        invalidatedAt: string | null
-        invalidatedReason: string | null
+    public async getService(id: string): Promise<types.GetServiceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/services/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetServiceResponse;
     }
+
+    public async getTrainerServiceAssignment(
+      assignmentId: string
+    ): Promise<types.GetTrainerServiceAssignmentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/services/assignments/trainer/${encodeURIComponent(assignmentId)}`
+      );
+      return (await resp.json()) as types.GetTrainerServiceAssignmentResponse;
+    }
+
+    public async listBoardAssignments(
+      boardId: string,
+      params: ListBoardAssignmentsRequest
+    ): Promise<types.ListBoardAssignmentsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        type: String(params.type),
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards/${encodeURIComponent(boardId)}/assignments`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListBoardAssignmentsResponse;
+    }
+
+    public async listBoardServiceAssignments(
+      params: services.ListBoardServiceAssignmentsRequest
+    ): Promise<types.ListBoardServiceAssignmentsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardId: params.boardId,
+        serviceId: params.serviceId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/services/assignments/board`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListBoardServiceAssignmentsResponse;
+    }
+
+    public async listBoards(
+      params: ListBoardsRequest
+    ): Promise<types.ListBoardsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        riderId: params.riderId,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListBoardsResponse;
+    }
+
+    public async listMemberAssignments(
+      memberId: string,
+      params: ListMemberAssignmentsRequest
+    ): Promise<types.ListBoardAssignmentsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        isTrainer: String(params.isTrainer),
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/boards/assignments/${encodeURIComponent(memberId)}`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListBoardAssignmentsResponse;
+    }
+
+    public async listServices(
+      params: services.ListServicesRequest
+    ): Promise<types.ListServicesResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardId: params.boardId,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/services`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListServicesResponse;
+    }
+
+    public async listTrainerServiceAssignments(
+      params: services.ListTrainerServiceAssignmentsRequest
+    ): Promise<types.ListTrainerServiceAssignmentsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        serviceId: params.serviceId,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/services/assignments/trainer`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListTrainerServiceAssignmentsResponse;
+    }
+
+    public async removeFromBoard(assignmentId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/boards/assignments/${encodeURIComponent(assignmentId)}`
+      );
+    }
+
+    public async unassignFromService(
+      assignmentId: string,
+      params: services.UnassignFromServiceRequest
+    ): Promise<void> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        type: String(params.type),
+      });
+
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/services/assignments/${encodeURIComponent(assignmentId)}`,
+        undefined,
+        { query }
+      );
+    }
+
+    public async updateBoard(
+      boardId: string,
+      params: UpdateBoardRequest
+    ): Promise<types.GetBoardResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/boards/${encodeURIComponent(boardId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetBoardResponse;
+    }
+
+    public async updateService(
+      id: string,
+      params: services.UpdateServiceRequest
+    ): Promise<types.GetServiceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/services/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetServiceResponse;
+    }
+  }
+}
+
+export namespace email {
+  export interface SendEmailRequest {
+    from?: string;
+    to: string | string[];
+    subject: string;
+    html: string;
+  }
+
+  export interface SendEmailResponse {
+    message: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.sendEmail = this.sendEmail.bind(this);
+    }
+
+    public async sendEmail(
+      params: SendEmailRequest
+    ): Promise<SendEmailResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/email/send`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as SendEmailResponse;
+    }
+  }
+}
+
+export namespace events {
+  export interface GetAffectedInstancesRequest {
+    startDate: string;
+    endDate: string;
+    startTime?: string;
+    endTime?: string;
+    scope: models.EventScope;
+    boardIds?: string[];
+    trainerIds?: string[];
+  }
+
+  export interface ListEventsRequest {
+    from: string;
+    to: string;
+  }
+
+  export interface UpdateEventRequest {
+    title: string;
+    description?: string | null;
+    startDate: string;
+    endDate: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    scope: models.EventScope;
+    boardIds?: string[] | null;
+    trainerIds?: string[] | null;
+    blockScheduling: boolean;
+    cancellationReason?: string;
+  }
+
+  export interface UpsertEventRequest {
+    title: string;
+    description?: string | null;
+    startDate: string;
+    endDate: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    scope: models.EventScope;
+    boardIds?: string[] | null;
+    trainerIds?: string[] | null;
+    blockScheduling: boolean;
+    cancellationReason?: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createEvent = this.createEvent.bind(this);
+      this.deleteEvent = this.deleteEvent.bind(this);
+      this.getAffectedInstances = this.getAffectedInstances.bind(this);
+      this.getEvent = this.getEvent.bind(this);
+      this.listEvents = this.listEvents.bind(this);
+      this.updateEvent = this.updateEvent.bind(this);
+    }
+
+    public async createEvent(
+      params: UpsertEventRequest
+    ): Promise<types.GetEventResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/events`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetEventResponse;
+    }
+
+    public async deleteEvent(id: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/events/${encodeURIComponent(id)}`
+      );
+    }
+
+    public async getAffectedInstances(
+      params: GetAffectedInstancesRequest
+    ): Promise<types.ListLessonInstancesResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardIds: params.boardIds?.map((v) => v),
+        endDate: params.endDate,
+        endTime: params.endTime,
+        scope: String(params.scope),
+        startDate: params.startDate,
+        startTime: params.startTime,
+        trainerIds: params.trainerIds?.map((v) => v),
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/events/affected-instances`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListLessonInstancesResponse;
+    }
+
+    public async getEvent(id: string): Promise<types.GetEventResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/events/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetEventResponse;
+    }
+
+    public async listEvents(
+      params: ListEventsRequest
+    ): Promise<types.ListEventsResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        from: params.from,
+        to: params.to,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/events`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListEventsResponse;
+    }
+
+    public async updateEvent(
+      id: string,
+      params: UpdateEventRequest
+    ): Promise<types.GetEventResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/events/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetEventResponse;
+    }
+  }
+}
+
+export namespace feed {
+  export interface CreateCommentRequest {
+    text: string;
+    parentCommentId?: string | null;
+  }
+
+  export interface CreatePostRequest {
+    text: string;
+    boardId?: string | null;
+    mediaUrls?: string[] | null;
+  }
+
+  export interface ListFeedRequest {
+    searchQuery?: string;
+    boardId?: string;
+    authorMemberId?: string;
+    limit?: number;
+    cursorCreatedAt?: string;
+    cursorId?: string;
+  }
+
+  export interface ListFeedResponse {
+    nextCursor: {
+      createdAt: string;
+      id: string;
+    } | null;
+    hasMore: boolean;
+    posts: types.FeedPost[];
+  }
+
+  export interface UpdateCommentRequest {
+    text: string;
+  }
+
+  export interface UpdatePostRequest {
+    text: string;
+    boardId?: string | null;
+    mediaUrls?: string[] | null;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createComment = this.createComment.bind(this);
+      this.createPost = this.createPost.bind(this);
+      this.deleteComment = this.deleteComment.bind(this);
+      this.deletePost = this.deletePost.bind(this);
+      this.getFeedPost = this.getFeedPost.bind(this);
+      this.likePost = this.likePost.bind(this);
+      this.listFeed = this.listFeed.bind(this);
+      this.unlikePost = this.unlikePost.bind(this);
+      this.updateComment = this.updateComment.bind(this);
+      this.updatePost = this.updatePost.bind(this);
+    }
+
+    public async createComment(
+      postId: string,
+      params: CreateCommentRequest
+    ): Promise<types.GetFeedCommentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/feed/${encodeURIComponent(postId)}/comments`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetFeedCommentResponse;
+    }
+
+    public async createPost(
+      params: CreatePostRequest
+    ): Promise<types.GetFeedPostResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/feed`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetFeedPostResponse;
+    }
+
+    public async deleteComment(commentId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/feed/comments/${encodeURIComponent(commentId)}`
+      );
+    }
+
+    public async deletePost(postId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/feed/${encodeURIComponent(postId)}`
+      );
+    }
+
+    public async getFeedPost(id: string): Promise<types.GetFeedPostResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/feed/post/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetFeedPostResponse;
+    }
+
+    public async likePost(postId: string): Promise<types.GetFeedLikeResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/feed/${encodeURIComponent(postId)}/like`
+      );
+      return (await resp.json()) as types.GetFeedLikeResponse;
+    }
+
+    public async listFeed(params: ListFeedRequest): Promise<ListFeedResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        authorMemberId: params.authorMemberId,
+        boardId: params.boardId,
+        cursorCreatedAt: params.cursorCreatedAt,
+        cursorId: params.cursorId,
+        limit: params.limit === undefined ? undefined : String(params.limit),
+        searchQuery: params.searchQuery,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/feed`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as ListFeedResponse;
+    }
+
+    public async unlikePost(likeId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/feed/likes/${encodeURIComponent(likeId)}`
+      );
+    }
+
+    public async updateComment(
+      commentId: string,
+      params: UpdateCommentRequest
+    ): Promise<types.GetFeedCommentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/feed/comments/${encodeURIComponent(commentId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetFeedCommentResponse;
+    }
+
+    public async updatePost(
+      postId: string,
+      params: UpdatePostRequest
+    ): Promise<types.GetFeedPostResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/feed/${encodeURIComponent(postId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetFeedPostResponse;
+    }
+  }
+}
+
+export namespace guardians {
+  export interface CreateGuardianRelationshipParams {
+    guardianMemberId: string;
+    dependentMemberId: string;
+    permissions: {
+      bookings?: {
+        canBookLessons: boolean;
+        canJoinEvents: boolean;
+        requiresApproval: boolean;
+        canCancel: boolean;
+      };
+      communication?: {
+        canPost: boolean;
+        canComment: boolean;
+        receiveEmailNotifications: boolean;
+        receiveTextNotifications: boolean;
+      };
+      profile?: {
+        canEdit: boolean;
+      };
+    };
+    coppaConsentGiven: boolean;
+    coppaConsentGivenAt: string | null;
+  }
+
+  export interface CreatePlaceholderRelationshipParams {
+    placeholderProfile: {
+      name: string;
+      email?: string;
+      phone?: string | null;
+      image?: string | null;
+      dateOfBirth: string;
+    };
+    permissions: {
+      bookings?: {
+        canBookLessons: boolean;
+        canJoinEvents: boolean;
+        requiresApproval: boolean;
+        canCancel: boolean;
+      };
+      communication?: {
+        canPost: boolean;
+        canComment: boolean;
+        receiveEmailNotifications: boolean;
+        receiveTextNotifications: boolean;
+      };
+      profile?: {
+        canEdit: boolean;
+      };
+    };
+    questionnaire?: {
+      questionnaireId: string;
+      responses: types.QuestionnaireQuestionResponse[];
+    };
+    waiver?: {
+      waiverId: string;
+    };
+  }
+
+  export interface GetMyDependendentsResponse {
+    relationships: {
+      id: string;
+      dependentMemberId: string;
+      permissions: types.GuardianPermissions | null;
+      createdAt: string;
+      dependent: {
+        name: string;
+        image: string | null;
+        dateOfBirth: string | null;
+        riderId: string;
+        isRestricted: boolean;
+        level: {
+          id: string;
+          name: string;
+          color: string;
+        } | null;
+        boardAssignments: string[];
+      };
+    }[];
+  }
+
+  export interface SendInvitationParams {
+    email: string;
+  }
+
+  export interface UpdateGuardianRelationshipRequest {
+    guardianMemberId?: string;
+    dependentMemberId?: string;
+    status?: models.GuardianRelationshipStatus;
+    permissions?: {
+      bookings?: {
+        canBookLessons: boolean;
+        canJoinEvents: boolean;
+        requiresApproval: boolean;
+        canCancel: boolean;
+      };
+      communication?: {
+        canPost: boolean;
+        canComment: boolean;
+        receiveEmailNotifications: boolean;
+        receiveTextNotifications: boolean;
+      };
+      profile?: {
+        canEdit: boolean;
+      };
+    };
+    coppaConsentGiven?: boolean;
+    coppaConsentGivenAt?: string | null;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.acceptInvitation = this.acceptInvitation.bind(this);
+      this.acceptRelationship = this.acceptRelationship.bind(this);
+      this.canAccessOrganization = this.canAccessOrganization.bind(this);
+      this.createGuardianRelationship =
+        this.createGuardianRelationship.bind(this);
+      this.createPlaceholderRelationship =
+        this.createPlaceholderRelationship.bind(this);
+      this.getMyDependents = this.getMyDependents.bind(this);
+      this.getMyGuardians = this.getMyGuardians.bind(this);
+      this.getRelationshipById = this.getRelationshipById.bind(this);
+      this.listAllRelationships = this.listAllRelationships.bind(this);
+      this.listPendingGuardianRequests =
+        this.listPendingGuardianRequests.bind(this);
+      this.revokeRelationship = this.revokeRelationship.bind(this);
+      this.sendInvitation = this.sendInvitation.bind(this);
+      this.updateGuardianRelationship =
+        this.updateGuardianRelationship.bind(this);
+    }
+
+    public async acceptInvitation(token: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/invitations/${encodeURIComponent(token)}/accept`
+      );
+    }
+
+    public async acceptRelationship(
+      relationshipId: string
+    ): Promise<types.GuardianRelationship> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/${encodeURIComponent(relationshipId)}/accept`
+      );
+      return (await resp.json()) as types.GuardianRelationship;
+    }
+
+    public async canAccessOrganization(organizationId: string): Promise<{
+      canAccess: boolean;
+      reason?: string;
+    }> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/${encodeURIComponent(organizationId)}/can-access`
+      );
+      return (await resp.json()) as {
+        canAccess: boolean;
+        reason?: string;
+      };
+    }
+
+    public async createGuardianRelationship(
+      params: CreateGuardianRelationshipParams
+    ): Promise<types.GuardianRelationship> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GuardianRelationship;
+    }
+
+    public async createPlaceholderRelationship(
+      params: CreatePlaceholderRelationshipParams
+    ): Promise<types.GuardianRelationship> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/placeholder`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GuardianRelationship;
+    }
+
+    public async getMyDependents(): Promise<GetMyDependendentsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/guardians/my-dependents`
+      );
+      return (await resp.json()) as GetMyDependendentsResponse;
+    }
+
+    public async getMyGuardians(): Promise<types.GuardianRelationshipWithGuardian> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/guardians/my-guardians`
+      );
+      return (await resp.json()) as types.GuardianRelationshipWithGuardian;
+    }
+
+    public async getRelationshipById(
+      relationshipId: string
+    ): Promise<types.GuardianRelationshipWithMembers> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/guardians/${encodeURIComponent(relationshipId)}`
+      );
+      return (await resp.json()) as types.GuardianRelationshipWithMembers;
+    }
+
+    public async listAllRelationships(): Promise<{
+      relationships: types.GuardianRelationshipWithMembers[];
+    }> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/guardians`);
+      return (await resp.json()) as {
+        relationships: types.GuardianRelationshipWithMembers[];
+      };
+    }
+
+    public async listPendingGuardianRequests(): Promise<{
+      relationships: types.GuardianRelationship[];
+    }> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/guardians/pending`
+      );
+      return (await resp.json()) as {
+        relationships: types.GuardianRelationship[];
+      };
+    }
+
+    public async revokeRelationship(
+      relationshipId: string
+    ): Promise<types.GuardianRelationship> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/${encodeURIComponent(relationshipId)}/revoke`
+      );
+      return (await resp.json()) as types.GuardianRelationship;
+    }
+
+    public async sendInvitation(
+      relationshipId: string,
+      params: SendInvitationParams
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/${encodeURIComponent(relationshipId)}/invitations`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async updateGuardianRelationship(
+      relationshipId: string,
+      params: UpdateGuardianRelationshipRequest
+    ): Promise<types.GuardianRelationship> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/guardians/${encodeURIComponent(relationshipId)}/update`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GuardianRelationship;
+    }
+  }
+}
+
+export namespace kiosk {
+  export interface ClearKioskIdentityRequest {
+    sessionId: string;
+  }
+
+  export interface CreateKioskSessionRequest {
+    boardId?: string | null;
+    locationName: string;
+  }
+
+  export interface GetKioskSessionResponse {
+    session: types.KioskSession;
+    acting: {
+      actingMemberId: string | null;
+      scope: types.KioskScope;
+      expiresAt: string | null;
+    };
+  }
+
+  export interface ListKioskSessionsResponse {
+    sessions: {
+      id: string;
+      locationName: string;
+      boardId: string | null;
+      boardName: string | null;
+      currentlyActing: boolean;
+      actingMemberId: string | null;
+      scope: types.KioskScope;
+    }[];
+  }
+
+  export interface UpdateKioskSessionRequest {
+    locationName: string;
+    boardId?: string | null;
+  }
+
+  export interface UpsertKioskSessionResponse {
+    session: {
+      id: string;
+      locationName: string;
+      boardId: string | null;
+    };
+  }
+
+  export interface VerifyKioskIdentityRequest {
+    sessionId: string;
+    memberId: string;
+    pin: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.clearKioskIdentity = this.clearKioskIdentity.bind(this);
+      this.createKioskSession = this.createKioskSession.bind(this);
+      this.deleteKioskSession = this.deleteKioskSession.bind(this);
+      this.getKioskSession = this.getKioskSession.bind(this);
+      this.kioskEnrollInInstance = this.kioskEnrollInInstance.bind(this);
+      this.kioskMarkAttendance = this.kioskMarkAttendance.bind(this);
+      this.kioskUnenrollFromInstance =
+        this.kioskUnenrollFromInstance.bind(this);
+      this.listKioskSessions = this.listKioskSessions.bind(this);
+      this.updateKioskSession = this.updateKioskSession.bind(this);
+      this.verifyKioskIdentity = this.verifyKioskIdentity.bind(this);
+    }
+
+    public async clearKioskIdentity(
+      params: ClearKioskIdentityRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/clear`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async createKioskSession(
+      params: CreateKioskSessionRequest
+    ): Promise<UpsertKioskSessionResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/sessions`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as UpsertKioskSessionResponse;
+    }
+
+    public async deleteKioskSession(sessionId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/kiosk/sessions/${encodeURIComponent(sessionId)}`
+      );
+    }
+
+    public async getKioskSession(
+      sessionId: string
+    ): Promise<GetKioskSessionResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/kiosk/session/${encodeURIComponent(sessionId)}`
+      );
+      return (await resp.json()) as GetKioskSessionResponse;
+    }
+
+    public async kioskEnrollInInstance(
+      instanceId: string,
+      params: lessons.KioskEnrollInInstanceRequest
+    ): Promise<enrollments.EnrollInInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/lessons/instances/${encodeURIComponent(instanceId)}/enroll`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as enrollments.EnrollInInstanceResponse;
+    }
+
+    public async kioskMarkAttendance(
+      enrollmentId: string,
+      params: lessons.KioskMarkAttendanceRequest
+    ): Promise<types.GetInstanceEnrollmentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/lessons/enrollments/${encodeURIComponent(enrollmentId)}/mark-attendance`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetInstanceEnrollmentResponse;
+    }
+
+    public async kioskUnenrollFromInstance(
+      enrollmentId: string,
+      params: lessons.KioskUnenrollFromInstanceRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/lessons/enrollments/${encodeURIComponent(enrollmentId)}/unenroll`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async listKioskSessions(): Promise<ListKioskSessionsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/kiosk/sessions`);
+      return (await resp.json()) as ListKioskSessionsResponse;
+    }
+
+    public async updateKioskSession(
+      sessionId: string,
+      params: UpdateKioskSessionRequest
+    ): Promise<UpsertKioskSessionResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/kiosk/sessions/${encodeURIComponent(sessionId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as UpsertKioskSessionResponse;
+    }
+
+    public async verifyKioskIdentity(
+      params: VerifyKioskIdentityRequest
+    ): Promise<types.KioskSessionResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/kiosk/verify`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.KioskSessionResponse;
+    }
+  }
+}
+
+export namespace lessons {
+  export interface KioskEnrollInInstanceRequest {
+    sessionId: string;
+    riderMemberId: string;
+  }
+
+  export interface KioskMarkAttendanceRequest {
+    sessionId: string;
+    attended: boolean;
+  }
+
+  export interface KioskUnenrollFromInstanceRequest {
+    sessionId: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.cancelLessonInstance = this.cancelLessonInstance.bind(this);
+      this.cancelLessonSeries = this.cancelLessonSeries.bind(this);
+      this.createLessonInstance = this.createLessonInstance.bind(this);
+      this.createLessonSeries = this.createLessonSeries.bind(this);
+      this.enrollInInstance = this.enrollInInstance.bind(this);
+      this.enrollInSeries = this.enrollInSeries.bind(this);
+      this.getLessonInstance = this.getLessonInstance.bind(this);
+      this.getLessonSeries = this.getLessonSeries.bind(this);
+      this.getLessonStats = this.getLessonStats.bind(this);
+      this.listInstanceEnrollments = this.listInstanceEnrollments.bind(this);
+      this.listLessonInstances = this.listLessonInstances.bind(this);
+      this.listLessonSeries = this.listLessonSeries.bind(this);
+      this.listMyEnrollments = this.listMyEnrollments.bind(this);
+      this.listSeriesEnrollments = this.listSeriesEnrollments.bind(this);
+      this.markAttendance = this.markAttendance.bind(this);
+      this.unenrollFromInstance = this.unenrollFromInstance.bind(this);
+      this.unenrollFromSeries = this.unenrollFromSeries.bind(this);
+      this.updateLessonInstance = this.updateLessonInstance.bind(this);
+      this.updateLessonSeries = this.updateLessonSeries.bind(this);
+    }
+
+    public async cancelLessonInstance(
+      instanceId: string,
+      params: instances.CancelLessonInstanceRequest
+    ): Promise<types.GetLessonInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/instances/${encodeURIComponent(instanceId)}/cancel`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLessonInstanceResponse;
+    }
+
+    public async cancelLessonSeries(
+      id: string,
+      params: series.CancelLessonSeriesRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/series/${encodeURIComponent(id)}/cancel`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async createLessonInstance(
+      params: instances.CreateLessonInstanceRequest
+    ): Promise<types.GetLessonInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/instances`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLessonInstanceResponse;
+    }
+
+    public async createLessonSeries(
+      params: series.CreateLessonSeriesRequest
+    ): Promise<types.GetLessonSeriesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/series`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLessonSeriesResponse;
+    }
+
+    public async enrollInInstance(
+      instanceId: string,
+      params: enrollments.EnrollInInstanceRequest
+    ): Promise<enrollments.EnrollInInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/instances/${encodeURIComponent(instanceId)}/enroll`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as enrollments.EnrollInInstanceResponse;
+    }
+
+    public async enrollInSeries(
+      seriesId: string,
+      params: enrollments.EnrollInSeriesRequest
+    ): Promise<enrollments.EnrollInSeriesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/series/${encodeURIComponent(seriesId)}/enroll`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as enrollments.EnrollInSeriesResponse;
+    }
+
+    public async getLessonInstance(
+      id: string
+    ): Promise<types.GetLessonInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/instances/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetLessonInstanceResponse;
+    }
+
+    public async getLessonSeries(
+      id: string
+    ): Promise<types.GetLessonSeriesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/series/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetLessonSeriesResponse;
+    }
+
+    public async getLessonStats(): Promise<instances.GetLessonStatsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/instances/stats`
+      );
+      return (await resp.json()) as instances.GetLessonStatsResponse;
+    }
+
+    public async listInstanceEnrollments(
+      id: string
+    ): Promise<types.ListLessonInstanceEnrollmentsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/instances/${encodeURIComponent(id)}/enrollments`
+      );
+      return (await resp.json()) as types.ListLessonInstanceEnrollmentsResponse;
+    }
+
+    public async listLessonInstances(
+      params: instances.ListLessonInstancesRequest
+    ): Promise<types.ListLessonInstancesResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardId: params.boardId,
+        from: params.from,
+        status: params.status === undefined ? undefined : String(params.status),
+        to: params.to,
+        trainerId: params.trainerId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/instances`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListLessonInstancesResponse;
+    }
+
+    public async listLessonSeries(): Promise<types.ListLessonSeriesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series`);
+      return (await resp.json()) as types.ListLessonSeriesResponse;
+    }
+
+    public async listMyEnrollments(): Promise<enrollments.ListMyEnrollmentsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/series/enrollments/me`
+      );
+      return (await resp.json()) as enrollments.ListMyEnrollmentsResponse;
+    }
+
+    public async listSeriesEnrollments(
+      id: string
+    ): Promise<types.ListLessonSeriesEnrollmentsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/lessons/series/${encodeURIComponent(id)}/enrollments`
+      );
+      return (await resp.json()) as types.ListLessonSeriesEnrollmentsResponse;
+    }
+
+    public async markAttendance(
+      enrollmentId: string,
+      params: enrollments.MarkAttendanceRequest
+    ): Promise<types.GetInstanceEnrollmentResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/instances/enrollments/${encodeURIComponent(enrollmentId)}/mark-attendance`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetInstanceEnrollmentResponse;
+    }
+
+    public async unenrollFromInstance(enrollmentId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/instances/enrollments/${encodeURIComponent(enrollmentId)}/unenroll`
+      );
+    }
+
+    public async unenrollFromSeries(seriesId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/lessons/series/${encodeURIComponent(seriesId)}/unenroll`
+      );
+    }
+
+    public async updateLessonInstance(
+      instanceId: string,
+      params: instances.UpdateLessonInstanceRequest
+    ): Promise<types.GetLessonInstanceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/lessons/instances/${encodeURIComponent(instanceId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLessonInstanceResponse;
+    }
+
+    public async updateLessonSeries(
+      id: string,
+      params: series.UpdateLessonSeriesRequest
+    ): Promise<types.GetLessonSeriesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/lessons/series/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLessonSeriesResponse;
+    }
+  }
+}
+
+export namespace notifications {
+  export interface CreateNotificationRequest {
+    organizationId: string;
+    recipientId: string;
+    type: types.NotificationType;
+    title: string;
+    message: string;
+    entityType: string;
+    entityId?: string;
+    deepLink?: string;
+    /**
+     * Override default channels for this specific notification
+     */
+    channels?: types.NotificationChannel[];
+  }
+
+  export interface DispatchNotificationRequest {
+    channel: types.NotificationChannel;
+  }
+
+  export interface GetUnreadResponse {
+    notifications: types.Notification[];
+    unreadCount: number;
+  }
+
+  export interface UpdatePreferencesParams {
+    preferences: {
+      type: types.NotificationType;
+      inAppEnabled: boolean;
+      pushEnabled: boolean;
+      emailEnabled: boolean;
+      smsEnabled: boolean;
+    }[];
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createNotification = this.createNotification.bind(this);
+      this.dispatch = this.dispatch.bind(this);
+      this.getPreferences = this.getPreferences.bind(this);
+      this.getUnread = this.getUnread.bind(this);
+      this.handleSMSWebhook = this.handleSMSWebhook.bind(this);
+      this.handleSMSWebhookFailover = this.handleSMSWebhookFailover.bind(this);
+      this.markAsRead = this.markAsRead.bind(this);
+      this.updatePreferences = this.updatePreferences.bind(this);
+    }
+
+    public async createNotification(
+      params: CreateNotificationRequest
+    ): Promise<types.GetNotificationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/notifications`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetNotificationResponse;
+    }
+
+    public async dispatch(
+      notificationId: string,
+      params: DispatchNotificationRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/notifications/${encodeURIComponent(notificationId)}/dispatch`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async getPreferences(
+      memberId: string
+    ): Promise<types.NotificationPreference> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/notifications/${encodeURIComponent(memberId)}/preferences`
+      );
+      return (await resp.json()) as types.NotificationPreference;
+    }
+
+    public async getUnread(memberId: string): Promise<GetUnreadResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/notifications/${encodeURIComponent(memberId)}/unread-count`
+      );
+      return (await resp.json()) as GetUnreadResponse;
+    }
+
+    public async handleSMSWebhook(
+      method: "POST",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(method, `/webhooks/sms`, body, options);
+    }
+
+    public async handleSMSWebhookFailover(
+      method: "POST",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/webhooks/sms/failover`,
+        body,
+        options
+      );
+    }
+
+    public async markAsRead(
+      notificationId: string
+    ): Promise<types.GetNotificationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/notifications/${encodeURIComponent(notificationId)}/read`
+      );
+      return (await resp.json()) as types.GetNotificationResponse;
+    }
+
+    public async updatePreferences(
+      memberId: string,
+      params: UpdatePreferencesParams
+    ): Promise<{
+      preferences: types.NotificationPreference[];
+    }> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/notifications/${encodeURIComponent(memberId)}/preferences`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as {
+        preferences: types.NotificationPreference[];
+      };
+    }
+  }
+}
+
+export namespace organizations {
+  export interface CheckSlugResponse {
+    available: boolean;
+  }
+
+  export interface CreateOrganizationRequest {
+    slug: string;
+    name: string;
+    phone?: string | null;
+    timezone: string;
+    logoUrl?: string | null;
+    primaryColor?: string | null;
+    website?: string | null;
+    facebook?: string | null;
+    instagram?: string | null;
+    youtube?: string | null;
+    tiktok?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    allowSameDayBookings?: boolean;
+    allowPublicJoin?: boolean;
+  }
+
+  export interface CreateOrganizationResponse {
+    membership: types.Member;
+    organization: types.Organization;
+  }
+
+  export interface ListMyOrganizationsResponse {
+    organizations: {
+      organization: types.Organization;
+      roles: models.MembershipRole[];
+    }[];
+  }
+
+  export interface SendInvitationRequest {
+    email: string;
+    role: models.MembershipRole[];
+    resend?: boolean;
+  }
+
+  export interface UpdateOrganizationRequest {
+    slug?: string;
+    name?: string;
+    phone?: string | null;
+    timezone?: string;
+    logoUrl?: string | null;
+    primaryColor?: string | null;
+    website?: string | null;
+    facebook?: string | null;
+    instagram?: string | null;
+    youtube?: string | null;
+    tiktok?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    allowSameDayBookings?: boolean;
+    allowPublicJoin?: boolean;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.changeRole = this.changeRole.bind(this);
+      this.checkSlug = this.checkSlug.bind(this);
+      this.completeOnboarding = this.completeOnboarding.bind(this);
+      this.createLevel = this.createLevel.bind(this);
+      this.createOrganization = this.createOrganization.bind(this);
+      this.createRider = this.createRider.bind(this);
+      this.createTrainer = this.createTrainer.bind(this);
+      this.deleteLevel = this.deleteLevel.bind(this);
+      this.getById = this.getById.bind(this);
+      this.getBySlug = this.getBySlug.bind(this);
+      this.getLevel = this.getLevel.bind(this);
+      this.getMember = this.getMember.bind(this);
+      this.getMemberById = this.getMemberById.bind(this);
+      this.getRider = this.getRider.bind(this);
+      this.getRiderStats = this.getRiderStats.bind(this);
+      this.getTrainer = this.getTrainer.bind(this);
+      this.joinOrganization = this.joinOrganization.bind(this);
+      this.listInvitations = this.listInvitations.bind(this);
+      this.listLevels = this.listLevels.bind(this);
+      this.listMembers = this.listMembers.bind(this);
+      this.listMyOrganizations = this.listMyOrganizations.bind(this);
+      this.listOrganizations = this.listOrganizations.bind(this);
+      this.listRiders = this.listRiders.bind(this);
+      this.listTrainers = this.listTrainers.bind(this);
+      this.listUserInvitations = this.listUserInvitations.bind(this);
+      this.onboardMember = this.onboardMember.bind(this);
+      this.sendInvitation = this.sendInvitation.bind(this);
+      this.setKioskPin = this.setKioskPin.bind(this);
+      this.updateLevel = this.updateLevel.bind(this);
+      this.updateOrganization = this.updateOrganization.bind(this);
+      this.updateRider = this.updateRider.bind(this);
+      this.updateTrainer = this.updateTrainer.bind(this);
+    }
+
+    public async changeRole(
+      memberId: string,
+      params: members.ChangeRoleRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "PUT",
+        `/members/${encodeURIComponent(memberId)}/role`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async checkSlug(slug: string): Promise<CheckSlugResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/check/${encodeURIComponent(slug)}`
+      );
+      return (await resp.json()) as CheckSlugResponse;
+    }
+
+    public async completeOnboarding(memberId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/members/${encodeURIComponent(memberId)}/complete-onboarding`
+      );
+    }
+
+    public async createLevel(
+      params: levels.CreateLevelRequest
+    ): Promise<types.GetLevelResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/levels`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLevelResponse;
+    }
+
+    public async createOrganization(
+      params: CreateOrganizationRequest
+    ): Promise<CreateOrganizationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/organizations`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as CreateOrganizationResponse;
+    }
+
+    public async createRider(
+      params: members.CreateRiderRequest
+    ): Promise<types.GetRiderResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/riders`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetRiderResponse;
+    }
+
+    public async createTrainer(
+      params: members.CreateTrainerRequest
+    ): Promise<types.GetTrainerResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/trainers`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetTrainerResponse;
+    }
+
+    public async deleteLevel(id: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/levels/${encodeURIComponent(id)}`
+      );
+    }
+
+    public async getById(id: string): Promise<types.GetOrganizationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetOrganizationResponse;
+    }
+
+    public async getBySlug(
+      slug: string
+    ): Promise<types.GetOrganizationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/by-slug/${encodeURIComponent(slug)}`
+      );
+      return (await resp.json()) as types.GetOrganizationResponse;
+    }
+
+    public async getLevel(levelId: string): Promise<types.GetLevelResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/levels/${encodeURIComponent(levelId)}`
+      );
+      return (await resp.json()) as types.GetLevelResponse;
+    }
+
+    public async getMember(): Promise<types.GetMemberResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/members/me`);
+      return (await resp.json()) as types.GetMemberResponse;
+    }
+
+    public async getMemberById(
+      memberId: string
+    ): Promise<types.GetMemberResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/members/${encodeURIComponent(memberId)}`
+      );
+      return (await resp.json()) as types.GetMemberResponse;
+    }
+
+    public async getRider(riderId: string): Promise<types.GetRiderResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/riders/${encodeURIComponent(riderId)}`
+      );
+      return (await resp.json()) as types.GetRiderResponse;
+    }
+
+    public async getRiderStats(): Promise<members.GetRiderStatsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/riders/stats`
+      );
+      return (await resp.json()) as members.GetRiderStatsResponse;
+    }
+
+    public async getTrainer(
+      trainerId: string
+    ): Promise<types.GetTrainerResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/trainers/${encodeURIComponent(trainerId)}`
+      );
+      return (await resp.json()) as types.GetTrainerResponse;
+    }
+
+    public async joinOrganization(
+      organizationId: string,
+      params: members.JoinOrganizationRequest
+    ): Promise<types.GetMemberResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/organizations/${encodeURIComponent(organizationId)}/join`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetMemberResponse;
+    }
+
+    public async listInvitations(): Promise<types.ListInvitationsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/invitations`);
+      return (await resp.json()) as types.ListInvitationsResponse;
+    }
+
+    public async listLevels(): Promise<types.ListLevelsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/levels`);
+      return (await resp.json()) as types.ListLevelsResponse;
+    }
+
+    public async listMembers(): Promise<types.ListMembersResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/members`);
+      return (await resp.json()) as types.ListMembersResponse;
+    }
+
+    public async listMyOrganizations(): Promise<ListMyOrganizationsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/organizations/my`
+      );
+      return (await resp.json()) as ListMyOrganizationsResponse;
+    }
+
+    public async listOrganizations(): Promise<types.ListOrganizationsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/organizations`);
+      return (await resp.json()) as types.ListOrganizationsResponse;
+    }
+
+    public async listRiders(): Promise<types.ListRidersResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/riders`);
+      return (await resp.json()) as types.ListRidersResponse;
+    }
+
+    public async listTrainers(
+      params: members.ListTrainersRequest
+    ): Promise<types.ListTrainersResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        boardId: params.boardId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/trainers`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListTrainersResponse;
+    }
+
+    public async listUserInvitations(): Promise<types.ListInvitationsResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/invitations/user`
+      );
+      return (await resp.json()) as types.ListInvitationsResponse;
+    }
+
+    public async onboardMember(
+      params: members.OnboardMemberParams
+    ): Promise<types.BaseMember> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/organizations/members/onboard`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.BaseMember;
+    }
+
+    public async sendInvitation(
+      organizationId: string,
+      params: SendInvitationRequest
+    ): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "POST",
+        `/organizations/${encodeURIComponent(organizationId)}/invitations`,
+        JSON.stringify(params)
+      );
+    }
+
+    public async setKioskPin(
+      params: members.SetKioskPinRequest
+    ): Promise<types.GetMemberResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/members/pin`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetMemberResponse;
+    }
+
+    public async updateLevel(
+      id: string,
+      params: levels.UpdateLevelRequest
+    ): Promise<types.GetLevelResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/levels/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetLevelResponse;
+    }
+
+    public async updateOrganization(
+      organizationId: string,
+      params: UpdateOrganizationRequest
+    ): Promise<types.GetOrganizationResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/organizations/${encodeURIComponent(organizationId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetOrganizationResponse;
+    }
+
+    public async updateRider(
+      riderId: string,
+      params: members.UpdateRiderRequest
+    ): Promise<types.GetRiderResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/riders/${encodeURIComponent(riderId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetRiderResponse;
+    }
+
+    public async updateTrainer(
+      trainerId: string,
+      params: members.UpdateTrainerRequest
+    ): Promise<types.GetTrainerResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/trainers/${encodeURIComponent(trainerId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetTrainerResponse;
+    }
+  }
+}
+
+export namespace payments {
+  export interface ChargeRequest {
+    amountCents: number;
+    cardToken: string;
+    lessonId: string;
+  }
+
+  export interface ChargeResponse {
+    chargeId: string;
+    status: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.charge = this.charge.bind(this);
+      this.cloverWebhook = this.cloverWebhook.bind(this);
+      this.refund = this.refund.bind(this);
+    }
+
+    public async charge(params: ChargeRequest): Promise<ChargeResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/payments/charge`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as ChargeResponse;
+    }
+
+    public async cloverWebhook(
+      method: "POST",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/payments/webhooks/clover`,
+        body,
+        options
+      );
+    }
+
+    public async refund(params: {
+      chargeId: string;
+      amountCents?: number;
+    }): Promise<{
+      status: string;
+    }> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/payments/refund`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as {
+        status: string;
+      };
+    }
+  }
+}
+
+export namespace questionnaires {
+  export interface CreateQuestionnaireRequest {
+    name: string;
+    isActive?: boolean;
+    version?: number;
+    defaultBoardId?: string | null;
+    questions: types.QuestionnaireQuestion[];
+    boardAssignmentRules: types.QuestionnaireBoardAssignmentRule[];
+  }
+
+  export interface SubmitQuestionnaireResponseRequest {
+    memberId?: string;
+    responses: {
+      questionId: string;
+      responseValue: string | boolean;
+    }[];
+  }
+
+  export interface SubmitQuestionnaireResponseResponse {
+    responseId: string;
+    assignedBoardIds: string[];
+  }
+
+  export interface UpdateQuestionnaireRequest {
+    name?: string;
+    isActive?: boolean;
+    version?: number;
+    defaultBoardId?: string | null;
+    questions?: types.QuestionnaireQuestion[];
+    boardAssignmentRules?: types.QuestionnaireBoardAssignmentRule[];
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createQuestionnaire = this.createQuestionnaire.bind(this);
+      this.deactivateQuestionnaire = this.deactivateQuestionnaire.bind(this);
+      this.getQuestionnaire = this.getQuestionnaire.bind(this);
+      this.getQuestionnaireResponse = this.getQuestionnaireResponse.bind(this);
+      this.listQuestionnaires = this.listQuestionnaires.bind(this);
+      this.submitResponse = this.submitResponse.bind(this);
+      this.updateQuestionnaire = this.updateQuestionnaire.bind(this);
+    }
+
+    public async createQuestionnaire(
+      params: CreateQuestionnaireRequest
+    ): Promise<types.GetQuestionnaireResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/questionnaires`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetQuestionnaireResponse;
+    }
+
+    public async deactivateQuestionnaire(id: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/questionnaires/${encodeURIComponent(id)}`
+      );
+    }
+
+    public async getQuestionnaire(
+      id: string
+    ): Promise<types.GetQuestionnaireResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/questionnaires/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetQuestionnaireResponse;
+    }
+
+    public async getQuestionnaireResponse(
+      questionnaireId: string
+    ): Promise<types.ListQuestionnaireResponsesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/questionnaires/${encodeURIComponent(questionnaireId)}/responses`
+      );
+      return (await resp.json()) as types.ListQuestionnaireResponsesResponse;
+    }
+
+    public async listQuestionnaires(): Promise<types.ListQuestionnairesResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/questionnaires`);
+      return (await resp.json()) as types.ListQuestionnairesResponse;
+    }
+
+    public async submitResponse(
+      questionnaireId: string,
+      params: SubmitQuestionnaireResponseRequest
+    ): Promise<SubmitQuestionnaireResponseResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/questionnaires/${encodeURIComponent(questionnaireId)}/responses`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as SubmitQuestionnaireResponseResponse;
+    }
+
+    public async updateQuestionnaire(
+      id: string,
+      params: UpdateQuestionnaireRequest
+    ): Promise<types.GetQuestionnaireResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/questionnaires/${encodeURIComponent(id)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetQuestionnaireResponse;
+    }
+  }
+}
+
+export namespace quickbooks {
+  export interface ConnectQuickBooksResponse {
+    authUrl: string;
+  }
+
+  export interface CreateQuickBooksInvoiceRequest {
+    customerId: string;
+    amount: number;
+    lineItems: {
+      description: string;
+      amount: number;
+      quantity?: number;
+    }[];
+    lessonId?: string;
+  }
+
+  export interface CreateQuickBooksInvoiceResponse {
+    id: string;
+    quickbooksId: string;
+    invoiceUrl?: string;
+    status: string;
+  }
+
+  export interface QuickBooksCallbackRequest {
+    code: string;
+    state: string;
+    realmId: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.createQuickBooksInvoice = this.createQuickBooksInvoice.bind(this);
+      this.disconnectQuickBooks = this.disconnectQuickBooks.bind(this);
+      this.getConnection = this.getConnection.bind(this);
+      this.getQuickbooksAuthUrl = this.getQuickbooksAuthUrl.bind(this);
+      this.handleQuickBooksCallback = this.handleQuickBooksCallback.bind(this);
+    }
+
+    public async createQuickBooksInvoice(
+      params: CreateQuickBooksInvoiceRequest
+    ): Promise<CreateQuickBooksInvoiceResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/quickbooks/invoices`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as CreateQuickBooksInvoiceResponse;
+    }
+
+    public async disconnectQuickBooks(): Promise<void> {
+      await this.baseClient.callTypedAPI("DELETE", `/quickbooks/connection`);
+    }
+
+    public async getConnection(): Promise<void> {
+      await this.baseClient.callTypedAPI("GET", `/quickbooks/connection`);
+    }
+
+    public async getQuickbooksAuthUrl(): Promise<ConnectQuickBooksResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/quickbooks/auth-url`
+      );
+      return (await resp.json()) as ConnectQuickBooksResponse;
+    }
+
+    public async handleQuickBooksCallback(
+      params: QuickBooksCallbackRequest
+    ): Promise<{
+      success: boolean;
+    }> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        code: params.code,
+        realmId: params.realmId,
+        state: params.state,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/quickbooks/callback`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as {
+        success: boolean;
+      };
+    }
+  }
+}
+
+export namespace upload {
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.deleteOrganizationLogo = this.deleteOrganizationLogo.bind(this);
+      this.deleteUserAvatar = this.deleteUserAvatar.bind(this);
+      this.uploadOrganizationLogo = this.uploadOrganizationLogo.bind(this);
+      this.uploadUserAvatar = this.uploadUserAvatar.bind(this);
+    }
+
+    public async deleteOrganizationLogo(
+      method: "DELETE",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/upload/avatar/organization`,
+        body,
+        options
+      );
+    }
+
+    public async deleteUserAvatar(
+      method: "DELETE",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/upload/avatar/user`,
+        body,
+        options
+      );
+    }
+
+    public async uploadOrganizationLogo(
+      method: "POST",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/upload/avatar/organization`,
+        body,
+        options
+      );
+    }
+
+    public async uploadUserAvatar(
+      method: "POST",
+      body?: RequestInit["body"],
+      options?: CallParameters
+    ): Promise<globalThis.Response> {
+      return this.baseClient.callAPI(
+        method,
+        `/upload/avatar/user`,
+        body,
+        options
+      );
+    }
+  }
+}
+
+export namespace waivers {
+  export interface CreateWaiverRequest {
+    title: string;
+    content: string;
+  }
+
+  export interface ListSignaturesRequest {
+    signerMemberId?: string;
+  }
+
+  export interface SignWaiverRequest {
+    onBehalfOfMemberId?: string | null;
+  }
+
+  export interface UpdateWaiverRequest {
+    title?: string;
+    content?: string;
+  }
+
+  export class ServiceClient {
+    private baseClient: BaseClient;
+
+    constructor(baseClient: BaseClient) {
+      this.baseClient = baseClient;
+      this.archiveWaiver = this.archiveWaiver.bind(this);
+      this.createWaiver = this.createWaiver.bind(this);
+      this.getSignatureForWaiver = this.getSignatureForWaiver.bind(this);
+      this.getWaiver = this.getWaiver.bind(this);
+      this.listSignatures = this.listSignatures.bind(this);
+      this.listWaivers = this.listWaivers.bind(this);
+      this.signWaiver = this.signWaiver.bind(this);
+      this.updateWaiver = this.updateWaiver.bind(this);
+    }
+
+    public async archiveWaiver(waiverId: string): Promise<void> {
+      await this.baseClient.callTypedAPI(
+        "DELETE",
+        `/waivers/${encodeURIComponent(waiverId)}/archive`
+      );
+    }
+
+    public async createWaiver(
+      params: CreateWaiverRequest
+    ): Promise<types.GetWaiverResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/waivers`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetWaiverResponse;
+    }
+
+    public async getSignatureForWaiver(
+      id: string,
+      signatureId: string
+    ): Promise<types.GetSignatureResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/waivers/${encodeURIComponent(id)}/signatures/${encodeURIComponent(signatureId)}`
+      );
+      return (await resp.json()) as types.GetSignatureResponse;
+    }
+
+    public async getWaiver(id: string): Promise<types.GetWaiverResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/waivers/${encodeURIComponent(id)}`
+      );
+      return (await resp.json()) as types.GetWaiverResponse;
+    }
+
+    public async listSignatures(
+      waiverId: string,
+      params: ListSignaturesRequest
+    ): Promise<types.ListSignaturesResponse> {
+      // Convert our params into the objects we need for the request
+      const query = makeRecord<string, string | string[]>({
+        signerMemberId: params.signerMemberId,
+      });
+
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "GET",
+        `/waivers/${encodeURIComponent(waiverId)}/signatures`,
+        undefined,
+        { query }
+      );
+      return (await resp.json()) as types.ListSignaturesResponse;
+    }
+
+    public async listWaivers(): Promise<types.ListWaiversResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI("GET", `/waivers`);
+      return (await resp.json()) as types.ListWaiversResponse;
+    }
+
+    public async signWaiver(
+      waiverId: string,
+      params: SignWaiverRequest
+    ): Promise<types.GetSignatureResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "POST",
+        `/waivers/${encodeURIComponent(waiverId)}/sign`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetSignatureResponse;
+    }
+
+    public async updateWaiver(
+      waiverId: string,
+      params: UpdateWaiverRequest
+    ): Promise<types.GetWaiverResponse> {
+      // Now make the actual call to the API
+      const resp = await this.baseClient.callTypedAPI(
+        "PUT",
+        `/waivers/${encodeURIComponent(waiverId)}`,
+        JSON.stringify(params)
+      );
+      return (await resp.json()) as types.GetWaiverResponse;
+    }
+  }
+}
+
+export namespace business_hours {
+  export interface CheckLessonHoursRequest {
+    boardId: string;
+    trainerId: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  }
+
+  export interface CheckLessonHoursResponse {
+    withinOrgHours: boolean;
+    withinTrainerHours: boolean | null;
+    effectiveOrgHours: types.BusinessHoursDay | null;
+    effectiveTrainerHours: types.BusinessHoursDay | null;
+    passes: boolean;
+  }
+
+  export interface UpdateOrganizationBusinessHoursParams {
+    boardId: string | null;
+    days: utils.DayHours[];
+  }
+
+  export interface UpdateTrainerBusinessHoursParams {
+    boardId: string | null;
+    days: utils.DayHours[];
+  }
+}
+
+export namespace enrollments {
+  export interface EnrollInInstanceRequest {
+    riderIds: string | string[];
+    enrolledByMemberId?: string;
+  }
+
+  export interface EnrollInInstanceResponse {
+    enrollment:
+      | types.LessonInstanceEnrollment
+      | types.LessonInstanceEnrollment[];
+  }
+
+  export interface EnrollInSeriesRequest {
+    riderIds: string | string[];
+    startDate: string;
+    endDate: string | null;
+  }
+
+  export interface EnrollInSeriesResponse {
+    enrollment: types.LessonSeriesEnrollment | types.LessonSeriesEnrollment[];
+  }
+
+  export interface ListMyEnrollmentsResponse {
+    instanceEnrollments: types.LessonInstanceEnrollment[];
+    seriesEnrollments: types.LessonSeriesEnrollment[];
+  }
+
+  export interface MarkAttendanceRequest {
+    attended: boolean;
+  }
+}
+
+export namespace instances {
+  export interface CancelLessonInstanceRequest {
+    reason?: string;
+  }
+
+  export interface CreateLessonInstanceRequest {
+    boardId: string;
+    trainerId: string;
+    maxRiders: number;
+    serviceId: string;
+    start: string;
+    seriesId: string;
+    end: string;
+    occurrenceKey: string;
+    name?: string | null;
+    levelId?: string | null;
+    notes?: string | null;
+  }
+
+  export interface GetLessonStatsResponse {
+    totalLessonInstancesThisMonth: number;
+    totalLessonInstancesLastMonth: number;
+    percentageChange: number;
+  }
+
+  export interface ListLessonInstancesRequest {
+    from: string;
+    to: string;
+    boardId?: string;
+    trainerId?: string;
+    status?: models.LessonInstanceStatus;
+  }
+
+  export interface UpdateLessonInstanceRequest {
+    boardId: string;
+    trainerId: string;
+    maxRiders: number;
+    serviceId: string;
+    start: string;
+    end: string;
+    name: string | null;
+    status?: models.LessonInstanceStatus;
+    levelId?: string | null;
+    notes?: string | null;
+    riderIds?: string[] | null;
+  }
+}
+
+export namespace levels {
+  export interface CreateLevelRequest {
+    name: string;
+    color: string;
+    description?: string | null;
+  }
+
+  export interface UpdateLevelRequest {
+    name?: string;
+    color?: string;
+    description?: string | null;
+  }
+}
+
+export namespace members {
+  export interface ChangeRoleRequest {
+    roles: models.MembershipRole[];
+  }
+
+  export interface CreateRiderRequest {
+    organizationId: string;
+    memberId: string;
+    isRestricted?: boolean;
+    emergencyContactName?: string | null;
+    emergencyContactPhone?: string | null;
+    ridingLevelId?: string | null;
+  }
+
+  export interface CreateTrainerRequest {
+    organizationId: string;
+    memberId: string;
+    bio?: string | null;
+    allowSameDayBookings?: boolean;
+  }
+
+  export interface GetRiderStatsResponse {
+    totalRiders: number;
+    newRidersThisMonth: number;
+    newRidersLastMonth: number;
+    percentageChange: number;
+    ridersByLevel: {
+      levelName: string;
+      count: number;
+      color: string;
+    }[];
+  }
+
+  export interface JoinOrganizationRequest {
+    roles?: models.MembershipRole[];
+  }
+
+  export interface ListTrainersRequest {
+    boardId?: string;
+  }
+
+  export interface OnboardMemberParams {
+    organizationId: string;
+    user: {
+      name: string;
+      phone?: string | null;
+      dateOfBirth?: string | null;
+      image?: string | null;
+      roles: models.MembershipRole[];
+    };
+    questionnaire?: {
+      questionnaireId: string;
+      responses: types.QuestionnaireQuestionResponse[];
+    };
+    waiver?: {
+      waiverId: string;
+    };
+  }
+
+  export interface SetKioskPinRequest {
+    pin: string;
+  }
+
+  export interface UpdateRiderRequest {
+    organizationId?: string;
+    memberId?: string;
+    isRestricted?: boolean;
+    emergencyContactName?: string | null;
+    emergencyContactPhone?: string | null;
+    ridingLevelId?: string | null;
+  }
+
+  export interface UpdateTrainerRequest {
+    organizationId?: string;
+    memberId?: string;
+    bio?: string | null;
+    allowSameDayBookings?: boolean;
+  }
+}
+
+export namespace models {
+  export type DayOfWeek =
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday";
+
+  export type EventScope = "organization" | "board" | "trainer";
+
+  export type GuardianRelationshipStatus = "active" | "revoked" | "pending";
+
+  export type InvitationStatus =
+    | "pending"
+    | "accepted"
+    | "rejected"
+    | "cancelled";
+
+  export type LessonInstanceEnrollmentStatus =
+    | "enrolled"
+    | "waitlisted"
+    | "cancelled"
+    | "attended"
+    | "no_show";
+
+  export type LessonInstanceStatus = "scheduled" | "completed" | "cancelled";
+
+  export type LessonSeriesEnrollmentStatus = "active" | "paused" | "cancelled";
+
+  export type LessonSeriesStatus =
+    | "active"
+    | "paused"
+    | "cancelled"
+    | "completed";
+
+  export type MembershipRole = "admin" | "rider" | "trainer" | "guardian";
+
+  export type QuestionnaireQuestionOperator = "equals" | "not_equals";
+
+  export type QuestionnaireQuestionType = "boolean" | "multiple_choice";
+
+  export type RecurrenceFrequency = "weekly" | "biweekly";
+
+  export type WaiverStatus = "active" | "archived";
+}
+
+export namespace series {
+  export interface CancelLessonSeriesRequest {
+    reason?: string;
+  }
+
+  export interface CreateLessonSeriesRequest {
+    duration: number;
+    boardId: string;
+    maxRiders: number;
+    serviceId: string;
+    trainerId: string;
+    start: string;
+    name?: string | null;
+    status?: models.LessonSeriesStatus;
+    levelId?: string | null;
+    notes?: string | null;
+    isRecurring?: boolean;
+    recurrenceFrequency?: models.RecurrenceFrequency | null;
+    recurrenceByDay?: models.DayOfWeek[] | null;
+    recurrenceEnd?: string | null;
+    effectiveFrom?: string | null;
+    lastPlannedUntil?: string | null;
+    updatedByMemberId?: string | null;
+    riderIds?: string[];
+    overrideAvailability?: boolean;
+  }
+
+  export interface UpdateLessonSeriesRequest {
+    effectiveFrom?: string | null;
+    duration: number;
+    boardId: string;
+    maxRiders: number;
+    serviceId: string;
+    trainerId: string;
+    start: string;
+    name?: string | null;
+    status?: models.LessonSeriesStatus;
+    levelId?: string | null;
+    notes?: string | null;
+    isRecurring?: boolean;
+    recurrenceFrequency?: models.RecurrenceFrequency | null;
+    recurrenceByDay?: models.DayOfWeek[] | null;
+    recurrenceEnd?: string | null;
+    lastPlannedUntil?: string | null;
+    updatedByMemberId?: string | null;
+    riderIds?: string[];
+    overrideAvailability?: boolean;
+  }
+}
+
+export namespace services {
+  export interface AssignToServiceRequest {
+    type: "trainer" | "board";
+    serviceId: string;
+    trainerId?: string;
+    boardId?: string;
+    isActive?: boolean;
+  }
+
+  export interface AssignToServiceResponse {
+    assignment: types.ServiceTrainerAssignment | types.ServiceBoardAssignment;
+  }
+
+  export interface CreateServiceRequest {
+    name: string;
+    duration: number;
+    price: number;
+    creditPrice: number;
+    maxRiders: number;
+    isRestricted?: boolean;
+    description?: string | null;
+    canRiderAdd?: boolean;
+    creditAdditionalPrice?: number | null;
+    isPrivate?: boolean;
+    canRecurBook?: boolean;
+    restrictedToLevelId?: string | null;
+    isAllTrainers?: boolean;
+    isActive?: boolean;
+    boardIds?: string[];
+    trainerIds?: string[];
+  }
+
+  export interface ListBoardServiceAssignmentsRequest {
+    boardId?: string;
+    serviceId?: string;
+  }
+
+  export interface ListServicesRequest {
+    trainerId?: string;
+    boardId?: string;
+  }
+
+  export interface ListTrainerServiceAssignmentsRequest {
+    trainerId?: string;
+    serviceId?: string;
+  }
+
+  export interface UnassignFromServiceRequest {
+    type: "trainer" | "board";
+  }
+
+  export interface UpdateServiceRequest {
+    name?: string;
+    duration?: number;
+    price?: number;
+    creditPrice?: number;
+    maxRiders?: number;
+    isRestricted?: boolean;
+    description?: string | null;
+    canRiderAdd?: boolean;
+    creditAdditionalPrice?: number | null;
+    isPrivate?: boolean;
+    canRecurBook?: boolean;
+    restrictedToLevelId?: string | null;
+    isAllTrainers?: boolean;
+    isActive?: boolean;
+    boardIds?: string[];
+    trainerIds?: string[];
+  }
+}
+
+export namespace time_blocks {
+  export interface CreateTimeBlockParams {
+    trainerId: string;
+    start: string;
+    end: string;
+    boardId?: string | null;
+    reason?: string | null;
+  }
+
+  export interface ListTimeBlocksParams {
+    trainerId?: string;
+    from?: string;
+    to?: string;
+  }
+
+  export interface UpdateTimeBlockParams {
+    trainerId: string;
+    start: string;
+    end: string;
+    boardId?: string | null;
+    reason?: string | null;
+  }
+}
+
+export namespace types {
+  export interface Activity {
+    id: string;
+    createdAt: string;
+    metadata: ActivityMetadata;
+    organizationId: string;
+    actorMemberId: string | null;
+    ownerMemberId: string;
+    trainerId: string | null;
+    riderId: string | null;
+    subjectType: ActivitySubjectType;
+    subjectId: string;
+    type: ActivityType;
+    actorMember?: Member | null;
+  }
+
+  export interface ActivityMetadata {
+    /**
+     * Lesson activities
+     */
+    lessonId?: string;
+
+    instanceId?: string;
+    trainerName?: string;
+    trainerProfileId?: string;
+    trainerMemberId?: string;
+    riderName?: string;
+    riderProfileId?: string;
+    riderMemberId?: string;
+    horseName?: string;
+    horses?: {
+      id: string;
+      name: string;
+    }[];
+    riders?: {
+      name: string;
+      profileId?: string;
+      memberId?: string;
+    }[];
+    otherRiders?: {
+      name: string;
+    }[];
+    lessonName?: string;
+    startTime?: string;
+    endTime?: string;
+    completedAt?: string;
+    duration?: string;
+    /**
+     * Post/social activities
+     */
+    postId?: string;
+
+    content?: string;
+    truncatedContent?: string;
+    commentCount?: number;
+    /**
+     * Questionnaire/Waiver activities
+     */
+    questionnaireId?: string;
+
+    questionnaireName?: string;
+    waiverType?: string;
+    /**
+     * Generic fields
+     */
+    title?: string;
+
+    description?: string;
+    reason?: string;
+    notes?: string;
+  }
+
+  export type ActivitySubjectType =
+    | "lesson"
+    | "post"
+    | "payment"
+    | "rider"
+    | "trainer"
+    | "other";
+
+  export type ActivityType =
+    | "enrollment_created"
+    | "lesson_completed_as_rider"
+    | "waiver_signed"
+    | "questionnaire_submitted"
+    | "level_updated"
+    | "lesson_taught"
+    | "student_assigned"
+    | "post_created"
+    | "comment_added"
+    | "profile_updated"
+    | "credit_package_purchased"
+    | "invoice_paid"
+    | "user_updated";
+
+  export interface AuthUser {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    email: string;
+    emailVerified: boolean;
+    name: string;
+    image?: string | null;
+    phone?: string | null;
+    profilePictureUrl?: string | null;
+    banned?: boolean | null;
+    role?: string | null;
+    banReason?: string | null;
+    banExpires?: string | null;
+    dateOfBirth?: string | null;
+  }
+
+  export interface BaseMember {
+    organizationId: string;
+    id: string;
+    kioskPin: string | null;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    authMemberId: string;
+    isPlaceholder: boolean;
+    roles: models.MembershipRole[];
+    onboardingComplete: boolean;
+    deletedAt: string | null;
+    authUser?: AuthUser | null;
+  }
+
+  export interface Board {
+    organizationId: string;
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    canRiderAdd: boolean;
+    assignments?: BoardAssignment[] | null;
+    serviceBoardAssignments?: ServiceBoardAssignment[] | null;
+  }
+
+  export interface BoardAssignment {
+    boardId: string;
+    id: string;
+    createdAt: string;
+    organizationId: string;
+    trainerId: string | null;
+    riderId: string | null;
+    trainer?: Trainer | null;
+    rider?: Rider | null;
+    board?: Board | null;
+  }
+
+  export interface BusinessHoursDay {
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: utils.TimeSlot[];
+  }
+
+  export interface Event {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    description: string | null;
+    createdByMemberId: string | null;
+    startDate: string;
+    endDate: string;
+    title: string;
+    startTime: string | null;
+    endTime: string | null;
+    blockScheduling: boolean;
+    schedulingBlocks?: EventSchedulingBlock[] | null;
+  }
+
+  export interface EventSchedulingBlock {
+    id: string;
+    scope: models.EventScope;
+    boardId: string | null;
+    trainerId: string | null;
+    eventId: string;
+  }
+
+  export interface FeedComment {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    memberId: string;
+    text: string;
+    postId: string;
+    parentCommentId: string | null;
+    member?: Member | null;
+    replies?: FeedComment[] | null;
+  }
+
+  export interface FeedLike {
+    id: string;
+    createdAt: string;
+    memberId: string;
+    postId: string;
+    member?: Member | null;
+  }
+
+  export interface FeedPost {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    deletedAt: string | null;
+    boardId: string | null;
+    authorMemberId: string;
+    text: string | null;
+    mediaUrls: string[] | null;
+    comments?: FeedComment[] | null;
+    likes?: FeedLike[] | null;
+    author?: Member | null;
+    board?: Board | null;
+  }
+
+  export interface GetActivityResponse {
+    activity: Activity;
+  }
+
+  export interface GetBoardAssignmentResponse {
+    assignment: BoardAssignment;
+  }
+
+  export interface GetBoardResponse {
+    board: Board;
+  }
+
+  export interface GetEventResponse {
+    event: Event;
+    scope?: models.EventScope;
+    boardIds?: string[];
+    trainerIds?: string[];
+  }
+
+  export interface GetFeedCommentResponse {
+    comment: FeedComment;
+  }
+
+  export interface GetFeedLikeResponse {
+    like: FeedLike;
+  }
+
+  export interface GetFeedPostResponse {
+    post: FeedPost;
+  }
+
+  export interface GetInstanceEnrollmentResponse {
+    enrollment: LessonInstanceEnrollment;
+  }
+
+  export interface GetLessonInstanceResponse {
+    instance: LessonInstance;
+  }
+
+  export interface GetLessonSeriesResponse {
+    timezone?: string;
+    organizationId: string;
+    id: string;
+    name: string | null;
+    createdAt: string;
+    updatedAt: string;
+    duration: number;
+    status: models.LessonSeriesStatus;
+    boardId: string;
+    maxRiders: number;
+    serviceId: string;
+    trainerId: string;
+    levelId: string | null;
+    notes: string | null;
+    start: string;
+    isRecurring: boolean;
+    recurrenceFrequency: models.RecurrenceFrequency | null;
+    recurrenceByDay: models.DayOfWeek[] | null;
+    recurrenceEnd: string | null;
+    effectiveFrom: string | null;
+    lastPlannedUntil: string | null;
+    createdByMemberId: string | null;
+    updatedByMemberId: string | null;
+    enrollments?: LessonSeriesEnrollment[] | null;
+    level?: Level | null;
+  }
+
+  export interface GetLevelResponse {
+    level: Level;
+  }
+
+  export interface GetMemberResponse {
+    member: Member;
+  }
+
+  export interface GetNotificationResponse {
+    notification: Notification;
+  }
+
+  export interface GetOrganizationResponse {
+    organization: Organization;
+  }
+
+  export interface GetQuestionnaireResponse {
+    questionnaire: Questionnaire;
+  }
+
+  export interface GetRiderResponse {
+    rider: Rider;
+  }
+
+  export interface GetServiceResponse {
+    service: Service;
+  }
+
+  export interface GetSignatureResponse {
+    signature: WaiverSignature;
+  }
+
+  export interface GetTrainerResponse {
+    trainer: Trainer;
+  }
+
+  export interface GetTrainerServiceAssignmentResponse {
+    assignment: ServiceTrainerAssignment;
+  }
+
+  export interface GetWaiverResponse {
+    waiver: Waiver;
+  }
+
+  export interface GuardianPermissions {
+    bookings: {
+      canBookLessons: boolean;
+      canJoinEvents: boolean;
+      requiresApproval: boolean;
+      canCancel: boolean;
+    };
+    communication: {
+      canPost: boolean;
+      canComment: boolean;
+      receiveEmailNotifications: boolean;
+      receiveTextNotifications: boolean;
+    };
+    profile: {
+      canEdit: boolean;
+    };
+  }
+
+  export interface GuardianRelationship {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    guardianMemberId: string;
+    dependentMemberId: string;
+    permissions: GuardianPermissions | null;
+    coppaConsentGiven: boolean;
+    coppaConsentGivenAt: string | null;
+  }
+
+  export interface GuardianRelationshipWithGuardian {
+    guardian: Member;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    guardianMemberId: string;
+    dependentMemberId: string;
+    permissions: GuardianPermissions | null;
+    coppaConsentGiven: boolean;
+    coppaConsentGivenAt: string | null;
+  }
+
+  export interface GuardianRelationshipWithMembers {
+    guardian: Member;
+    dependent: Member;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    guardianMemberId: string;
+    dependentMemberId: string;
+    permissions: GuardianPermissions | null;
+    coppaConsentGiven: boolean;
+    coppaConsentGivenAt: string | null;
+  }
+
+  export interface Invitation {
+    id: string;
+    organizationId: string;
+    email: string;
+    role: models.MembershipRole[];
+    status: models.InvitationStatus;
+    inviterId: string;
+    expiresAt: string;
+    createdAt: string;
+    organization?: Organization;
+  }
+
+  export type KioskScope = "default" | "staff" | "self";
+
+  export interface KioskSession {
+    id: string;
+    createdAt: string;
+    organizationId: string;
+    actingMemberId: string | null;
+    boardId: string | null;
+    locationName: string;
+    scope: KioskScope;
+    expiresAt: string | null;
+  }
+
+  export interface KioskSessionResponse {
+    acting: {
+      actingMemberId: string | null;
+      scope: KioskScope;
+      expiresAt: string | null;
+    };
+  }
+
+  export interface LessonInstance {
+    id: string;
+    name: string | null;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    status: models.LessonInstanceStatus;
+    boardId: string;
+    maxRiders: number;
+    serviceId: string;
+    seriesId: string;
+    trainerId: string;
+    levelId: string | null;
+    notes: string | null;
+    start: string;
+    createdByMemberId: string | null;
+    updatedByMemberId: string | null;
+    end: string;
+    occurrenceKey: string;
+    canceledAt: string | null;
+    canceledByMemberId: string | null;
+    cancelReason: string | null;
+    enrollments?: LessonInstanceEnrollment[] | null;
+    level?: Level | null;
+    service?: Service | null;
+    trainer?: Trainer | null;
+    board?: Board | null;
+    series?: LessonSeries | null;
+  }
+
+  export interface LessonInstanceEnrollment {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    status: models.LessonInstanceEnrollmentStatus;
+    attended: boolean | null;
+    riderId: string;
+    enrolledByMemberId: string | null;
+    enrolledAt: string;
+    instanceId: string;
+    waitlistPosition: number | null;
+    attendedAt: string | null;
+    markedByMemberId: string | null;
+    unenrolledAt: string | null;
+    unenrolledByMemberId: string | null;
+    instance?: LessonInstance | null;
+    rider?: Rider | null;
+  }
+
+  export interface LessonSeries {
+    organizationId: string;
+    id: string;
+    name: string | null;
+    createdAt: string;
+    updatedAt: string;
+    duration: number;
+    status: models.LessonSeriesStatus;
+    boardId: string;
+    maxRiders: number;
+    serviceId: string;
+    trainerId: string;
+    levelId: string | null;
+    notes: string | null;
+    start: string;
+    isRecurring: boolean;
+    recurrenceFrequency: models.RecurrenceFrequency | null;
+    recurrenceByDay: models.DayOfWeek[] | null;
+    recurrenceEnd: string | null;
+    effectiveFrom: string | null;
+    lastPlannedUntil: string | null;
+    createdByMemberId: string | null;
+    updatedByMemberId: string | null;
+    enrollments?: LessonSeriesEnrollment[] | null;
+    level?: Level | null;
+  }
+
+  export interface LessonSeriesEnrollment {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    status: models.LessonSeriesEnrollmentStatus;
+    seriesId: string;
+    riderId: string;
+    startDate: string;
+    endDate: string | null;
+    enrolledByMemberId: string | null;
+    enrolledAt: string;
+    endedAt: string | null;
+    endedByMemberId: string | null;
+    rider?: Rider | null;
+  }
+
+  export interface Level {
+    organizationId: string;
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    description: string | null;
+    color: string;
+  }
+
+  export interface ListActivityResponse {
+    activities: Activity[];
+  }
+
+  export interface ListBoardAssignmentsResponse {
+    assignments: BoardAssignment[];
+  }
+
+  export interface ListBoardServiceAssignmentsResponse {
+    assignments: ServiceBoardAssignment[];
+  }
+
+  export interface ListBoardsResponse {
+    boards: Board[];
+  }
+
+  export interface ListEventsResponse {
+    events: GetEventResponse[];
+  }
+
+  export interface ListInvitationsResponse {
+    invitations: Invitation[];
+  }
+
+  export interface ListLessonInstanceEnrollmentsResponse {
+    enrollments: LessonInstanceEnrollment[];
+  }
+
+  export interface ListLessonInstancesResponse {
+    instances: LessonInstance[];
+  }
+
+  export interface ListLessonSeriesEnrollmentsResponse {
+    enrollments: LessonSeriesEnrollment[];
+  }
+
+  export interface ListLessonSeriesResponse {
+    series: LessonSeries[];
+  }
+
+  export interface ListLevelsResponse {
+    levels: Level[];
+  }
+
+  export interface ListMembersResponse {
+    members: Member[];
+  }
+
+  export interface ListOrganizationBusinessHoursResponse {
+    defaults: OrganizationBusinessHours[];
+    boardOverrides: { [key: string]: OrganizationBoardBusinessHours[] };
+  }
+
+  export interface ListOrganizationsResponse {
+    organizations: Organization[];
+  }
+
+  export interface ListQuestionnaireResponsesResponse {
+    responses: QuestionnaireResponse[];
+  }
+
+  export interface ListQuestionnairesResponse {
+    questionnaires: Questionnaire[];
+  }
+
+  export interface ListRidersResponse {
+    riders: Rider[];
+  }
+
+  export interface ListServicesResponse {
+    services: Service[];
+  }
+
+  export interface ListSignaturesResponse {
+    signatures: WaiverSignature[];
+  }
+
+  export interface ListTimeBlocksResponse {
+    timeBlocks: TimeBlock[];
+  }
+
+  /**
+   * Business hours grouped into org-wide defaults vs per-board overrides.
+   * Both `defaults` and `boardOverrides[id]` contain day-rows with their slots inlined.
+   */
+  export interface ListTrainerBusinessHoursResponse {
+    defaults: TrainerBusinessHours[];
+    boardOverrides: { [key: string]: TrainerBoardBusinessHours[] };
+  }
+
+  export interface ListTrainerServiceAssignmentsResponse {
+    assignments: ServiceTrainerAssignment[];
+  }
+
+  export interface ListTrainersResponse {
+    trainers: Trainer[];
+  }
+
+  export interface ListWaiversResponse {
+    waivers: Waiver[];
+  }
+
+  export interface Member {
+    organizationId: string;
+    id: string;
+    kioskPin: string | null;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    authMemberId: string;
+    isPlaceholder: boolean;
+    roles: models.MembershipRole[];
+    onboardingComplete: boolean;
+    deletedAt: string | null;
+    authUser?: AuthUser | null;
+    rider?: Rider | null;
+    trainer?: Trainer | null;
+  }
+
+  export interface Notification {
+    id: string;
+    createdAt: string;
+    organizationId: string;
+    title: string;
+    recipientId: string;
+    type: NotificationType;
+    message: string;
+    entityType: string;
+    entityId: string | null;
+    deepLink: string | null;
+    isRead: boolean;
+    readAt: string | null;
+  }
+
+  export type NotificationChannel = "email" | "sms" | "push" | "in_app";
+
+  export interface NotificationPreference {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    memberId: string;
+    type: NotificationType;
+    inAppEnabled: boolean;
+    pushEnabled: boolean;
+    emailEnabled: boolean;
+    smsEnabled: boolean;
+  }
+
+  export type NotificationType =
+    | "enrollment_created"
+    | "lesson_enrolled"
+    | "lesson_cancelled"
+    | "lesson_reminder"
+    | "post_created"
+    | "comment_added"
+    | "profile_updated"
+    | "credit_package_purchased"
+    | "invoice_paid"
+    | "user_updated";
+
+  export interface Organization {
+    id: string;
+    name: string;
+    phone: string | null;
+    createdAt: string;
+    updatedAt: string;
+    slug: string;
+    timezone: string;
+    authOrganizationId: string;
+    logoUrl: string | null;
+    primaryColor: string | null;
+    website: string | null;
+    facebook: string | null;
+    instagram: string | null;
+    youtube: string | null;
+    tiktok: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    allowSameDayBookings: boolean;
+    allowPublicJoin: boolean;
+  }
+
+  export interface OrganizationAvailabilitySlot {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    availabilityId: string;
+    openTime: string;
+    closeTime: string;
+  }
+
+  export interface OrganizationBoardBusinessHours {
+    boardId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: OrganizationAvailabilitySlot[];
+  }
+
+  export interface OrganizationBusinessHours {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    boardId: string | null;
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: OrganizationAvailabilitySlot[];
+  }
+
+  export interface Questionnaire {
+    organizationId: string;
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    isActive: boolean;
+    version: number;
+    defaultBoardId: string | null;
+    questions: QuestionnaireQuestion[];
+    boardAssignmentRules: QuestionnaireBoardAssignmentRule[];
+    createdByMemberId: string | null;
+  }
+
+  export interface QuestionnaireBoardAssignmentRule {
+    id: string;
+    name: string;
+    conditions: {
+      questionId: string;
+      operator: models.QuestionnaireQuestionOperator;
+      responseValue: ResponseValue;
+    }[];
+    boardId: string;
+    priority: number;
+  }
+
+  export interface QuestionnaireQuestion {
+    id: string;
+    text: string;
+    type: models.QuestionnaireQuestionType;
+    required: boolean;
+    order: number;
+    options: string[] | null;
+    showIf: QuestionnaireQuestionResponse | null;
+  }
+
+  export interface QuestionnaireQuestionResponse {
+    questionId: string;
+    responseValue: string | boolean;
+  }
+
+  export interface QuestionnaireResponse {
+    id: string;
+    createdAt: string;
+    organizationId: string;
+    questionnaireId: string;
+    questionnaireVersion: number;
+    memberId: string;
+    submittedByMemberId: string;
+    responses: QuestionnaireQuestionResponse[];
+    assignedBoardIds: string[];
+    completedAt: string;
+  }
+
+  export type ResponseValue = string | boolean;
+
+  export interface Rider {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    deletedAt: string | null;
+    memberId: string;
+    isRestricted: boolean;
+    emergencyContactName: string | null;
+    emergencyContactPhone: string | null;
+    ridingLevelId: string | null;
+    member?: Member | null;
+    boardAssignments?: BoardAssignment[] | null;
+    level?: Level | null;
+  }
+
+  export interface Service {
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    duration: number;
+    organizationId: string;
+    isRestricted: boolean;
+    description: string | null;
+    canRiderAdd: boolean;
+    price: number;
+    creditPrice: number;
+    creditAdditionalPrice: number | null;
+    maxRiders: number;
+    isPrivate: boolean;
+    canRecurBook: boolean;
+    restrictedToLevelId: string | null;
+    isAllTrainers: boolean;
+    isActive: boolean;
+    boardAssignments?: ServiceBoardAssignment[] | null;
+    trainerAssignments?: ServiceTrainerAssignment[] | null;
+    restrictedToLevel?: Level | null;
+  }
+
+  export interface ServiceBoardAssignment {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    boardId: string;
+    isActive: boolean;
+    serviceId: string;
+    service?: Service | null;
+    board?: Board | null;
+  }
+
+  export interface ServiceTrainerAssignment {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    isActive: boolean;
+    serviceId: string;
+    trainerId: string;
+    service?: Service | null;
+    trainer?: Trainer | null;
+  }
+
+  export interface Session {
+    session: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      userId: string;
+      expiresAt: string;
+      token: string;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+      contextOrganizationId?: string | null;
+      impersonatedBy?: string | null;
+      activeOrganizationId?: string | null;
+    };
+    user: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      email: string;
+      emailVerified: boolean;
+      name: string;
+      image?: string | null;
+      phone?: string | null;
+      profilePictureUrl?: string | null;
+      dateOfBirth?: string | null;
+      banned?: boolean | null;
+      role?: string | null;
+      banReason?: string | null;
+      banExpires?: string | null;
+    };
+  }
+
+  export interface TimeBlock {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    boardId: string | null;
+    trainerId: string;
+    start: string;
+    end: string;
+    reason: string | null;
+  }
+
+  export interface Trainer {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    memberId: string;
+    bio: string | null;
+    allowSameDayBookings: boolean;
+    member?: Member | null;
+    boardAssignments?: BoardAssignment[] | null;
+  }
+
+  export interface TrainerAvailabilitySlot {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    availabilityId: string;
+    openTime: string;
+    closeTime: string;
+  }
+
+  export interface TrainerBoardBusinessHours {
+    boardId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    trainerId: string;
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: TrainerAvailabilitySlot[];
+  }
+
+  export interface TrainerBusinessHours {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    organizationId: string;
+    trainerId: string;
+    boardId: string | null;
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: TrainerAvailabilitySlot[];
+  }
+
+  export interface Waiver {
+    organizationId: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    status: models.WaiverStatus;
+    version: string;
+    title: string;
+    content: string;
+    signature?: WaiverSignature | null;
+  }
+
+  export interface WaiverSignature {
+    organizationId: string;
+    id: string;
+    signerMemberId: string;
+    waiverId: string;
+    onBehalfOfMemberId: string | null;
+    ipAddress: string | null;
+    waiverVersion: string;
+    signedAt: string;
+    isValid: boolean;
+    invalidatedAt: string | null;
+    invalidatedReason: string | null;
+  }
 }
 
 export namespace utils {
-    export interface DayHours {
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        slots: TimeSlot[]
-    }
+  export interface DayHours {
+    dayOfWeek: models.DayOfWeek;
+    isOpen: boolean;
+    slots: TimeSlot[];
+  }
 
-    export interface TimeSlot {
-        openTime: string
-        closeTime: string
-    }
+  export interface TimeSlot {
+    openTime: string;
+    closeTime: string;
+  }
 }
 
-
-
 function encodeQuery(parts: Record<string, string | string[]>): string {
-    const pairs: string[] = []
-    for (const key in parts) {
-        const val = (Array.isArray(parts[key]) ?  parts[key] : [parts[key]]) as string[]
-        for (const v of val) {
-            pairs.push(`${key}=${encodeURIComponent(v)}`)
-        }
+  const pairs: string[] = [];
+  for (const key in parts) {
+    const val = (
+      Array.isArray(parts[key]) ? parts[key] : [parts[key]]
+    ) as string[];
+    for (const v of val) {
+      pairs.push(`${key}=${encodeURIComponent(v)}`);
     }
-    return pairs.join("&")
+  }
+  return pairs.join("&");
 }
 
 // makeRecord takes a record and strips any undefined values from it,
 // and returns the same record with a narrower type.
 // @ts-ignore - TS ignore because makeRecord is not always used
-function makeRecord<K extends string | number | symbol, V>(record: Record<K, V | undefined>): Record<K, V> {
-    for (const key in record) {
-        if (record[key] === undefined) {
-            delete record[key]
-        }
+function makeRecord<K extends string | number | symbol, V>(
+  record: Record<K, V | undefined>
+): Record<K, V> {
+  for (const key in record) {
+    if (record[key] === undefined) {
+      delete record[key];
     }
-    return record as Record<K, V>
+  }
+  return record as Record<K, V>;
 }
 
 function encodeWebSocketHeaders(headers: Record<string, string>) {
-    // url safe, no pad
-    const base64encoded = btoa(JSON.stringify(headers))
-      .replaceAll("=", "")
-      .replaceAll("+", "-")
-      .replaceAll("/", "_");
-    return "encore.dev.headers." + base64encoded;
+  // url safe, no pad
+  const base64encoded = btoa(JSON.stringify(headers))
+    .replaceAll("=", "")
+    .replaceAll("+", "-")
+    .replaceAll("/", "_");
+  return "encore.dev.headers." + base64encoded;
 }
 
 class WebSocketConnection {
-    public ws: WebSocket;
+  public ws: WebSocket;
 
-    private hasUpdateHandlers: (() => void)[] = [];
+  private hasUpdateHandlers: (() => void)[] = [];
 
-    constructor(url: string, headers?: Record<string, string>) {
-        let protocols = ["encore-ws"];
-        if (headers) {
-            protocols.push(encodeWebSocketHeaders(headers))
-        }
-
-        this.ws = new WebSocket(url, protocols)
-
-        this.on("error", () => {
-            this.resolveHasUpdateHandlers();
-        });
-
-        this.on("close", () => {
-            this.resolveHasUpdateHandlers();
-        });
+  constructor(url: string, headers?: Record<string, string>) {
+    let protocols = ["encore-ws"];
+    if (headers) {
+      protocols.push(encodeWebSocketHeaders(headers));
     }
 
-    resolveHasUpdateHandlers() {
-        const handlers = this.hasUpdateHandlers;
-        this.hasUpdateHandlers = [];
+    this.ws = new WebSocket(url, protocols);
 
-        for (const handler of handlers) {
-            handler()
-        }
-    }
+    this.on("error", () => {
+      this.resolveHasUpdateHandlers();
+    });
 
-    async hasUpdate() {
-        // await until a new message have been received, or the socket is closed
-        await new Promise((resolve) => {
-            this.hasUpdateHandlers.push(() => resolve(null))
-        });
-    }
+    this.on("close", () => {
+      this.resolveHasUpdateHandlers();
+    });
+  }
 
-    on(type: "error" | "close" | "message" | "open", handler: (event: any) => void) {
-        this.ws.addEventListener(type, handler);
-    }
+  resolveHasUpdateHandlers() {
+    const handlers = this.hasUpdateHandlers;
+    this.hasUpdateHandlers = [];
 
-    off(type: "error" | "close" | "message" | "open", handler: (event: any) => void) {
-        this.ws.removeEventListener(type, handler);
+    for (const handler of handlers) {
+      handler();
     }
+  }
 
-    close() {
-        this.ws.close();
-    }
+  async hasUpdate() {
+    // await until a new message have been received, or the socket is closed
+    await new Promise((resolve) => {
+      this.hasUpdateHandlers.push(() => resolve(null));
+    });
+  }
+
+  on(
+    type: "error" | "close" | "message" | "open",
+    handler: (event: any) => void
+  ) {
+    this.ws.addEventListener(type, handler);
+  }
+
+  off(
+    type: "error" | "close" | "message" | "open",
+    handler: (event: any) => void
+  ) {
+    this.ws.removeEventListener(type, handler);
+  }
+
+  close() {
+    this.ws.close();
+  }
 }
 
 export class StreamInOut<Request, Response> {
-    public socket: WebSocketConnection;
-    private buffer: Response[] = [];
+  public socket: WebSocketConnection;
+  private buffer: Response[] = [];
 
-    constructor(url: string, headers?: Record<string, string>) {
-        this.socket = new WebSocketConnection(url, headers);
-        this.socket.on("message", (event: any) => {
-            this.buffer.push(JSON.parse(event.data));
-            this.socket.resolveHasUpdateHandlers();
-        });
+  constructor(url: string, headers?: Record<string, string>) {
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event: any) => {
+      this.buffer.push(JSON.parse(event.data));
+      this.socket.resolveHasUpdateHandlers();
+    });
+  }
+
+  close() {
+    this.socket.close();
+  }
+
+  async send(msg: Request) {
+    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
+      // await that the socket is opened
+      await new Promise((resolve) => {
+        this.socket.ws.addEventListener("open", resolve, { once: true });
+      });
     }
 
-    close() {
-        this.socket.close();
-    }
+    return this.socket.ws.send(JSON.stringify(msg));
+  }
 
-    async send(msg: Request) {
-        if (this.socket.ws.readyState === WebSocket.CONNECTING) {
-            // await that the socket is opened
-            await new Promise((resolve) => {
-                this.socket.ws.addEventListener("open", resolve, { once: true });
-            });
-        }
+  async next(): Promise<Response | undefined> {
+    for await (const next of this) return next;
+    return undefined;
+  }
 
-        return this.socket.ws.send(JSON.stringify(msg));
+  async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
+    while (true) {
+      if (this.buffer.length > 0) {
+        yield this.buffer.shift() as Response;
+      } else {
+        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
+        await this.socket.hasUpdate();
+      }
     }
-
-    async next(): Promise<Response | undefined> {
-        for await (const next of this) return next;
-        return undefined;
-    }
-
-    async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
-        while (true) {
-            if (this.buffer.length > 0) {
-                yield this.buffer.shift() as Response;
-            } else {
-                if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-                await this.socket.hasUpdate();
-            }
-        }
-    }
+  }
 }
 
 export class StreamIn<Response> {
-    public socket: WebSocketConnection;
-    private buffer: Response[] = [];
+  public socket: WebSocketConnection;
+  private buffer: Response[] = [];
 
-    constructor(url: string, headers?: Record<string, string>) {
-        this.socket = new WebSocketConnection(url, headers);
-        this.socket.on("message", (event: any) => {
-            this.buffer.push(JSON.parse(event.data));
-            this.socket.resolveHasUpdateHandlers();
-        });
-    }
+  constructor(url: string, headers?: Record<string, string>) {
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event: any) => {
+      this.buffer.push(JSON.parse(event.data));
+      this.socket.resolveHasUpdateHandlers();
+    });
+  }
 
-    close() {
-        this.socket.close();
-    }
+  close() {
+    this.socket.close();
+  }
 
-    async next(): Promise<Response | undefined> {
-        for await (const next of this) return next;
-        return undefined;
-    }
+  async next(): Promise<Response | undefined> {
+    for await (const next of this) return next;
+    return undefined;
+  }
 
-    async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
-        while (true) {
-            if (this.buffer.length > 0) {
-                yield this.buffer.shift() as Response;
-            } else {
-                if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-                await this.socket.hasUpdate();
-            }
-        }
+  async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
+    while (true) {
+      if (this.buffer.length > 0) {
+        yield this.buffer.shift() as Response;
+      } else {
+        if (this.socket.ws.readyState === WebSocket.CLOSED) return;
+        await this.socket.hasUpdate();
+      }
     }
+  }
 }
 
 export class StreamOut<Request, Response> {
-    public socket: WebSocketConnection;
-    private responseValue: Promise<Response>;
+  public socket: WebSocketConnection;
+  private responseValue: Promise<Response>;
 
-    constructor(url: string, headers?: Record<string, string>) {
-        let responseResolver: (_: any) => void;
-        this.responseValue = new Promise((resolve) => responseResolver = resolve);
+  constructor(url: string, headers?: Record<string, string>) {
+    let responseResolver: (_: any) => void;
+    this.responseValue = new Promise((resolve) => (responseResolver = resolve));
 
-        this.socket = new WebSocketConnection(url, headers);
-        this.socket.on("message", (event: any) => {
-            responseResolver(JSON.parse(event.data))
-        });
+    this.socket = new WebSocketConnection(url, headers);
+    this.socket.on("message", (event: any) => {
+      responseResolver(JSON.parse(event.data));
+    });
+  }
+
+  async response(): Promise<Response> {
+    return this.responseValue;
+  }
+
+  close() {
+    this.socket.close();
+  }
+
+  async send(msg: Request) {
+    if (this.socket.ws.readyState === WebSocket.CONNECTING) {
+      // await that the socket is opened
+      await new Promise((resolve) => {
+        this.socket.ws.addEventListener("open", resolve, { once: true });
+      });
     }
 
-    async response(): Promise<Response> {
-        return this.responseValue;
-    }
-
-    close() {
-        this.socket.close();
-    }
-
-    async send(msg: Request) {
-        if (this.socket.ws.readyState === WebSocket.CONNECTING) {
-            // await that the socket is opened
-            await new Promise((resolve) => {
-                this.socket.ws.addEventListener("open", resolve, { once: true });
-            });
-        }
-
-        return this.socket.ws.send(JSON.stringify(msg));
-    }
+    return this.socket.ws.send(JSON.stringify(msg));
+  }
 }
 // CallParameters is the type of the parameters to a method call, but require headers to be a Record type
 type CallParameters = Omit<RequestInit, "method" | "body" | "headers"> & {
-    /** Headers to be sent with the request */
-    headers?: Record<string, string>
+  /** Headers to be sent with the request */
+  headers?: Record<string, string>;
 
-    /** Query parameters to be sent with the request */
-    query?: Record<string, string | string[]>
-}
+  /** Query parameters to be sent with the request */
+  query?: Record<string, string | string[]>;
+};
 
 // AuthDataGenerator is a function that returns a new instance of the authentication data required by this API
 export type AuthDataGenerator = () =>
@@ -3706,469 +4633,500 @@ export type Fetcher = typeof fetch;
 const boundFetch = fetch.bind(this);
 
 class BaseClient {
-    readonly baseURL: string
-    readonly fetcher: Fetcher
-    readonly headers: Record<string, string>
-    readonly requestInit: Omit<RequestInit, "headers"> & { headers?: Record<string, string> }
-    readonly authGenerator?: AuthDataGenerator
+  readonly baseURL: string;
+  readonly fetcher: Fetcher;
+  readonly headers: Record<string, string>;
+  readonly requestInit: Omit<RequestInit, "headers"> & {
+    headers?: Record<string, string>;
+  };
+  readonly authGenerator?: AuthDataGenerator;
 
-    constructor(baseURL: string, options: ClientOptions) {
-        this.baseURL = baseURL
-        this.headers = {}
+  constructor(baseURL: string, options: ClientOptions) {
+    this.baseURL = baseURL;
+    this.headers = {};
 
-        // Add User-Agent header if the script is running in the server
-        // because browsers do not allow setting User-Agent headers to requests
-        if (!BROWSER) {
-            this.headers["User-Agent"] = "instride-zeai-Generated-TS-Client (Encore/v1.56.6)";
-        }
-
-        this.requestInit = options.requestInit ?? {};
-
-        // Setup what fetch function we'll be using in the base client
-        if (options.fetcher !== undefined) {
-            this.fetcher = options.fetcher
-        } else {
-            this.fetcher = boundFetch
-        }
-
-        // Setup an authentication data generator using the auth data token option
-        if (options.auth !== undefined) {
-            const auth = options.auth
-            if (typeof auth === "function") {
-                this.authGenerator = auth
-            } else {
-                this.authGenerator = () => auth
-            }
-        }
+    // Add User-Agent header if the script is running in the server
+    // because browsers do not allow setting User-Agent headers to requests
+    if (!BROWSER) {
+      this.headers["User-Agent"] =
+        "instride-zeai-Generated-TS-Client (Encore/v1.56.6)";
     }
 
-    async getAuthData(): Promise<CallParameters | undefined> {
-        let authData: auth.AuthParams | undefined;
+    this.requestInit = options.requestInit ?? {};
 
-        // If authorization data generator is present, call it and add the returned data to the request
-        if (this.authGenerator) {
-            const mayBePromise = this.authGenerator();
-            if (mayBePromise instanceof Promise) {
-                authData = await mayBePromise;
-            } else {
-                authData = mayBePromise;
-            }
-        }
-
-        if (authData) {
-            const data: CallParameters = {};
-
-            data.headers = makeRecord<string, string>({
-                host: authData.host,
-            });
-
-            return data;
-        }
-
-        return undefined;
+    // Setup what fetch function we'll be using in the base client
+    if (options.fetcher !== undefined) {
+      this.fetcher = options.fetcher;
+    } else {
+      this.fetcher = boundFetch;
     }
 
-    // createStreamInOut sets up a stream to a streaming API endpoint.
-    async createStreamInOut<Request, Response>(path: string, params?: CallParameters): Promise<StreamInOut<Request, Response>> {
-        let { query, headers } = params ?? {};
+    // Setup an authentication data generator using the auth data token option
+    if (options.auth !== undefined) {
+      const auth = options.auth;
+      if (typeof auth === "function") {
+        this.authGenerator = auth;
+      } else {
+        this.authGenerator = () => auth;
+      }
+    }
+  }
 
-        // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+  async getAuthData(): Promise<CallParameters | undefined> {
+    let authData: auth.AuthParams | undefined;
 
-        // If we now have authentication data, add it to the request
-        if (authData) {
-            if (authData.query) {
-                query = {...query, ...authData.query};
-            }
-            if (authData.headers) {
-                headers = {...headers, ...authData.headers};
-            }
-        }
-
-        const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamInOut(this.baseURL + path + queryString, headers);
+    // If authorization data generator is present, call it and add the returned data to the request
+    if (this.authGenerator) {
+      const mayBePromise = this.authGenerator();
+      if (mayBePromise instanceof Promise) {
+        authData = await mayBePromise;
+      } else {
+        authData = mayBePromise;
+      }
     }
 
-    // createStreamIn sets up a stream to a streaming API endpoint.
-    async createStreamIn<Response>(path: string, params?: CallParameters): Promise<StreamIn<Response>> {
-        let { query, headers } = params ?? {};
+    if (authData) {
+      const data: CallParameters = {};
 
-        // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+      data.headers = makeRecord<string, string>({
+        host: authData.host,
+      });
 
-        // If we now have authentication data, add it to the request
-        if (authData) {
-            if (authData.query) {
-                query = {...query, ...authData.query};
-            }
-            if (authData.headers) {
-                headers = {...headers, ...authData.headers};
-            }
-        }
-
-        const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamIn(this.baseURL + path + queryString, headers);
+      return data;
     }
 
-    // createStreamOut sets up a stream to a streaming API endpoint.
-    async createStreamOut<Request, Response>(path: string, params?: CallParameters): Promise<StreamOut<Request, Response>> {
-        let { query, headers } = params ?? {};
+    return undefined;
+  }
 
-        // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+  // createStreamInOut sets up a stream to a streaming API endpoint.
+  async createStreamInOut<Request, Response>(
+    path: string,
+    params?: CallParameters
+  ): Promise<StreamInOut<Request, Response>> {
+    let { query, headers } = params ?? {};
 
-        // If we now have authentication data, add it to the request
-        if (authData) {
-            if (authData.query) {
-                query = {...query, ...authData.query};
-            }
-            if (authData.headers) {
-                headers = {...headers, ...authData.headers};
-            }
-        }
+    // Fetch auth data if there is any
+    const authData = await this.getAuthData();
 
-        const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamOut(this.baseURL + path + queryString, headers);
+    // If we now have authentication data, add it to the request
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
     }
 
-    // callTypedAPI makes an API call, defaulting content type to "application/json"
-    public async callTypedAPI(method: string, path: string, body?: RequestInit["body"], params?: CallParameters): Promise<Response> {
-        return this.callAPI(method, path, body, {
-            ...params,
-            headers: { "Content-Type": "application/json", ...params?.headers }
-        });
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamInOut(this.baseURL + path + queryString, headers);
+  }
+
+  // createStreamIn sets up a stream to a streaming API endpoint.
+  async createStreamIn<Response>(
+    path: string,
+    params?: CallParameters
+  ): Promise<StreamIn<Response>> {
+    let { query, headers } = params ?? {};
+
+    // Fetch auth data if there is any
+    const authData = await this.getAuthData();
+
+    // If we now have authentication data, add it to the request
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
     }
 
-    // callAPI is used by each generated API method to actually make the request
-    public async callAPI(method: string, path: string, body?: RequestInit["body"], params?: CallParameters): Promise<Response> {
-        let { query, headers, ...rest } = params ?? {}
-        const init = {
-            ...this.requestInit,
-            ...rest,
-            method,
-            body: body ?? null,
-        }
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamIn(this.baseURL + path + queryString, headers);
+  }
 
-        // Merge our headers with any predefined headers
-        init.headers = {...this.headers, ...init.headers, ...headers}
+  // createStreamOut sets up a stream to a streaming API endpoint.
+  async createStreamOut<Request, Response>(
+    path: string,
+    params?: CallParameters
+  ): Promise<StreamOut<Request, Response>> {
+    let { query, headers } = params ?? {};
 
-        // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+    // Fetch auth data if there is any
+    const authData = await this.getAuthData();
 
-        // If we now have authentication data, add it to the request
-        if (authData) {
-            if (authData.query) {
-                query = {...query, ...authData.query};
-            }
-            if (authData.headers) {
-                init.headers = {...init.headers, ...authData.headers};
-            }
-        }
-
-        // Make the actual request
-        const queryString = query ? '?' + encodeQuery(query) : ''
-        const response = await this.fetcher(this.baseURL+path+queryString, init)
-
-        // handle any error responses
-        if (!response.ok) {
-            // try and get the error message from the response body
-            let body: APIErrorResponse = { code: ErrCode.Unknown, message: `request failed: status ${response.status}` }
-
-            // if we can get the structured error we should, otherwise give a best effort
-            try {
-                const text = await response.text()
-
-                try {
-                    const jsonBody = JSON.parse(text)
-                    if (isAPIErrorResponse(jsonBody)) {
-                        body = jsonBody
-                    } else {
-                        body.message += ": " + JSON.stringify(jsonBody)
-                    }
-                } catch {
-                    body.message += ": " + text
-                }
-            } catch (e) {
-                // otherwise we just append the text to the error message
-                body.message += ": " + String(e)
-            }
-
-            throw new APIError(response.status, body)
-        }
-
-        return response
+    // If we now have authentication data, add it to the request
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        headers = { ...headers, ...authData.headers };
+      }
     }
+
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    return new StreamOut(this.baseURL + path + queryString, headers);
+  }
+
+  // callTypedAPI makes an API call, defaulting content type to "application/json"
+  public async callTypedAPI(
+    method: string,
+    path: string,
+    body?: RequestInit["body"],
+    params?: CallParameters
+  ): Promise<Response> {
+    return this.callAPI(method, path, body, {
+      ...params,
+      headers: { "Content-Type": "application/json", ...params?.headers },
+    });
+  }
+
+  // callAPI is used by each generated API method to actually make the request
+  public async callAPI(
+    method: string,
+    path: string,
+    body?: RequestInit["body"],
+    params?: CallParameters
+  ): Promise<Response> {
+    let { query, headers, ...rest } = params ?? {};
+    const init = {
+      ...this.requestInit,
+      ...rest,
+      method,
+      body: body ?? null,
+    };
+
+    // Merge our headers with any predefined headers
+    init.headers = { ...this.headers, ...init.headers, ...headers };
+
+    // Fetch auth data if there is any
+    const authData = await this.getAuthData();
+
+    // If we now have authentication data, add it to the request
+    if (authData) {
+      if (authData.query) {
+        query = { ...query, ...authData.query };
+      }
+      if (authData.headers) {
+        init.headers = { ...init.headers, ...authData.headers };
+      }
+    }
+
+    // Make the actual request
+    const queryString = query ? "?" + encodeQuery(query) : "";
+    const response = await this.fetcher(
+      this.baseURL + path + queryString,
+      init
+    );
+
+    // handle any error responses
+    if (!response.ok) {
+      // try and get the error message from the response body
+      let body: APIErrorResponse = {
+        code: ErrCode.Unknown,
+        message: `request failed: status ${response.status}`,
+      };
+
+      // if we can get the structured error we should, otherwise give a best effort
+      try {
+        const text = await response.text();
+
+        try {
+          const jsonBody = JSON.parse(text);
+          if (isAPIErrorResponse(jsonBody)) {
+            body = jsonBody;
+          } else {
+            body.message += ": " + JSON.stringify(jsonBody);
+          }
+        } catch {
+          body.message += ": " + text;
+        }
+      } catch (e) {
+        // otherwise we just append the text to the error message
+        body.message += ": " + String(e);
+      }
+
+      throw new APIError(response.status, body);
+    }
+
+    return response;
+  }
 }
 
 /**
  * APIErrorDetails represents the response from an Encore API in the case of an error
  */
 interface APIErrorResponse {
-    code: ErrCode
-    message: string
-    details?: any
+  code: ErrCode;
+  message: string;
+  details?: any;
 }
 
 function isAPIErrorResponse(err: any): err is APIErrorResponse {
-    return (
-        err !== undefined && err !== null &&
-        isErrCode(err.code) &&
-        typeof(err.message) === "string" &&
-        (err.details === undefined || err.details === null || typeof(err.details) === "object")
-    )
+  return (
+    err !== undefined &&
+    err !== null &&
+    isErrCode(err.code) &&
+    typeof err.message === "string" &&
+    (err.details === undefined ||
+      err.details === null ||
+      typeof err.details === "object")
+  );
 }
 
 function isErrCode(code: any): code is ErrCode {
-    return code !== undefined && Object.values(ErrCode).includes(code)
+  return code !== undefined && Object.values(ErrCode).includes(code);
 }
 
 /**
  * APIError represents a structured error as returned from an Encore application.
  */
 export class APIError extends Error {
-    /**
-     * The HTTP status code associated with the error.
-     */
-    public readonly status: number
+  /**
+   * The HTTP status code associated with the error.
+   */
+  public readonly status: number;
 
-    /**
-     * The Encore error code
-     */
-    public readonly code: ErrCode
+  /**
+   * The Encore error code
+   */
+  public readonly code: ErrCode;
 
-    /**
-     * The error details
-     */
-    public readonly details?: any
+  /**
+   * The error details
+   */
+  public readonly details?: any;
 
-    constructor(status: number, response: APIErrorResponse) {
-        // extending errors causes issues after you construct them, unless you apply the following fixes
-        super(response.message);
+  constructor(status: number, response: APIErrorResponse) {
+    // extending errors causes issues after you construct them, unless you apply the following fixes
+    super(response.message);
 
-        // set error name as constructor name, make it not enumerable to keep native Error behavior
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target#new.target_in_constructors
-        Object.defineProperty(this, 'name', {
-            value:        'APIError',
-            enumerable:   false,
-            configurable: true,
-        })
+    // set error name as constructor name, make it not enumerable to keep native Error behavior
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target#new.target_in_constructors
+    Object.defineProperty(this, "name", {
+      value: "APIError",
+      enumerable: false,
+      configurable: true,
+    });
 
-        // fix the prototype chain
-        if ((Object as any).setPrototypeOf == undefined) {
-            (this as any).__proto__ = APIError.prototype
-        } else {
-            Object.setPrototypeOf(this, APIError.prototype);
-        }
-
-        // capture a stack trace
-        if ((Error as any).captureStackTrace !== undefined) {
-            (Error as any).captureStackTrace(this, this.constructor);
-        }
-
-        this.status = status
-        this.code = response.code
-        this.details = response.details
+    // fix the prototype chain
+    if ((Object as any).setPrototypeOf == undefined) {
+      (this as any).__proto__ = APIError.prototype;
+    } else {
+      Object.setPrototypeOf(this, APIError.prototype);
     }
+
+    // capture a stack trace
+    if ((Error as any).captureStackTrace !== undefined) {
+      (Error as any).captureStackTrace(this, this.constructor);
+    }
+
+    this.status = status;
+    this.code = response.code;
+    this.details = response.details;
+  }
 }
 
 /**
  * Typeguard allowing use of an APIError's fields'
  */
 export function isAPIError(err: any): err is APIError {
-    return err instanceof APIError;
+  return err instanceof APIError;
 }
 
 export enum ErrCode {
-    /**
-     * OK indicates the operation was successful.
-     */
-    OK = "ok",
+  /**
+   * OK indicates the operation was successful.
+   */
+  OK = "ok",
 
-    /**
-     * Canceled indicates the operation was canceled (typically by the caller).
-     *
-     * Encore will generate this error code when cancellation is requested.
-     */
-    Canceled = "canceled",
+  /**
+   * Canceled indicates the operation was canceled (typically by the caller).
+   *
+   * Encore will generate this error code when cancellation is requested.
+   */
+  Canceled = "canceled",
 
-    /**
-     * Unknown error. An example of where this error may be returned is
-     * if a Status value received from another address space belongs to
-     * an error-space that is not known in this address space. Also
-     * errors raised by APIs that do not return enough error information
-     * may be converted to this error.
-     *
-     * Encore will generate this error code in the above two mentioned cases.
-     */
-    Unknown = "unknown",
+  /**
+   * Unknown error. An example of where this error may be returned is
+   * if a Status value received from another address space belongs to
+   * an error-space that is not known in this address space. Also
+   * errors raised by APIs that do not return enough error information
+   * may be converted to this error.
+   *
+   * Encore will generate this error code in the above two mentioned cases.
+   */
+  Unknown = "unknown",
 
-    /**
-     * InvalidArgument indicates client specified an invalid argument.
-     * Note that this differs from FailedPrecondition. It indicates arguments
-     * that are problematic regardless of the state of the system
-     * (e.g., a malformed file name).
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    InvalidArgument = "invalid_argument",
+  /**
+   * InvalidArgument indicates client specified an invalid argument.
+   * Note that this differs from FailedPrecondition. It indicates arguments
+   * that are problematic regardless of the state of the system
+   * (e.g., a malformed file name).
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  InvalidArgument = "invalid_argument",
 
-    /**
-     * DeadlineExceeded means operation expired before completion.
-     * For operations that change the state of the system, this error may be
-     * returned even if the operation has completed successfully. For
-     * example, a successful response from a server could have been delayed
-     * long enough for the deadline to expire.
-     *
-     * The gRPC framework will generate this error code when the deadline is
-     * exceeded.
-     */
-    DeadlineExceeded = "deadline_exceeded",
+  /**
+   * DeadlineExceeded means operation expired before completion.
+   * For operations that change the state of the system, this error may be
+   * returned even if the operation has completed successfully. For
+   * example, a successful response from a server could have been delayed
+   * long enough for the deadline to expire.
+   *
+   * The gRPC framework will generate this error code when the deadline is
+   * exceeded.
+   */
+  DeadlineExceeded = "deadline_exceeded",
 
-    /**
-     * NotFound means some requested entity (e.g., file or directory) was
-     * not found.
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    NotFound = "not_found",
+  /**
+   * NotFound means some requested entity (e.g., file or directory) was
+   * not found.
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  NotFound = "not_found",
 
-    /**
-     * AlreadyExists means an attempt to create an entity failed because one
-     * already exists.
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    AlreadyExists = "already_exists",
+  /**
+   * AlreadyExists means an attempt to create an entity failed because one
+   * already exists.
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  AlreadyExists = "already_exists",
 
-    /**
-     * PermissionDenied indicates the caller does not have permission to
-     * execute the specified operation. It must not be used for rejections
-     * caused by exhausting some resource (use ResourceExhausted
-     * instead for those errors). It must not be
-     * used if the caller cannot be identified (use Unauthenticated
-     * instead for those errors).
-     *
-     * This error code will not be generated by the gRPC core framework,
-     * but expect authentication middleware to use it.
-     */
-    PermissionDenied = "permission_denied",
+  /**
+   * PermissionDenied indicates the caller does not have permission to
+   * execute the specified operation. It must not be used for rejections
+   * caused by exhausting some resource (use ResourceExhausted
+   * instead for those errors). It must not be
+   * used if the caller cannot be identified (use Unauthenticated
+   * instead for those errors).
+   *
+   * This error code will not be generated by the gRPC core framework,
+   * but expect authentication middleware to use it.
+   */
+  PermissionDenied = "permission_denied",
 
-    /**
-     * ResourceExhausted indicates some resource has been exhausted, perhaps
-     * a per-user quota, or perhaps the entire file system is out of space.
-     *
-     * This error code will be generated by the gRPC framework in
-     * out-of-memory and server overload situations, or when a message is
-     * larger than the configured maximum size.
-     */
-    ResourceExhausted = "resource_exhausted",
+  /**
+   * ResourceExhausted indicates some resource has been exhausted, perhaps
+   * a per-user quota, or perhaps the entire file system is out of space.
+   *
+   * This error code will be generated by the gRPC framework in
+   * out-of-memory and server overload situations, or when a message is
+   * larger than the configured maximum size.
+   */
+  ResourceExhausted = "resource_exhausted",
 
-    /**
-     * FailedPrecondition indicates operation was rejected because the
-     * system is not in a state required for the operation's execution.
-     * For example, directory to be deleted may be non-empty, an rmdir
-     * operation is applied to a non-directory, etc.
-     *
-     * A litmus test that may help a service implementor in deciding
-     * between FailedPrecondition, Aborted, and Unavailable:
-     *  (a) Use Unavailable if the client can retry just the failing call.
-     *  (b) Use Aborted if the client should retry at a higher-level
-     *      (e.g., restarting a read-modify-write sequence).
-     *  (c) Use FailedPrecondition if the client should not retry until
-     *      the system state has been explicitly fixed. E.g., if an "rmdir"
-     *      fails because the directory is non-empty, FailedPrecondition
-     *      should be returned since the client should not retry unless
-     *      they have first fixed up the directory by deleting files from it.
-     *  (d) Use FailedPrecondition if the client performs conditional
-     *      REST Get/Update/Delete on a resource and the resource on the
-     *      server does not match the condition. E.g., conflicting
-     *      read-modify-write on the same resource.
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    FailedPrecondition = "failed_precondition",
+  /**
+   * FailedPrecondition indicates operation was rejected because the
+   * system is not in a state required for the operation's execution.
+   * For example, directory to be deleted may be non-empty, an rmdir
+   * operation is applied to a non-directory, etc.
+   *
+   * A litmus test that may help a service implementor in deciding
+   * between FailedPrecondition, Aborted, and Unavailable:
+   *  (a) Use Unavailable if the client can retry just the failing call.
+   *  (b) Use Aborted if the client should retry at a higher-level
+   *      (e.g., restarting a read-modify-write sequence).
+   *  (c) Use FailedPrecondition if the client should not retry until
+   *      the system state has been explicitly fixed. E.g., if an "rmdir"
+   *      fails because the directory is non-empty, FailedPrecondition
+   *      should be returned since the client should not retry unless
+   *      they have first fixed up the directory by deleting files from it.
+   *  (d) Use FailedPrecondition if the client performs conditional
+   *      REST Get/Update/Delete on a resource and the resource on the
+   *      server does not match the condition. E.g., conflicting
+   *      read-modify-write on the same resource.
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  FailedPrecondition = "failed_precondition",
 
-    /**
-     * Aborted indicates the operation was aborted, typically due to a
-     * concurrency issue like sequencer check failures, transaction aborts,
-     * etc.
-     *
-     * See litmus test above for deciding between FailedPrecondition,
-     * Aborted, and Unavailable.
-     */
-    Aborted = "aborted",
+  /**
+   * Aborted indicates the operation was aborted, typically due to a
+   * concurrency issue like sequencer check failures, transaction aborts,
+   * etc.
+   *
+   * See litmus test above for deciding between FailedPrecondition,
+   * Aborted, and Unavailable.
+   */
+  Aborted = "aborted",
 
-    /**
-     * OutOfRange means operation was attempted past the valid range.
-     * E.g., seeking or reading past end of file.
-     *
-     * Unlike InvalidArgument, this error indicates a problem that may
-     * be fixed if the system state changes. For example, a 32-bit file
-     * system will generate InvalidArgument if asked to read at an
-     * offset that is not in the range [0,2^32-1], but it will generate
-     * OutOfRange if asked to read from an offset past the current
-     * file size.
-     *
-     * There is a fair bit of overlap between FailedPrecondition and
-     * OutOfRange. We recommend using OutOfRange (the more specific
-     * error) when it applies so that callers who are iterating through
-     * a space can easily look for an OutOfRange error to detect when
-     * they are done.
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    OutOfRange = "out_of_range",
+  /**
+   * OutOfRange means operation was attempted past the valid range.
+   * E.g., seeking or reading past end of file.
+   *
+   * Unlike InvalidArgument, this error indicates a problem that may
+   * be fixed if the system state changes. For example, a 32-bit file
+   * system will generate InvalidArgument if asked to read at an
+   * offset that is not in the range [0,2^32-1], but it will generate
+   * OutOfRange if asked to read from an offset past the current
+   * file size.
+   *
+   * There is a fair bit of overlap between FailedPrecondition and
+   * OutOfRange. We recommend using OutOfRange (the more specific
+   * error) when it applies so that callers who are iterating through
+   * a space can easily look for an OutOfRange error to detect when
+   * they are done.
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  OutOfRange = "out_of_range",
 
-    /**
-     * Unimplemented indicates operation is not implemented or not
-     * supported/enabled in this service.
-     *
-     * This error code will be generated by the gRPC framework. Most
-     * commonly, you will see this error code when a method implementation
-     * is missing on the server. It can also be generated for unknown
-     * compression algorithms or a disagreement as to whether an RPC should
-     * be streaming.
-     */
-    Unimplemented = "unimplemented",
+  /**
+   * Unimplemented indicates operation is not implemented or not
+   * supported/enabled in this service.
+   *
+   * This error code will be generated by the gRPC framework. Most
+   * commonly, you will see this error code when a method implementation
+   * is missing on the server. It can also be generated for unknown
+   * compression algorithms or a disagreement as to whether an RPC should
+   * be streaming.
+   */
+  Unimplemented = "unimplemented",
 
-    /**
-     * Internal errors. Means some invariants expected by underlying
-     * system has been broken. If you see one of these errors,
-     * something is very broken.
-     *
-     * This error code will be generated by the gRPC framework in several
-     * internal error conditions.
-     */
-    Internal = "internal",
+  /**
+   * Internal errors. Means some invariants expected by underlying
+   * system has been broken. If you see one of these errors,
+   * something is very broken.
+   *
+   * This error code will be generated by the gRPC framework in several
+   * internal error conditions.
+   */
+  Internal = "internal",
 
-    /**
-     * Unavailable indicates the service is currently unavailable.
-     * This is a most likely a transient condition and may be corrected
-     * by retrying with a backoff. Note that it is not always safe to retry
-     * non-idempotent operations.
-     *
-     * See litmus test above for deciding between FailedPrecondition,
-     * Aborted, and Unavailable.
-     *
-     * This error code will be generated by the gRPC framework during
-     * abrupt shutdown of a server process or network connection.
-     */
-    Unavailable = "unavailable",
+  /**
+   * Unavailable indicates the service is currently unavailable.
+   * This is a most likely a transient condition and may be corrected
+   * by retrying with a backoff. Note that it is not always safe to retry
+   * non-idempotent operations.
+   *
+   * See litmus test above for deciding between FailedPrecondition,
+   * Aborted, and Unavailable.
+   *
+   * This error code will be generated by the gRPC framework during
+   * abrupt shutdown of a server process or network connection.
+   */
+  Unavailable = "unavailable",
 
-    /**
-     * DataLoss indicates unrecoverable data loss or corruption.
-     *
-     * This error code will not be generated by the gRPC framework.
-     */
-    DataLoss = "data_loss",
+  /**
+   * DataLoss indicates unrecoverable data loss or corruption.
+   *
+   * This error code will not be generated by the gRPC framework.
+   */
+  DataLoss = "data_loss",
 
-    /**
-     * Unauthenticated indicates the request does not have valid
-     * authentication credentials for the operation.
-     *
-     * The gRPC framework will generate this error code when the
-     * authentication metadata is invalid or a Credentials callback fails,
-     * but also expect authentication middleware to generate it.
-     */
-    Unauthenticated = "unauthenticated",
+  /**
+   * Unauthenticated indicates the request does not have valid
+   * authentication credentials for the operation.
+   *
+   * The gRPC framework will generate this error code when the
+   * authentication metadata is invalid or a Credentials callback fails,
+   * but also expect authentication middleware to generate it.
+   */
+  Unauthenticated = "unauthenticated",
 }

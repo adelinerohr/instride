@@ -9,6 +9,7 @@ import { requireAuth } from "@/shared/auth";
 import { auth } from "./auth";
 import { db } from "./db";
 import { authUsers } from "./schema";
+import { buildSessionCookieHeader } from "./session-cookie";
 import { Session } from "./types/models";
 
 // Better Auth expects a Web Request, but Encore raw endpoints receive
@@ -131,18 +132,24 @@ interface GetSessionResponse {
 
 interface GetSessionParams {
   sessionToken?: Cookie<"better-auth.session_token">;
+  secureSessionToken?: Cookie<"__Secure-better-auth.session_token">;
 }
 
 export const getSession = api(
   { expose: true, method: "GET", path: "/session" },
   async (params: GetSessionParams): Promise<GetSessionResponse> => {
-    if (!params.sessionToken?.value) {
+    const token =
+      params.secureSessionToken?.value ??
+      params.sessionToken?.value ??
+      undefined;
+
+    if (!token) {
       return { session: null };
     }
 
     const session = await auth.api.getSession({
       headers: new Headers({
-        cookie: `better-auth.session_token=${params.sessionToken.value}`,
+        cookie: buildSessionCookieHeader(token),
       }),
     });
 

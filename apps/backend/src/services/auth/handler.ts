@@ -3,10 +3,12 @@ import { APIError, Gateway } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 
 import { auth } from "./auth";
+import { buildSessionCookieHeader } from "./session-cookie";
 import { Session } from "./types/models";
 
 export interface AuthParams {
   sessionToken?: Cookie<"better-auth.session_token">;
+  secureSessionToken?: Cookie<"__Secure-better-auth.session_token">;
   host: Header<"Host">;
 }
 
@@ -18,13 +20,16 @@ export interface AuthData {
 }
 
 const handler = authHandler<AuthParams, AuthData>(async (params) => {
-  if (!params.sessionToken?.value) {
+  const token =
+    params.secureSessionToken?.value ?? params.sessionToken?.value ?? undefined;
+
+  if (!token) {
     throw APIError.unauthenticated("no session cookie");
   }
 
   const session = await auth.api.getSession({
     headers: new Headers({
-      cookie: `better-auth.session_token=${params.sessionToken.value}`,
+      cookie: buildSessionCookieHeader(token),
     }),
   });
 
@@ -36,7 +41,7 @@ const handler = authHandler<AuthParams, AuthData>(async (params) => {
     userID: session.user.id,
     organizationId: session.session.contextOrganizationId,
     session,
-    token: params.sessionToken.value,
+    token,
   };
 });
 

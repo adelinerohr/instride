@@ -8,1332 +8,1332 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteRouteImport } from './routes/auth/route'
-import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
-import { Route as authenticatedIndexRouteImport } from './routes/(authenticated)/index'
-import { Route as OrgSlugRouteImport } from './routes/org/$slug'
-import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
-import { Route as AuthRegisterRouteImport } from './routes/auth/register'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as authenticatedJoinOrganizationRouteImport } from './routes/(authenticated)/join-organization'
-import { Route as authenticatedCreateOrganizationRouteImport } from './routes/(authenticated)/create-organization'
-import { Route as authenticatedAdminRouteRouteImport } from './routes/(authenticated)/admin/route'
-import { Route as OrgSlugAuthRouteRouteImport } from './routes/org/$slug/auth/route'
-import { Route as OrgSlugauthenticatedRouteRouteImport } from './routes/org/$slug/(authenticated)/route'
-import { Route as OrgSlugauthenticatedIndexRouteImport } from './routes/org/$slug/(authenticated)/index'
-import { Route as OrgSlugAuthResetPasswordRouteImport } from './routes/org/$slug/auth/reset-password'
-import { Route as OrgSlugAuthRegisterRouteImport } from './routes/org/$slug/auth/register'
-import { Route as OrgSlugAuthLoginRouteImport } from './routes/org/$slug/auth/login'
-import { Route as OrgSlugAuthForgotPasswordRouteImport } from './routes/org/$slug/auth/forgot-password'
-import { Route as OrgSlugauthenticatedOnboardingRouteImport } from './routes/org/$slug/(authenticated)/onboarding'
-import { Route as OrgSlugauthenticatedSettingsRouteRouteImport } from './routes/org/$slug/(authenticated)/settings/route'
-import { Route as OrgSlugauthenticatedPortalRouteRouteImport } from './routes/org/$slug/(authenticated)/portal/route'
-import { Route as OrgSlugauthenticatedAdminRouteRouteImport } from './routes/org/$slug/(authenticated)/admin/route'
-import { Route as OrgSlugauthenticatedSettingsIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/index'
-import { Route as OrgSlugauthenticatedPortalIndexRouteImport } from './routes/org/$slug/(authenticated)/portal/index'
-import { Route as OrgSlugauthenticatedKioskIndexRouteImport } from './routes/org/$slug/(authenticated)/kiosk/index'
-import { Route as OrgSlugauthenticatedAdminIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/index'
-import { Route as OrgSlugauthenticatedPortalFeedRouteImport } from './routes/org/$slug/(authenticated)/portal/feed'
-import { Route as OrgSlugauthenticatedInvitationInvitationIdRouteImport } from './routes/org/$slug/(authenticated)/invitation/$invitationId'
-import { Route as OrgSlugauthenticatedAdminFeedRouteImport } from './routes/org/$slug/(authenticated)/admin/feed'
-import { Route as OrgSlugauthenticatedKioskSessionIdRouteRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/route'
-import { Route as OrgSlugauthenticatedPortalCalendarIndexRouteImport } from './routes/org/$slug/(authenticated)/portal/calendar/index'
-import { Route as OrgSlugauthenticatedAdminServicesIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/services/index'
-import { Route as OrgSlugauthenticatedAdminMembersIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/index'
-import { Route as OrgSlugauthenticatedAdminLessonsIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/index'
-import { Route as OrgSlugauthenticatedAdminCalendarIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/calendar/index'
-import { Route as OrgSlugauthenticatedAdminBoardsIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationKioskRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/kiosk'
-import { Route as OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/business-hours'
-import { Route as OrgSlugauthenticatedSettingsAccountGuardianRouteImport } from './routes/org/$slug/(authenticated)/settings/account/guardian'
-import { Route as OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport } from './routes/org/$slug/(authenticated)/settings/account/availability'
-import { Route as OrgSlugauthenticatedPortalLessonsCreateRouteImport } from './routes/org/$slug/(authenticated)/portal/lessons/create'
-import { Route as OrgSlugauthenticatedKioskSessionIdCalendarRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
-import { Route as OrgSlugauthenticatedAdminServicesNewRouteImport } from './routes/org/$slug/(authenticated)/admin/services/new'
-import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/new'
-import { Route as OrgSlugauthenticatedAdminCalendarNewRouteImport } from './routes/org/$slug/(authenticated)/admin/calendar/new'
-import { Route as OrgSlugauthenticatedAdminBoardsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/new'
-import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/waivers/index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationMembersIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/members/index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/general/index'
-import { Route as OrgSlugauthenticatedSettingsAccountSecurityIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/account/security/index'
-import { Route as OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/account/profile/index'
-import { Route as OrgSlugauthenticatedAdminServicesIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/services/$id.index'
-import { Route as OrgSlugauthenticatedAdminMembersTrainersIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/trainers/index'
-import { Route as OrgSlugauthenticatedAdminMembersRidersIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/index'
-import { Route as OrgSlugauthenticatedAdminMembersIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/$id.index'
-import { Route as OrgSlugauthenticatedAdminBoardsIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/new'
-import { Route as OrgSlugauthenticatedAdminServicesIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/services/$id.edit'
-import { Route as OrgSlugauthenticatedAdminMembersTrainersTrainerIdRouteImport } from './routes/org/$slug/(authenticated)/admin/members/trainers/$trainerId'
-import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId'
-import { Route as OrgSlugauthenticatedAdminBoardsIdEditRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/$id.edit'
-import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId.index'
-import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/questionnaires/$id.edit'
-import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport } from './routes/org/$slug/(authenticated)/admin/members/riders/$riderId.activity'
+import { Route as authenticatedAdminRouteRouteImport } from "./routes/(authenticated)/admin/route";
+import { Route as authenticatedCreateOrganizationRouteImport } from "./routes/(authenticated)/create-organization";
+import { Route as authenticatedIndexRouteImport } from "./routes/(authenticated)/index";
+import { Route as authenticatedJoinOrganizationRouteImport } from "./routes/(authenticated)/join-organization";
+import { Route as authenticatedRouteRouteImport } from "./routes/(authenticated)/route";
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as AuthCallbackRouteImport } from "./routes/auth/callback";
+import { Route as AuthForgotPasswordRouteImport } from "./routes/auth/forgot-password";
+import { Route as AuthLoginRouteImport } from "./routes/auth/login";
+import { Route as AuthRegisterRouteImport } from "./routes/auth/register";
+import { Route as AuthResetPasswordRouteImport } from "./routes/auth/reset-password";
+import { Route as AuthRouteRouteImport } from "./routes/auth/route";
+import { Route as OrgSlugRouteImport } from "./routes/org/$slug";
+import { Route as OrgSlugauthenticatedAdminBoardsIdEditRouteImport } from "./routes/org/$slug/(authenticated)/admin/boards/$id.edit";
+import { Route as OrgSlugauthenticatedAdminBoardsIdIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/boards/$id.index";
+import { Route as OrgSlugauthenticatedAdminBoardsIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/boards/index";
+import { Route as OrgSlugauthenticatedAdminBoardsNewRouteImport } from "./routes/org/$slug/(authenticated)/admin/boards/new";
+import { Route as OrgSlugauthenticatedAdminCalendarIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/calendar/index";
+import { Route as OrgSlugauthenticatedAdminCalendarNewRouteImport } from "./routes/org/$slug/(authenticated)/admin/calendar/new";
+import { Route as OrgSlugauthenticatedAdminFeedRouteImport } from "./routes/org/$slug/(authenticated)/admin/feed";
+import { Route as OrgSlugauthenticatedAdminIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/index";
+import { Route as OrgSlugauthenticatedAdminLessonsIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/lessons/index";
+import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from "./routes/org/$slug/(authenticated)/admin/lessons/new";
+import { Route as OrgSlugauthenticatedAdminMembersIdIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/$id.index";
+import { Route as OrgSlugauthenticatedAdminMembersIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/index";
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/riders/$riderId";
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/riders/$riderId.activity";
+import { Route as OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/riders/$riderId.index";
+import { Route as OrgSlugauthenticatedAdminMembersRidersIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/riders/index";
+import { Route as OrgSlugauthenticatedAdminMembersTrainersTrainerIdRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/trainers/$trainerId";
+import { Route as OrgSlugauthenticatedAdminMembersTrainersIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/members/trainers/index";
+import { Route as OrgSlugauthenticatedAdminRouteRouteImport } from "./routes/org/$slug/(authenticated)/admin/route";
+import { Route as OrgSlugauthenticatedAdminServicesIdEditRouteImport } from "./routes/org/$slug/(authenticated)/admin/services/$id.edit";
+import { Route as OrgSlugauthenticatedAdminServicesIdIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/services/$id.index";
+import { Route as OrgSlugauthenticatedAdminServicesIndexRouteImport } from "./routes/org/$slug/(authenticated)/admin/services/index";
+import { Route as OrgSlugauthenticatedAdminServicesNewRouteImport } from "./routes/org/$slug/(authenticated)/admin/services/new";
+import { Route as OrgSlugauthenticatedIndexRouteImport } from "./routes/org/$slug/(authenticated)/index";
+import { Route as OrgSlugauthenticatedInvitationInvitationIdRouteImport } from "./routes/org/$slug/(authenticated)/invitation/$invitationId";
+import { Route as OrgSlugauthenticatedKioskSessionIdCalendarRouteImport } from "./routes/org/$slug/(authenticated)/kiosk/$sessionId/calendar";
+import { Route as OrgSlugauthenticatedKioskSessionIdRouteRouteImport } from "./routes/org/$slug/(authenticated)/kiosk/$sessionId/route";
+import { Route as OrgSlugauthenticatedKioskIndexRouteImport } from "./routes/org/$slug/(authenticated)/kiosk/index";
+import { Route as OrgSlugauthenticatedOnboardingRouteImport } from "./routes/org/$slug/(authenticated)/onboarding";
+import { Route as OrgSlugauthenticatedPortalCalendarIndexRouteImport } from "./routes/org/$slug/(authenticated)/portal/calendar/index";
+import { Route as OrgSlugauthenticatedPortalFeedRouteImport } from "./routes/org/$slug/(authenticated)/portal/feed";
+import { Route as OrgSlugauthenticatedPortalIndexRouteImport } from "./routes/org/$slug/(authenticated)/portal/index";
+import { Route as OrgSlugauthenticatedPortalLessonsCreateRouteImport } from "./routes/org/$slug/(authenticated)/portal/lessons/create";
+import { Route as OrgSlugauthenticatedPortalRouteRouteImport } from "./routes/org/$slug/(authenticated)/portal/route";
+import { Route as OrgSlugauthenticatedRouteRouteImport } from "./routes/org/$slug/(authenticated)/route";
+import { Route as OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport } from "./routes/org/$slug/(authenticated)/settings/account/availability";
+import { Route as OrgSlugauthenticatedSettingsAccountGuardianRouteImport } from "./routes/org/$slug/(authenticated)/settings/account/guardian";
+import { Route as OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/account/profile/index";
+import { Route as OrgSlugauthenticatedSettingsAccountSecurityIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/account/security/index";
+import { Route as OrgSlugauthenticatedSettingsIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/index";
+import { Route as OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/business-hours";
+import { Route as OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/general/index";
+import { Route as OrgSlugauthenticatedSettingsOrganizationKioskRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/kiosk";
+import { Route as OrgSlugauthenticatedSettingsOrganizationMembersIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/members/index";
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/questionnaires/$id.edit";
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/questionnaires/index";
+import { Route as OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/questionnaires/new";
+import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport } from "./routes/org/$slug/(authenticated)/settings/organization/waivers/index";
+import { Route as OrgSlugauthenticatedSettingsRouteRouteImport } from "./routes/org/$slug/(authenticated)/settings/route";
+import { Route as OrgSlugAuthForgotPasswordRouteImport } from "./routes/org/$slug/auth/forgot-password";
+import { Route as OrgSlugAuthLoginRouteImport } from "./routes/org/$slug/auth/login";
+import { Route as OrgSlugAuthRegisterRouteImport } from "./routes/org/$slug/auth/register";
+import { Route as OrgSlugAuthResetPasswordRouteImport } from "./routes/org/$slug/auth/reset-password";
+import { Route as OrgSlugAuthRouteRouteImport } from "./routes/org/$slug/auth/route";
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+  id: "/auth",
+  path: "/auth",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
-  id: '/(authenticated)',
+  id: "/(authenticated)",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const authenticatedIndexRoute = authenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => authenticatedRouteRoute,
-} as any)
+} as any);
 const OrgSlugRoute = OrgSlugRouteImport.update({
-  id: '/org/$slug',
-  path: '/org/$slug',
+  id: "/org/$slug",
+  path: "/org/$slug",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+  id: "/reset-password",
+  path: "/reset-password",
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+  id: "/register",
+  path: "/register",
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+  id: "/forgot-password",
+  path: "/forgot-password",
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
+  id: "/callback",
+  path: "/callback",
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const authenticatedJoinOrganizationRoute =
   authenticatedJoinOrganizationRouteImport.update({
-    id: '/join-organization',
-    path: '/join-organization',
+    id: "/join-organization",
+    path: "/join-organization",
     getParentRoute: () => authenticatedRouteRoute,
-  } as any)
+  } as any);
 const authenticatedCreateOrganizationRoute =
   authenticatedCreateOrganizationRouteImport.update({
-    id: '/create-organization',
-    path: '/create-organization',
+    id: "/create-organization",
+    path: "/create-organization",
     getParentRoute: () => authenticatedRouteRoute,
-  } as any)
+  } as any);
 const authenticatedAdminRouteRoute = authenticatedAdminRouteRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => authenticatedRouteRoute,
-} as any)
+} as any);
 const OrgSlugAuthRouteRoute = OrgSlugAuthRouteRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+  id: "/auth",
+  path: "/auth",
   getParentRoute: () => OrgSlugRoute,
-} as any)
+} as any);
 const OrgSlugauthenticatedRouteRoute =
   OrgSlugauthenticatedRouteRouteImport.update({
-    id: '/(authenticated)',
+    id: "/(authenticated)",
     getParentRoute: () => OrgSlugRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedIndexRoute =
   OrgSlugauthenticatedIndexRouteImport.update({
-    id: '/',
-    path: '/',
+    id: "/",
+    path: "/",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugAuthResetPasswordRoute =
   OrgSlugAuthResetPasswordRouteImport.update({
-    id: '/reset-password',
-    path: '/reset-password',
+    id: "/reset-password",
+    path: "/reset-password",
     getParentRoute: () => OrgSlugAuthRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugAuthRegisterRoute = OrgSlugAuthRegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+  id: "/register",
+  path: "/register",
   getParentRoute: () => OrgSlugAuthRouteRoute,
-} as any)
+} as any);
 const OrgSlugAuthLoginRoute = OrgSlugAuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => OrgSlugAuthRouteRoute,
-} as any)
+} as any);
 const OrgSlugAuthForgotPasswordRoute =
   OrgSlugAuthForgotPasswordRouteImport.update({
-    id: '/forgot-password',
-    path: '/forgot-password',
+    id: "/forgot-password",
+    path: "/forgot-password",
     getParentRoute: () => OrgSlugAuthRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedOnboardingRoute =
   OrgSlugauthenticatedOnboardingRouteImport.update({
-    id: '/onboarding',
-    path: '/onboarding',
+    id: "/onboarding",
+    path: "/onboarding",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsRouteRoute =
   OrgSlugauthenticatedSettingsRouteRouteImport.update({
-    id: '/settings',
-    path: '/settings',
+    id: "/settings",
+    path: "/settings",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedPortalRouteRoute =
   OrgSlugauthenticatedPortalRouteRouteImport.update({
-    id: '/portal',
-    path: '/portal',
+    id: "/portal",
+    path: "/portal",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminRouteRoute =
   OrgSlugauthenticatedAdminRouteRouteImport.update({
-    id: '/admin',
-    path: '/admin',
+    id: "/admin",
+    path: "/admin",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsIndexRoute =
   OrgSlugauthenticatedSettingsIndexRouteImport.update({
-    id: '/',
-    path: '/',
+    id: "/",
+    path: "/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedPortalIndexRoute =
   OrgSlugauthenticatedPortalIndexRouteImport.update({
-    id: '/',
-    path: '/',
+    id: "/",
+    path: "/",
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedKioskIndexRoute =
   OrgSlugauthenticatedKioskIndexRouteImport.update({
-    id: '/kiosk/',
-    path: '/kiosk/',
+    id: "/kiosk/",
+    path: "/kiosk/",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminIndexRoute =
   OrgSlugauthenticatedAdminIndexRouteImport.update({
-    id: '/',
-    path: '/',
+    id: "/",
+    path: "/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedPortalFeedRoute =
   OrgSlugauthenticatedPortalFeedRouteImport.update({
-    id: '/feed',
-    path: '/feed',
+    id: "/feed",
+    path: "/feed",
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedInvitationInvitationIdRoute =
   OrgSlugauthenticatedInvitationInvitationIdRouteImport.update({
-    id: '/invitation/$invitationId',
-    path: '/invitation/$invitationId',
+    id: "/invitation/$invitationId",
+    path: "/invitation/$invitationId",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminFeedRoute =
   OrgSlugauthenticatedAdminFeedRouteImport.update({
-    id: '/feed',
-    path: '/feed',
+    id: "/feed",
+    path: "/feed",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedKioskSessionIdRouteRoute =
   OrgSlugauthenticatedKioskSessionIdRouteRouteImport.update({
-    id: '/kiosk/$sessionId',
-    path: '/kiosk/$sessionId',
+    id: "/kiosk/$sessionId",
+    path: "/kiosk/$sessionId",
     getParentRoute: () => OrgSlugauthenticatedRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedPortalCalendarIndexRoute =
   OrgSlugauthenticatedPortalCalendarIndexRouteImport.update({
-    id: '/calendar/',
-    path: '/calendar/',
+    id: "/calendar/",
+    path: "/calendar/",
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminServicesIndexRoute =
   OrgSlugauthenticatedAdminServicesIndexRouteImport.update({
-    id: '/services/',
-    path: '/services/',
+    id: "/services/",
+    path: "/services/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersIndexRoute =
   OrgSlugauthenticatedAdminMembersIndexRouteImport.update({
-    id: '/members/',
-    path: '/members/',
+    id: "/members/",
+    path: "/members/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminLessonsIndexRoute =
   OrgSlugauthenticatedAdminLessonsIndexRouteImport.update({
-    id: '/lessons/',
-    path: '/lessons/',
+    id: "/lessons/",
+    path: "/lessons/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminCalendarIndexRoute =
   OrgSlugauthenticatedAdminCalendarIndexRouteImport.update({
-    id: '/calendar/',
-    path: '/calendar/',
+    id: "/calendar/",
+    path: "/calendar/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminBoardsIndexRoute =
   OrgSlugauthenticatedAdminBoardsIndexRouteImport.update({
-    id: '/boards/',
-    path: '/boards/',
+    id: "/boards/",
+    path: "/boards/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationKioskRoute =
   OrgSlugauthenticatedSettingsOrganizationKioskRouteImport.update({
-    id: '/organization/kiosk',
-    path: '/organization/kiosk',
+    id: "/organization/kiosk",
+    path: "/organization/kiosk",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute =
   OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport.update({
-    id: '/organization/business-hours',
-    path: '/organization/business-hours',
+    id: "/organization/business-hours",
+    path: "/organization/business-hours",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsAccountGuardianRoute =
   OrgSlugauthenticatedSettingsAccountGuardianRouteImport.update({
-    id: '/account/guardian',
-    path: '/account/guardian',
+    id: "/account/guardian",
+    path: "/account/guardian",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsAccountAvailabilityRoute =
   OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport.update({
-    id: '/account/availability',
-    path: '/account/availability',
+    id: "/account/availability",
+    path: "/account/availability",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedPortalLessonsCreateRoute =
   OrgSlugauthenticatedPortalLessonsCreateRouteImport.update({
-    id: '/lessons/create',
-    path: '/lessons/create',
+    id: "/lessons/create",
+    path: "/lessons/create",
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedKioskSessionIdCalendarRoute =
   OrgSlugauthenticatedKioskSessionIdCalendarRouteImport.update({
-    id: '/calendar',
-    path: '/calendar',
+    id: "/calendar",
+    path: "/calendar",
     getParentRoute: () => OrgSlugauthenticatedKioskSessionIdRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminServicesNewRoute =
   OrgSlugauthenticatedAdminServicesNewRouteImport.update({
-    id: '/services/new',
-    path: '/services/new',
+    id: "/services/new",
+    path: "/services/new",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminLessonsNewRoute =
   OrgSlugauthenticatedAdminLessonsNewRouteImport.update({
-    id: '/lessons/new',
-    path: '/lessons/new',
+    id: "/lessons/new",
+    path: "/lessons/new",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminCalendarNewRoute =
   OrgSlugauthenticatedAdminCalendarNewRouteImport.update({
-    id: '/calendar/new',
-    path: '/calendar/new',
+    id: "/calendar/new",
+    path: "/calendar/new",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminBoardsNewRoute =
   OrgSlugauthenticatedAdminBoardsNewRouteImport.update({
-    id: '/boards/new',
-    path: '/boards/new',
+    id: "/boards/new",
+    path: "/boards/new",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute =
   OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport.update({
-    id: '/organization/waivers/',
-    path: '/organization/waivers/',
+    id: "/organization/waivers/",
+    path: "/organization/waivers/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute =
   OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport.update(
     {
-      id: '/organization/questionnaires/',
-      path: '/organization/questionnaires/',
+      id: "/organization/questionnaires/",
+      path: "/organization/questionnaires/",
       getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-    } as any,
-  )
+    } as any
+  );
 const OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute =
   OrgSlugauthenticatedSettingsOrganizationMembersIndexRouteImport.update({
-    id: '/organization/members/',
-    path: '/organization/members/',
+    id: "/organization/members/",
+    path: "/organization/members/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute =
   OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport.update({
-    id: '/organization/general/',
-    path: '/organization/general/',
+    id: "/organization/general/",
+    path: "/organization/general/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsAccountSecurityIndexRoute =
   OrgSlugauthenticatedSettingsAccountSecurityIndexRouteImport.update({
-    id: '/account/security/',
-    path: '/account/security/',
+    id: "/account/security/",
+    path: "/account/security/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsAccountProfileIndexRoute =
   OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport.update({
-    id: '/account/profile/',
-    path: '/account/profile/',
+    id: "/account/profile/",
+    path: "/account/profile/",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminServicesIdIndexRoute =
   OrgSlugauthenticatedAdminServicesIdIndexRouteImport.update({
-    id: '/services/$id/',
-    path: '/services/$id/',
+    id: "/services/$id/",
+    path: "/services/$id/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersTrainersIndexRoute =
   OrgSlugauthenticatedAdminMembersTrainersIndexRouteImport.update({
-    id: '/members/trainers/',
-    path: '/members/trainers/',
+    id: "/members/trainers/",
+    path: "/members/trainers/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersRidersIndexRoute =
   OrgSlugauthenticatedAdminMembersRidersIndexRouteImport.update({
-    id: '/members/riders/',
-    path: '/members/riders/',
+    id: "/members/riders/",
+    path: "/members/riders/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersIdIndexRoute =
   OrgSlugauthenticatedAdminMembersIdIndexRouteImport.update({
-    id: '/members/$id/',
-    path: '/members/$id/',
+    id: "/members/$id/",
+    path: "/members/$id/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminBoardsIdIndexRoute =
   OrgSlugauthenticatedAdminBoardsIdIndexRouteImport.update({
-    id: '/boards/$id/',
-    path: '/boards/$id/',
+    id: "/boards/$id/",
+    path: "/boards/$id/",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute =
   OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport.update({
-    id: '/organization/questionnaires/new',
-    path: '/organization/questionnaires/new',
+    id: "/organization/questionnaires/new",
+    path: "/organization/questionnaires/new",
     getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminServicesIdEditRoute =
   OrgSlugauthenticatedAdminServicesIdEditRouteImport.update({
-    id: '/services/$id/edit',
-    path: '/services/$id/edit',
+    id: "/services/$id/edit",
+    path: "/services/$id/edit",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute =
   OrgSlugauthenticatedAdminMembersTrainersTrainerIdRouteImport.update({
-    id: '/members/trainers/$trainerId',
-    path: '/members/trainers/$trainerId',
+    id: "/members/trainers/$trainerId",
+    path: "/members/trainers/$trainerId",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersRidersRiderIdRoute =
   OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport.update({
-    id: '/members/riders/$riderId',
-    path: '/members/riders/$riderId',
+    id: "/members/riders/$riderId",
+    path: "/members/riders/$riderId",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminBoardsIdEditRoute =
   OrgSlugauthenticatedAdminBoardsIdEditRouteImport.update({
-    id: '/boards/$id/edit',
-    path: '/boards/$id/edit',
+    id: "/boards/$id/edit",
+    path: "/boards/$id/edit",
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute =
   OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
+    id: "/",
+    path: "/",
     getParentRoute: () => OrgSlugauthenticatedAdminMembersRidersRiderIdRoute,
-  } as any)
+  } as any);
 const OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute =
   OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport.update(
     {
-      id: '/organization/questionnaires/$id/edit',
-      path: '/organization/questionnaires/$id/edit',
+      id: "/organization/questionnaires/$id/edit",
+      path: "/organization/questionnaires/$id/edit",
       getParentRoute: () => OrgSlugauthenticatedSettingsRouteRoute,
-    } as any,
-  )
+    } as any
+  );
 const OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute =
   OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport.update({
-    id: '/activity',
-    path: '/activity',
+    id: "/activity",
+    path: "/activity",
     getParentRoute: () => OrgSlugauthenticatedAdminMembersRidersRiderIdRoute,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/admin': typeof authenticatedAdminRouteRoute
-  '/create-organization': typeof authenticatedCreateOrganizationRoute
-  '/join-organization': typeof authenticatedJoinOrganizationRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/org/$slug': typeof OrgSlugauthenticatedRouteRouteWithChildren
-  '/': typeof authenticatedIndexRoute
-  '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
-  '/org/$slug/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
-  '/org/$slug/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
-  '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
-  '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
-  '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
-  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
-  '/org/$slug/': typeof OrgSlugauthenticatedIndexRoute
-  '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
-  '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
-  '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
-  '/org/$slug/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
-  '/org/$slug/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
-  '/org/$slug/portal/': typeof OrgSlugauthenticatedPortalIndexRoute
-  '/org/$slug/settings/': typeof OrgSlugauthenticatedSettingsIndexRoute
-  '/org/$slug/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
-  '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
-  '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
-  '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
-  '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
-  '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
-  '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
-  '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
-  '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
-  '/org/$slug/settings/organization/kiosk': typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute
-  '/org/$slug/admin/boards/': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
-  '/org/$slug/admin/calendar/': typeof OrgSlugauthenticatedAdminCalendarIndexRoute
-  '/org/$slug/admin/lessons/': typeof OrgSlugauthenticatedAdminLessonsIndexRoute
-  '/org/$slug/admin/members/': typeof OrgSlugauthenticatedAdminMembersIndexRoute
-  '/org/$slug/admin/services/': typeof OrgSlugauthenticatedAdminServicesIndexRoute
-  '/org/$slug/portal/calendar/': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
-  '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
-  '/org/$slug/admin/members/trainers/$trainerId': typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute
-  '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
-  '/org/$slug/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
-  '/org/$slug/admin/members/$id/': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
-  '/org/$slug/admin/members/riders/': typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute
-  '/org/$slug/admin/members/trainers/': typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute
-  '/org/$slug/admin/services/$id/': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
-  '/org/$slug/settings/account/profile/': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
-  '/org/$slug/settings/account/security/': typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute
-  '/org/$slug/settings/organization/general/': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
-  '/org/$slug/settings/organization/members/': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
-  '/org/$slug/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
-  '/org/$slug/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
-  '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
-  '/org/$slug/admin/members/riders/$riderId/': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
+  "/auth": typeof AuthRouteRouteWithChildren;
+  "/admin": typeof authenticatedAdminRouteRoute;
+  "/create-organization": typeof authenticatedCreateOrganizationRoute;
+  "/join-organization": typeof authenticatedJoinOrganizationRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
+  "/auth/login": typeof AuthLoginRoute;
+  "/auth/register": typeof AuthRegisterRoute;
+  "/auth/reset-password": typeof AuthResetPasswordRoute;
+  "/org/$slug": typeof OrgSlugauthenticatedRouteRouteWithChildren;
+  "/": typeof authenticatedIndexRoute;
+  "/org/$slug/auth": typeof OrgSlugAuthRouteRouteWithChildren;
+  "/org/$slug/admin": typeof OrgSlugauthenticatedAdminRouteRouteWithChildren;
+  "/org/$slug/portal": typeof OrgSlugauthenticatedPortalRouteRouteWithChildren;
+  "/org/$slug/settings": typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren;
+  "/org/$slug/onboarding": typeof OrgSlugauthenticatedOnboardingRoute;
+  "/org/$slug/auth/forgot-password": typeof OrgSlugAuthForgotPasswordRoute;
+  "/org/$slug/auth/login": typeof OrgSlugAuthLoginRoute;
+  "/org/$slug/auth/register": typeof OrgSlugAuthRegisterRoute;
+  "/org/$slug/auth/reset-password": typeof OrgSlugAuthResetPasswordRoute;
+  "/org/$slug/": typeof OrgSlugauthenticatedIndexRoute;
+  "/org/$slug/kiosk/$sessionId": typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren;
+  "/org/$slug/admin/feed": typeof OrgSlugauthenticatedAdminFeedRoute;
+  "/org/$slug/invitation/$invitationId": typeof OrgSlugauthenticatedInvitationInvitationIdRoute;
+  "/org/$slug/portal/feed": typeof OrgSlugauthenticatedPortalFeedRoute;
+  "/org/$slug/admin/": typeof OrgSlugauthenticatedAdminIndexRoute;
+  "/org/$slug/kiosk/": typeof OrgSlugauthenticatedKioskIndexRoute;
+  "/org/$slug/portal/": typeof OrgSlugauthenticatedPortalIndexRoute;
+  "/org/$slug/settings/": typeof OrgSlugauthenticatedSettingsIndexRoute;
+  "/org/$slug/admin/boards/new": typeof OrgSlugauthenticatedAdminBoardsNewRoute;
+  "/org/$slug/admin/calendar/new": typeof OrgSlugauthenticatedAdminCalendarNewRoute;
+  "/org/$slug/admin/lessons/new": typeof OrgSlugauthenticatedAdminLessonsNewRoute;
+  "/org/$slug/admin/services/new": typeof OrgSlugauthenticatedAdminServicesNewRoute;
+  "/org/$slug/kiosk/$sessionId/calendar": typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute;
+  "/org/$slug/portal/lessons/create": typeof OrgSlugauthenticatedPortalLessonsCreateRoute;
+  "/org/$slug/settings/account/availability": typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute;
+  "/org/$slug/settings/account/guardian": typeof OrgSlugauthenticatedSettingsAccountGuardianRoute;
+  "/org/$slug/settings/organization/business-hours": typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute;
+  "/org/$slug/settings/organization/kiosk": typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute;
+  "/org/$slug/admin/boards/": typeof OrgSlugauthenticatedAdminBoardsIndexRoute;
+  "/org/$slug/admin/calendar/": typeof OrgSlugauthenticatedAdminCalendarIndexRoute;
+  "/org/$slug/admin/lessons/": typeof OrgSlugauthenticatedAdminLessonsIndexRoute;
+  "/org/$slug/admin/members/": typeof OrgSlugauthenticatedAdminMembersIndexRoute;
+  "/org/$slug/admin/services/": typeof OrgSlugauthenticatedAdminServicesIndexRoute;
+  "/org/$slug/portal/calendar/": typeof OrgSlugauthenticatedPortalCalendarIndexRoute;
+  "/org/$slug/admin/boards/$id/edit": typeof OrgSlugauthenticatedAdminBoardsIdEditRoute;
+  "/org/$slug/admin/members/riders/$riderId": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren;
+  "/org/$slug/admin/members/trainers/$trainerId": typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute;
+  "/org/$slug/admin/services/$id/edit": typeof OrgSlugauthenticatedAdminServicesIdEditRoute;
+  "/org/$slug/settings/organization/questionnaires/new": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute;
+  "/org/$slug/admin/boards/$id/": typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute;
+  "/org/$slug/admin/members/$id/": typeof OrgSlugauthenticatedAdminMembersIdIndexRoute;
+  "/org/$slug/admin/members/riders/": typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute;
+  "/org/$slug/admin/members/trainers/": typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute;
+  "/org/$slug/admin/services/$id/": typeof OrgSlugauthenticatedAdminServicesIdIndexRoute;
+  "/org/$slug/settings/account/profile/": typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute;
+  "/org/$slug/settings/account/security/": typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute;
+  "/org/$slug/settings/organization/general/": typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute;
+  "/org/$slug/settings/organization/members/": typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute;
+  "/org/$slug/settings/organization/questionnaires/": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute;
+  "/org/$slug/settings/organization/waivers/": typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute;
+  "/org/$slug/admin/members/riders/$riderId/activity": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute;
+  "/org/$slug/settings/organization/questionnaires/$id/edit": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute;
+  "/org/$slug/admin/members/riders/$riderId/": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/admin': typeof authenticatedAdminRouteRoute
-  '/create-organization': typeof authenticatedCreateOrganizationRoute
-  '/join-organization': typeof authenticatedJoinOrganizationRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/org/$slug': typeof OrgSlugauthenticatedIndexRoute
-  '/': typeof authenticatedIndexRoute
-  '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
-  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
-  '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
-  '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
-  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
-  '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
-  '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
-  '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
-  '/org/$slug/admin': typeof OrgSlugauthenticatedAdminIndexRoute
-  '/org/$slug/kiosk': typeof OrgSlugauthenticatedKioskIndexRoute
-  '/org/$slug/portal': typeof OrgSlugauthenticatedPortalIndexRoute
-  '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsIndexRoute
-  '/org/$slug/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
-  '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
-  '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
-  '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
-  '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
-  '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
-  '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
-  '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
-  '/org/$slug/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
-  '/org/$slug/settings/organization/kiosk': typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute
-  '/org/$slug/admin/boards': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
-  '/org/$slug/admin/calendar': typeof OrgSlugauthenticatedAdminCalendarIndexRoute
-  '/org/$slug/admin/lessons': typeof OrgSlugauthenticatedAdminLessonsIndexRoute
-  '/org/$slug/admin/members': typeof OrgSlugauthenticatedAdminMembersIndexRoute
-  '/org/$slug/admin/services': typeof OrgSlugauthenticatedAdminServicesIndexRoute
-  '/org/$slug/portal/calendar': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
-  '/org/$slug/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/admin/members/trainers/$trainerId': typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute
-  '/org/$slug/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
-  '/org/$slug/admin/boards/$id': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
-  '/org/$slug/admin/members/$id': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
-  '/org/$slug/admin/members/riders': typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute
-  '/org/$slug/admin/members/trainers': typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute
-  '/org/$slug/admin/services/$id': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
-  '/org/$slug/settings/account/profile': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
-  '/org/$slug/settings/account/security': typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute
-  '/org/$slug/settings/organization/general': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
-  '/org/$slug/settings/organization/members': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
-  '/org/$slug/settings/organization/questionnaires': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
-  '/org/$slug/settings/organization/waivers': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
-  '/org/$slug/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
-  '/org/$slug/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
+  "/auth": typeof AuthRouteRouteWithChildren;
+  "/admin": typeof authenticatedAdminRouteRoute;
+  "/create-organization": typeof authenticatedCreateOrganizationRoute;
+  "/join-organization": typeof authenticatedJoinOrganizationRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
+  "/auth/login": typeof AuthLoginRoute;
+  "/auth/register": typeof AuthRegisterRoute;
+  "/auth/reset-password": typeof AuthResetPasswordRoute;
+  "/org/$slug": typeof OrgSlugauthenticatedIndexRoute;
+  "/": typeof authenticatedIndexRoute;
+  "/org/$slug/auth": typeof OrgSlugAuthRouteRouteWithChildren;
+  "/org/$slug/onboarding": typeof OrgSlugauthenticatedOnboardingRoute;
+  "/org/$slug/auth/forgot-password": typeof OrgSlugAuthForgotPasswordRoute;
+  "/org/$slug/auth/login": typeof OrgSlugAuthLoginRoute;
+  "/org/$slug/auth/register": typeof OrgSlugAuthRegisterRoute;
+  "/org/$slug/auth/reset-password": typeof OrgSlugAuthResetPasswordRoute;
+  "/org/$slug/kiosk/$sessionId": typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren;
+  "/org/$slug/admin/feed": typeof OrgSlugauthenticatedAdminFeedRoute;
+  "/org/$slug/invitation/$invitationId": typeof OrgSlugauthenticatedInvitationInvitationIdRoute;
+  "/org/$slug/portal/feed": typeof OrgSlugauthenticatedPortalFeedRoute;
+  "/org/$slug/admin": typeof OrgSlugauthenticatedAdminIndexRoute;
+  "/org/$slug/kiosk": typeof OrgSlugauthenticatedKioskIndexRoute;
+  "/org/$slug/portal": typeof OrgSlugauthenticatedPortalIndexRoute;
+  "/org/$slug/settings": typeof OrgSlugauthenticatedSettingsIndexRoute;
+  "/org/$slug/admin/boards/new": typeof OrgSlugauthenticatedAdminBoardsNewRoute;
+  "/org/$slug/admin/calendar/new": typeof OrgSlugauthenticatedAdminCalendarNewRoute;
+  "/org/$slug/admin/lessons/new": typeof OrgSlugauthenticatedAdminLessonsNewRoute;
+  "/org/$slug/admin/services/new": typeof OrgSlugauthenticatedAdminServicesNewRoute;
+  "/org/$slug/kiosk/$sessionId/calendar": typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute;
+  "/org/$slug/portal/lessons/create": typeof OrgSlugauthenticatedPortalLessonsCreateRoute;
+  "/org/$slug/settings/account/availability": typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute;
+  "/org/$slug/settings/account/guardian": typeof OrgSlugauthenticatedSettingsAccountGuardianRoute;
+  "/org/$slug/settings/organization/business-hours": typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute;
+  "/org/$slug/settings/organization/kiosk": typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute;
+  "/org/$slug/admin/boards": typeof OrgSlugauthenticatedAdminBoardsIndexRoute;
+  "/org/$slug/admin/calendar": typeof OrgSlugauthenticatedAdminCalendarIndexRoute;
+  "/org/$slug/admin/lessons": typeof OrgSlugauthenticatedAdminLessonsIndexRoute;
+  "/org/$slug/admin/members": typeof OrgSlugauthenticatedAdminMembersIndexRoute;
+  "/org/$slug/admin/services": typeof OrgSlugauthenticatedAdminServicesIndexRoute;
+  "/org/$slug/portal/calendar": typeof OrgSlugauthenticatedPortalCalendarIndexRoute;
+  "/org/$slug/admin/boards/$id/edit": typeof OrgSlugauthenticatedAdminBoardsIdEditRoute;
+  "/org/$slug/admin/members/trainers/$trainerId": typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute;
+  "/org/$slug/admin/services/$id/edit": typeof OrgSlugauthenticatedAdminServicesIdEditRoute;
+  "/org/$slug/settings/organization/questionnaires/new": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute;
+  "/org/$slug/admin/boards/$id": typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute;
+  "/org/$slug/admin/members/$id": typeof OrgSlugauthenticatedAdminMembersIdIndexRoute;
+  "/org/$slug/admin/members/riders": typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute;
+  "/org/$slug/admin/members/trainers": typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute;
+  "/org/$slug/admin/services/$id": typeof OrgSlugauthenticatedAdminServicesIdIndexRoute;
+  "/org/$slug/settings/account/profile": typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute;
+  "/org/$slug/settings/account/security": typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute;
+  "/org/$slug/settings/organization/general": typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute;
+  "/org/$slug/settings/organization/members": typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute;
+  "/org/$slug/settings/organization/questionnaires": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute;
+  "/org/$slug/settings/organization/waivers": typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute;
+  "/org/$slug/admin/members/riders/$riderId/activity": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute;
+  "/org/$slug/settings/organization/questionnaires/$id/edit": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute;
+  "/org/$slug/admin/members/riders/$riderId": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/(authenticated)': typeof authenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/(authenticated)/admin': typeof authenticatedAdminRouteRoute
-  '/(authenticated)/create-organization': typeof authenticatedCreateOrganizationRoute
-  '/(authenticated)/join-organization': typeof authenticatedJoinOrganizationRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/org/$slug': typeof OrgSlugRouteWithChildren
-  '/(authenticated)/': typeof authenticatedIndexRoute
-  '/org/$slug/(authenticated)': typeof OrgSlugauthenticatedRouteRouteWithChildren
-  '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
-  '/org/$slug/(authenticated)/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
-  '/org/$slug/(authenticated)/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
-  '/org/$slug/(authenticated)/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  '/org/$slug/(authenticated)/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
-  '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
-  '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
-  '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
-  '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
-  '/org/$slug/(authenticated)/': typeof OrgSlugauthenticatedIndexRoute
-  '/org/$slug/(authenticated)/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
-  '/org/$slug/(authenticated)/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/(authenticated)/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
-  '/org/$slug/(authenticated)/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
-  '/org/$slug/(authenticated)/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
-  '/org/$slug/(authenticated)/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
-  '/org/$slug/(authenticated)/portal/': typeof OrgSlugauthenticatedPortalIndexRoute
-  '/org/$slug/(authenticated)/settings/': typeof OrgSlugauthenticatedSettingsIndexRoute
-  '/org/$slug/(authenticated)/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
-  '/org/$slug/(authenticated)/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
-  '/org/$slug/(authenticated)/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
-  '/org/$slug/(authenticated)/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
-  '/org/$slug/(authenticated)/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
-  '/org/$slug/(authenticated)/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
-  '/org/$slug/(authenticated)/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
-  '/org/$slug/(authenticated)/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
-  '/org/$slug/(authenticated)/settings/organization/business-hours': typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
-  '/org/$slug/(authenticated)/settings/organization/kiosk': typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute
-  '/org/$slug/(authenticated)/admin/boards/': typeof OrgSlugauthenticatedAdminBoardsIndexRoute
-  '/org/$slug/(authenticated)/admin/calendar/': typeof OrgSlugauthenticatedAdminCalendarIndexRoute
-  '/org/$slug/(authenticated)/admin/lessons/': typeof OrgSlugauthenticatedAdminLessonsIndexRoute
-  '/org/$slug/(authenticated)/admin/members/': typeof OrgSlugauthenticatedAdminMembersIndexRoute
-  '/org/$slug/(authenticated)/admin/services/': typeof OrgSlugauthenticatedAdminServicesIndexRoute
-  '/org/$slug/(authenticated)/portal/calendar/': typeof OrgSlugauthenticatedPortalCalendarIndexRoute
-  '/org/$slug/(authenticated)/admin/boards/$id/edit': typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  '/org/$slug/(authenticated)/admin/members/riders/$riderId': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
-  '/org/$slug/(authenticated)/admin/members/trainers/$trainerId': typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute
-  '/org/$slug/(authenticated)/admin/services/$id/edit': typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  '/org/$slug/(authenticated)/settings/organization/questionnaires/new': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
-  '/org/$slug/(authenticated)/admin/boards/$id/': typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
-  '/org/$slug/(authenticated)/admin/members/$id/': typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
-  '/org/$slug/(authenticated)/admin/members/riders/': typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute
-  '/org/$slug/(authenticated)/admin/members/trainers/': typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute
-  '/org/$slug/(authenticated)/admin/services/$id/': typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
-  '/org/$slug/(authenticated)/settings/account/profile/': typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
-  '/org/$slug/(authenticated)/settings/account/security/': typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute
-  '/org/$slug/(authenticated)/settings/organization/general/': typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
-  '/org/$slug/(authenticated)/settings/organization/members/': typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
-  '/org/$slug/(authenticated)/settings/organization/questionnaires/': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
-  '/org/$slug/(authenticated)/settings/organization/waivers/': typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
-  '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
-  '/org/$slug/(authenticated)/admin/members/riders/$riderId/': typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
+  __root__: typeof rootRouteImport;
+  "/(authenticated)": typeof authenticatedRouteRouteWithChildren;
+  "/auth": typeof AuthRouteRouteWithChildren;
+  "/(authenticated)/admin": typeof authenticatedAdminRouteRoute;
+  "/(authenticated)/create-organization": typeof authenticatedCreateOrganizationRoute;
+  "/(authenticated)/join-organization": typeof authenticatedJoinOrganizationRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
+  "/auth/login": typeof AuthLoginRoute;
+  "/auth/register": typeof AuthRegisterRoute;
+  "/auth/reset-password": typeof AuthResetPasswordRoute;
+  "/org/$slug": typeof OrgSlugRouteWithChildren;
+  "/(authenticated)/": typeof authenticatedIndexRoute;
+  "/org/$slug/(authenticated)": typeof OrgSlugauthenticatedRouteRouteWithChildren;
+  "/org/$slug/auth": typeof OrgSlugAuthRouteRouteWithChildren;
+  "/org/$slug/(authenticated)/admin": typeof OrgSlugauthenticatedAdminRouteRouteWithChildren;
+  "/org/$slug/(authenticated)/portal": typeof OrgSlugauthenticatedPortalRouteRouteWithChildren;
+  "/org/$slug/(authenticated)/settings": typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren;
+  "/org/$slug/(authenticated)/onboarding": typeof OrgSlugauthenticatedOnboardingRoute;
+  "/org/$slug/auth/forgot-password": typeof OrgSlugAuthForgotPasswordRoute;
+  "/org/$slug/auth/login": typeof OrgSlugAuthLoginRoute;
+  "/org/$slug/auth/register": typeof OrgSlugAuthRegisterRoute;
+  "/org/$slug/auth/reset-password": typeof OrgSlugAuthResetPasswordRoute;
+  "/org/$slug/(authenticated)/": typeof OrgSlugauthenticatedIndexRoute;
+  "/org/$slug/(authenticated)/kiosk/$sessionId": typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren;
+  "/org/$slug/(authenticated)/admin/feed": typeof OrgSlugauthenticatedAdminFeedRoute;
+  "/org/$slug/(authenticated)/invitation/$invitationId": typeof OrgSlugauthenticatedInvitationInvitationIdRoute;
+  "/org/$slug/(authenticated)/portal/feed": typeof OrgSlugauthenticatedPortalFeedRoute;
+  "/org/$slug/(authenticated)/admin/": typeof OrgSlugauthenticatedAdminIndexRoute;
+  "/org/$slug/(authenticated)/kiosk/": typeof OrgSlugauthenticatedKioskIndexRoute;
+  "/org/$slug/(authenticated)/portal/": typeof OrgSlugauthenticatedPortalIndexRoute;
+  "/org/$slug/(authenticated)/settings/": typeof OrgSlugauthenticatedSettingsIndexRoute;
+  "/org/$slug/(authenticated)/admin/boards/new": typeof OrgSlugauthenticatedAdminBoardsNewRoute;
+  "/org/$slug/(authenticated)/admin/calendar/new": typeof OrgSlugauthenticatedAdminCalendarNewRoute;
+  "/org/$slug/(authenticated)/admin/lessons/new": typeof OrgSlugauthenticatedAdminLessonsNewRoute;
+  "/org/$slug/(authenticated)/admin/services/new": typeof OrgSlugauthenticatedAdminServicesNewRoute;
+  "/org/$slug/(authenticated)/kiosk/$sessionId/calendar": typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute;
+  "/org/$slug/(authenticated)/portal/lessons/create": typeof OrgSlugauthenticatedPortalLessonsCreateRoute;
+  "/org/$slug/(authenticated)/settings/account/availability": typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute;
+  "/org/$slug/(authenticated)/settings/account/guardian": typeof OrgSlugauthenticatedSettingsAccountGuardianRoute;
+  "/org/$slug/(authenticated)/settings/organization/business-hours": typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute;
+  "/org/$slug/(authenticated)/settings/organization/kiosk": typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute;
+  "/org/$slug/(authenticated)/admin/boards/": typeof OrgSlugauthenticatedAdminBoardsIndexRoute;
+  "/org/$slug/(authenticated)/admin/calendar/": typeof OrgSlugauthenticatedAdminCalendarIndexRoute;
+  "/org/$slug/(authenticated)/admin/lessons/": typeof OrgSlugauthenticatedAdminLessonsIndexRoute;
+  "/org/$slug/(authenticated)/admin/members/": typeof OrgSlugauthenticatedAdminMembersIndexRoute;
+  "/org/$slug/(authenticated)/admin/services/": typeof OrgSlugauthenticatedAdminServicesIndexRoute;
+  "/org/$slug/(authenticated)/portal/calendar/": typeof OrgSlugauthenticatedPortalCalendarIndexRoute;
+  "/org/$slug/(authenticated)/admin/boards/$id/edit": typeof OrgSlugauthenticatedAdminBoardsIdEditRoute;
+  "/org/$slug/(authenticated)/admin/members/riders/$riderId": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren;
+  "/org/$slug/(authenticated)/admin/members/trainers/$trainerId": typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute;
+  "/org/$slug/(authenticated)/admin/services/$id/edit": typeof OrgSlugauthenticatedAdminServicesIdEditRoute;
+  "/org/$slug/(authenticated)/settings/organization/questionnaires/new": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute;
+  "/org/$slug/(authenticated)/admin/boards/$id/": typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute;
+  "/org/$slug/(authenticated)/admin/members/$id/": typeof OrgSlugauthenticatedAdminMembersIdIndexRoute;
+  "/org/$slug/(authenticated)/admin/members/riders/": typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute;
+  "/org/$slug/(authenticated)/admin/members/trainers/": typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute;
+  "/org/$slug/(authenticated)/admin/services/$id/": typeof OrgSlugauthenticatedAdminServicesIdIndexRoute;
+  "/org/$slug/(authenticated)/settings/account/profile/": typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute;
+  "/org/$slug/(authenticated)/settings/account/security/": typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute;
+  "/org/$slug/(authenticated)/settings/organization/general/": typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute;
+  "/org/$slug/(authenticated)/settings/organization/members/": typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute;
+  "/org/$slug/(authenticated)/settings/organization/questionnaires/": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute;
+  "/org/$slug/(authenticated)/settings/organization/waivers/": typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute;
+  "/org/$slug/(authenticated)/admin/members/riders/$riderId/activity": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute;
+  "/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit": typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute;
+  "/org/$slug/(authenticated)/admin/members/riders/$riderId/": typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/auth'
-    | '/admin'
-    | '/create-organization'
-    | '/join-organization'
-    | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
-    | '/auth/register'
-    | '/auth/reset-password'
-    | '/org/$slug'
-    | '/'
-    | '/org/$slug/auth'
-    | '/org/$slug/admin'
-    | '/org/$slug/portal'
-    | '/org/$slug/settings'
-    | '/org/$slug/onboarding'
-    | '/org/$slug/auth/forgot-password'
-    | '/org/$slug/auth/login'
-    | '/org/$slug/auth/register'
-    | '/org/$slug/auth/reset-password'
-    | '/org/$slug/'
-    | '/org/$slug/kiosk/$sessionId'
-    | '/org/$slug/admin/feed'
-    | '/org/$slug/invitation/$invitationId'
-    | '/org/$slug/portal/feed'
-    | '/org/$slug/admin/'
-    | '/org/$slug/kiosk/'
-    | '/org/$slug/portal/'
-    | '/org/$slug/settings/'
-    | '/org/$slug/admin/boards/new'
-    | '/org/$slug/admin/calendar/new'
-    | '/org/$slug/admin/lessons/new'
-    | '/org/$slug/admin/services/new'
-    | '/org/$slug/kiosk/$sessionId/calendar'
-    | '/org/$slug/portal/lessons/create'
-    | '/org/$slug/settings/account/availability'
-    | '/org/$slug/settings/account/guardian'
-    | '/org/$slug/settings/organization/business-hours'
-    | '/org/$slug/settings/organization/kiosk'
-    | '/org/$slug/admin/boards/'
-    | '/org/$slug/admin/calendar/'
-    | '/org/$slug/admin/lessons/'
-    | '/org/$slug/admin/members/'
-    | '/org/$slug/admin/services/'
-    | '/org/$slug/portal/calendar/'
-    | '/org/$slug/admin/boards/$id/edit'
-    | '/org/$slug/admin/members/riders/$riderId'
-    | '/org/$slug/admin/members/trainers/$trainerId'
-    | '/org/$slug/admin/services/$id/edit'
-    | '/org/$slug/settings/organization/questionnaires/new'
-    | '/org/$slug/admin/boards/$id/'
-    | '/org/$slug/admin/members/$id/'
-    | '/org/$slug/admin/members/riders/'
-    | '/org/$slug/admin/members/trainers/'
-    | '/org/$slug/admin/services/$id/'
-    | '/org/$slug/settings/account/profile/'
-    | '/org/$slug/settings/account/security/'
-    | '/org/$slug/settings/organization/general/'
-    | '/org/$slug/settings/organization/members/'
-    | '/org/$slug/settings/organization/questionnaires/'
-    | '/org/$slug/settings/organization/waivers/'
-    | '/org/$slug/admin/members/riders/$riderId/activity'
-    | '/org/$slug/settings/organization/questionnaires/$id/edit'
-    | '/org/$slug/admin/members/riders/$riderId/'
-  fileRoutesByTo: FileRoutesByTo
+    | "/auth"
+    | "/admin"
+    | "/create-organization"
+    | "/join-organization"
+    | "/auth/callback"
+    | "/auth/forgot-password"
+    | "/auth/login"
+    | "/auth/register"
+    | "/auth/reset-password"
+    | "/org/$slug"
+    | "/"
+    | "/org/$slug/auth"
+    | "/org/$slug/admin"
+    | "/org/$slug/portal"
+    | "/org/$slug/settings"
+    | "/org/$slug/onboarding"
+    | "/org/$slug/auth/forgot-password"
+    | "/org/$slug/auth/login"
+    | "/org/$slug/auth/register"
+    | "/org/$slug/auth/reset-password"
+    | "/org/$slug/"
+    | "/org/$slug/kiosk/$sessionId"
+    | "/org/$slug/admin/feed"
+    | "/org/$slug/invitation/$invitationId"
+    | "/org/$slug/portal/feed"
+    | "/org/$slug/admin/"
+    | "/org/$slug/kiosk/"
+    | "/org/$slug/portal/"
+    | "/org/$slug/settings/"
+    | "/org/$slug/admin/boards/new"
+    | "/org/$slug/admin/calendar/new"
+    | "/org/$slug/admin/lessons/new"
+    | "/org/$slug/admin/services/new"
+    | "/org/$slug/kiosk/$sessionId/calendar"
+    | "/org/$slug/portal/lessons/create"
+    | "/org/$slug/settings/account/availability"
+    | "/org/$slug/settings/account/guardian"
+    | "/org/$slug/settings/organization/business-hours"
+    | "/org/$slug/settings/organization/kiosk"
+    | "/org/$slug/admin/boards/"
+    | "/org/$slug/admin/calendar/"
+    | "/org/$slug/admin/lessons/"
+    | "/org/$slug/admin/members/"
+    | "/org/$slug/admin/services/"
+    | "/org/$slug/portal/calendar/"
+    | "/org/$slug/admin/boards/$id/edit"
+    | "/org/$slug/admin/members/riders/$riderId"
+    | "/org/$slug/admin/members/trainers/$trainerId"
+    | "/org/$slug/admin/services/$id/edit"
+    | "/org/$slug/settings/organization/questionnaires/new"
+    | "/org/$slug/admin/boards/$id/"
+    | "/org/$slug/admin/members/$id/"
+    | "/org/$slug/admin/members/riders/"
+    | "/org/$slug/admin/members/trainers/"
+    | "/org/$slug/admin/services/$id/"
+    | "/org/$slug/settings/account/profile/"
+    | "/org/$slug/settings/account/security/"
+    | "/org/$slug/settings/organization/general/"
+    | "/org/$slug/settings/organization/members/"
+    | "/org/$slug/settings/organization/questionnaires/"
+    | "/org/$slug/settings/organization/waivers/"
+    | "/org/$slug/admin/members/riders/$riderId/activity"
+    | "/org/$slug/settings/organization/questionnaires/$id/edit"
+    | "/org/$slug/admin/members/riders/$riderId/";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/auth'
-    | '/admin'
-    | '/create-organization'
-    | '/join-organization'
-    | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
-    | '/auth/register'
-    | '/auth/reset-password'
-    | '/org/$slug'
-    | '/'
-    | '/org/$slug/auth'
-    | '/org/$slug/onboarding'
-    | '/org/$slug/auth/forgot-password'
-    | '/org/$slug/auth/login'
-    | '/org/$slug/auth/register'
-    | '/org/$slug/auth/reset-password'
-    | '/org/$slug/kiosk/$sessionId'
-    | '/org/$slug/admin/feed'
-    | '/org/$slug/invitation/$invitationId'
-    | '/org/$slug/portal/feed'
-    | '/org/$slug/admin'
-    | '/org/$slug/kiosk'
-    | '/org/$slug/portal'
-    | '/org/$slug/settings'
-    | '/org/$slug/admin/boards/new'
-    | '/org/$slug/admin/calendar/new'
-    | '/org/$slug/admin/lessons/new'
-    | '/org/$slug/admin/services/new'
-    | '/org/$slug/kiosk/$sessionId/calendar'
-    | '/org/$slug/portal/lessons/create'
-    | '/org/$slug/settings/account/availability'
-    | '/org/$slug/settings/account/guardian'
-    | '/org/$slug/settings/organization/business-hours'
-    | '/org/$slug/settings/organization/kiosk'
-    | '/org/$slug/admin/boards'
-    | '/org/$slug/admin/calendar'
-    | '/org/$slug/admin/lessons'
-    | '/org/$slug/admin/members'
-    | '/org/$slug/admin/services'
-    | '/org/$slug/portal/calendar'
-    | '/org/$slug/admin/boards/$id/edit'
-    | '/org/$slug/admin/members/trainers/$trainerId'
-    | '/org/$slug/admin/services/$id/edit'
-    | '/org/$slug/settings/organization/questionnaires/new'
-    | '/org/$slug/admin/boards/$id'
-    | '/org/$slug/admin/members/$id'
-    | '/org/$slug/admin/members/riders'
-    | '/org/$slug/admin/members/trainers'
-    | '/org/$slug/admin/services/$id'
-    | '/org/$slug/settings/account/profile'
-    | '/org/$slug/settings/account/security'
-    | '/org/$slug/settings/organization/general'
-    | '/org/$slug/settings/organization/members'
-    | '/org/$slug/settings/organization/questionnaires'
-    | '/org/$slug/settings/organization/waivers'
-    | '/org/$slug/admin/members/riders/$riderId/activity'
-    | '/org/$slug/settings/organization/questionnaires/$id/edit'
-    | '/org/$slug/admin/members/riders/$riderId'
+    | "/auth"
+    | "/admin"
+    | "/create-organization"
+    | "/join-organization"
+    | "/auth/callback"
+    | "/auth/forgot-password"
+    | "/auth/login"
+    | "/auth/register"
+    | "/auth/reset-password"
+    | "/org/$slug"
+    | "/"
+    | "/org/$slug/auth"
+    | "/org/$slug/onboarding"
+    | "/org/$slug/auth/forgot-password"
+    | "/org/$slug/auth/login"
+    | "/org/$slug/auth/register"
+    | "/org/$slug/auth/reset-password"
+    | "/org/$slug/kiosk/$sessionId"
+    | "/org/$slug/admin/feed"
+    | "/org/$slug/invitation/$invitationId"
+    | "/org/$slug/portal/feed"
+    | "/org/$slug/admin"
+    | "/org/$slug/kiosk"
+    | "/org/$slug/portal"
+    | "/org/$slug/settings"
+    | "/org/$slug/admin/boards/new"
+    | "/org/$slug/admin/calendar/new"
+    | "/org/$slug/admin/lessons/new"
+    | "/org/$slug/admin/services/new"
+    | "/org/$slug/kiosk/$sessionId/calendar"
+    | "/org/$slug/portal/lessons/create"
+    | "/org/$slug/settings/account/availability"
+    | "/org/$slug/settings/account/guardian"
+    | "/org/$slug/settings/organization/business-hours"
+    | "/org/$slug/settings/organization/kiosk"
+    | "/org/$slug/admin/boards"
+    | "/org/$slug/admin/calendar"
+    | "/org/$slug/admin/lessons"
+    | "/org/$slug/admin/members"
+    | "/org/$slug/admin/services"
+    | "/org/$slug/portal/calendar"
+    | "/org/$slug/admin/boards/$id/edit"
+    | "/org/$slug/admin/members/trainers/$trainerId"
+    | "/org/$slug/admin/services/$id/edit"
+    | "/org/$slug/settings/organization/questionnaires/new"
+    | "/org/$slug/admin/boards/$id"
+    | "/org/$slug/admin/members/$id"
+    | "/org/$slug/admin/members/riders"
+    | "/org/$slug/admin/members/trainers"
+    | "/org/$slug/admin/services/$id"
+    | "/org/$slug/settings/account/profile"
+    | "/org/$slug/settings/account/security"
+    | "/org/$slug/settings/organization/general"
+    | "/org/$slug/settings/organization/members"
+    | "/org/$slug/settings/organization/questionnaires"
+    | "/org/$slug/settings/organization/waivers"
+    | "/org/$slug/admin/members/riders/$riderId/activity"
+    | "/org/$slug/settings/organization/questionnaires/$id/edit"
+    | "/org/$slug/admin/members/riders/$riderId";
   id:
-    | '__root__'
-    | '/(authenticated)'
-    | '/auth'
-    | '/(authenticated)/admin'
-    | '/(authenticated)/create-organization'
-    | '/(authenticated)/join-organization'
-    | '/auth/callback'
-    | '/auth/forgot-password'
-    | '/auth/login'
-    | '/auth/register'
-    | '/auth/reset-password'
-    | '/org/$slug'
-    | '/(authenticated)/'
-    | '/org/$slug/(authenticated)'
-    | '/org/$slug/auth'
-    | '/org/$slug/(authenticated)/admin'
-    | '/org/$slug/(authenticated)/portal'
-    | '/org/$slug/(authenticated)/settings'
-    | '/org/$slug/(authenticated)/onboarding'
-    | '/org/$slug/auth/forgot-password'
-    | '/org/$slug/auth/login'
-    | '/org/$slug/auth/register'
-    | '/org/$slug/auth/reset-password'
-    | '/org/$slug/(authenticated)/'
-    | '/org/$slug/(authenticated)/kiosk/$sessionId'
-    | '/org/$slug/(authenticated)/admin/feed'
-    | '/org/$slug/(authenticated)/invitation/$invitationId'
-    | '/org/$slug/(authenticated)/portal/feed'
-    | '/org/$slug/(authenticated)/admin/'
-    | '/org/$slug/(authenticated)/kiosk/'
-    | '/org/$slug/(authenticated)/portal/'
-    | '/org/$slug/(authenticated)/settings/'
-    | '/org/$slug/(authenticated)/admin/boards/new'
-    | '/org/$slug/(authenticated)/admin/calendar/new'
-    | '/org/$slug/(authenticated)/admin/lessons/new'
-    | '/org/$slug/(authenticated)/admin/services/new'
-    | '/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
-    | '/org/$slug/(authenticated)/portal/lessons/create'
-    | '/org/$slug/(authenticated)/settings/account/availability'
-    | '/org/$slug/(authenticated)/settings/account/guardian'
-    | '/org/$slug/(authenticated)/settings/organization/business-hours'
-    | '/org/$slug/(authenticated)/settings/organization/kiosk'
-    | '/org/$slug/(authenticated)/admin/boards/'
-    | '/org/$slug/(authenticated)/admin/calendar/'
-    | '/org/$slug/(authenticated)/admin/lessons/'
-    | '/org/$slug/(authenticated)/admin/members/'
-    | '/org/$slug/(authenticated)/admin/services/'
-    | '/org/$slug/(authenticated)/portal/calendar/'
-    | '/org/$slug/(authenticated)/admin/boards/$id/edit'
-    | '/org/$slug/(authenticated)/admin/members/riders/$riderId'
-    | '/org/$slug/(authenticated)/admin/members/trainers/$trainerId'
-    | '/org/$slug/(authenticated)/admin/services/$id/edit'
-    | '/org/$slug/(authenticated)/settings/organization/questionnaires/new'
-    | '/org/$slug/(authenticated)/admin/boards/$id/'
-    | '/org/$slug/(authenticated)/admin/members/$id/'
-    | '/org/$slug/(authenticated)/admin/members/riders/'
-    | '/org/$slug/(authenticated)/admin/members/trainers/'
-    | '/org/$slug/(authenticated)/admin/services/$id/'
-    | '/org/$slug/(authenticated)/settings/account/profile/'
-    | '/org/$slug/(authenticated)/settings/account/security/'
-    | '/org/$slug/(authenticated)/settings/organization/general/'
-    | '/org/$slug/(authenticated)/settings/organization/members/'
-    | '/org/$slug/(authenticated)/settings/organization/questionnaires/'
-    | '/org/$slug/(authenticated)/settings/organization/waivers/'
-    | '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity'
-    | '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
-    | '/org/$slug/(authenticated)/admin/members/riders/$riderId/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/(authenticated)"
+    | "/auth"
+    | "/(authenticated)/admin"
+    | "/(authenticated)/create-organization"
+    | "/(authenticated)/join-organization"
+    | "/auth/callback"
+    | "/auth/forgot-password"
+    | "/auth/login"
+    | "/auth/register"
+    | "/auth/reset-password"
+    | "/org/$slug"
+    | "/(authenticated)/"
+    | "/org/$slug/(authenticated)"
+    | "/org/$slug/auth"
+    | "/org/$slug/(authenticated)/admin"
+    | "/org/$slug/(authenticated)/portal"
+    | "/org/$slug/(authenticated)/settings"
+    | "/org/$slug/(authenticated)/onboarding"
+    | "/org/$slug/auth/forgot-password"
+    | "/org/$slug/auth/login"
+    | "/org/$slug/auth/register"
+    | "/org/$slug/auth/reset-password"
+    | "/org/$slug/(authenticated)/"
+    | "/org/$slug/(authenticated)/kiosk/$sessionId"
+    | "/org/$slug/(authenticated)/admin/feed"
+    | "/org/$slug/(authenticated)/invitation/$invitationId"
+    | "/org/$slug/(authenticated)/portal/feed"
+    | "/org/$slug/(authenticated)/admin/"
+    | "/org/$slug/(authenticated)/kiosk/"
+    | "/org/$slug/(authenticated)/portal/"
+    | "/org/$slug/(authenticated)/settings/"
+    | "/org/$slug/(authenticated)/admin/boards/new"
+    | "/org/$slug/(authenticated)/admin/calendar/new"
+    | "/org/$slug/(authenticated)/admin/lessons/new"
+    | "/org/$slug/(authenticated)/admin/services/new"
+    | "/org/$slug/(authenticated)/kiosk/$sessionId/calendar"
+    | "/org/$slug/(authenticated)/portal/lessons/create"
+    | "/org/$slug/(authenticated)/settings/account/availability"
+    | "/org/$slug/(authenticated)/settings/account/guardian"
+    | "/org/$slug/(authenticated)/settings/organization/business-hours"
+    | "/org/$slug/(authenticated)/settings/organization/kiosk"
+    | "/org/$slug/(authenticated)/admin/boards/"
+    | "/org/$slug/(authenticated)/admin/calendar/"
+    | "/org/$slug/(authenticated)/admin/lessons/"
+    | "/org/$slug/(authenticated)/admin/members/"
+    | "/org/$slug/(authenticated)/admin/services/"
+    | "/org/$slug/(authenticated)/portal/calendar/"
+    | "/org/$slug/(authenticated)/admin/boards/$id/edit"
+    | "/org/$slug/(authenticated)/admin/members/riders/$riderId"
+    | "/org/$slug/(authenticated)/admin/members/trainers/$trainerId"
+    | "/org/$slug/(authenticated)/admin/services/$id/edit"
+    | "/org/$slug/(authenticated)/settings/organization/questionnaires/new"
+    | "/org/$slug/(authenticated)/admin/boards/$id/"
+    | "/org/$slug/(authenticated)/admin/members/$id/"
+    | "/org/$slug/(authenticated)/admin/members/riders/"
+    | "/org/$slug/(authenticated)/admin/members/trainers/"
+    | "/org/$slug/(authenticated)/admin/services/$id/"
+    | "/org/$slug/(authenticated)/settings/account/profile/"
+    | "/org/$slug/(authenticated)/settings/account/security/"
+    | "/org/$slug/(authenticated)/settings/organization/general/"
+    | "/org/$slug/(authenticated)/settings/organization/members/"
+    | "/org/$slug/(authenticated)/settings/organization/questionnaires/"
+    | "/org/$slug/(authenticated)/settings/organization/waivers/"
+    | "/org/$slug/(authenticated)/admin/members/riders/$riderId/activity"
+    | "/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit"
+    | "/org/$slug/(authenticated)/admin/members/riders/$riderId/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  OrgSlugRoute: typeof OrgSlugRouteWithChildren
+  authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren;
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren;
+  OrgSlugRoute: typeof OrgSlugRouteWithChildren;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(authenticated)': {
-      id: '/(authenticated)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof authenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(authenticated)/': {
-      id: '/(authenticated)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authenticatedIndexRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/org/$slug': {
-      id: '/org/$slug'
-      path: '/org/$slug'
-      fullPath: '/org/$slug'
-      preLoaderRoute: typeof OrgSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/reset-password': {
-      id: '/auth/reset-password'
-      path: '/reset-password'
-      fullPath: '/auth/reset-password'
-      preLoaderRoute: typeof AuthResetPasswordRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/register': {
-      id: '/auth/register'
-      path: '/register'
-      fullPath: '/auth/register'
-      preLoaderRoute: typeof AuthRegisterRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/forgot-password': {
-      id: '/auth/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/(authenticated)/join-organization': {
-      id: '/(authenticated)/join-organization'
-      path: '/join-organization'
-      fullPath: '/join-organization'
-      preLoaderRoute: typeof authenticatedJoinOrganizationRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/(authenticated)/create-organization': {
-      id: '/(authenticated)/create-organization'
-      path: '/create-organization'
-      fullPath: '/create-organization'
-      preLoaderRoute: typeof authenticatedCreateOrganizationRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/(authenticated)/admin': {
-      id: '/(authenticated)/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof authenticatedAdminRouteRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/org/$slug/auth': {
-      id: '/org/$slug/auth'
-      path: '/auth'
-      fullPath: '/org/$slug/auth'
-      preLoaderRoute: typeof OrgSlugAuthRouteRouteImport
-      parentRoute: typeof OrgSlugRoute
-    }
-    '/org/$slug/(authenticated)': {
-      id: '/org/$slug/(authenticated)'
-      path: ''
-      fullPath: '/org/$slug'
-      preLoaderRoute: typeof OrgSlugauthenticatedRouteRouteImport
-      parentRoute: typeof OrgSlugRoute
-    }
-    '/org/$slug/(authenticated)/': {
-      id: '/org/$slug/(authenticated)/'
-      path: '/'
-      fullPath: '/org/$slug/'
-      preLoaderRoute: typeof OrgSlugauthenticatedIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/auth/reset-password': {
-      id: '/org/$slug/auth/reset-password'
-      path: '/reset-password'
-      fullPath: '/org/$slug/auth/reset-password'
-      preLoaderRoute: typeof OrgSlugAuthResetPasswordRouteImport
-      parentRoute: typeof OrgSlugAuthRouteRoute
-    }
-    '/org/$slug/auth/register': {
-      id: '/org/$slug/auth/register'
-      path: '/register'
-      fullPath: '/org/$slug/auth/register'
-      preLoaderRoute: typeof OrgSlugAuthRegisterRouteImport
-      parentRoute: typeof OrgSlugAuthRouteRoute
-    }
-    '/org/$slug/auth/login': {
-      id: '/org/$slug/auth/login'
-      path: '/login'
-      fullPath: '/org/$slug/auth/login'
-      preLoaderRoute: typeof OrgSlugAuthLoginRouteImport
-      parentRoute: typeof OrgSlugAuthRouteRoute
-    }
-    '/org/$slug/auth/forgot-password': {
-      id: '/org/$slug/auth/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/org/$slug/auth/forgot-password'
-      preLoaderRoute: typeof OrgSlugAuthForgotPasswordRouteImport
-      parentRoute: typeof OrgSlugAuthRouteRoute
-    }
-    '/org/$slug/(authenticated)/onboarding': {
-      id: '/org/$slug/(authenticated)/onboarding'
-      path: '/onboarding'
-      fullPath: '/org/$slug/onboarding'
-      preLoaderRoute: typeof OrgSlugauthenticatedOnboardingRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings': {
-      id: '/org/$slug/(authenticated)/settings'
-      path: '/settings'
-      fullPath: '/org/$slug/settings'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsRouteRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/portal': {
-      id: '/org/$slug/(authenticated)/portal'
-      path: '/portal'
-      fullPath: '/org/$slug/portal'
-      preLoaderRoute: typeof OrgSlugauthenticatedPortalRouteRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin': {
-      id: '/org/$slug/(authenticated)/admin'
-      path: '/admin'
-      fullPath: '/org/$slug/admin'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminRouteRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/': {
-      id: '/org/$slug/(authenticated)/settings/'
-      path: '/'
-      fullPath: '/org/$slug/settings/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/portal/': {
-      id: '/org/$slug/(authenticated)/portal/'
-      path: '/'
-      fullPath: '/org/$slug/portal/'
-      preLoaderRoute: typeof OrgSlugauthenticatedPortalIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
-    }
-    '/org/$slug/(authenticated)/kiosk/': {
-      id: '/org/$slug/(authenticated)/kiosk/'
-      path: '/kiosk'
-      fullPath: '/org/$slug/kiosk/'
-      preLoaderRoute: typeof OrgSlugauthenticatedKioskIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/': {
-      id: '/org/$slug/(authenticated)/admin/'
-      path: '/'
-      fullPath: '/org/$slug/admin/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/portal/feed': {
-      id: '/org/$slug/(authenticated)/portal/feed'
-      path: '/feed'
-      fullPath: '/org/$slug/portal/feed'
-      preLoaderRoute: typeof OrgSlugauthenticatedPortalFeedRouteImport
-      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
-    }
-    '/org/$slug/(authenticated)/invitation/$invitationId': {
-      id: '/org/$slug/(authenticated)/invitation/$invitationId'
-      path: '/invitation/$invitationId'
-      fullPath: '/org/$slug/invitation/$invitationId'
-      preLoaderRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/feed': {
-      id: '/org/$slug/(authenticated)/admin/feed'
-      path: '/feed'
-      fullPath: '/org/$slug/admin/feed'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminFeedRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/kiosk/$sessionId': {
-      id: '/org/$slug/(authenticated)/kiosk/$sessionId'
-      path: '/kiosk/$sessionId'
-      fullPath: '/org/$slug/kiosk/$sessionId'
-      preLoaderRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
-    }
-    '/org/$slug/(authenticated)/portal/calendar/': {
-      id: '/org/$slug/(authenticated)/portal/calendar/'
-      path: '/calendar'
-      fullPath: '/org/$slug/portal/calendar/'
-      preLoaderRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/services/': {
-      id: '/org/$slug/(authenticated)/admin/services/'
-      path: '/services'
-      fullPath: '/org/$slug/admin/services/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/': {
-      id: '/org/$slug/(authenticated)/admin/members/'
-      path: '/members'
-      fullPath: '/org/$slug/admin/members/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/lessons/': {
-      id: '/org/$slug/(authenticated)/admin/lessons/'
-      path: '/lessons'
-      fullPath: '/org/$slug/admin/lessons/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/calendar/': {
-      id: '/org/$slug/(authenticated)/admin/calendar/'
-      path: '/calendar'
-      fullPath: '/org/$slug/admin/calendar/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminCalendarIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/boards/': {
-      id: '/org/$slug/(authenticated)/admin/boards/'
-      path: '/boards'
-      fullPath: '/org/$slug/admin/boards/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/kiosk': {
-      id: '/org/$slug/(authenticated)/settings/organization/kiosk'
-      path: '/organization/kiosk'
-      fullPath: '/org/$slug/settings/organization/kiosk'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationKioskRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/business-hours': {
-      id: '/org/$slug/(authenticated)/settings/organization/business-hours'
-      path: '/organization/business-hours'
-      fullPath: '/org/$slug/settings/organization/business-hours'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/account/guardian': {
-      id: '/org/$slug/(authenticated)/settings/account/guardian'
-      path: '/account/guardian'
-      fullPath: '/org/$slug/settings/account/guardian'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/account/availability': {
-      id: '/org/$slug/(authenticated)/settings/account/availability'
-      path: '/account/availability'
-      fullPath: '/org/$slug/settings/account/availability'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/portal/lessons/create': {
-      id: '/org/$slug/(authenticated)/portal/lessons/create'
-      path: '/lessons/create'
-      fullPath: '/org/$slug/portal/lessons/create'
-      preLoaderRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRouteImport
-      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
-    }
-    '/org/$slug/(authenticated)/kiosk/$sessionId/calendar': {
-      id: '/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
-      path: '/calendar'
-      fullPath: '/org/$slug/kiosk/$sessionId/calendar'
-      preLoaderRoute: typeof OrgSlugauthenticatedKioskSessionIdCalendarRouteImport
-      parentRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/services/new': {
-      id: '/org/$slug/(authenticated)/admin/services/new'
-      path: '/services/new'
-      fullPath: '/org/$slug/admin/services/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesNewRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/lessons/new': {
-      id: '/org/$slug/(authenticated)/admin/lessons/new'
-      path: '/lessons/new'
-      fullPath: '/org/$slug/admin/lessons/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsNewRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/calendar/new': {
-      id: '/org/$slug/(authenticated)/admin/calendar/new'
-      path: '/calendar/new'
-      fullPath: '/org/$slug/admin/calendar/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminCalendarNewRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/boards/new': {
-      id: '/org/$slug/(authenticated)/admin/boards/new'
-      path: '/boards/new'
-      fullPath: '/org/$slug/admin/boards/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsNewRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/waivers/': {
-      id: '/org/$slug/(authenticated)/settings/organization/waivers/'
-      path: '/organization/waivers'
-      fullPath: '/org/$slug/settings/organization/waivers/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/questionnaires/': {
-      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/'
-      path: '/organization/questionnaires'
-      fullPath: '/org/$slug/settings/organization/questionnaires/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/members/': {
-      id: '/org/$slug/(authenticated)/settings/organization/members/'
-      path: '/organization/members'
-      fullPath: '/org/$slug/settings/organization/members/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/general/': {
-      id: '/org/$slug/(authenticated)/settings/organization/general/'
-      path: '/organization/general'
-      fullPath: '/org/$slug/settings/organization/general/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/account/security/': {
-      id: '/org/$slug/(authenticated)/settings/account/security/'
-      path: '/account/security'
-      fullPath: '/org/$slug/settings/account/security/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/account/profile/': {
-      id: '/org/$slug/(authenticated)/settings/account/profile/'
-      path: '/account/profile'
-      fullPath: '/org/$slug/settings/account/profile/'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/services/$id/': {
-      id: '/org/$slug/(authenticated)/admin/services/$id/'
-      path: '/services/$id'
-      fullPath: '/org/$slug/admin/services/$id/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIdIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/trainers/': {
-      id: '/org/$slug/(authenticated)/admin/members/trainers/'
-      path: '/members/trainers'
-      fullPath: '/org/$slug/admin/members/trainers/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersTrainersIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/riders/': {
-      id: '/org/$slug/(authenticated)/admin/members/riders/'
-      path: '/members/riders'
-      fullPath: '/org/$slug/admin/members/riders/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/$id/': {
-      id: '/org/$slug/(authenticated)/admin/members/$id/'
-      path: '/members/$id'
-      fullPath: '/org/$slug/admin/members/$id/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersIdIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/boards/$id/': {
-      id: '/org/$slug/(authenticated)/admin/boards/$id/'
-      path: '/boards/$id'
-      fullPath: '/org/$slug/admin/boards/$id/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/questionnaires/new': {
-      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/new'
-      path: '/organization/questionnaires/new'
-      fullPath: '/org/$slug/settings/organization/questionnaires/new'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/services/$id/edit': {
-      id: '/org/$slug/(authenticated)/admin/services/$id/edit'
-      path: '/services/$id/edit'
-      fullPath: '/org/$slug/admin/services/$id/edit'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/trainers/$trainerId': {
-      id: '/org/$slug/(authenticated)/admin/members/trainers/$trainerId'
-      path: '/members/trainers/$trainerId'
-      fullPath: '/org/$slug/admin/members/trainers/$trainerId'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/riders/$riderId': {
-      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId'
-      path: '/members/riders/$riderId'
-      fullPath: '/org/$slug/admin/members/riders/$riderId'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/boards/$id/edit': {
-      id: '/org/$slug/(authenticated)/admin/boards/$id/edit'
-      path: '/boards/$id/edit'
-      fullPath: '/org/$slug/admin/boards/$id/edit'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/riders/$riderId/': {
-      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId/'
-      path: '/'
-      fullPath: '/org/$slug/admin/members/riders/$riderId/'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute
-    }
-    '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit': {
-      id: '/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit'
-      path: '/organization/questionnaires/$id/edit'
-      fullPath: '/org/$slug/settings/organization/questionnaires/$id/edit'
-      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport
-      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute
-    }
-    '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity': {
-      id: '/org/$slug/(authenticated)/admin/members/riders/$riderId/activity'
-      path: '/activity'
-      fullPath: '/org/$slug/admin/members/riders/$riderId/activity'
-      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport
-      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute
-    }
+    "/auth": {
+      id: "/auth";
+      path: "/auth";
+      fullPath: "/auth";
+      preLoaderRoute: typeof AuthRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/(authenticated)": {
+      id: "/(authenticated)";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof authenticatedRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/(authenticated)/": {
+      id: "/(authenticated)/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof authenticatedIndexRouteImport;
+      parentRoute: typeof authenticatedRouteRoute;
+    };
+    "/org/$slug": {
+      id: "/org/$slug";
+      path: "/org/$slug";
+      fullPath: "/org/$slug";
+      preLoaderRoute: typeof OrgSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth/reset-password": {
+      id: "/auth/reset-password";
+      path: "/reset-password";
+      fullPath: "/auth/reset-password";
+      preLoaderRoute: typeof AuthResetPasswordRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
+    "/auth/register": {
+      id: "/auth/register";
+      path: "/register";
+      fullPath: "/auth/register";
+      preLoaderRoute: typeof AuthRegisterRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
+    "/auth/login": {
+      id: "/auth/login";
+      path: "/login";
+      fullPath: "/auth/login";
+      preLoaderRoute: typeof AuthLoginRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
+    "/auth/forgot-password": {
+      id: "/auth/forgot-password";
+      path: "/forgot-password";
+      fullPath: "/auth/forgot-password";
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
+    "/auth/callback": {
+      id: "/auth/callback";
+      path: "/callback";
+      fullPath: "/auth/callback";
+      preLoaderRoute: typeof AuthCallbackRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
+    "/(authenticated)/join-organization": {
+      id: "/(authenticated)/join-organization";
+      path: "/join-organization";
+      fullPath: "/join-organization";
+      preLoaderRoute: typeof authenticatedJoinOrganizationRouteImport;
+      parentRoute: typeof authenticatedRouteRoute;
+    };
+    "/(authenticated)/create-organization": {
+      id: "/(authenticated)/create-organization";
+      path: "/create-organization";
+      fullPath: "/create-organization";
+      preLoaderRoute: typeof authenticatedCreateOrganizationRouteImport;
+      parentRoute: typeof authenticatedRouteRoute;
+    };
+    "/(authenticated)/admin": {
+      id: "/(authenticated)/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof authenticatedAdminRouteRouteImport;
+      parentRoute: typeof authenticatedRouteRoute;
+    };
+    "/org/$slug/auth": {
+      id: "/org/$slug/auth";
+      path: "/auth";
+      fullPath: "/org/$slug/auth";
+      preLoaderRoute: typeof OrgSlugAuthRouteRouteImport;
+      parentRoute: typeof OrgSlugRoute;
+    };
+    "/org/$slug/(authenticated)": {
+      id: "/org/$slug/(authenticated)";
+      path: "";
+      fullPath: "/org/$slug";
+      preLoaderRoute: typeof OrgSlugauthenticatedRouteRouteImport;
+      parentRoute: typeof OrgSlugRoute;
+    };
+    "/org/$slug/(authenticated)/": {
+      id: "/org/$slug/(authenticated)/";
+      path: "/";
+      fullPath: "/org/$slug/";
+      preLoaderRoute: typeof OrgSlugauthenticatedIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/auth/reset-password": {
+      id: "/org/$slug/auth/reset-password";
+      path: "/reset-password";
+      fullPath: "/org/$slug/auth/reset-password";
+      preLoaderRoute: typeof OrgSlugAuthResetPasswordRouteImport;
+      parentRoute: typeof OrgSlugAuthRouteRoute;
+    };
+    "/org/$slug/auth/register": {
+      id: "/org/$slug/auth/register";
+      path: "/register";
+      fullPath: "/org/$slug/auth/register";
+      preLoaderRoute: typeof OrgSlugAuthRegisterRouteImport;
+      parentRoute: typeof OrgSlugAuthRouteRoute;
+    };
+    "/org/$slug/auth/login": {
+      id: "/org/$slug/auth/login";
+      path: "/login";
+      fullPath: "/org/$slug/auth/login";
+      preLoaderRoute: typeof OrgSlugAuthLoginRouteImport;
+      parentRoute: typeof OrgSlugAuthRouteRoute;
+    };
+    "/org/$slug/auth/forgot-password": {
+      id: "/org/$slug/auth/forgot-password";
+      path: "/forgot-password";
+      fullPath: "/org/$slug/auth/forgot-password";
+      preLoaderRoute: typeof OrgSlugAuthForgotPasswordRouteImport;
+      parentRoute: typeof OrgSlugAuthRouteRoute;
+    };
+    "/org/$slug/(authenticated)/onboarding": {
+      id: "/org/$slug/(authenticated)/onboarding";
+      path: "/onboarding";
+      fullPath: "/org/$slug/onboarding";
+      preLoaderRoute: typeof OrgSlugauthenticatedOnboardingRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings": {
+      id: "/org/$slug/(authenticated)/settings";
+      path: "/settings";
+      fullPath: "/org/$slug/settings";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsRouteRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/portal": {
+      id: "/org/$slug/(authenticated)/portal";
+      path: "/portal";
+      fullPath: "/org/$slug/portal";
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalRouteRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin": {
+      id: "/org/$slug/(authenticated)/admin";
+      path: "/admin";
+      fullPath: "/org/$slug/admin";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminRouteRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/": {
+      id: "/org/$slug/(authenticated)/settings/";
+      path: "/";
+      fullPath: "/org/$slug/settings/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/portal/": {
+      id: "/org/$slug/(authenticated)/portal/";
+      path: "/";
+      fullPath: "/org/$slug/portal/";
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute;
+    };
+    "/org/$slug/(authenticated)/kiosk/": {
+      id: "/org/$slug/(authenticated)/kiosk/";
+      path: "/kiosk";
+      fullPath: "/org/$slug/kiosk/";
+      preLoaderRoute: typeof OrgSlugauthenticatedKioskIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/": {
+      id: "/org/$slug/(authenticated)/admin/";
+      path: "/";
+      fullPath: "/org/$slug/admin/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/portal/feed": {
+      id: "/org/$slug/(authenticated)/portal/feed";
+      path: "/feed";
+      fullPath: "/org/$slug/portal/feed";
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalFeedRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute;
+    };
+    "/org/$slug/(authenticated)/invitation/$invitationId": {
+      id: "/org/$slug/(authenticated)/invitation/$invitationId";
+      path: "/invitation/$invitationId";
+      fullPath: "/org/$slug/invitation/$invitationId";
+      preLoaderRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/feed": {
+      id: "/org/$slug/(authenticated)/admin/feed";
+      path: "/feed";
+      fullPath: "/org/$slug/admin/feed";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminFeedRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/kiosk/$sessionId": {
+      id: "/org/$slug/(authenticated)/kiosk/$sessionId";
+      path: "/kiosk/$sessionId";
+      fullPath: "/org/$slug/kiosk/$sessionId";
+      preLoaderRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedRouteRoute;
+    };
+    "/org/$slug/(authenticated)/portal/calendar/": {
+      id: "/org/$slug/(authenticated)/portal/calendar/";
+      path: "/calendar";
+      fullPath: "/org/$slug/portal/calendar/";
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/services/": {
+      id: "/org/$slug/(authenticated)/admin/services/";
+      path: "/services";
+      fullPath: "/org/$slug/admin/services/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/": {
+      id: "/org/$slug/(authenticated)/admin/members/";
+      path: "/members";
+      fullPath: "/org/$slug/admin/members/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/lessons/": {
+      id: "/org/$slug/(authenticated)/admin/lessons/";
+      path: "/lessons";
+      fullPath: "/org/$slug/admin/lessons/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/calendar/": {
+      id: "/org/$slug/(authenticated)/admin/calendar/";
+      path: "/calendar";
+      fullPath: "/org/$slug/admin/calendar/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminCalendarIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/boards/": {
+      id: "/org/$slug/(authenticated)/admin/boards/";
+      path: "/boards";
+      fullPath: "/org/$slug/admin/boards/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/kiosk": {
+      id: "/org/$slug/(authenticated)/settings/organization/kiosk";
+      path: "/organization/kiosk";
+      fullPath: "/org/$slug/settings/organization/kiosk";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationKioskRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/business-hours": {
+      id: "/org/$slug/(authenticated)/settings/organization/business-hours";
+      path: "/organization/business-hours";
+      fullPath: "/org/$slug/settings/organization/business-hours";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/account/guardian": {
+      id: "/org/$slug/(authenticated)/settings/account/guardian";
+      path: "/account/guardian";
+      fullPath: "/org/$slug/settings/account/guardian";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/account/availability": {
+      id: "/org/$slug/(authenticated)/settings/account/availability";
+      path: "/account/availability";
+      fullPath: "/org/$slug/settings/account/availability";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/portal/lessons/create": {
+      id: "/org/$slug/(authenticated)/portal/lessons/create";
+      path: "/lessons/create";
+      fullPath: "/org/$slug/portal/lessons/create";
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute;
+    };
+    "/org/$slug/(authenticated)/kiosk/$sessionId/calendar": {
+      id: "/org/$slug/(authenticated)/kiosk/$sessionId/calendar";
+      path: "/calendar";
+      fullPath: "/org/$slug/kiosk/$sessionId/calendar";
+      preLoaderRoute: typeof OrgSlugauthenticatedKioskSessionIdCalendarRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/services/new": {
+      id: "/org/$slug/(authenticated)/admin/services/new";
+      path: "/services/new";
+      fullPath: "/org/$slug/admin/services/new";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesNewRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/lessons/new": {
+      id: "/org/$slug/(authenticated)/admin/lessons/new";
+      path: "/lessons/new";
+      fullPath: "/org/$slug/admin/lessons/new";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsNewRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/calendar/new": {
+      id: "/org/$slug/(authenticated)/admin/calendar/new";
+      path: "/calendar/new";
+      fullPath: "/org/$slug/admin/calendar/new";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminCalendarNewRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/boards/new": {
+      id: "/org/$slug/(authenticated)/admin/boards/new";
+      path: "/boards/new";
+      fullPath: "/org/$slug/admin/boards/new";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsNewRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/waivers/": {
+      id: "/org/$slug/(authenticated)/settings/organization/waivers/";
+      path: "/organization/waivers";
+      fullPath: "/org/$slug/settings/organization/waivers/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/questionnaires/": {
+      id: "/org/$slug/(authenticated)/settings/organization/questionnaires/";
+      path: "/organization/questionnaires";
+      fullPath: "/org/$slug/settings/organization/questionnaires/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/members/": {
+      id: "/org/$slug/(authenticated)/settings/organization/members/";
+      path: "/organization/members";
+      fullPath: "/org/$slug/settings/organization/members/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/general/": {
+      id: "/org/$slug/(authenticated)/settings/organization/general/";
+      path: "/organization/general";
+      fullPath: "/org/$slug/settings/organization/general/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/account/security/": {
+      id: "/org/$slug/(authenticated)/settings/account/security/";
+      path: "/account/security";
+      fullPath: "/org/$slug/settings/account/security/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/account/profile/": {
+      id: "/org/$slug/(authenticated)/settings/account/profile/";
+      path: "/account/profile";
+      fullPath: "/org/$slug/settings/account/profile/";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsAccountProfileIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/services/$id/": {
+      id: "/org/$slug/(authenticated)/admin/services/$id/";
+      path: "/services/$id";
+      fullPath: "/org/$slug/admin/services/$id/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIdIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/trainers/": {
+      id: "/org/$slug/(authenticated)/admin/members/trainers/";
+      path: "/members/trainers";
+      fullPath: "/org/$slug/admin/members/trainers/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersTrainersIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/riders/": {
+      id: "/org/$slug/(authenticated)/admin/members/riders/";
+      path: "/members/riders";
+      fullPath: "/org/$slug/admin/members/riders/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/$id/": {
+      id: "/org/$slug/(authenticated)/admin/members/$id/";
+      path: "/members/$id";
+      fullPath: "/org/$slug/admin/members/$id/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersIdIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/boards/$id/": {
+      id: "/org/$slug/(authenticated)/admin/boards/$id/";
+      path: "/boards/$id";
+      fullPath: "/org/$slug/admin/boards/$id/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/questionnaires/new": {
+      id: "/org/$slug/(authenticated)/settings/organization/questionnaires/new";
+      path: "/organization/questionnaires/new";
+      fullPath: "/org/$slug/settings/organization/questionnaires/new";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/services/$id/edit": {
+      id: "/org/$slug/(authenticated)/admin/services/$id/edit";
+      path: "/services/$id/edit";
+      fullPath: "/org/$slug/admin/services/$id/edit";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/trainers/$trainerId": {
+      id: "/org/$slug/(authenticated)/admin/members/trainers/$trainerId";
+      path: "/members/trainers/$trainerId";
+      fullPath: "/org/$slug/admin/members/trainers/$trainerId";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/riders/$riderId": {
+      id: "/org/$slug/(authenticated)/admin/members/riders/$riderId";
+      path: "/members/riders/$riderId";
+      fullPath: "/org/$slug/admin/members/riders/$riderId";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/boards/$id/edit": {
+      id: "/org/$slug/(authenticated)/admin/boards/$id/edit";
+      path: "/boards/$id/edit";
+      fullPath: "/org/$slug/admin/boards/$id/edit";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/riders/$riderId/": {
+      id: "/org/$slug/(authenticated)/admin/members/riders/$riderId/";
+      path: "/";
+      fullPath: "/org/$slug/admin/members/riders/$riderId/";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute;
+    };
+    "/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit": {
+      id: "/org/$slug/(authenticated)/settings/organization/questionnaires/$id/edit";
+      path: "/organization/questionnaires/$id/edit";
+      fullPath: "/org/$slug/settings/organization/questionnaires/$id/edit";
+      preLoaderRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedSettingsRouteRoute;
+    };
+    "/org/$slug/(authenticated)/admin/members/riders/$riderId/activity": {
+      id: "/org/$slug/(authenticated)/admin/members/riders/$riderId/activity";
+      path: "/activity";
+      fullPath: "/org/$slug/admin/members/riders/$riderId/activity";
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRouteImport;
+      parentRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRoute;
+    };
   }
 }
 
 interface authenticatedRouteRouteChildren {
-  authenticatedAdminRouteRoute: typeof authenticatedAdminRouteRoute
-  authenticatedCreateOrganizationRoute: typeof authenticatedCreateOrganizationRoute
-  authenticatedJoinOrganizationRoute: typeof authenticatedJoinOrganizationRoute
-  authenticatedIndexRoute: typeof authenticatedIndexRoute
+  authenticatedAdminRouteRoute: typeof authenticatedAdminRouteRoute;
+  authenticatedCreateOrganizationRoute: typeof authenticatedCreateOrganizationRoute;
+  authenticatedJoinOrganizationRoute: typeof authenticatedJoinOrganizationRoute;
+  authenticatedIndexRoute: typeof authenticatedIndexRoute;
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
@@ -1341,17 +1341,17 @@ const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
   authenticatedCreateOrganizationRoute: authenticatedCreateOrganizationRoute,
   authenticatedJoinOrganizationRoute: authenticatedJoinOrganizationRoute,
   authenticatedIndexRoute: authenticatedIndexRoute,
-}
+};
 
 const authenticatedRouteRouteWithChildren =
-  authenticatedRouteRoute._addFileChildren(authenticatedRouteRouteChildren)
+  authenticatedRouteRoute._addFileChildren(authenticatedRouteRouteChildren);
 
 interface AuthRouteRouteChildren {
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthRegisterRoute: typeof AuthRegisterRoute
-  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute;
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute;
+  AuthLoginRoute: typeof AuthLoginRoute;
+  AuthRegisterRoute: typeof AuthRegisterRoute;
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -1360,15 +1360,15 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
-}
+};
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
-)
+  AuthRouteRouteChildren
+);
 
 interface OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren {
-  OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute
-  OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute
+  OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute;
+  OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute;
 }
 
 const OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren: OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren =
@@ -1377,34 +1377,34 @@ const OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren: OrgSlugauthent
       OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute,
     OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute:
       OrgSlugauthenticatedAdminMembersRidersRiderIdIndexRoute,
-  }
+  };
 
 const OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren =
   OrgSlugauthenticatedAdminMembersRidersRiderIdRoute._addFileChildren(
-    OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren,
-  )
+    OrgSlugauthenticatedAdminMembersRidersRiderIdRouteChildren
+  );
 
 interface OrgSlugauthenticatedAdminRouteRouteChildren {
-  OrgSlugauthenticatedAdminFeedRoute: typeof OrgSlugauthenticatedAdminFeedRoute
-  OrgSlugauthenticatedAdminIndexRoute: typeof OrgSlugauthenticatedAdminIndexRoute
-  OrgSlugauthenticatedAdminBoardsNewRoute: typeof OrgSlugauthenticatedAdminBoardsNewRoute
-  OrgSlugauthenticatedAdminCalendarNewRoute: typeof OrgSlugauthenticatedAdminCalendarNewRoute
-  OrgSlugauthenticatedAdminLessonsNewRoute: typeof OrgSlugauthenticatedAdminLessonsNewRoute
-  OrgSlugauthenticatedAdminServicesNewRoute: typeof OrgSlugauthenticatedAdminServicesNewRoute
-  OrgSlugauthenticatedAdminBoardsIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIndexRoute
-  OrgSlugauthenticatedAdminCalendarIndexRoute: typeof OrgSlugauthenticatedAdminCalendarIndexRoute
-  OrgSlugauthenticatedAdminLessonsIndexRoute: typeof OrgSlugauthenticatedAdminLessonsIndexRoute
-  OrgSlugauthenticatedAdminMembersIndexRoute: typeof OrgSlugauthenticatedAdminMembersIndexRoute
-  OrgSlugauthenticatedAdminServicesIndexRoute: typeof OrgSlugauthenticatedAdminServicesIndexRoute
-  OrgSlugauthenticatedAdminBoardsIdEditRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRoute
-  OrgSlugauthenticatedAdminMembersRidersRiderIdRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren
-  OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute: typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute
-  OrgSlugauthenticatedAdminServicesIdEditRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRoute
-  OrgSlugauthenticatedAdminBoardsIdIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute
-  OrgSlugauthenticatedAdminMembersIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersIdIndexRoute
-  OrgSlugauthenticatedAdminMembersRidersIndexRoute: typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute
-  OrgSlugauthenticatedAdminMembersTrainersIndexRoute: typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute
-  OrgSlugauthenticatedAdminServicesIdIndexRoute: typeof OrgSlugauthenticatedAdminServicesIdIndexRoute
+  OrgSlugauthenticatedAdminFeedRoute: typeof OrgSlugauthenticatedAdminFeedRoute;
+  OrgSlugauthenticatedAdminIndexRoute: typeof OrgSlugauthenticatedAdminIndexRoute;
+  OrgSlugauthenticatedAdminBoardsNewRoute: typeof OrgSlugauthenticatedAdminBoardsNewRoute;
+  OrgSlugauthenticatedAdminCalendarNewRoute: typeof OrgSlugauthenticatedAdminCalendarNewRoute;
+  OrgSlugauthenticatedAdminLessonsNewRoute: typeof OrgSlugauthenticatedAdminLessonsNewRoute;
+  OrgSlugauthenticatedAdminServicesNewRoute: typeof OrgSlugauthenticatedAdminServicesNewRoute;
+  OrgSlugauthenticatedAdminBoardsIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIndexRoute;
+  OrgSlugauthenticatedAdminCalendarIndexRoute: typeof OrgSlugauthenticatedAdminCalendarIndexRoute;
+  OrgSlugauthenticatedAdminLessonsIndexRoute: typeof OrgSlugauthenticatedAdminLessonsIndexRoute;
+  OrgSlugauthenticatedAdminMembersIndexRoute: typeof OrgSlugauthenticatedAdminMembersIndexRoute;
+  OrgSlugauthenticatedAdminServicesIndexRoute: typeof OrgSlugauthenticatedAdminServicesIndexRoute;
+  OrgSlugauthenticatedAdminBoardsIdEditRoute: typeof OrgSlugauthenticatedAdminBoardsIdEditRoute;
+  OrgSlugauthenticatedAdminMembersRidersRiderIdRoute: typeof OrgSlugauthenticatedAdminMembersRidersRiderIdRouteWithChildren;
+  OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute: typeof OrgSlugauthenticatedAdminMembersTrainersTrainerIdRoute;
+  OrgSlugauthenticatedAdminServicesIdEditRoute: typeof OrgSlugauthenticatedAdminServicesIdEditRoute;
+  OrgSlugauthenticatedAdminBoardsIdIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIdIndexRoute;
+  OrgSlugauthenticatedAdminMembersIdIndexRoute: typeof OrgSlugauthenticatedAdminMembersIdIndexRoute;
+  OrgSlugauthenticatedAdminMembersRidersIndexRoute: typeof OrgSlugauthenticatedAdminMembersRidersIndexRoute;
+  OrgSlugauthenticatedAdminMembersTrainersIndexRoute: typeof OrgSlugauthenticatedAdminMembersTrainersIndexRoute;
+  OrgSlugauthenticatedAdminServicesIdIndexRoute: typeof OrgSlugauthenticatedAdminServicesIdIndexRoute;
 }
 
 const OrgSlugauthenticatedAdminRouteRouteChildren: OrgSlugauthenticatedAdminRouteRouteChildren =
@@ -1447,18 +1447,18 @@ const OrgSlugauthenticatedAdminRouteRouteChildren: OrgSlugauthenticatedAdminRout
       OrgSlugauthenticatedAdminMembersTrainersIndexRoute,
     OrgSlugauthenticatedAdminServicesIdIndexRoute:
       OrgSlugauthenticatedAdminServicesIdIndexRoute,
-  }
+  };
 
 const OrgSlugauthenticatedAdminRouteRouteWithChildren =
   OrgSlugauthenticatedAdminRouteRoute._addFileChildren(
-    OrgSlugauthenticatedAdminRouteRouteChildren,
-  )
+    OrgSlugauthenticatedAdminRouteRouteChildren
+  );
 
 interface OrgSlugauthenticatedPortalRouteRouteChildren {
-  OrgSlugauthenticatedPortalFeedRoute: typeof OrgSlugauthenticatedPortalFeedRoute
-  OrgSlugauthenticatedPortalIndexRoute: typeof OrgSlugauthenticatedPortalIndexRoute
-  OrgSlugauthenticatedPortalLessonsCreateRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRoute
-  OrgSlugauthenticatedPortalCalendarIndexRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRoute
+  OrgSlugauthenticatedPortalFeedRoute: typeof OrgSlugauthenticatedPortalFeedRoute;
+  OrgSlugauthenticatedPortalIndexRoute: typeof OrgSlugauthenticatedPortalIndexRoute;
+  OrgSlugauthenticatedPortalLessonsCreateRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRoute;
+  OrgSlugauthenticatedPortalCalendarIndexRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRoute;
 }
 
 const OrgSlugauthenticatedPortalRouteRouteChildren: OrgSlugauthenticatedPortalRouteRouteChildren =
@@ -1469,27 +1469,27 @@ const OrgSlugauthenticatedPortalRouteRouteChildren: OrgSlugauthenticatedPortalRo
       OrgSlugauthenticatedPortalLessonsCreateRoute,
     OrgSlugauthenticatedPortalCalendarIndexRoute:
       OrgSlugauthenticatedPortalCalendarIndexRoute,
-  }
+  };
 
 const OrgSlugauthenticatedPortalRouteRouteWithChildren =
   OrgSlugauthenticatedPortalRouteRoute._addFileChildren(
-    OrgSlugauthenticatedPortalRouteRouteChildren,
-  )
+    OrgSlugauthenticatedPortalRouteRouteChildren
+  );
 
 interface OrgSlugauthenticatedSettingsRouteRouteChildren {
-  OrgSlugauthenticatedSettingsIndexRoute: typeof OrgSlugauthenticatedSettingsIndexRoute
-  OrgSlugauthenticatedSettingsAccountAvailabilityRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
-  OrgSlugauthenticatedSettingsAccountGuardianRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
-  OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute
-  OrgSlugauthenticatedSettingsOrganizationKioskRoute: typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute
-  OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute
-  OrgSlugauthenticatedSettingsAccountProfileIndexRoute: typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute
-  OrgSlugauthenticatedSettingsAccountSecurityIndexRoute: typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute
-  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute
+  OrgSlugauthenticatedSettingsIndexRoute: typeof OrgSlugauthenticatedSettingsIndexRoute;
+  OrgSlugauthenticatedSettingsAccountAvailabilityRoute: typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute;
+  OrgSlugauthenticatedSettingsAccountGuardianRoute: typeof OrgSlugauthenticatedSettingsAccountGuardianRoute;
+  OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute: typeof OrgSlugauthenticatedSettingsOrganizationBusinessHoursRoute;
+  OrgSlugauthenticatedSettingsOrganizationKioskRoute: typeof OrgSlugauthenticatedSettingsOrganizationKioskRoute;
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesNewRoute;
+  OrgSlugauthenticatedSettingsAccountProfileIndexRoute: typeof OrgSlugauthenticatedSettingsAccountProfileIndexRoute;
+  OrgSlugauthenticatedSettingsAccountSecurityIndexRoute: typeof OrgSlugauthenticatedSettingsAccountSecurityIndexRoute;
+  OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationGeneralIndexRoute;
+  OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationMembersIndexRoute;
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIndexRoute;
+  OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute: typeof OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute;
+  OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute: typeof OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute;
 }
 
 const OrgSlugauthenticatedSettingsRouteRouteChildren: OrgSlugauthenticatedSettingsRouteRouteChildren =
@@ -1520,37 +1520,37 @@ const OrgSlugauthenticatedSettingsRouteRouteChildren: OrgSlugauthenticatedSettin
       OrgSlugauthenticatedSettingsOrganizationWaiversIndexRoute,
     OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute:
       OrgSlugauthenticatedSettingsOrganizationQuestionnairesIdEditRoute,
-  }
+  };
 
 const OrgSlugauthenticatedSettingsRouteRouteWithChildren =
   OrgSlugauthenticatedSettingsRouteRoute._addFileChildren(
-    OrgSlugauthenticatedSettingsRouteRouteChildren,
-  )
+    OrgSlugauthenticatedSettingsRouteRouteChildren
+  );
 
 interface OrgSlugauthenticatedKioskSessionIdRouteRouteChildren {
-  OrgSlugauthenticatedKioskSessionIdCalendarRoute: typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
+  OrgSlugauthenticatedKioskSessionIdCalendarRoute: typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute;
 }
 
 const OrgSlugauthenticatedKioskSessionIdRouteRouteChildren: OrgSlugauthenticatedKioskSessionIdRouteRouteChildren =
   {
     OrgSlugauthenticatedKioskSessionIdCalendarRoute:
       OrgSlugauthenticatedKioskSessionIdCalendarRoute,
-  }
+  };
 
 const OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren =
   OrgSlugauthenticatedKioskSessionIdRouteRoute._addFileChildren(
-    OrgSlugauthenticatedKioskSessionIdRouteRouteChildren,
-  )
+    OrgSlugauthenticatedKioskSessionIdRouteRouteChildren
+  );
 
 interface OrgSlugauthenticatedRouteRouteChildren {
-  OrgSlugauthenticatedAdminRouteRoute: typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
-  OrgSlugauthenticatedPortalRouteRoute: typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
-  OrgSlugauthenticatedSettingsRouteRoute: typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  OrgSlugauthenticatedOnboardingRoute: typeof OrgSlugauthenticatedOnboardingRoute
-  OrgSlugauthenticatedIndexRoute: typeof OrgSlugauthenticatedIndexRoute
-  OrgSlugauthenticatedKioskSessionIdRouteRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
-  OrgSlugauthenticatedInvitationInvitationIdRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRoute
-  OrgSlugauthenticatedKioskIndexRoute: typeof OrgSlugauthenticatedKioskIndexRoute
+  OrgSlugauthenticatedAdminRouteRoute: typeof OrgSlugauthenticatedAdminRouteRouteWithChildren;
+  OrgSlugauthenticatedPortalRouteRoute: typeof OrgSlugauthenticatedPortalRouteRouteWithChildren;
+  OrgSlugauthenticatedSettingsRouteRoute: typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren;
+  OrgSlugauthenticatedOnboardingRoute: typeof OrgSlugauthenticatedOnboardingRoute;
+  OrgSlugauthenticatedIndexRoute: typeof OrgSlugauthenticatedIndexRoute;
+  OrgSlugauthenticatedKioskSessionIdRouteRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren;
+  OrgSlugauthenticatedInvitationInvitationIdRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRoute;
+  OrgSlugauthenticatedKioskIndexRoute: typeof OrgSlugauthenticatedKioskIndexRoute;
 }
 
 const OrgSlugauthenticatedRouteRouteChildren: OrgSlugauthenticatedRouteRouteChildren =
@@ -1568,18 +1568,18 @@ const OrgSlugauthenticatedRouteRouteChildren: OrgSlugauthenticatedRouteRouteChil
     OrgSlugauthenticatedInvitationInvitationIdRoute:
       OrgSlugauthenticatedInvitationInvitationIdRoute,
     OrgSlugauthenticatedKioskIndexRoute: OrgSlugauthenticatedKioskIndexRoute,
-  }
+  };
 
 const OrgSlugauthenticatedRouteRouteWithChildren =
   OrgSlugauthenticatedRouteRoute._addFileChildren(
-    OrgSlugauthenticatedRouteRouteChildren,
-  )
+    OrgSlugauthenticatedRouteRouteChildren
+  );
 
 interface OrgSlugAuthRouteRouteChildren {
-  OrgSlugAuthForgotPasswordRoute: typeof OrgSlugAuthForgotPasswordRoute
-  OrgSlugAuthLoginRoute: typeof OrgSlugAuthLoginRoute
-  OrgSlugAuthRegisterRoute: typeof OrgSlugAuthRegisterRoute
-  OrgSlugAuthResetPasswordRoute: typeof OrgSlugAuthResetPasswordRoute
+  OrgSlugAuthForgotPasswordRoute: typeof OrgSlugAuthForgotPasswordRoute;
+  OrgSlugAuthLoginRoute: typeof OrgSlugAuthLoginRoute;
+  OrgSlugAuthRegisterRoute: typeof OrgSlugAuthRegisterRoute;
+  OrgSlugAuthResetPasswordRoute: typeof OrgSlugAuthResetPasswordRoute;
 }
 
 const OrgSlugAuthRouteRouteChildren: OrgSlugAuthRouteRouteChildren = {
@@ -1587,29 +1587,29 @@ const OrgSlugAuthRouteRouteChildren: OrgSlugAuthRouteRouteChildren = {
   OrgSlugAuthLoginRoute: OrgSlugAuthLoginRoute,
   OrgSlugAuthRegisterRoute: OrgSlugAuthRegisterRoute,
   OrgSlugAuthResetPasswordRoute: OrgSlugAuthResetPasswordRoute,
-}
+};
 
 const OrgSlugAuthRouteRouteWithChildren =
-  OrgSlugAuthRouteRoute._addFileChildren(OrgSlugAuthRouteRouteChildren)
+  OrgSlugAuthRouteRoute._addFileChildren(OrgSlugAuthRouteRouteChildren);
 
 interface OrgSlugRouteChildren {
-  OrgSlugauthenticatedRouteRoute: typeof OrgSlugauthenticatedRouteRouteWithChildren
-  OrgSlugAuthRouteRoute: typeof OrgSlugAuthRouteRouteWithChildren
+  OrgSlugauthenticatedRouteRoute: typeof OrgSlugauthenticatedRouteRouteWithChildren;
+  OrgSlugAuthRouteRoute: typeof OrgSlugAuthRouteRouteWithChildren;
 }
 
 const OrgSlugRouteChildren: OrgSlugRouteChildren = {
   OrgSlugauthenticatedRouteRoute: OrgSlugauthenticatedRouteRouteWithChildren,
   OrgSlugAuthRouteRoute: OrgSlugAuthRouteRouteWithChildren,
-}
+};
 
 const OrgSlugRouteWithChildren =
-  OrgSlugRoute._addFileChildren(OrgSlugRouteChildren)
+  OrgSlugRoute._addFileChildren(OrgSlugRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OrgSlugRoute: OrgSlugRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
 import { auth } from "@/services/auth/auth";
+import { buildSessionCookieHeader } from "@/services/auth/session-cookie";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
@@ -188,7 +189,7 @@ export const changeRole = api(
     // Update the member's roles in the Better Auth
     await auth.api.updateMemberRole({
       headers: new Headers({
-        cookie: `better-auth.session_token=${token}`,
+        cookie: buildSessionCookieHeader(token),
       }),
       body: {
         organizationId: organization.authOrganizationId,

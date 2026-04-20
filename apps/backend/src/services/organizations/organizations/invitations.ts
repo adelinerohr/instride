@@ -3,6 +3,7 @@ import { isAPIError } from "better-auth/api";
 import { api, APIError } from "encore.dev/api";
 
 import { auth } from "@/services/auth/auth";
+import { buildSessionCookieHeader } from "@/services/auth/session-cookie";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 
 import { ListInvitationsResponse } from "../types/contracts";
@@ -27,7 +28,7 @@ export const listInvitations = api(
           organizationId: session.session.activeOrganizationId,
         },
         headers: new Headers({
-          cookie: `better-auth.session_token=${token}`,
+          cookie: buildSessionCookieHeader(token),
         }),
       });
 
@@ -102,7 +103,7 @@ export const sendInvitation = api(
           resend: request.resend,
         },
         headers: new Headers({
-          cookie: `better-auth.session_token=${token}`,
+          cookie: buildSessionCookieHeader(token),
         }),
       });
     } catch (error) {
