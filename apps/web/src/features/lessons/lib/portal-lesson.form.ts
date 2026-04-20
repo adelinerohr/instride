@@ -1,21 +1,9 @@
 import type { types } from "@instride/api";
-import { lessonSeriesSchema } from "@instride/shared";
+import {
+  portalLessonInputSchema,
+  type PortalLessonInputSchema,
+} from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
-import { z } from "zod";
-
-const portalLessonInputSchema = lessonSeriesSchema
-  .pick({
-    boardId: true,
-    serviceId: true,
-    start: true,
-    trainerId: true,
-  })
-  .extend({
-    acknowledgePrivateLesson: z.boolean(),
-    riderId: z.string(),
-  });
-
-type PortalLessonInputSchema = z.infer<typeof portalLessonInputSchema>;
 
 const portalLessonDefaultValues: PortalLessonInputSchema = {
   boardId: "",

@@ -9,7 +9,7 @@ import { ImpersonationBanner } from "@/shared/components/auth/impersonation-bann
  */
 export const Route = createFileRoute("/org/$slug/(authenticated)")({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, location }) => {
     const session = await context.queryClient.ensureQueryData(
       authOptions.session()
     );
@@ -31,10 +31,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       banExpires: session.user.banExpires?.toISOString() ?? null,
     };
 
+    const isPortal = location.pathname.includes("portal");
+
     return {
       user,
       session: session.session,
       member: context.member,
+      isPortal,
     };
   },
   loader: async ({ context, location }) => {

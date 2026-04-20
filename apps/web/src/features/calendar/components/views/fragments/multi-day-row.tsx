@@ -19,6 +19,8 @@ import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { CalendarView } from "@/features/calendar/lib/types";
 import { cn } from "@/shared/lib/utils";
 
+import { eventModalHandler } from "../../modals/event-modal";
+
 export function MultiDayRow() {
   const {
     selectedDate,
@@ -151,6 +153,13 @@ export function MultiDayRow() {
     ? selectedTrainerIds.length
     : weekDays.length;
 
+  const onEventClick = (event: types.GetEventResponse["event"]) => {
+    const fullEvent = events.find((e) => e.event.id === event.id);
+    if (fullEvent) {
+      eventModalHandler.openWithPayload(fullEvent);
+    }
+  };
+
   return (
     <div className="hidden overflow-hidden sm:flex">
       <div className="w-18 border-b"></div>
@@ -238,6 +247,7 @@ export function MultiDayRow() {
                 eventTotalDays={
                   isDayViewWithTrainers ? eventRows.length : undefined
                 }
+                onEventClick={onEventClick}
                 position={position}
                 spanAllColumns={isDayViewWithTrainers}
                 totalColumns={columns}
@@ -292,6 +302,7 @@ function MultiDayRowItem({
   rowIndex,
   columnIndex,
   className,
+  onEventClick,
 }: {
   event: types.GetEventResponse["event"];
   cellDate: Date;
@@ -304,6 +315,7 @@ function MultiDayRowItem({
   rowIndex: number;
   columnIndex: number;
   className?: string;
+  onEventClick: (event: types.GetEventResponse["event"]) => void;
 }) {
   const itemStart = startOfDay(parseISO(event.startDate));
   const itemEnd = endOfDay(parseISO(event.endDate));
@@ -348,6 +360,7 @@ function MultiDayRowItem({
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      onClick={() => onEventClick(event)}
       className={eventBadgeClasses}
       style={{
         gridRow: rowIndex + 1,

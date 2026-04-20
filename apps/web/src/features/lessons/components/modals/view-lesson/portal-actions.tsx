@@ -19,7 +19,7 @@ type PortalActionsProps = {
 
 export function PortalActions({ instance, onClose }: PortalActionsProps) {
   const { member } = useRouteContext({
-    from: "/org/$slug/(authenticated)/",
+    from: "/org/$slug/(authenticated)",
   });
 
   const rider = member.rider;

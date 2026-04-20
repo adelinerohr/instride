@@ -32,7 +32,6 @@ import {
 } from "@/shared/components/ui/empty";
 import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
-import { formatError } from "@/shared/lib/utils/errors";
 
 import { BookingCalendar } from "./-booking-calendar";
 
@@ -88,6 +87,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { bookableRiders, isGuardian, rider } = Route.useRouteContext();
   const search = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const { data: boards } = useSuspenseQuery(boardsOptions.list());
   const { data: riders } = useSuspenseQuery(membersOptions.riders());
@@ -114,12 +114,40 @@ function RouteComponent() {
       trainers,
       riderId: getInitialRiderId(),
     }),
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
+      console.log(value);
       const service = services.find((s) => s.id === value.serviceId);
       if (!service) {
         toast.error(
           "Invalid service selected. Please select a different service."
         );
+        return;
+      }
+
+      if (
+        !value.acknowledgePrivateLesson &&
+        (!service.isPrivate || service.maxRiders > 1)
+      ) {
+        toast.error("You must acknowledge that the lesson may become private");
+        formApi.setErrorMap({
+          onSubmit: {
+            fields: {
+              acknowledgePrivateLesson: [
+                "You must acknowledge that the lesson may become private",
+              ],
+            },
+          },
+        });
+        return;
+      }
+
+      if (!value.start || value.start.trim().length === 0) {
+        toast.error("Please select a time slot");
+        formApi.setErrorMap({
+          onSubmit: {
+            fields: { start: ["Please select a time slot"] },
+          },
+        });
         return;
       }
 
@@ -136,15 +164,26 @@ function RouteComponent() {
         }
       }
 
-      await createLesson.mutateAsync({
-        boardId: value.boardId,
-        serviceId: value.serviceId,
-        start: value.start,
-        trainerId: value.trainerId,
-        duration: service.duration,
-        maxRiders: service.maxRiders,
-        riderIds: [value.riderId],
-      });
+      await createLesson.mutateAsync(
+        {
+          boardId: value.boardId,
+          serviceId: value.serviceId,
+          start: value.start,
+          trainerId: value.trainerId,
+          duration: service.duration,
+          maxRiders: service.maxRiders,
+          riderIds: [value.riderId],
+        },
+        {
+          onSuccess: () => {
+            toast.success("Lesson created successfully");
+            navigate({ to: "/org/$slug/portal" });
+          },
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
     },
   });
 
@@ -400,21 +439,9 @@ function RouteComponent() {
                             />
                           )}
                         />
-                        {isPrivate && (
+                        {!isPrivate && (
                           <form.AppField
                             name="acknowledgePrivateLesson"
-                            validators={{
-                              onChange: ({ value }) => {
-                                if (
-                                  !selectedService?.isPrivate &&
-                                  value === false
-                                ) {
-                                  return formatError(
-                                    "You must acknowledge that the lesson may become private"
-                                  );
-                                }
-                              },
-                            }}
                             children={(field) => (
                               <field.CheckboxField
                                 label="I understand that if no one else signs up for this lesson, it will become a private lesson and you will be charged as such."

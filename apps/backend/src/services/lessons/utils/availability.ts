@@ -1,5 +1,10 @@
-import { EventScope, LessonInstanceStatus } from "@instride/shared";
+import {
+  EventScope,
+  getLocalParts,
+  LessonInstanceStatus,
+} from "@instride/shared";
 import { getDayOfWeek } from "@instride/shared";
+import { APIError } from "encore.dev/api";
 
 import { resolveEffectiveWeekHours } from "@/services/availability/business-hours/utils";
 
@@ -97,7 +102,6 @@ export async function checkTrainerConflicts(
   const startTime = new Date(`${input.window.date}T${input.window.startTime}`);
   const endTime = new Date(`${input.window.date}T${input.window.endTime}`);
 
-  // Check existing lesson instances
   const conflictingLesson = await db.query.lessonInstances.findFirst({
     where: {
       organizationId: input.organizationId,
@@ -106,6 +110,8 @@ export async function checkTrainerConflicts(
       status: LessonInstanceStatus.SCHEDULED,
       start: {
         lt: endTime,
+      },
+      end: {
         gt: startTime,
       },
     },
@@ -118,7 +124,6 @@ export async function checkTrainerConflicts(
     };
   }
 
-  // Check time blocks
   const conflictingTimeBlock = await db.query.timeBlocks.findFirst({
     where: {
       trainerId: input.window.trainerId,
@@ -215,4 +220,37 @@ export async function checkEventBlocks(
   }
 
   return null;
+}
+
+export function buildAvailabilityWindow(input: {
+  start: string;
+  duration: number;
+  trainerId: string;
+  boardId: string;
+  timeZone: string;
+}): { startDate: Date; endDate: Date; window: AvailabilityWindow } {
+  const startDate = new Date(input.start);
+  if (Number.isNaN(startDate.getTime())) {
+    throw APIError.invalidArgument("Invalid start date");
+  }
+  const endDate = new Date(startDate.getTime() + input.duration * 60_000);
+
+  const startParts = getLocalParts({
+    date: startDate,
+    timeZone: input.timeZone,
+  });
+  const endParts = getLocalParts({ date: endDate, timeZone: input.timeZone });
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return {
+    startDate,
+    endDate,
+    window: {
+      date: `${startParts.year}-${pad(startParts.month)}-${pad(startParts.day)}`,
+      startTime: `${pad(startParts.hour)}:${pad(startParts.minute)}`,
+      endTime: `${pad(endParts.hour)}:${pad(endParts.minute)}`,
+      trainerId: input.trainerId,
+      boardId: input.boardId,
+    },
+  };
 }

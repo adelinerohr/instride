@@ -22,8 +22,40 @@ interface CreateNotificationRequest {
   entityType: string;
   entityId?: string;
   deepLink?: string;
-  // Override default channels for this specific notification
   channels?: NotificationChannel[];
+}
+
+/**
+ * Internal helper. Call this from pub/sub subscriptions and other
+ * server-side code. Use `createNotification` (the api wrapper) only
+ * when something outside the backend needs to hit it.
+ */
+export async function createNotificationInternal(
+  request: CreateNotificationRequest
+): Promise<GetNotificationResponse> {
+  const [notification] = await db
+    .insert(notifications)
+    .values(request)
+    .returning();
+
+  const preferences = await getPreferences({
+    memberId: request.recipientId,
+  });
+
+  // If the member has no preferences row yet, fall back to in-app only.
+  const channels =
+    request.channels ??
+    (preferences
+      ? getEnabledChannels(preferences)
+      : (["in_app"] as NotificationChannel[]));
+
+  await Promise.allSettled(
+    channels.map((channel) =>
+      dispatchInternal({ notificationId: notification.id, channel })
+    )
+  );
+
+  return { notification };
 }
 
 export const createNotification = api(
@@ -33,31 +65,7 @@ export const createNotification = api(
     expose: true,
     auth: true,
   },
-  async (
-    request: CreateNotificationRequest
-  ): Promise<GetNotificationResponse> => {
-    const [notification] = await db
-      .insert(notifications)
-      .values(request)
-      .returning();
-
-    // 2. Get user's preferences for this notification type
-    const preferences = await getPreferences({
-      memberId: request.recipientId,
-    });
-
-    // 3. Determine which channels to use
-    const channels = request.channels ?? getEnabledChannels(preferences);
-
-    // 4. Dispatch to each enabled channel (async, don't block)
-    await Promise.allSettled(
-      channels.map((channel) =>
-        dispatch({ notificationId: notification.id, channel })
-      )
-    );
-
-    return { notification };
-  }
+  createNotificationInternal
 );
 
 interface DispatchNotificationRequest {
@@ -65,50 +73,56 @@ interface DispatchNotificationRequest {
   channel: NotificationChannel;
 }
 
-export const dispatch = api(
-  {
-    method: "POST",
-    path: "/notifications/:notificationId/dispatch",
-    expose: true,
-    auth: true,
-  },
-  async (request: DispatchNotificationRequest): Promise<void> => {
+async function dispatchInternal(
+  request: DispatchNotificationRequest
+): Promise<void> {
+  let externalId: string | undefined;
+
+  try {
+    switch (request.channel) {
+      case "push":
+        console.log("push");
+        break;
+      case "email":
+        console.log("email");
+        break;
+      case "sms":
+        console.log("sms");
+        break;
+      case "in_app":
+        // Already stored, no external service needed
+        break;
+    }
+
+    await db.insert(notificationDeliveries).values({
+      notificationId: request.notificationId,
+      channel: request.channel,
+      externalId,
+      status: "sent",
+    });
+  } catch (error) {
+    // One channel failing shouldn't break others. Log the failure, but
+    // guard the failure-write itself so a DB outage doesn't throw again.
     try {
-      let externalId: string | undefined;
-
-      switch (request.channel) {
-        case "push":
-          console.log("push");
-          break;
-        case "email":
-          console.log("email");
-          break;
-        case "sms":
-          console.log("sms");
-          break;
-        case "in_app":
-          // Already stored, no external service needed
-          break;
-      }
-
-      // Record the delivery attempt
-      await db.insert(notificationDeliveries).values({
-        notificationId: request.notificationId,
-        channel: request.channel,
-        externalId,
-        status: "sent",
-      });
-    } catch (error) {
-      // Log but don't throw - one channel failing shouldn't break others
       await db.insert(notificationDeliveries).values({
         notificationId: request.notificationId,
         channel: request.channel,
         status: "failed",
         error: error instanceof Error ? error.message : "Unknown error",
       });
+    } catch (logError) {
+      console.error(
+        "Failed to record notification delivery failure",
+        logError,
+        error
+      );
     }
   }
-);
+}
+
+// Remove the `dispatch` api export entirely unless something external needs it.
+// If you do need to keep it exposed, make it a thin wrapper:
+// export const dispatch = api({ ... }, dispatchInternal);
 
 export const markAsRead = api(
   {

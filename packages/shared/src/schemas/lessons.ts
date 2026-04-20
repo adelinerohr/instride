@@ -124,3 +124,14 @@ export const updateLessonSeriesSchema = lessonSeriesSchema.omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const portalLessonInputSchema = z.object({
+  boardId: z.string().min(1, "Select a board"),
+  trainerId: z.string().min(1, "Select a trainer"),
+  serviceId: z.string().min(1, "Select a service"),
+  start: z.string().trim().min(1, "Select a time slot"),
+  riderId: z.string().min(1, "Select a rider"),
+  acknowledgePrivateLesson: z.boolean(),
+});
+
+export type PortalLessonInputSchema = z.infer<typeof portalLessonInputSchema>;

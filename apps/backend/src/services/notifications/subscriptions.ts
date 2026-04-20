@@ -1,20 +1,23 @@
-import { format } from "date-fns";
+import { parseISO } from "date-fns";
 import { Subscription } from "encore.dev/pubsub";
 
 import { lessonEnrolled } from "../lessons/topics";
-import { createNotification } from "./notifications";
+import { createNotificationInternal } from "./notifications";
 import { NotificationType } from "./types/models";
 
 const _ = new Subscription(lessonEnrolled, "notify-lesson-enrolled", {
   handler: async (event) => {
-    await createNotification({
+    const startDate = parseISO(event.startTime);
+    const formatted = startDate.toLocaleString(); // or format(startDate, "yyyy-MM-dd HH:mm")
+
+    await createNotificationInternal({
       organizationId: event.organizationId,
       recipientId: event.riderMemberId,
       type: NotificationType.ENROLLMENT_CREATED,
       title: "Enrolled in Lesson",
       message: event.lessonName
-        ? `You've been enrolled in ${event.lessonName} on ${format(event.startTime, "yyyy-MM-dd HH:mm")}`
-        : `You've been enrolled in a lesson on ${format(event.startTime, "yyyy-MM-dd HH:mm")}`,
+        ? `You've been enrolled in ${event.lessonName} on ${formatted}`
+        : `You've been enrolled in a lesson on ${formatted}`,
       entityType: "lesson",
       entityId: event.instanceId,
       deepLink: `/lessons/${event.instanceId}`,

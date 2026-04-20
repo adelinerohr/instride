@@ -1,3 +1,4 @@
+import { Link, useParams } from "@tanstack/react-router";
 import {
   CalendarPlusIcon,
   ClockIcon,
@@ -5,7 +6,7 @@ import {
   PlusIcon,
 } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import { CalendarFilters } from "./filters";
 import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
+  const { slug } = useParams({ strict: false });
   const { selectedTrainerIds, selectedBoardId, createLesson, type } =
     useCalendar();
 
@@ -33,13 +35,20 @@ export function CalendarHeader() {
         <div className="options flex-wrap flex items-center gap-4 md:gap-2">
           <ViewSwitcher />
           <CalendarFilters />
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button />}>
-              <PlusIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit">
-              <DropdownMenuGroup>
-                {type === "admin" && (
+          <Link
+            to="/org/$slug/portal/lessons/create"
+            params={{ slug: slug ?? "" }}
+            className={buttonVariants({ variant: "default", size: "icon" })}
+          >
+            <PlusIcon />
+          </Link>
+          {type === "admin" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button />}>
+                <PlusIcon />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-fit">
+                <DropdownMenuGroup>
                   <DialogTrigger
                     handle={eventModalHandler}
                     nativeButton={false}
@@ -48,19 +57,17 @@ export function CalendarHeader() {
                     <PartyPopperIcon />
                     <span>Add new event</span>
                   </DialogTrigger>
-                )}
-                <DropdownMenuItem
-                  onClick={() =>
-                    createLesson({
-                      boardId: selectedBoardId ?? "",
-                      trainerId: selectedTrainerIds[0] ?? "",
-                    })
-                  }
-                >
-                  <CalendarPlusIcon />
-                  <span>Add new lesson</span>
-                </DropdownMenuItem>
-                {type === "admin" && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      createLesson({
+                        boardId: selectedBoardId ?? "",
+                        trainerId: selectedTrainerIds[0] ?? "",
+                      })
+                    }
+                  >
+                    <CalendarPlusIcon />
+                    <span>Add new lesson</span>
+                  </DropdownMenuItem>
                   <DialogTrigger
                     handle={timeBlockModalHandler}
                     nativeButton={false}
@@ -72,10 +79,10 @@ export function CalendarHeader() {
                     <ClockIcon />
                     <span>Add new time block</span>
                   </DialogTrigger>
-                )}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </div>

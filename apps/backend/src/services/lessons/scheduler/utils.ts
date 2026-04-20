@@ -20,8 +20,10 @@ export async function generateStandaloneInstance(input: {
   instances: LessonInstance[];
   skipped: SkippedInstance[];
 }> {
+  const { id: _seriesId, ...seriesFields } = input.series;
+
   const { instance } = await createLessonInstance({
-    ...input.series,
+    ...seriesFields,
     seriesId: input.series.id,
     occurrenceKey: `standalone:${input.series.id}`,
     start: new Date(input.series.start).toISOString(),
@@ -151,8 +153,14 @@ async function materializeOccurrence(input: {
   }
 
   const { instance } = await createLessonInstance({
-    ...input.series,
     seriesId: input.series.id,
+    boardId: input.series.boardId,
+    trainerId: input.series.trainerId,
+    serviceId: input.series.serviceId,
+    levelId: input.series.levelId,
+    name: input.series.name,
+    notes: input.series.notes,
+    maxRiders: input.series.maxRiders,
     occurrenceKey: key,
     start: input.instanceStart.toISOString(),
     end: instanceEnd.toISOString(),

@@ -77,7 +77,7 @@ export function DayView() {
         </ScrollArea>
       </div>
 
-      <div className="hidden w-64 divide-y border-l md:block">
+      <div className="hidden w-64 divide-y border-l">
         <SingleCalendar />
 
         <div className="flex-1 space-y-3">

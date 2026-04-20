@@ -15,7 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
-import { hasRole, isOnlyRider } from "@/shared/lib/auth/roles";
+import { hasRole } from "@/shared/lib/auth/roles";
 
 import { lessonModalHandler } from "../new-lesson";
 import { LessonDetails } from "./lesson-details";
@@ -39,8 +39,10 @@ interface ViewLessonModalFormProps {
 }
 
 export function ViewLessonModalForm({ lesson }: ViewLessonModalFormProps) {
-  const { member } = useRouteContext({ from: "/org/$slug/(authenticated)" });
-  const isPortal = isOnlyRider(member);
+  const { member, isPortal } = useRouteContext({
+    from: "/org/$slug/(authenticated)",
+  });
+
   const cancelLesson = useCancelLessonInstance();
 
   const lessonName = lesson.name

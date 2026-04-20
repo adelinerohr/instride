@@ -1,5 +1,6 @@
 import {
   DayOfWeek,
+  getLocalParts,
   LessonInstanceStatus,
   LessonSeriesStatus,
   RecurrenceFrequency,
@@ -10,6 +11,7 @@ import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
 import { generateLessonInstances } from "../scheduler/generate";
@@ -53,14 +55,37 @@ export const createLessonSeries = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
+    const organization = await db.query.organizations.findFirst({
+      where: { id: organizationId },
+    });
+
+    assertExists(organization, "Organization not found");
+
+    const startDate = new Date(request.start);
+    if (Number.isNaN(startDate.getTime())) {
+      throw APIError.invalidArgument("Invalid start date");
+    }
+    const endDate = new Date(startDate.getTime() + request.duration * 60_000);
+
+    const startParts = getLocalParts({
+      date: startDate,
+      timeZone: organization.timezone,
+    });
+    const endParts = getLocalParts({
+      date: endDate,
+      timeZone: organization.timezone,
+    });
+
+    const pad = (n: number) => n.toString().padStart(2, "0");
+
     const violations = request.overrideAvailability
       ? []
       : await checkLessonAvailability({
           organizationId,
           window: {
-            date: request.start,
-            startTime: request.start,
-            endTime: request.start + request.duration,
+            date: `${startParts.year}-${pad(startParts.month)}-${pad(startParts.day)}`,
+            startTime: `${pad(startParts.hour)}:${pad(startParts.minute)}`,
+            endTime: `${pad(endParts.hour)}:${pad(endParts.minute)}`,
             trainerId: request.trainerId,
             boardId: request.boardId,
           },
@@ -82,7 +107,7 @@ export const createLessonSeries = api(
           boardId: request.boardId,
           trainerId: request.trainerId,
           serviceId: request.serviceId,
-          start: new Date(request.start),
+          start: startDate,
           duration: request.duration,
           maxRiders: request.maxRiders,
           levelId: request.levelId ?? null,
@@ -138,6 +163,49 @@ export const updateLessonSeries = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
+    const organization = await db.query.organizations.findFirst({
+      where: { id: organizationId },
+    });
+    assertExists(organization, "Organization not found");
+
+    const startDate = new Date(request.start);
+    if (Number.isNaN(startDate.getTime())) {
+      throw APIError.invalidArgument("Invalid start date");
+    }
+    const endDate = new Date(startDate.getTime() + request.duration * 60_000);
+
+    const startParts = getLocalParts({
+      date: startDate,
+      timeZone: organization.timezone,
+    });
+    const endParts = getLocalParts({
+      date: endDate,
+      timeZone: organization.timezone,
+    });
+
+    const pad = (n: number) => n.toString().padStart(2, "0");
+
+    const violations = request.overrideAvailability
+      ? []
+      : await checkLessonAvailability({
+          organizationId,
+          window: {
+            date: `${startParts.year}-${pad(startParts.month)}-${pad(startParts.day)}`,
+            startTime: `${pad(startParts.hour)}:${pad(startParts.minute)}`,
+            endTime: `${pad(endParts.hour)}:${pad(endParts.minute)}`,
+            trainerId: request.trainerId,
+            boardId: request.boardId,
+          },
+        });
+
+    if (violations.length > 0) {
+      throw APIError.invalidArgument(
+        "Lesson conflicts with existing schedule"
+      ).withDetails({
+        violations,
+      });
+    }
+
     const series = await db.transaction(async (tx) => {
       const [updated] = await tx
         .update(lessonSeries)
@@ -145,7 +213,7 @@ export const updateLessonSeries = api(
           boardId: request.boardId,
           trainerId: request.trainerId,
           serviceId: request.serviceId,
-          start: new Date(request.start),
+          start: startDate,
           duration: request.duration,
           maxRiders: request.maxRiders,
           name: request.name ?? null,

@@ -212,7 +212,7 @@ export async function createInstanceEnrollment({
       riderName: rider.member.authUser.name,
       enrolledByMemberId: enrolledByMemberId,
       trainerId: lockedInstance.trainerId,
-      trainerMemberId: lockedInstance.trainerId,
+      trainerMemberId: trainer.memberId,
       trainerName: trainer.member.authUser.name,
       startTime: lockedInstance.start.toISOString(),
       endTime: lockedInstance.end.toISOString(),
