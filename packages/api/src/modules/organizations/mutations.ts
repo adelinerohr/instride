@@ -52,14 +52,6 @@ export function useCreateOrganization({
   return useWrappedMutation(organizationMutations.create, {
     ...config,
     onSuccess: (organization, ...args) => {
-      queryClient.setQueryData(
-        organizationKeys.all,
-        (
-          old: Awaited<
-            ReturnType<typeof apiClient.organizations.listOrganizations>
-          >["organizations"]
-        ) => [...old, organization]
-      );
       queryClient.invalidateQueries({ queryKey: organizationKeys.all });
       onSuccess?.(organization, ...args);
     },

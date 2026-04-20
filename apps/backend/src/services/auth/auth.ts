@@ -45,6 +45,7 @@ export const auth = betterAuth({
     ? [
         // Custom domain (when ready)
         "https://app.instrideapp.com",
+        "https://api.instrideapp.com",
         "https://instrideapp.com",
         "https://*.instrideapp.com",
 
