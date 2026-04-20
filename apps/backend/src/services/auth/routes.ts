@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { appMeta } from "encore.dev";
 import { api, APIError, Cookie } from "encore.dev/api";
 
 import { db } from "@/database";
@@ -18,8 +19,8 @@ export const authRoutes = api.raw(
     auth: false,
   },
   async (req, res) => {
-    // Encore's global_cors handles OPTIONS preflight and
-    // sets Access-Control-* headers on all responses automatically.
+    const environment = appMeta().environment;
+    const isProduction = environment.type === "production";
 
     // Read the request body
     const chunks: Buffer[] = [];
@@ -36,7 +37,9 @@ export const authRoutes = api.raw(
       }
     }
 
-    const url = `http://${req.headers.host}${req.url}`;
+    const url = isProduction
+      ? `https://${req.headers.host}${req.url}`
+      : `http://${req.headers.host}${req.url}`;
     const webReq = new Request(url, {
       body: ["GET", "HEAD"].includes(req.method || "") ? undefined : body,
       headers,

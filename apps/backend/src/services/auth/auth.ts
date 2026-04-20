@@ -22,13 +22,16 @@ import {
 const authSecret = secret("AuthSecret");
 const googleClientId = secret("GoogleClientId");
 const googleClientSecret = secret("GoogleClientSecret");
-const baseURL = appMeta().apiBaseUrl;
 const isProd = appMeta().environment.type === "production";
+
+const baseURL = isProd
+  ? "https://api.instrideapp.com"
+  : "http://localhost:4000";
 
 export const auth = betterAuth({
   /** Configuration */
   basePath: "/auth",
-  baseURL: isProd ? baseURL : "http://localhost:4000",
+  baseURL,
   secret: authSecret(),
   logger: {
     disableColors: true,
