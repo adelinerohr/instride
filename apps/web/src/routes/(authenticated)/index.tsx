@@ -58,7 +58,6 @@ function HomeComponent() {
   };
 
   const isSuperAdmin = user.role?.includes("admin") || false;
-  console.log(user.role);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background relative">
