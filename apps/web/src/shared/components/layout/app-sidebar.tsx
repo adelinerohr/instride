@@ -1,6 +1,6 @@
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { CommandIcon } from "lucide-react";
 
+import { OrganizationLogo } from "../fragments/org-logo";
 import {
   Sidebar,
   SidebarHeader,
@@ -34,11 +34,9 @@ export function AppSidebar({ type }: AppSidebarProps) {
                 <Link params={{ slug: organization.slug }} to="/org/$slug" />
               }
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <CommandIcon className="size-4" />
-              </div>
+              <OrganizationLogo organization={organization} />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
+                <span className="truncate font-semibold font-display">
                   {organization.name}
                 </span>
                 <span className="truncate text-xs">

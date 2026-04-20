@@ -226,7 +226,7 @@ function StatsCard({
   icon: Icon,
 }: StatsCardProps) {
   const isPositiveChange = percentageChange >= 0;
-  const changeColor = isPositiveChange ? "text-green-600" : "text-red-600";
+  const changeColor = isPositiveChange ? "text-accent" : "text-destructive";
 
   return (
     <Card>

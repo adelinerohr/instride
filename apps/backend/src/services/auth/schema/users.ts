@@ -8,6 +8,7 @@ export const authUsers = p.pgTable(
     email: p.text("email").notNull().unique(),
     emailVerified: p.boolean("email_verified").default(false).notNull(),
     image: p.text("image"),
+    imageKey: p.text("image_key"),
     phone: p.text("phone"),
     profilePictureUrl: p.text("profile_picture_url"),
     role: p.text("role"),

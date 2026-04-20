@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { OrganizationLogo } from "@/shared/components/fragments/org-logo";
+import { brand } from "@/shared/components/logo";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { FieldSeparator } from "@/shared/components/ui/field";
@@ -81,19 +82,22 @@ function HomeComponent() {
         </Link>
       )}
       <div className="w-full max-w-lg gap-6 px-4 flex flex-col">
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome to Instride
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            What would you like to do?
-          </p>
+        <div className="flex flex-col items-center justify-center gap-2">
+          {brand.mark({ className: "size-12" })}
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-display font-semibold tracking-tight">
+              Welcome to Instride
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              What would you like to do?
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/create-organization"
-            className="hover:bg-muted border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
           >
             <BuildingIcon className="text-muted-foreground" />
             <div className="flex flex-col items-center gap-1">
@@ -105,7 +109,7 @@ function HomeComponent() {
           </Link>
           <Link
             to="/join-organization"
-            className="hover:bg-muted border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
           >
             <UserPlusIcon className="text-muted-foreground" />
             <div className="flex flex-col items-center gap-1">
@@ -117,7 +121,9 @@ function HomeComponent() {
           </Link>
         </div>
 
-        <FieldSeparator>OR JUMP BACK IN</FieldSeparator>
+        {organizations.length > 0 && (
+          <FieldSeparator>OR JUMP BACK IN</FieldSeparator>
+        )}
 
         <div className="flex flex-col gap-3">
           {organizations.map(({ organization, roles }) => (

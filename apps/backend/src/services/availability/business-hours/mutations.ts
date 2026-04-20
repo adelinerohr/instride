@@ -4,6 +4,7 @@ import { api } from "encore.dev/api";
 
 import { assertAdmin, assertAdminOrSelf } from "@/services/auth/gates";
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
 import {
@@ -180,8 +181,18 @@ export const updateTrainerBusinessHours = api(
   async (
     params: UpdateTrainerBusinessHoursParams
   ): Promise<ListTrainerBusinessHoursResponse> => {
-    const { userID, organizationId } = requireOrganizationAuth();
-    await assertAdminOrSelf(organizationId, userID, params.trainerId);
+    const { organizationId } = requireOrganizationAuth();
+
+    const trainer = await db.query.trainers.findFirst({
+      where: {
+        id: params.trainerId,
+        organizationId,
+      },
+    });
+
+    assertExists(trainer, "Trainer not found");
+
+    await assertAdminOrSelf(trainer.memberId);
 
     validateDayHours(params.days);
 
@@ -279,8 +290,17 @@ export const resetTrainerBoardBusinessHours = api(
     auth: true,
   },
   async (params: { trainerId: string; boardId: string }): Promise<void> => {
-    const { userID, organizationId } = requireOrganizationAuth();
-    await assertAdminOrSelf(organizationId, userID, params.trainerId);
+    const { organizationId } = requireOrganizationAuth();
+
+    const trainer = await db.query.trainers.findFirst({
+      where: {
+        id: params.trainerId,
+        organizationId,
+      },
+    });
+
+    assertExists(trainer, "Trainer not found");
+    await assertAdminOrSelf(trainer.memberId);
 
     // Slots cascade via FK
     await db

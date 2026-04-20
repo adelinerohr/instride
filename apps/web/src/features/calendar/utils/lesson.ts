@@ -3,7 +3,14 @@ import { differenceInMinutes, isWithinInterval, parseISO } from "date-fns";
 
 import { SLOT_HEIGHT, START_HOUR } from "@/features/calendar/lib/constants";
 
-const COLORS = ["blue", "green", "red", "yellow", "purple", "orange"] as const;
+const COLORS = [
+  "amber",
+  "sage",
+  "slate",
+  "terracotta",
+  "plum",
+  "clay",
+] as const;
 export type TrainerColor = (typeof COLORS)[number];
 
 export function getTrainerColor(trainerId: string): TrainerColor {

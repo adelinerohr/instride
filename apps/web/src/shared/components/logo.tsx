@@ -1,0 +1,32 @@
+type IconProps = {
+  className?: string;
+};
+
+export const brand = {
+  name: "instride",
+  mark: ({ ...props }: IconProps) => (
+    <svg
+      width="110"
+      height="110"
+      viewBox="0 0 110 110"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M88 0H22C9.84974 0 0 9.84974 0 22V88C0 100.15 9.84974 110 22 110H88C100.15 110 110 100.15 110 88V22C110 9.84974 100.15 0 88 0Z"
+        fill="var(--forest)"
+      />
+      <path
+        d="M40 85C40 55 48.3333 36.6667 65 30C75 26.6667 81.6667 28.3333 85 35"
+        stroke="var(--cream)"
+        strokeWidth="10"
+        strokeLinecap="round"
+      />
+      <path
+        d="M40 35C43.866 35 47 31.866 47 28C47 24.134 43.866 21 40 21C36.134 21 33 24.134 33 28C33 31.866 36.134 35 40 35Z"
+        fill="var(--amber)"
+      />
+    </svg>
+  ),
+};

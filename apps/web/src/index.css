@@ -2,12 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/dm-sans";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: "Inter Variable", sans-serif;
+  --font-heading: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,41 +49,141 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ---------- Category Palette ---------- */
+  --color-category-amber-bg: var(--category-amber-bg);
+  --color-category-amber-border: var(--category-amber-border);
+  --color-category-amber-fg: var(--category-amber-fg);
+  --color-category-amber-dot: var(--category-amber-dot);
+  --color-category-sage-bg: var(--category-sage-bg);
+  --color-category-sage-border: var(--category-sage-border);
+  --color-category-sage-fg: var(--category-sage-fg);
+  --color-category-sage-dot: var(--category-sage-dot);
+  --color-category-slate-bg: var(--category-slate-bg);
+  --color-category-slate-border: var(--category-slate-border);
+  --color-category-slate-fg: var(--category-slate-fg);
+  --color-category-slate-dot: var(--category-slate-dot);
+  --color-category-terracotta-bg: var(--category-terracotta-bg);
+  --color-category-terracotta-border: var(--category-terracotta-border);
+  --color-category-terracotta-fg: var(--category-terracotta-fg);
+  --color-category-terracotta-dot: var(--category-terracotta-dot);
+  --color-category-plum-bg: var(--category-plum-bg);
+  --color-category-plum-border: var(--category-plum-border);
+  --color-category-plum-fg: var(--category-plum-fg);
+  --color-category-plum-dot: var(--category-plum-dot);
+  --color-category-clay-bg: var(--category-clay-bg);
+  --color-category-clay-border: var(--category-clay-border);
+  --color-category-clay-fg: var(--category-clay-fg);
+  --color-category-clay-dot: var(--category-clay-dot);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.147 0.004 49.25);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.147 0.004 49.25);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.147 0.004 49.25);
-  --primary: oklch(0.216 0.006 56.043);
-  --primary-foreground: oklch(0.985 0.001 106.423);
-  --secondary: oklch(0.97 0.001 106.424);
-  --secondary-foreground: oklch(0.216 0.006 56.043);
-  --muted: oklch(0.97 0.001 106.424);
-  --muted-foreground: oklch(0.553 0.013 58.071);
-  --accent: oklch(0.97 0.001 106.424);
-  --accent-foreground: oklch(0.216 0.006 56.043);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.923 0.003 48.717);
-  --input: oklch(0.923 0.003 48.717);
-  --ring: oklch(0.709 0.01 56.259);
-  --chart-1: oklch(0.869 0.005 56.366);
-  --chart-2: oklch(0.553 0.013 58.071);
-  --chart-3: oklch(0.444 0.011 73.639);
-  --chart-4: oklch(0.374 0.01 67.558);
-  --chart-5: oklch(0.268 0.007 34.298);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.001 106.423);
-  --sidebar-foreground: oklch(0.147 0.004 49.25);
-  --sidebar-primary: oklch(0.216 0.006 56.043);
-  --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-accent: oklch(0.97 0.001 106.424);
-  --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
-  --sidebar-border: oklch(0.923 0.003 48.717);
-  --sidebar-ring: oklch(0.709 0.01 56.259);
+  --background: var(--cream); /* page bg — warm off-white */
+  --foreground: var(--ink); /* text — warm near-black */
+
+  --card: oklch(100% 0 0); /* cards lift off page */
+  --card-foreground: var(--ink);
+
+  --popover: oklch(100% 0 0);
+  --popover-foreground: var(--ink);
+
+  /* ---------- Brand: Primary (Forest) ---------- */
+  --primary: var(--forest);
+  --primary-foreground: var(--cream);
+
+  /* ---------- Secondary — quiet warm surface ---------- */
+  --secondary: oklch(95% 0.006 95);
+  --secondary-foreground: var(--forest);
+
+  /* ---------- Muted — hints, descriptions, disabled rows ---------- */
+  --muted: oklch(96% 0.005 95);
+  --muted-foreground: oklch(45% 0.008 95);
+
+  /* ---------- Brand: Accent (Amber) ---------- */
+  --accent: var(--amber);
+  --accent-foreground: var(--cream);
+
+  /* ---------- Destructive ---------- */
+  --destructive: oklch(55% 0.18 28);
+  --destructive-foreground: var(--cream);
+
+  /* ---------- Borders, inputs, focus ring ---------- */
+  --border: var(--warm-gray);
+  --input: var(--warm-gray);
+  --ring: var(--forest);
+
+  /* ---------- Charts ---------- */
+  --chart-1: var(--forest); /* forest */
+  --chart-2: var(--amber); /* amber */
+  --chart-3: var(--sage); /* sage */
+  --chart-4: var(--slate-blue); /* slate-blue */
+  --chart-5: var(--terracotta); /* terracotta */
+
+  /* ---------- Sidebar ---------- */
+  --sidebar: var(--cream-dark);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--forest);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: oklch(93% 0.007 95);
+  --sidebar-accent-foreground: var(--forest);
+  --sidebar-border: var(--warm-gray);
+  --sidebar-ring: var(--forest);
+
+  /* ---------- Radii & fonts ---------- */
+  --radius: 0.375rem;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Brand */
+  --forest: oklch(28% 0.07 158);
+  --forest-muted: oklch(0.38 0.08 158);
+  --sage: oklch(0.57 0.055 155);
+  --amber: oklch(69% 0.13 62);
+  --cream: oklch(98% 0.005 95);
+  --cream-dark: oklch(96% 0.006 95);
+  --ink: oklch(20% 0.005 95);
+  --ink-soft: oklch(0.4 0.025 200);
+  --warm-gray: oklch(92% 0.006 95);
+  --slate-blue: oklch(50% 0.09 230);
+  --terracotta: oklch(60% 0.11 20);
+
+  /* ---------- Category Palette ---------- */
+  /* Amber — reuses brand amber at calendar-block scale */
+  --category-amber-bg: oklch(94% 0.04 62);
+  --category-amber-border: oklch(82% 0.08 62);
+  --category-amber-fg: oklch(40% 0.1 62);
+  --category-amber-dot: oklch(60% 0.12 62);
+
+  /* Sage — reuses brand sage family */
+  --category-sage-bg: oklch(94% 0.02 155);
+  --category-sage-border: oklch(80% 0.04 155);
+  --category-sage-fg: oklch(38% 0.05 155);
+  --category-sage-dot: oklch(57% 0.055 155);
+
+  /* Slate — cool counterpoint */
+  --category-slate-bg: oklch(94% 0.015 230);
+  --category-slate-border: oklch(80% 0.04 230);
+  --category-slate-fg: oklch(38% 0.08 230);
+  --category-slate-dot: oklch(50% 0.09 230);
+
+  /* Terracotta — warm clay */
+  --category-terracotta-bg: oklch(94% 0.025 30);
+  --category-terracotta-border: oklch(82% 0.06 30);
+  --category-terracotta-fg: oklch(42% 0.1 30);
+  --category-terracotta-dot: oklch(60% 0.11 30);
+
+  /* Plum — muted burgundy-pink */
+  --category-plum-bg: oklch(94% 0.02 340);
+  --category-plum-border: oklch(82% 0.05 340);
+  --category-plum-fg: oklch(40% 0.08 340);
+  --category-plum-dot: oklch(55% 0.1 340);
+
+  /* Clay — warm neutral, good for a sixth trainer */
+  --category-clay-bg: oklch(94% 0.015 60);
+  --category-clay-border: oklch(82% 0.03 60);
+  --category-clay-fg: oklch(42% 0.05 60);
+  --category-clay-dot: oklch(60% 0.06 60);
 }
 
 .dark {

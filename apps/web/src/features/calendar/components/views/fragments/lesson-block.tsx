@@ -2,6 +2,7 @@ import { getUser, type types } from "@instride/api";
 import { cva, type VariantProps } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
 import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { getTrainerColor } from "@/features/calendar/utils/lesson";
@@ -15,24 +16,32 @@ const weekLessonBlockVariants = cva(
   {
     variants: {
       color: {
-        blue: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300 [&_.event-dot]:fill-blue-600",
-        green:
-          "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300 [&_.event-dot]:fill-green-600",
-        red: "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300 [&_.event-dot]:fill-red-600",
-        yellow:
-          "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-300 [&_.event-dot]:fill-yellow-600",
-        purple:
-          "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 [&_.event-dot]:fill-purple-600",
-        orange:
-          "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-300 [&_.event-dot]:fill-orange-600",
-        gray: "border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 [&_.event-dot]:fill-neutral-600",
+        amber:
+          "border-category-amber-border bg-category-amber-bg text-category-amber-fg [&_.event-dot]:fill-category-amber-dot",
+        sage: "border-category-sage-border bg-category-sage-bg text-category-sage-fg [&_.event-dot]:fill-category-sage-dot",
+        slate:
+          "border-category-slate-border bg-category-slate-bg text-category-slate-fg [&_.event-dot]:fill-category-slate-dot",
+        terracotta:
+          "border-category-terracotta-border bg-category-terracotta-bg text-category-terracotta-fg [&_.event-dot]:fill-category-terracotta-dot",
+        plum: "border-category-plum-border bg-category-plum-bg text-category-plum-fg [&_.event-dot]:fill-category-plum-dot",
+        clay: "border-category-clay-border bg-category-clay-bg text-category-clay-fg [&_.event-dot]:fill-category-clay-dot",
       },
     },
-    defaultVariants: {
-      color: "gray",
-    },
+    defaultVariants: { color: "amber" },
   }
 );
+
+// Width thresholds in pixels — tune to taste once you see it in context
+const DENSE_WIDTH = 120; // below this: abbreviate trainer name
+const TIGHT_WIDTH = 90; // below this: also hide the time row
+
+function abbreviateName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  const first = parts[0];
+  const lastInitial = parts[parts.length - 1][0];
+  return `${first} ${lastInitial}.`;
+}
 
 interface LessonBlockProps
   extends
@@ -47,15 +56,37 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
   const durationInMinutes = differenceInMinutes(end, start);
   const heightInPixels = (durationInMinutes / 60) * SLOT_HEIGHT - 8;
 
-  const color = lesson.trainer ? getTrainerColor(lesson.trainer.id) : "gray";
+  const color = lesson.trainer ? getTrainerColor(lesson.trainer.id) : "amber";
+  const trainer = lesson.trainer ? getUser({ trainer: lesson.trainer }) : null;
+  const isPrivate = lesson.maxRiders === 1;
+
+  const blockRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number>(Infinity);
+
+  useEffect(() => {
+    const el = blockRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? Infinity;
+      setWidth(w);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const showTime = width >= TIGHT_WIDTH;
+  const useFullName = width >= DENSE_WIDTH;
+  const trainerDisplayName = trainer
+    ? useFullName
+      ? trainer.name
+      : abbreviateName(trainer.name)
+    : null;
 
   const weekLessonBlockClasses = cn(
     weekLessonBlockVariants({ color, className }),
     "cursor-pointer"
   );
-
-  const trainer = lesson.trainer ? getUser({ trainer: lesson.trainer }) : null;
-  const isPrivate = lesson.maxRiders === 1;
 
   return (
     <SheetTrigger
@@ -64,6 +95,7 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
       nativeButton={false}
       render={
         <div
+          ref={blockRef}
           role="button"
           tabIndex={0}
           className={weekLessonBlockClasses}
@@ -75,22 +107,24 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
         <p className="truncate font-semibold">{lesson.service?.name}</p>
         {isPrivate && <Badge variant="outline">Private</Badge>}
       </div>
-      <div className="flex items-center gap-1.5">
-        <ClockIcon className="size-3" />
-        <p>
-          {format(start, "h:mm")} - {format(end, "h:mm a")}
-        </p>
-      </div>
-      {trainer && (
+      {showTime && (
         <div className="flex items-center gap-1.5">
-          <UserIcon className="size-3" />
-          <p>{trainer.name}</p>
+          <ClockIcon className="size-3 shrink-0" />
+          <p className="truncate">
+            {format(start, "h:mm")} - {format(end, "h:mm a")}
+          </p>
+        </div>
+      )}
+      {trainerDisplayName && (
+        <div className="flex items-center gap-1.5">
+          <UserIcon className="size-3 shrink-0" />
+          <p className="truncate">{trainerDisplayName}</p>
         </div>
       )}
       {!isPrivate && (
         <div className="flex items-center gap-1.5">
-          <ClipboardListIcon className="size-3" />
-          <p>
+          <ClipboardListIcon className="size-3 shrink-0" />
+          <p className="truncate">
             {lesson.enrollments?.length} / {lesson.service?.maxRiders} riders
           </p>
         </div>

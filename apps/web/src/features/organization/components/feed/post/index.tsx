@@ -20,7 +20,9 @@ type PostProps = {
 };
 
 export function Post({ post }: PostProps) {
-  const { member } = useRouteContext({ strict: false });
+  const { member, user } = useRouteContext({
+    from: "/org/$slug/(authenticated)",
+  });
   const [expandedComments, setExpandedComments] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -28,7 +30,7 @@ export function Post({ post }: PostProps) {
 
   const likePost = useLikePost({
     userMemberId: member.id,
-    user: member.authUser!,
+    user,
   });
   const unlikePost = useUnlikePost();
   const createComment = useCreateComment();
@@ -110,7 +112,7 @@ export function Post({ post }: PostProps) {
       )}
 
       <CommentInput
-        member={member}
+        user={user}
         onSubmit={handleAddComment}
         isSubmitting={createComment.isPending}
       />

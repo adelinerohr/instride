@@ -1,4 +1,5 @@
 import {
+  getUser,
   useCreateComment,
   useDeleteComment,
   useUpdateComment,
@@ -11,6 +12,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import {
   Avatar,
   AvatarFallback,
@@ -305,13 +307,15 @@ function ReplyInput({
 // ---- CommentInput ------------------------------------------------------------
 
 interface CommentInputProps {
-  member: types.Member;
+  member?: types.Member;
+  user?: types.AuthUser;
   onSubmit: (text: string) => void;
   isSubmitting: boolean;
 }
 
 export function CommentInput({
   member,
+  user,
   onSubmit,
   isSubmitting,
 }: CommentInputProps) {
@@ -325,12 +329,7 @@ export function CommentInput({
 
   return (
     <div className="flex items-center gap-1 border-t p-4 pt-3">
-      <Avatar>
-        <AvatarImage src={member.authUser?.image ?? undefined} />
-        <AvatarFallback>
-          {getInitials(member.authUser?.name ?? "")}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar size="sm" user={user ?? getUser({ member })} />
       <Input
         placeholder="Add a comment..."
         className="flex-1 border-0 shadow-none focus-visible:ring-0"

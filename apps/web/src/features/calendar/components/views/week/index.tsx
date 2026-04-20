@@ -40,14 +40,14 @@ export function WeekView() {
                 key={index}
                 className={cn(
                   "py-2 text-center text-xs font-medium text-muted-foreground",
-                  isSameDay(day, new Date()) && "text-blue-500"
+                  isSameDay(day, new Date()) && "text-accent"
                 )}
               >
                 {format(day, "EE")}
                 <span
                   className={cn(
                     "ml-1 font-semibold text-foreground",
-                    isSameDay(day, new Date()) && "text-blue-500"
+                    isSameDay(day, new Date()) && "text-accent"
                   )}
                 >
                   {format(day, "d")}

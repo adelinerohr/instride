@@ -257,10 +257,13 @@ const eventBadgeVariants = cva(
   {
     variants: {
       color: {
-        blue: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300 [&_.event-dot]:fill-blue-600",
-        green:
-          "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300 [&_.event-dot]:fill-green-600",
-        red: "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300 [&_.event-dot]:fill-red-600",
+        amber:
+          "border-category-amber-border bg-category-amber-bg text-category-amber-fg [&_.event-dot]:fill-category-amber-dot",
+        sage: "border-category-sage-border bg-category-sage-bg text-category-sage-fg [&_.event-dot]:fill-category-sage-dot",
+        terracotta:
+          "border-category-terracotta-border bg-category-terracotta-bg text-category-terracotta-fg [&_.event-dot]:fill-category-terracotta-dot",
+        plum: "border-category-plum-border bg-category-plum-bg text-category-plum-fg [&_.event-dot]:fill-category-plum-dot",
+        clay: "border-category-clay-border bg-category-clay-bg text-category-clay-fg [&_.event-dot]:fill-category-clay-dot",
       },
       multiDayPosition: {
         first:
@@ -272,7 +275,7 @@ const eventBadgeVariants = cva(
       },
     },
     defaultVariants: {
-      color: "blue",
+      color: "amber",
     },
   }
 );
@@ -324,7 +327,11 @@ function MultiDayRowItem({
   }
 
   const eventBadgeClasses = cn(
-    eventBadgeVariants({ color: "blue", multiDayPosition: position, className })
+    eventBadgeVariants({
+      color: "amber",
+      multiDayPosition: position,
+      className,
+    })
   );
 
   const renderBadgeText = ["first", "none"].includes(position);

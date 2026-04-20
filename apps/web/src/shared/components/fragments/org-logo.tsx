@@ -18,7 +18,7 @@ function OrganizationLogo({
         src={organization.logoUrl ?? undefined}
         alt={organization.name}
       />
-      <AvatarFallback className="rounded-md bg-neutral-200 dark:bg-neutral-700 uppercase">
+      <AvatarFallback className="rounded-md bg-primary text-primary-foreground uppercase font-display">
         {organization.name.slice(0, 1)}
       </AvatarFallback>
     </Avatar>

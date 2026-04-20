@@ -79,14 +79,14 @@ function QuarterCell({
   return (
     <div
       className={cn(
-        "cursor-pointer hover:bg-accent/20",
+        "cursor-pointer hover:bg-muted/20",
         isDisabled && "cursor-not-allowed"
       )}
       style={{ height: `${QUARTER_HEIGHT}px` }}
       onClick={() => onClick(quarter)}
     >
       <div
-        className="absolute inset-x-0 cursor-pointer transition-colors hover:bg-accent"
+        className="absolute inset-x-0 cursor-pointer transition-colors hover:bg-muted/50"
         style={{
           top: `${quarter * QUARTER_HEIGHT}px`,
           height: `${QUARTER_HEIGHT}px`,

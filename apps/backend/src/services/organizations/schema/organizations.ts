@@ -20,6 +20,7 @@ export const organizations = p.pgTable(
 
     // Branding
     logoUrl: p.text("logo_url"),
+    logoKey: p.text("logo_key"),
     primaryColor: p.text("primary_color"),
 
     // Contact Information

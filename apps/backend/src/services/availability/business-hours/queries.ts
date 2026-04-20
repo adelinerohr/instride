@@ -2,6 +2,7 @@ import { api } from "encore.dev/api";
 
 import { assertAdminOrSelf } from "@/services/auth/gates";
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
 import {
@@ -37,8 +38,18 @@ export const listTrainerBusinessHours = api(
   async (params: {
     trainerId: string;
   }): Promise<ListTrainerBusinessHoursResponse> => {
-    const { userID, organizationId } = requireOrganizationAuth();
-    await assertAdminOrSelf(organizationId, userID, params.trainerId);
+    const { organizationId } = requireOrganizationAuth();
+
+    const trainer = await db.query.trainers.findFirst({
+      where: {
+        id: params.trainerId,
+        organizationId,
+      },
+    });
+
+    assertExists(trainer, "Trainer not found");
+
+    await assertAdminOrSelf(trainer.memberId);
 
     return await getBusinessHours({
       type: "trainer",

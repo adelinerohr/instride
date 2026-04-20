@@ -1,4 +1,4 @@
-import { authOptions } from "@instride/api";
+import { authOptions, type types } from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { ImpersonationBanner } from "@/shared/components/auth/impersonation-banner";
@@ -24,8 +24,15 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       throw Route.redirect({ to: "/org/$slug/onboarding" });
     }
 
+    const user: types.AuthUser = {
+      ...session.user,
+      createdAt: session.user.createdAt.toISOString(),
+      updatedAt: session.user.updatedAt.toISOString(),
+      banExpires: session.user.banExpires?.toISOString() ?? null,
+    };
+
     return {
-      user: session.user,
+      user,
       session: session.session,
       member: context.member,
     };

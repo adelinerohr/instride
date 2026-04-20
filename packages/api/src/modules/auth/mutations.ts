@@ -1,17 +1,50 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, auth, authClient } from "#client";
+import { apiClient, auth, authClient, upload } from "#client";
 
 import {
   useWrappedAuthMutation,
   type AuthMutationHookOptionsFor,
 } from "./utils";
 
+export const authMutations = {
+  startUploadAvatar: async (params: upload.UploadAvatarParams) =>
+    await apiClient.upload.uploadAvatar(params),
+  confirmUploadAvatar: async (params: upload.ConfirmAvatarUploadParams) =>
+    await apiClient.upload.confirmAvatarUpload(params),
+  deleteUploadAvatar: async (params: upload.DeleteUserAvatarParams) =>
+    await apiClient.upload.deleteUserAvatar(params),
+};
+
 export const adminMutations = {
   exportUsers: async (params: auth.ExportUsersParams) =>
     await apiClient.auth.exportUsers(params),
 };
+
+export function useStartUploadAvatar({
+  mutationConfig,
+}: MutationHookOptions<typeof authMutations.startUploadAvatar> = {}) {
+  const config = mutationConfig || {};
+
+  return useWrappedMutation(authMutations.startUploadAvatar, config);
+}
+
+export function useConfirmUploadAvatar({
+  mutationConfig,
+}: MutationHookOptions<typeof authMutations.confirmUploadAvatar> = {}) {
+  const config = mutationConfig || {};
+
+  return useWrappedMutation(authMutations.confirmUploadAvatar, config);
+}
+
+export function useDeleteUploadAvatar({
+  mutationConfig,
+}: MutationHookOptions<typeof authMutations.deleteUploadAvatar> = {}) {
+  const config = mutationConfig || {};
+
+  return useWrappedMutation(authMutations.deleteUploadAvatar, config);
+}
 
 export function useExportUsers({
   mutationConfig,
@@ -20,6 +53,10 @@ export function useExportUsers({
 
   return useWrappedMutation(adminMutations.exportUsers, config);
 }
+
+// ------------------------------------------------------------
+// Better Auth Mutations
+// ------------------------------------------------------------
 
 export function useRequestPasswordReset({
   mutationConfig,

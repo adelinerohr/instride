@@ -65,7 +65,10 @@ export function UserDropdown() {
 
       <DropdownMenuItem
         render={
-          <Link to="/org/$slug/admin" params={{ slug: organization.slug }} />
+          <Link
+            to="/org/$slug/settings/account/profile"
+            params={{ slug: organization.slug }}
+          />
         }
       >
         <UserCog2Icon />

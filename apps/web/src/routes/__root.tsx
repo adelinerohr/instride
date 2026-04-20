@@ -21,23 +21,6 @@ import type { RouterContext } from "../main";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
-  head: () => ({
-    meta: [
-      {
-        title: "instride",
-      },
-      {
-        name: "description",
-        content: "instride is a web application",
-      },
-    ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-    ],
-  }),
   beforeLoad: async ({ context, location }) => {
     // Fetch session data
     const sessionData = await context.queryClient.ensureQueryData(
@@ -95,6 +78,29 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     return {
       ...context,
       isAuthenticated,
+    };
+  },
+  head: ({ loaderData, match }) => {
+    return {
+      meta: [
+        {
+          title: "instride",
+        },
+        {
+          name: "description",
+          content: "instride is a web application",
+        },
+        {
+          name: "theme-color",
+          content: "#1F4D3F",
+        },
+      ],
+      links: [
+        { rel: "icon", href: "/favicon.ico", sizes: "any" },
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+        { rel: "manifest", href: "/site.webmanifest" },
+      ],
     };
   },
 });
