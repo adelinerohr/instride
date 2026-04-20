@@ -4,6 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
 import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
+import log from "encore.dev/log";
 
 import { db } from "../../database";
 import { invitationEmail } from "../email/templates/invitation";
@@ -29,6 +30,18 @@ export const auth = betterAuth({
   basePath: "/auth",
   baseURL: isProd ? baseURL : "http://localhost:4000",
   secret: authSecret(),
+  logger: {
+    disableColors: true,
+    level: "warn",
+    log: (level, message) => {
+      if (level === "warn") {
+        log.warn(message);
+      }
+      if (level === "error") {
+        log.error(message);
+      }
+    },
+  },
 
   trustedOrigins: isProd
     ? [
