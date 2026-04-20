@@ -193,9 +193,7 @@ export const auth = betterAuth({
     ...(isProd && {
       cookieAttributes: {
         // Cookie domain depends on which domain you're using
-        // For Vercel: ".instride.vercel.app"
-        // For custom: ".instrideapp.com"
-        domain: ".instride.vercel.app", // or ".instrideapp.com"
+        domain: ".instrideapp.com",
         sameSite: "lax",
         secure: true,
         httpOnly: true,
