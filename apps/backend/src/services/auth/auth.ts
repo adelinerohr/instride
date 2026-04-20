@@ -36,13 +36,8 @@ export const auth = betterAuth({
   logger: {
     disableColors: true,
     level: "warn",
-    log: (level, message) => {
-      if (level === "warn") {
-        log.warn(message);
-      }
-      if (level === "error") {
-        log.error(message);
-      }
+    log: (message) => {
+      log.warn(message);
     },
   },
 
