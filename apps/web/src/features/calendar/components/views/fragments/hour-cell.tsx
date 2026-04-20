@@ -28,16 +28,20 @@ export function HourCell({ isDisabled, index, day, hour }: HourCellProps) {
         cancelLabel: "No, go back",
         onConfirm: () => {
           const start = getStart(quarter);
-          createLesson(
+          createLesson({
             start,
-            selectedBoardId ?? "",
-            selectedTrainerIds[0] ?? ""
-          );
+            boardId: selectedBoardId,
+            trainerId: selectedTrainerIds[0],
+          });
         },
       });
     } else {
       const start = getStart(quarter);
-      createLesson(start, selectedBoardId ?? "", selectedTrainerIds[0] ?? "");
+      createLesson({
+        start,
+        boardId: selectedBoardId,
+        trainerId: selectedTrainerIds[0],
+      });
     }
   };
 

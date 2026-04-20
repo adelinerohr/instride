@@ -3,7 +3,8 @@ import { api } from "encore.dev/api";
 import { sendEmailTopic } from "./topic";
 
 interface SendEmailRequest {
-  to: string;
+  from?: string;
+  to: string | string[];
   subject: string;
   html: string;
 }
@@ -20,6 +21,7 @@ export const sendEmail = api(
   },
   async (request: SendEmailRequest): Promise<SendEmailResponse> => {
     await sendEmailTopic.publish({
+      from: request.from,
       to: request.to,
       subject: request.subject,
       html: request.html,

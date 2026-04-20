@@ -8,4 +8,5 @@ catalog:
   lucide-react: 0.546.0
   next-themes: 0.4.6
   sonner: 2.0.7
-  '@types/react-dom': 19.2.3
+  better-auth: 1.6.5
+  "@types/react-dom": 19.2.3

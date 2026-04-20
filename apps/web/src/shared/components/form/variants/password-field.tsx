@@ -91,7 +91,7 @@ export function PasswordField({
       {showRequirements && requirement && (
         <div
           className={cn(
-            "flex items-center gap-1.5 px-1 font-medium text-[0.8rem]",
+            "flex items-center gap-1.5 px-1 font-medium text-xs leading-none",
             requirement.met
               ? "text-green-500"
               : errors
@@ -104,10 +104,10 @@ export function PasswordField({
           ) : (
             <XCircleIcon className="h-3.5 w-3.5 shrink-0" />
           )}
-          <p>{requirement.text}</p>
+          <span>{requirement.text}</span>
         </div>
       )}
-      {isInvalid && <FieldError errors={errors} />}
+      {isInvalid && !showRequirements && <FieldError errors={errors} />}
     </Field>
   );
 }

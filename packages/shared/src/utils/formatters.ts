@@ -27,7 +27,7 @@ export const ROLE_VARIANTS: Record<
   [MembershipRole.ADMIN]: "default",
   [MembershipRole.TRAINER]: "secondary",
   [MembershipRole.RIDER]: "outline",
-  [MembershipRole.GUARDIAN]: "ghost",
+  [MembershipRole.GUARDIAN]: "default",
 };
 
 export const DAYS_OF_WEEK: { value: DayOfWeek; label: string }[] = [
@@ -77,4 +77,11 @@ export function formatTimeLabel(raw: string | null | undefined): string {
   const slot = normalizeTimeSlot(raw, "00:00");
   const opt = TIME_OPTIONS.find((t) => t.value === slot);
   return opt?.label ?? slot;
+}
+
+export function formatOrgName(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }

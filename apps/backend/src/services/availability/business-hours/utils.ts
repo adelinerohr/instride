@@ -1,161 +1,216 @@
-import { DayOfWeek } from "@instride/shared";
+import { DayHours, DayOfWeek, TimeSlot, timeToMinutes } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 
-import { ListBusinessHoursResponse } from "../types/contracts";
 import {
-  DayHours,
-  EffectiveDayHours,
-  EffectiveDayHoursSource,
+  BusinessHoursDay,
   OrganizationBusinessHours,
   TrainerBusinessHours,
 } from "../types/models";
 
+/**
+ * Validate a set of day-hour inputs:
+ * - Open days must have at least one slot
+ * - Closed days must have zero slots
+ * - Each slot must have openTime < closeTime
+ * - Slots within a day must not overlap
+ */
 export function validateDayHours(days: DayHours[]): void {
   for (const day of days) {
-    if (day.isOpen) {
-      if (day.openTime === null || day.closeTime === null) {
+    if (!day.isOpen && day.slots.length > 0) {
+      throw APIError.invalidArgument(
+        `Closed days must not have any slots: ${day.dayOfWeek}`
+      );
+    }
+    if (!day.isOpen) continue;
+
+    if (day.slots.length === 0) {
+      throw APIError.invalidArgument(
+        `Open days must have at least one slot: ${day.dayOfWeek}`
+      );
+    }
+
+    for (const slot of day.slots) {
+      if (slot.openTime >= slot.closeTime) {
         throw APIError.invalidArgument(
-          "Open and close times are required for open days"
+          `Open time must be before close time: ${day.dayOfWeek}`
         );
       }
-      if (day.openTime >= day.closeTime) {
-        throw APIError.invalidArgument("Open time must be before close time");
-      }
+    }
+
+    assertNoOverlap(day.slots, day.dayOfWeek);
+  }
+}
+
+function assertNoOverlap(slots: TimeSlot[], dayOfWeek: DayOfWeek): void {
+  // Sort a copy so we can detect overlap by checking consecutive pairs
+  const sorted = [...slots].sort((a, b) =>
+    a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
+  );
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
+    if (curr.openTime < prev.closeTime) {
+      throw APIError.invalidArgument(
+        `Slots for ${dayOfWeek} overlap (${prev.openTime}-${prev.closeTime} and ${curr.openTime}-${curr.closeTime})`
+      );
     }
   }
 }
 
 /**
- * Resolve the effective day hours for a given organization, trainer, day of week, and board
- * @param organizationId - The organization ID
- * @param trainerId - The trainer ID
- * @param dayOfWeek - The day of week
- * @param boardId - The board ID
- * @returns The effective day hours
+ * Assert that every trainer slot fits entirely inside at least one of the
+ * effective org/board slots for that day.
  */
-export async function resolveEffectiveDayHours({
-  organizationId,
-  trainerId,
-  dayOfWeek,
-  boardId,
-}: {
+export function assertTrainerSlotsClampedToOrg(input: {
+  trainerSlots: TimeSlot[];
+  orgSlots: TimeSlot[];
+  dayOfWeek: DayOfWeek;
+}): void {
+  if (input.trainerSlots.length === 0) return;
+
+  if (input.orgSlots.length === 0) {
+    throw APIError.invalidArgument(
+      `Trainer hours for ${input.dayOfWeek} cannot be set because the organization is closed that day`
+    );
+  }
+
+  for (const trainerSlot of input.trainerSlots) {
+    const trainerOpen = timeToMinutes(trainerSlot.openTime);
+    const trainerClose = timeToMinutes(trainerSlot.closeTime);
+
+    const fits = input.orgSlots.some((orgSlot) => {
+      const orgOpen = timeToMinutes(orgSlot.openTime);
+      const orgClose = timeToMinutes(orgSlot.closeTime);
+      return trainerOpen >= orgOpen && trainerClose <= orgClose;
+    });
+
+    if (!fits) {
+      const ranges = input.orgSlots
+        .map((s) => `${s.openTime}-${s.closeTime}`)
+        .join(", ");
+      throw APIError.invalidArgument(
+        `Trainer slot ${trainerSlot.openTime}-${trainerSlot.closeTime} for ${input.dayOfWeek} ` +
+          `does not fit inside organization hours (${ranges})`
+      );
+    }
+  }
+}
+
+/**
+ * Resolve the effective day hours for a given organization, trainer, day of week, and board.
+ */
+export async function resolveEffectiveDayHours(input: {
   organizationId: string;
   trainerId?: string;
   dayOfWeek: DayOfWeek;
   boardId: string | null;
-}): Promise<EffectiveDayHours | null> {
-  const week = await resolveEffectiveWeekHours({
-    organizationId,
-    trainerId,
-    boardId,
-  });
-  return week[dayOfWeek];
+}): Promise<BusinessHoursDay | null> {
+  const week = await resolveEffectiveWeekHours(input);
+  return week[input.dayOfWeek];
 }
 
 /**
- * Resolve the effective week hours for a given organization, trainer, and board
- * @param organizationId - The organization ID
- * @param trainerId - The trainer ID (optional -> depending on the caller)
- * @param boardId - The board ID
- * @returns The effective week hours
+ * Resolve the effective week hours for a given organization, trainer, and board.
+ *
+ * Resolution order for each day:
+ *   1. Trainer board-specific row (if trainerId + boardId)
+ *   2. Trainer general row (if trainerId, boardId null)
+ *   3. Org board-specific row (if boardId)
+ *   4. Org general row
+ *
+ * Trainer rows, when present, *replace* org hours for that day rather than
+ * intersecting — but writes are clamped so trainer slots must fit inside
+ * org slots.
  */
-export async function resolveEffectiveWeekHours({
-  organizationId,
-  trainerId,
-  boardId,
-}: {
+export async function resolveEffectiveWeekHours(input: {
   organizationId: string;
   trainerId?: string;
   boardId: string | null;
-}): Promise<Record<DayOfWeek, EffectiveDayHours | null>> {
-  const boardCondition = boardId
+}): Promise<Record<DayOfWeek, BusinessHoursDay | null>> {
+  const boardCondition = input.boardId
     ? {
-        OR: [{ boardId }, { boardId: { isNull: true as const } }],
+        OR: [
+          { boardId: input.boardId },
+          { boardId: { isNull: true as const } },
+        ],
       }
     : { boardId: { isNull: true as const } };
 
-  // One query per table — fetch both board-specific and default rows at once
+  // Fetch day-rows with their slots joined via relations
   const orgRows = await db.query.organizationAvailability.findMany({
     where: {
-      organizationId,
+      organizationId: input.organizationId,
       ...boardCondition,
     },
+    with: { slots: true },
   });
 
-  const trainerRows = trainerId
+  const trainerRows = input.trainerId
     ? await db.query.trainerAvailability.findMany({
         where: {
-          organizationId,
-          trainerId,
+          organizationId: input.organizationId,
+          trainerId: input.trainerId,
           ...boardCondition,
         },
+        with: { slots: true },
       })
     : [];
 
-  // Index rows by day for 0(1) lookup - board-specific rows win over defaults
-  const orgByDay = indexByDay(orgRows, boardId);
-  const trainerByDay = indexByDay(trainerRows, boardId);
+  const orgByDay = indexByDay(orgRows, input.boardId);
+  const trainerByDay = indexByDay(trainerRows, input.boardId);
 
   return Object.fromEntries(
     Object.values(DayOfWeek).map((day) => [
       day,
-      resolveDay(day, orgByDay, trainerByDay, trainerId),
+      resolveDay({
+        day,
+        orgByDay,
+        trainerByDay,
+        trainerId: input.trainerId,
+      }),
     ])
-  ) as Record<DayOfWeek, EffectiveDayHours | null>;
+  ) as Record<DayOfWeek, BusinessHoursDay | null>;
 }
 
-/**
- * Resolve the effective day hours for a given day, organization, trainer, and board
- * @param day - The day of week
- * @param orgByDay - The organization business hours by day
- * @param trainerByDay - The trainer business hours by day
- * @param trainerId - The trainer ID
- * @returns The effective day hours
- */
-function resolveDay(
-  day: DayOfWeek,
-  orgByDay: Map<DayOfWeek, OrganizationBusinessHours>,
-  trainerByDay: Map<DayOfWeek, TrainerBusinessHours>,
-  trainerId?: string
-): EffectiveDayHours | null {
-  const orgRow = orgByDay.get(day);
+function resolveDay(input: {
+  day: DayOfWeek;
+  orgByDay: Map<DayOfWeek, OrganizationBusinessHours>;
+  trainerByDay: Map<DayOfWeek, TrainerBusinessHours>;
+  trainerId?: string;
+}): BusinessHoursDay | null {
+  const trainerRow = input.trainerId
+    ? input.trainerByDay.get(input.day)
+    : undefined;
 
-  const effectiveOrgHours: EffectiveDayHours | null = orgRow
-    ? {
-        dayOfWeek: orgRow.dayOfWeek,
-        isOpen: orgRow.isOpen,
-        openTime: orgRow.openTime,
-        closeTime: orgRow.closeTime,
-        source: orgRow.boardId
-          ? EffectiveDayHoursSource.BOARD_OVERRIDE
-          : EffectiveDayHoursSource.ORGANIZATION_DEFAULT,
-      }
-    : null;
+  if (trainerRow) {
+    return {
+      dayOfWeek: trainerRow.dayOfWeek,
+      isOpen: trainerRow.isOpen,
+      slots: sortSlots(trainerRow.slots),
+    };
+  }
 
-  if (!trainerId) return effectiveOrgHours;
-
-  const trainerRow = trainerByDay.get(day);
-
-  if (!trainerRow || trainerRow.inheritsFromOrg) return effectiveOrgHours;
+  const orgRow = input.orgByDay.get(input.day);
+  if (!orgRow) return null;
 
   return {
-    dayOfWeek: trainerRow.dayOfWeek,
-    isOpen: trainerRow.isOpen,
-    openTime: trainerRow.openTime,
-    closeTime: trainerRow.closeTime,
-    source: trainerRow.boardId
-      ? EffectiveDayHoursSource.TRAINER_BOARD_OVERRIDE
-      : EffectiveDayHoursSource.TRAINER_DEFAULT,
+    dayOfWeek: orgRow.dayOfWeek,
+    isOpen: orgRow.isOpen,
+    slots: sortSlots(orgRow.slots),
   };
 }
 
+function sortSlots<T extends TimeSlot>(slots: T[]): T[] {
+  return [...slots].sort((a, b) =>
+    a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
+  );
+}
+
 /**
- * Index rows by day, preferring board-specific over null-boardId rows
- * @param rows - The rows to index
- * @param boardId - The board ID to index by
- * @returns A map of day of week to the row
+ * Index rows by day, preferring board-specific over null-boardId rows.
  */
 function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
   rows: T[],
@@ -165,8 +220,6 @@ function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
 
   for (const row of rows) {
     const existing = map.get(row.dayOfWeek);
-
-    // Board-specific beats general — only overwrite if incoming row is more specific
     if (
       !existing ||
       (boardId && row.boardId === boardId && existing.boardId === null)
@@ -177,38 +230,48 @@ function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
   return map;
 }
 
-export interface CalendarBusinessHours {
-  isOpen: boolean;
-  boardId: string | null;
-  startTime: string | null;
-  endTime: string | null;
-  dayOfWeek: DayOfWeek;
-}
+// ---------------------------------------------------------------------------
+// Calendar-facing projection
+// ---------------------------------------------------------------------------
 
-export type EffectiveBusinessHours = Record<DayOfWeek, CalendarBusinessHours>;
+export type EffectiveBusinessHours = Record<DayOfWeek, BusinessHoursDay>;
 export type TrainerEffectiveBusinessHours = Record<
   string,
   EffectiveBusinessHours
 >;
 
-export function resolveEffectiveBusinessHours(
-  businessHours: ListBusinessHoursResponse,
+type ListBusinessHoursBundle<TRow extends BusinessHoursDay> = {
+  defaults: TRow[];
+  boardOverrides: Record<string, Array<TRow & { boardId: string }>>;
+};
+
+/**
+ * Project a ListBusinessHoursResponse into a per-day lookup for a given board.
+ * Falls back to defaults when the board has no override.
+ */
+export function resolveEffectiveBusinessHours<TRow extends BusinessHoursDay>(
+  businessHours: ListBusinessHoursBundle<TRow>,
   boardId?: string
 ): EffectiveBusinessHours {
   const rows =
     (boardId && businessHours.boardOverrides[boardId]) ||
     businessHours.defaults;
-
+  const byDay = new Map(
+    rows.map(
+      (day) => [day.dayOfWeek, { ...day, slots: sortSlots(day.slots) }] as const
+    )
+  );
   return Object.fromEntries(
-    rows.map((day) => [
-      day.dayOfWeek,
-      {
-        isOpen: day.isOpen,
-        startTime: day.openTime?.slice(0, 5) ?? null,
-        endTime: day.closeTime?.slice(0, 5) ?? null,
-        dayOfWeek: day.dayOfWeek,
-        boardId: boardId ?? null,
-      },
-    ])
+    Object.values(DayOfWeek).map((dow) => {
+      const row = byDay.get(dow);
+      return [
+        dow,
+        {
+          dayOfWeek: dow,
+          isOpen: row?.isOpen ?? false,
+          slots: sortSlots(row?.slots ?? []),
+        } satisfies BusinessHoursDay,
+      ];
+    })
   ) as EffectiveBusinessHours;
 }

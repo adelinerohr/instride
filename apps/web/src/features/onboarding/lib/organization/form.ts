@@ -4,10 +4,6 @@ import type { AuthUser } from "@/shared/lib/auth/client";
 
 import {
   OnboardingOrganizationStep,
-  organizationDetailsSchema,
-  organizationOnboardingSchema,
-  organizationSetupSchema,
-  personalDetailsSchema,
   type OrganizationOnboardingFormValues,
 } from "./validators";
 
@@ -15,14 +11,17 @@ export const organizationOnboardingSteps = [
   {
     id: OnboardingOrganizationStep.PersonalDetails,
     label: "Personal Details",
+    description: "Tell us about yourself",
   },
   {
     id: OnboardingOrganizationStep.OrganizationSetup,
     label: "Organization Setup",
+    description: "Set up your basic information for your organization",
   },
   {
     id: OnboardingOrganizationStep.OrganizationDetails,
     label: "Organization Details",
+    description: "Add your organization's details",
   },
 ];
 
@@ -31,6 +30,7 @@ const defaultValues: OrganizationOnboardingFormValues = {
   personalDetails: {
     name: "",
     email: "",
+    dateOfBirth: "",
     phone: null,
     image: null,
     imageFile: null,
@@ -62,6 +62,7 @@ export function buildOrganizationOnboardingDefaultValues(
     personalDetails: {
       name: user.name,
       email: user.email,
+      dateOfBirth: "",
       phone: null,
       image: user.image ?? null,
       imageFile: null,
@@ -88,23 +89,4 @@ export function buildOrganizationOnboardingDefaultValues(
 
 export const organizationOnboardingFormOpts = formOptions({
   defaultValues,
-  validators: {
-    onSubmit: ({ value, formApi }) => {
-      if (value.section === OnboardingOrganizationStep.PersonalDetails) {
-        return formApi.parseValuesWithSchema(
-          personalDetailsSchema as typeof organizationOnboardingSchema
-        );
-      }
-      if (value.section === OnboardingOrganizationStep.OrganizationSetup) {
-        return formApi.parseValuesWithSchema(
-          organizationSetupSchema as typeof organizationOnboardingSchema
-        );
-      }
-      if (value.section === OnboardingOrganizationStep.OrganizationDetails) {
-        return formApi.parseValuesWithSchema(
-          organizationDetailsSchema as typeof organizationOnboardingSchema
-        );
-      }
-    },
-  },
 });

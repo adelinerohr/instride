@@ -11,7 +11,7 @@ function OrganizationLogo({
 }: React.ComponentProps<typeof Avatar> & { organization: types.Organization }) {
   return (
     <Avatar
-      className={cn("size-8 rounded-md group-focus:ring-2", className)}
+      className={cn("rounded-md group-focus:ring-2", className)}
       {...props}
     >
       <AvatarImage

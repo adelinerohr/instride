@@ -13,6 +13,7 @@ import { Checkbox } from "../ui/checkbox";
 type CheckboxFieldProps = React.ComponentProps<typeof Checkbox> & {
   label: string;
   description?: string;
+  fieldClassName?: string;
   labelClassName?: string;
 };
 
@@ -20,6 +21,7 @@ export function CheckboxField({
   label,
   description,
   labelClassName,
+  fieldClassName,
   ...props
 }: CheckboxFieldProps) {
   const field = useFieldContext<boolean>();
@@ -27,7 +29,11 @@ export function CheckboxField({
   const errors = field.state.meta.errors;
 
   return (
-    <Field orientation="horizontal" data-invalid={isInvalid}>
+    <Field
+      orientation="horizontal"
+      data-invalid={isInvalid}
+      className={fieldClassName}
+    >
       <Checkbox
         id={field.name}
         name={field.name}

@@ -8,94 +8,41 @@ import { boards } from "~encore/clients";
 
 import { db } from "@/database";
 
-import { Member } from "../organizations/types/models";
 import {
   Questionnaire,
   QuestionnaireQuestion,
   QuestionnaireQuestionResponse,
 } from "./types/models";
 
-export async function resolveSubjectMember({
-  organizationId,
-  authUserId,
-  optionalSubjectUserId,
-  callerMemberId,
-}: {
-  organizationId: string;
-  authUserId: string;
-  optionalSubjectUserId: string | undefined;
-  callerMemberId: string;
-}): Promise<Member> {
-  if (!optionalSubjectUserId || optionalSubjectUserId === authUserId) {
-    const self = await db.query.members.findFirst({
-      where: { id: callerMemberId, organizationId },
-    });
-    if (!self) {
-      throw APIError.notFound("Membership not found");
-    }
-    return self;
-  }
-
-  const target = await db.query.members.findFirst({
-    where: { userId: optionalSubjectUserId, organizationId },
-    with: {
-      rider: true,
-      trainer: true,
-    },
-  });
-  if (!target) {
-    throw APIError.notFound("Target user not found");
-  }
-
-  await assertMaySubmitForMember({
-    organizationId,
-    callerMemberId,
-    targetMember: target,
-  });
-
-  return target;
-}
-
-function memberIsPlaceholder(target: { isPlaceholder?: boolean }): boolean {
-  return Boolean(target.isPlaceholder);
-}
-
-async function assertMaySubmitForMember({
-  organizationId,
-  callerMemberId,
-  targetMember,
-}: {
+export async function assertMaySubmitForMember(input: {
   organizationId: string;
   callerMemberId: string;
-  targetMember: Member;
+  targetMemberId: string;
 }) {
-  if (targetMember.id === callerMemberId) {
+  if (input.targetMemberId === input.callerMemberId) {
     return;
   }
 
-  if (memberIsPlaceholder(targetMember)) {
-    const caller = await db.query.members.findFirst({
-      where: { id: callerMemberId, organizationId },
-    });
-    if (!caller) {
-      throw APIError.permissionDenied(
-        "Not authorized to submit questionnaire for this user"
-      );
-    }
-    const isGuardian = caller.roles.includes(MembershipRole.GUARDIAN);
-    if (!isGuardian) {
-      throw APIError.permissionDenied(
-        "Not authorized to submit questionnaire for this user"
-      );
-    }
-    return;
+  const caller = await db.query.members.findFirst({
+    where: { id: input.callerMemberId, organizationId: input.organizationId },
+  });
+  if (!caller) {
+    throw APIError.notFound("Caller not found");
+  }
+
+  const isGuardian = caller.roles.includes(MembershipRole.GUARDIAN);
+
+  if (!isGuardian) {
+    throw APIError.permissionDenied(
+      "Not authorized to submit questionnaire for this user"
+    );
   }
 
   const relationship = await db.query.guardianRelationships.findFirst({
     where: {
-      guardianMemberId: callerMemberId,
-      dependentMemberId: targetMember.id,
-      organizationId,
+      guardianMemberId: caller.id,
+      dependentMemberId: input.targetMemberId,
+      organizationId: input.organizationId,
       status: GuardianRelationshipStatus.ACTIVE,
     },
   });

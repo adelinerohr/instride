@@ -1,10 +1,17 @@
 import { MembershipRole } from "@instride/shared";
-import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  Link,
+  useNavigate,
+  useRouteContext,
+  useRouter,
+} from "@tanstack/react-router";
 import {
   LaptopIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   SettingsIcon,
+  ShieldCheckIcon,
   UserCog2Icon,
   UserIcon,
 } from "lucide-react";
@@ -17,6 +24,8 @@ import { DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
 
 export function UserDropdown() {
   const navigate = useNavigate();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, organization, member, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
@@ -27,8 +36,12 @@ export function UserDropdown() {
   ]);
   const isRider = hasRole(member, MembershipRole.RIDER);
 
+  const isSuperAdmin = user.role?.includes("admin") || false;
+
   const handleSignOut = async () => {
     await authClient.signOut();
+    queryClient.clear();
+    await router.invalidate();
     navigate({
       to: "/org/$slug/auth/login",
       params: { slug: organization.slug },
@@ -107,6 +120,13 @@ export function UserDropdown() {
         >
           <LayoutDashboardIcon />
           Admin Dashboard
+        </DropdownMenuItem>
+      )}
+
+      {isSuperAdmin && (
+        <DropdownMenuItem render={<Link to="/admin" />}>
+          <ShieldCheckIcon />
+          Super Admin Dashboard
         </DropdownMenuItem>
       )}
 

@@ -6,8 +6,10 @@ import {
   redirect,
 } from "@tanstack/react-router";
 
+import { OrganizationLogo } from "@/shared/components/fragments/org-logo";
+
 export const Route = createFileRoute("/org/$slug/auth")({
-  component: Outlet,
+  component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     if (context.isAuthenticated) {
       throw redirect({
@@ -31,3 +33,19 @@ export const Route = createFileRoute("/org/$slug/auth")({
     }
   },
 });
+
+function RouteComponent() {
+  const { organization } = Route.useRouteContext();
+
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <div className="flex items-center gap-2 self-center font-medium">
+          <OrganizationLogo organization={organization} />
+          {organization.name}
+        </div>
+        <Outlet />
+      </div>
+    </div>
+  );
+}

@@ -27,6 +27,7 @@ type SelectFieldProps<T extends object> = Omit<
   fieldClassName?: string;
   className?: string;
   items: T[];
+  defaultHeight?: boolean;
   onChange?: (value: string) => void;
   renderValue: (item: T) => React.ReactNode;
   itemToValue: (item: T) => string;
@@ -48,6 +49,7 @@ export function SelectField<T extends object>({
   itemToValue,
   matchValue,
   alignItemWithTrigger = false,
+  defaultHeight = false,
 }: SelectFieldProps<T>) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -82,7 +84,7 @@ export function SelectField<T extends object>({
           }
         }}
       >
-        <SelectTrigger className={cn(className, "h-auto!")}>
+        <SelectTrigger className={cn(className, !defaultHeight && "h-auto!")}>
           <SelectValue
             placeholder={emptyItems ? emptyPlaceholder : placeholder}
           >

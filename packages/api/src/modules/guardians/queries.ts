@@ -20,30 +20,14 @@ export const guardianOptions = {
   byId: (relationshipId: string) =>
     queryOptions({
       queryKey: guardianKeys.relationship(relationshipId),
-      queryFn: async () => {
-        const { relationship } =
-          await apiClient.guardians.getRelationshipById(relationshipId);
-        return relationship;
-      },
+      queryFn: async () =>
+        await apiClient.guardians.getRelationshipById(relationshipId),
     }),
 
-  byGuardian: (guardianMemberId: string) =>
+  myGuardian: () =>
     queryOptions({
-      queryKey: guardianKeys.byGuardian(guardianMemberId),
-      queryFn: async () => {
-        const { relationships } =
-          await apiClient.guardians.getGuardianRelationships(guardianMemberId);
-        return relationships;
-      },
-    }),
-
-  myGuardians: () =>
-    queryOptions({
-      queryKey: guardianKeys.myGuardians(),
-      queryFn: async () => {
-        const { relationships } = await apiClient.guardians.getMyGuardians();
-        return relationships;
-      },
+      queryKey: guardianKeys.myGuardian(),
+      queryFn: async () => await apiClient.guardians.getMyGuardians(),
     }),
 
   myDependents: () =>
@@ -76,12 +60,8 @@ export const useGuardianById = (relationshipId: string) => {
   return useQuery(guardianOptions.byId(relationshipId));
 };
 
-export const useGuardianByGuardian = (guardianMemberId: string) => {
-  return useQuery(guardianOptions.byGuardian(guardianMemberId));
-};
-
-export const useMyGuardians = () => {
-  return useQuery(guardianOptions.myGuardians());
+export const useMyGuardian = () => {
+  return useQuery(guardianOptions.myGuardian());
 };
 
 export const useMyDependents = () => {

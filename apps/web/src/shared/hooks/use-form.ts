@@ -12,9 +12,11 @@ import { SwitchField } from "@/shared/components/form/switch-field";
 import { TextField } from "@/shared/components/form/text-field";
 import { TextareaField } from "@/shared/components/form/textarea-field";
 
+import { ChoiceCardField } from "../components/form/choice-card-field";
 import { DateField } from "../components/form/date-field";
 import { BooleanRadioField } from "../components/form/radio-field";
 import { PasswordField } from "../components/form/variants/password-field";
+import { RiderSelectField } from "../components/form/variants/rider-select-field";
 import { ServiceSelectField } from "../components/form/variants/service-select-field";
 import { TrainerSelectField } from "../components/form/variants/trainer-select-field";
 
@@ -35,9 +37,11 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     PasswordField,
     ColorPickerField,
     TrainerSelectField,
+    RiderSelectField,
     CheckboxField,
     BooleanRadioField,
     ServiceSelectField,
+    ChoiceCardField,
   },
   formComponents: {
     SubmitButton,

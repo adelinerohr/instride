@@ -14,12 +14,21 @@ import {
 
 function UserAvatar({
   user,
+  name,
+  image,
   ...props
-}: React.ComponentProps<typeof Avatar> & { user: types.AuthUser }) {
+}: React.ComponentProps<typeof Avatar> & {
+  user?: types.AuthUser;
+  name?: string;
+  image?: string | null;
+}) {
   return (
     <Avatar {...props}>
-      <AvatarImage src={user.image ?? undefined} alt={user.name} />
-      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+      <AvatarImage
+        src={image ?? user?.image ?? undefined}
+        alt={name ?? user?.name ?? ""}
+      />
+      <AvatarFallback>{getInitials(name ?? user?.name ?? "")}</AvatarFallback>
     </Avatar>
   );
 }

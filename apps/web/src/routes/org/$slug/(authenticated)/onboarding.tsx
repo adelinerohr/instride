@@ -1,17 +1,16 @@
 import {
-  useCompleteOnboarding,
-  useJoinOrganization,
-  useSignWaiver,
-  useSubmitQuestionnaireResponse,
-  useUpdateCurrentUser,
+  authClient,
+  questionnaireOptions,
+  useOnboardMember,
   waiverOptions,
 } from "@instride/api";
 import { MembershipRole, WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import * as React from "react";
 
+import { AccountTypeStep } from "@/features/onboarding/components/steps/account-type";
 import { PersonalDetailsStep } from "@/features/onboarding/components/steps/personal-details";
 import { QuestionnaireStep } from "@/features/onboarding/components/steps/questionnaire";
 import { WaiverStep } from "@/features/onboarding/components/steps/waiver";
@@ -23,6 +22,7 @@ import {
   memberOnboardingSteps,
   type MemberOnboardingFormValues,
 } from "@/features/onboarding/lib/member/form";
+import type { WizardStep } from "@/features/onboarding/lib/types";
 import {
   Alert,
   AlertDescription,
@@ -45,17 +45,21 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/onboarding")({
 
 function RouteComponent() {
   const { user, organization } = Route.useRouteContext();
+  const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
+  const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
 
   const { data: waivers } = useSuspenseQuery(waiverOptions.list());
-  const updateCurrentUser = useUpdateCurrentUser();
-  const signWaiver = useSignWaiver();
-  const submitQuestionnaireResponse = useSubmitQuestionnaireResponse();
-  const joinOrganization = useJoinOrganization();
-  const updateMember = useCompleteOnboarding();
+  const { data: questionnaires } = useSuspenseQuery(
+    questionnaireOptions.list()
+  );
+
+  const onboardMember = useOnboardMember();
 
   const activeWaiver = waivers.find((w) => w.status === WaiverStatus.ACTIVE);
+  const activeQuestionnaire =
+    questionnaires.find((q) => q.isActive) ?? questionnaires[0];
 
   const completeOnboarding = async (value: MemberOnboardingFormValues) => {
     setError(null);
@@ -84,42 +88,45 @@ function RouteComponent() {
       imageUrl = url;
     }
 
-    await updateCurrentUser.mutateAsync({
-      name: value.personalDetails.name,
-      phone: value.personalDetails.phone,
-      image: value.personalDetails.removeImage ? null : imageUrl,
-      dateOfBirth: value.personalDetails.dateOfBirth,
-    });
-
-    const member = await joinOrganization.mutateAsync({
-      organizationId: organization.id,
-      request: {
-        roles,
+    await onboardMember.mutateAsync(
+      {
+        organizationId: organization.id,
+        user: {
+          name: value.personalDetails.name,
+          phone: value.personalDetails.phone,
+          image: value.personalDetails.removeImage ? null : imageUrl,
+          dateOfBirth: value.personalDetails.dateOfBirth,
+          roles,
+        },
+        ...(activeQuestionnaire
+          ? {
+              questionnaire: {
+                questionnaireId: activeQuestionnaire.id,
+                responses: value.questionnaire.responses,
+              },
+            }
+          : {}),
+        ...(activeWaiver
+          ? {
+              waiver: {
+                waiverId: activeWaiver.id,
+              },
+            }
+          : {}),
       },
-    });
-
-    if (activeWaiver) {
-      await signWaiver.mutateAsync({
-        waiverId: activeWaiver.id,
-        request: {},
-      });
-    }
-
-    await submitQuestionnaireResponse.mutateAsync({
-      questionnaireId: value.questionnaire.questionnaireId,
-      request: {
-        responses: value.questionnaire.responses,
-      },
-    });
-
-    await updateMember.mutateAsync({
-      memberId: member.id,
-    });
-
-    navigate({
-      to: "/org/$slug/portal",
-      params: { slug: organization.slug },
-    });
+      {
+        onSuccess: async () => {
+          await router.invalidate();
+          navigate({
+            to: "/org/$slug/portal",
+            params: { slug: organization.slug },
+          });
+        },
+        onError: (error) => {
+          setError(error.message);
+        },
+      }
+    );
   };
 
   const form = useAppForm({
@@ -146,10 +153,7 @@ function RouteComponent() {
           }
 
           await formApi.validateField("accountType", "submit");
-          formApi.setFieldValue(
-            "section",
-            MemberOnboardingStep.PersonalDetails
-          );
+          formApi.setFieldValue("section", MemberOnboardingStep.Questionnaire);
           return;
         }
 
@@ -190,23 +194,30 @@ function RouteComponent() {
 
   // Filter steps based on account type
   const visibleSteps = React.useMemo(() => {
-    if (isGuardianOnly) {
-      return memberOnboardingSteps.filter(
-        (step) =>
-          step.id === MemberOnboardingStep.AccountType ||
-          step.id === MemberOnboardingStep.PersonalDetails
-      );
+    const steps: MemberOnboardingStep[] = [
+      MemberOnboardingStep.PersonalDetails,
+      MemberOnboardingStep.AccountType,
+      MemberOnboardingStep.Questionnaire,
+    ];
+
+    if (activeWaiver) {
+      steps.push(MemberOnboardingStep.Waiver);
     }
-    return memberOnboardingSteps;
-  }, [isGuardianOnly]);
+    if (activeQuestionnaire) {
+      steps.push(MemberOnboardingStep.Questionnaire);
+    }
+
+    return memberOnboardingSteps.filter((step) => steps.includes(step.id));
+  }, [isGuardianOnly, activeWaiver, activeQuestionnaire]);
 
   const currentStepIndex = visibleSteps.findIndex((s) => s.id === section);
 
-  const goToStep = (stepId: MemberOnboardingStep) => {
+  const goToStep = (stepId: WizardStep["id"]) => {
     const targetIndex = visibleSteps.findIndex((s) => s.id === stepId);
-    if (targetIndex < currentStepIndex) {
-      form.setFieldValue("section", stepId);
+    if (targetIndex === -1 || targetIndex >= currentStepIndex) {
+      return;
     }
+    form.setFieldValue("section", stepId as MemberOnboardingStep);
   };
 
   const canGoBack = currentStepIndex > 0;
@@ -219,73 +230,98 @@ function RouteComponent() {
     (state) => state.values.personalDetails.name
   );
 
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+    await router.invalidate();
+    navigate({
+      to: "/auth/login",
+    });
+  };
+
   return (
-    <OnboardingWizard
-      steps={memberOnboardingSteps}
-      currentStepIndex={currentStepIndex}
-      onGoToStep={goToStep}
-      title="Set up your membership"
-      description="Complete the following steps to get started"
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="space-y-5"
+    <div className="min-h-svh overflow-y-auto bg-muted/40 relative">
+      <Button
+        variant="ghost"
+        className="absolute top-4 left-4"
+        onClick={handleSignOut}
       >
-        {section === MemberOnboardingStep.PersonalDetails && (
-          <PersonalDetailsStep form={form} fields="personalDetails" />
-        )}
-
-        {section === MemberOnboardingStep.Questionnaire && (
-          <QuestionnaireStep
-            form={form}
-            fields="questionnaire"
-            isDependent={false}
-          />
-        )}
-
-        {section === MemberOnboardingStep.Waiver && (
-          <WaiverStep
-            form={form}
-            fields="waiver"
-            waiverContent={activeWaiver?.content ?? ""}
-            name={name}
-          />
-        )}
-
-        {error && (
-          <Alert
-            variant="destructive"
-            className="bg-destructive/10 border-destructive"
-          >
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex justify-end gap-2">
-          {canGoBack && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                goToStep(memberOnboardingSteps[currentStepIndex - 1].id)
-              }
-            >
-              Back
-            </Button>
+        Sign out
+      </Button>
+      <OnboardingWizard
+        steps={visibleSteps}
+        currentStepIndex={currentStepIndex}
+        onGoToStep={goToStep}
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="space-y-5"
+        >
+          {section === MemberOnboardingStep.PersonalDetails && (
+            <PersonalDetailsStep
+              form={form}
+              fields="personalDetails"
+              isDependent={false}
+            />
           )}
 
-          <form.AppForm>
-            <form.SubmitButton
-              label={isLastStep ? "Complete Onboarding" : "Next"}
-              loadingLabel={isLastStep ? "Submitting..." : "Validating..."}
+          {section === MemberOnboardingStep.AccountType && (
+            <AccountTypeStep form={form} fields="accountType" />
+          )}
+
+          {section === MemberOnboardingStep.Questionnaire && (
+            <QuestionnaireStep
+              form={form}
+              fields="questionnaire"
+              isDependent={false}
+              questionnaire={activeQuestionnaire}
             />
-          </form.AppForm>
-        </div>
-      </form>
-    </OnboardingWizard>
+          )}
+
+          {section === MemberOnboardingStep.Waiver && (
+            <WaiverStep
+              form={form}
+              fields="waiver"
+              waiverContent={activeWaiver?.content ?? ""}
+              name={name}
+            />
+          )}
+
+          {error && (
+            <Alert
+              variant="destructive"
+              className="bg-destructive/10 border-destructive"
+            >
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="flex justify-end gap-2">
+            {canGoBack && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  goToStep(memberOnboardingSteps[currentStepIndex - 1].id)
+                }
+              >
+                Back
+              </Button>
+            )}
+
+            <form.AppForm>
+              <form.SubmitButton
+                label={isLastStep ? "Complete Onboarding" : "Next"}
+                loadingLabel={isLastStep ? "Submitting..." : "Validating..."}
+              />
+            </form.AppForm>
+          </div>
+        </form>
+      </OnboardingWizard>
+    </div>
   );
 }

@@ -6,7 +6,8 @@
   "license": "MPL-2.0",
   "type": "module",
   "scripts": {
-    "test": "vitest --run --passWithNoTests",
+    "test": "vitest --run",
+    "dev:test": "encore test",
     "dev": "encore run",
     "check-types": "tsc --noEmit",
     "auth:generate": "encore exec -- pnpm dlx auth@latest generate --config=./src/services/auth/auth.ts",
@@ -16,7 +17,7 @@
   "dependencies": {
     "@better-auth/expo": "^1.6.2",
     "@instride/shared": "workspace:*",
-    "better-auth": "^1.6.2",
+    "better-auth": "catalog:",
     "busboy": "^1.6.0",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",

@@ -27,7 +27,7 @@ const isProd = appMeta().environment.type === "production";
 export const auth = betterAuth({
   /** Configuration */
   basePath: "/auth",
-  baseURL,
+  baseURL: isProd ? baseURL : "http://localhost:4000",
   secret: authSecret(),
 
   trustedOrigins: isProd
@@ -212,6 +212,10 @@ export const auth = betterAuth({
       phone: { type: "string", required: false },
       profilePictureUrl: { type: "string", required: false },
       dateOfBirth: { type: "string", required: false },
+    },
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true,
     },
   },
   account: {

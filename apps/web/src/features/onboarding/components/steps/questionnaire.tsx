@@ -1,9 +1,7 @@
-import { questionnaireOptions } from "@instride/api";
 import type { types } from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { replaceYouWithThey } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
 
 import {
@@ -25,24 +23,19 @@ export const QuestionnaireStep = withFieldGroup({
   },
   props: {
     isDependent: false,
+    questionnaire: {} as types.Questionnaire,
   },
-  render: function Render({ group, isDependent }) {
-    const { data: questionnaires } = useSuspenseQuery(
-      questionnaireOptions.list()
-    );
-    const activeQuestionnaire =
-      questionnaires.find((q) => q.isActive) ?? questionnaires[0];
-
+  render: function Render({ group, isDependent, questionnaire }) {
     const responses = useStore(group.store, (state) => state.values.responses);
-    const questions = activeQuestionnaire?.questions ?? [];
+    const questions = questionnaire?.questions ?? [];
 
     React.useEffect(() => {
-      if (!activeQuestionnaire?.id) return;
+      if (!questionnaire?.id) return;
 
-      if (group.getFieldValue("questionnaireId") !== activeQuestionnaire.id) {
-        group.setFieldValue("questionnaireId", activeQuestionnaire.id);
+      if (group.getFieldValue("questionnaireId") !== questionnaire.id) {
+        group.setFieldValue("questionnaireId", questionnaire.id);
       }
-    }, [activeQuestionnaire?.id, group]);
+    }, [questionnaire?.id, group]);
 
     React.useEffect(() => {
       const currentResponses = group.getFieldValue("responses");
@@ -106,7 +99,7 @@ export const QuestionnaireStep = withFieldGroup({
 
     const orderedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
-    if (!activeQuestionnaire) {
+    if (!questionnaire) {
       return (
         <div className="space-y-6">
           <div>
@@ -153,17 +146,21 @@ export const QuestionnaireStep = withFieldGroup({
                   <group.AppField
                     key={question.id}
                     name={responseValuePath}
-                    validators={{
-                      onSubmit: ({ value }) => {
-                        if (question.required && !value) {
-                          return formatError("This field is required");
-                        }
-                      },
-                    }}
                     children={(field) => (
-                      <field.BooleanRadioField
+                      <field.ChoiceCardField
                         label={renderedQuestion(question.text)}
-                        required={question.required}
+                        isBoolean
+                        showRadio
+                        options={[
+                          {
+                            label: "Yes",
+                            value: true,
+                          },
+                          {
+                            label: "No",
+                            value: false,
+                          },
+                        ]}
                       />
                     )}
                   />

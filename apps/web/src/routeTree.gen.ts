@@ -20,6 +20,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as authenticatedJoinOrganizationRouteImport } from './routes/(authenticated)/join-organization'
 import { Route as authenticatedCreateOrganizationRouteImport } from './routes/(authenticated)/create-organization'
+import { Route as authenticatedAdminRouteRouteImport } from './routes/(authenticated)/admin/route'
 import { Route as OrgSlugAuthRouteRouteImport } from './routes/org/$slug/auth/route'
 import { Route as OrgSlugauthenticatedRouteRouteImport } from './routes/org/$slug/(authenticated)/route'
 import { Route as OrgSlugauthenticatedIndexRouteImport } from './routes/org/$slug/(authenticated)/index'
@@ -131,6 +132,11 @@ const authenticatedCreateOrganizationRoute =
     path: '/create-organization',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
+const authenticatedAdminRouteRoute = authenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
 const OrgSlugAuthRouteRoute = OrgSlugAuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -458,6 +464,7 @@ const OrgSlugauthenticatedAdminMembersRidersRiderIdActivityRoute =
 
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/admin': typeof authenticatedAdminRouteRoute
   '/create-organization': typeof authenticatedCreateOrganizationRoute
   '/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -523,6 +530,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/admin': typeof authenticatedAdminRouteRoute
   '/create-organization': typeof authenticatedCreateOrganizationRoute
   '/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -585,6 +593,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
+  '/(authenticated)/admin': typeof authenticatedAdminRouteRoute
   '/(authenticated)/create-organization': typeof authenticatedCreateOrganizationRoute
   '/(authenticated)/join-organization': typeof authenticatedJoinOrganizationRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -653,6 +662,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/auth'
+    | '/admin'
     | '/create-organization'
     | '/join-organization'
     | '/auth/callback'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/admin'
     | '/create-organization'
     | '/join-organization'
     | '/auth/callback'
@@ -779,6 +790,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(authenticated)'
     | '/auth'
+    | '/(authenticated)/admin'
     | '/(authenticated)/create-organization'
     | '/(authenticated)/join-organization'
     | '/auth/callback'
@@ -927,6 +939,13 @@ declare module '@tanstack/react-router' {
       path: '/create-organization'
       fullPath: '/create-organization'
       preLoaderRoute: typeof authenticatedCreateOrganizationRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/admin': {
+      id: '/(authenticated)/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof authenticatedAdminRouteRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/org/$slug/auth': {
@@ -1311,12 +1330,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface authenticatedRouteRouteChildren {
+  authenticatedAdminRouteRoute: typeof authenticatedAdminRouteRoute
   authenticatedCreateOrganizationRoute: typeof authenticatedCreateOrganizationRoute
   authenticatedJoinOrganizationRoute: typeof authenticatedJoinOrganizationRoute
   authenticatedIndexRoute: typeof authenticatedIndexRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedAdminRouteRoute: authenticatedAdminRouteRoute,
   authenticatedCreateOrganizationRoute: authenticatedCreateOrganizationRoute,
   authenticatedJoinOrganizationRoute: authenticatedJoinOrganizationRoute,
   authenticatedIndexRoute: authenticatedIndexRoute,

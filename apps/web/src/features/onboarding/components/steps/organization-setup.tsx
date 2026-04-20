@@ -92,6 +92,8 @@ export const OrganizationSetupStep = withForm({
                 { label: "America/Anchorage", value: "America/Anchorage" },
                 { label: "Pacific/Honolulu", value: "Pacific/Honolulu" },
               ]}
+              itemToValue={(item) => item.value}
+              renderValue={(value) => value.label}
               description="The timezone for your facility"
             />
           )}

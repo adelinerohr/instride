@@ -1,0 +1,3 @@
+ALTER TABLE "trainer_availability" ADD CONSTRAINT "trainer_avail_trainer_board_day_unique" UNIQUE NULLS NOT DISTINCT("trainer_id","board_id","day_of_week");--> statement-breakpoint
+ALTER TABLE "organization_availability" DROP CONSTRAINT "org_avail_organization_board_day_unique";--> statement-breakpoint
+ALTER TABLE "organization_availability" ADD CONSTRAINT "org_avail_organization_board_day_unique" UNIQUE NULLS NOT DISTINCT("organization_id","board_id","day_of_week");

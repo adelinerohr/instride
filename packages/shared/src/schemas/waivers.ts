@@ -37,6 +37,16 @@ export const signWaiverInputSchema = waiverSignatureSchema.pick({
   waiverId: true,
 });
 
+export const signWaiverSchema = z.object({
+  signedBy: z.string().min(1, "Signature is required"),
+  termsAgreed: z.boolean().refine((value) => value, {
+    message: "You must agree to the terms",
+  }),
+  signatureAcknowledgement: z.boolean().refine((value) => value, {
+    message: "You must acknowledge your signature",
+  }),
+});
+
 export const waiverInputSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),

@@ -8,58 +8,33 @@ import { guardianKeys } from "./keys";
 // ---- Standalone functions ----------------------------------------------
 
 export const guardianMutations = {
-  createRelationship: async ({
-    organizationId,
-    request,
-  }: {
-    organizationId: string;
-    request: guardians.CreateGuardianRelationshipRequest;
-  }) => {
-    return await apiClient.guardians.createGuardianRelationship(
-      organizationId,
-      request
-    );
+  createRelationship: async (
+    params: guardians.CreateGuardianRelationshipParams
+  ) => {
+    return await apiClient.guardians.createGuardianRelationship(params);
   },
 
-  createPlaceholderRelationship: async ({
-    organizationId,
-    request,
-  }: {
-    organizationId: string;
-    request: guardians.CreatePlaceholderRelationshipRequest;
-  }) => {
-    return await apiClient.guardians.createPlaceholderRelationship(
-      organizationId,
-      request
-    );
+  createPlaceholderRelationship: async (
+    params: guardians.CreatePlaceholderRelationshipParams
+  ) => {
+    return await apiClient.guardians.createPlaceholderRelationship(params);
   },
 
-  updateRelationship: async ({
-    relationshipId,
-    request,
-  }: {
+  updateRelationship: async (input: {
     relationshipId: string;
-    request: guardians.UpdateGuardianRelationshipRequest;
+    params: guardians.UpdateGuardianRelationshipRequest;
   }) => {
     return await apiClient.guardians.updateGuardianRelationship(
-      relationshipId,
-      request
+      input.relationshipId,
+      input.params
     );
   },
 
-  confirmRelationship: async ({
-    relationshipId,
-  }: {
-    relationshipId: string;
-  }) => {
-    return await apiClient.guardians.confirmRelationship(relationshipId);
+  acceptRelationship: async (relationshipId: string) => {
+    return await apiClient.guardians.acceptRelationship(relationshipId);
   },
 
-  revokeRelationship: async ({
-    relationshipId,
-  }: {
-    relationshipId: string;
-  }) => {
+  revokeRelationship: async (relationshipId: string) => {
     return await apiClient.guardians.revokeRelationship(relationshipId);
   },
 };
@@ -79,12 +54,10 @@ export function useCreateRelationship({
         queryKey: guardianKeys.all(),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.byGuardian(result.relationship.guardianMemberId),
+        queryKey: guardianKeys.byGuardian(result.guardianMemberId),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.byDependent(
-          result.relationship.dependentMemberId
-        ),
+        queryKey: guardianKeys.byDependent(result.dependentMemberId),
       });
       onSuccess?.(result, ...args);
     },
@@ -115,18 +88,18 @@ export function useCreatePlaceholderRelationship({
 
 export function useConfirmRelationship({
   mutationConfig,
-}: MutationHookOptions<typeof guardianMutations.confirmRelationship> = {}) {
+}: MutationHookOptions<typeof guardianMutations.acceptRelationship> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(guardianMutations.confirmRelationship, {
+  return useWrappedMutation(guardianMutations.acceptRelationship, {
     ...config,
     onSuccess: (result, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.relationship(result.relationship.id),
+        queryKey: guardianKeys.relationship(result.id),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.myGuardians(),
+        queryKey: guardianKeys.myGuardian(),
       });
       queryClient.invalidateQueries({
         queryKey: guardianKeys.pending(),
@@ -146,15 +119,13 @@ export function useUpdateGuardianRelationship({
     ...config,
     onSuccess: (result, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.relationship(result.relationship.id),
+        queryKey: guardianKeys.relationship(result.id),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.myGuardians(),
+        queryKey: guardianKeys.myGuardian(),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.byDependent(
-          result.relationship.dependentMemberId
-        ),
+        queryKey: guardianKeys.byDependent(result.dependentMemberId),
       });
       onSuccess?.(result, ...args);
     },
@@ -177,7 +148,7 @@ export function useRevokeRelationship({
         queryKey: guardianKeys.myDependents(),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.myGuardians(),
+        queryKey: guardianKeys.myGuardian(),
       });
       onSuccess?.(result, ...args);
     },

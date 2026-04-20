@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import {
   GetMemberResponse,
@@ -64,9 +65,9 @@ export const getMember = api(
         rider: true,
       },
     });
-    if (!member) {
-      throw APIError.notFound("Membership not found");
-    }
+
+    assertExists(member, "Member not found");
+
     return { member };
   }
 );
@@ -79,8 +80,10 @@ export const getMemberById = api(
     auth: true,
   },
   async ({ memberId }: { memberId: string }): Promise<GetMemberResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
     const member = await db.query.members.findFirst({
-      where: { id: memberId },
+      where: { id: memberId, organizationId },
       with: {
         authUser: true,
         trainer: true,
@@ -88,9 +91,7 @@ export const getMemberById = api(
       },
     });
 
-    if (!member) {
-      throw APIError.notFound("Membership not found");
-    }
+    assertExists(member, "Member not found");
 
     return { member };
   }

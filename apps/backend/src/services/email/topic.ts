@@ -1,9 +1,12 @@
+import { appMeta } from "encore.dev";
+import log from "encore.dev/log";
 import { Subscription, Topic } from "encore.dev/pubsub";
 
 import { resend } from "./encore.service";
 
 interface EmailEvent {
-  to: string;
+  from?: string;
+  to: string | string[];
   subject: string;
   html: string;
 }
@@ -24,15 +27,25 @@ export const sendEmailTopic = new Topic<EmailEvent>("send-email", {
  */
 const _ = new Subscription(sendEmailTopic, "send-email-via-resend", {
   handler: async (event) => {
-    const { error } = await resend.emails.send({
-      from: "Instride <info@notifications.instrideapp.com>",
-      to: event.to,
-      subject: event.subject,
-      html: event.html,
-    });
+    const environment = appMeta().environment;
 
-    if (error) {
-      throw new Error(`Failed to send email: ${error.message}`);
+    if (environment.type === "development") {
+      log.info("Sent email to development environment", {
+        to: event.to,
+        subject: event.subject,
+        html: event.html,
+      });
+    } else {
+      const { error } = await resend.emails.send({
+        from: event.from ?? "Instride <info@notifications.instrideapp.com>",
+        to: event.to,
+        subject: event.subject,
+        html: event.html,
+      });
+
+      if (error) {
+        throw new Error(`Failed to send email: ${error.message}`);
+      }
     }
   },
 });

@@ -139,18 +139,7 @@ export const updateOrganization = api(
 
     const [updated] = await db
       .update(organizations)
-      .set({
-        name: data.name,
-        timezone: data.timezone,
-        logoUrl: data.logoUrl,
-        phone: data.phone,
-        website: data.website,
-        addressLine1: data.addressLine1,
-        addressLine2: data.addressLine2,
-        city: data.city,
-        state: data.state,
-        postalCode: data.postalCode,
-      })
+      .set(data)
       .where(eq(organizations.id, organizationId))
       .returning();
 

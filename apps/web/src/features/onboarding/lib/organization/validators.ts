@@ -11,35 +11,42 @@ export enum OnboardingOrganizationStep {
   OrganizationDetails = "organization-details",
 }
 
-export const organizationSetupSchema = z.object({
-  organizationSetup: createOrganizationInputSchema,
-});
-
-export const personalDetailsSchema = z.object({
-  personalDetails: updateUserSchema.shape,
-});
+const personalDetailsSchema = updateUserSchema
+  .omit({
+    email: true,
+  })
+  .extend({
+    imageFile: z.file().nullable(),
+    removeImage: z.boolean(),
+    email: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+        "Enter a valid email address"
+      ),
+  });
 
 export const organizationDetailsSchema = z.object({
-  organizationDetails: z.object({
-    ...updateOrganizationInputSchema.omit({
-      name: true,
-      timezone: true,
-      allowPublicJoin: true,
-      primaryColor: true,
-      logoUrl: true,
-      allowSameDayBookings: true,
-      authOrganizationId: true,
-      slug: true,
-    }).shape,
-    logoFile: z.file().nullable(),
-  }),
+  ...updateOrganizationInputSchema.omit({
+    name: true,
+    timezone: true,
+    allowPublicJoin: true,
+    primaryColor: true,
+    logoUrl: true,
+    allowSameDayBookings: true,
+    authOrganizationId: true,
+    slug: true,
+  }).shape,
+  logoFile: z.file().nullable(),
 });
 
 export const organizationOnboardingSchema = z.object({
   section: z.enum(OnboardingOrganizationStep),
-  ...personalDetailsSchema.shape,
-  ...organizationSetupSchema.shape,
-  ...organizationDetailsSchema.shape,
+  personalDetails: personalDetailsSchema,
+  organizationSetup: createOrganizationInputSchema,
+  organizationDetails: organizationDetailsSchema,
 });
 
 export type OrganizationOnboardingFormValues = z.infer<

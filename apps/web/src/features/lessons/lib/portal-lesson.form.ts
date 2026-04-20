@@ -12,6 +12,7 @@ const portalLessonInputSchema = lessonSeriesSchema
   })
   .extend({
     acknowledgePrivateLesson: z.boolean(),
+    riderId: z.string(),
   });
 
 type PortalLessonInputSchema = z.infer<typeof portalLessonInputSchema>;
@@ -22,6 +23,7 @@ const portalLessonDefaultValues: PortalLessonInputSchema = {
   start: new Date().toISOString(),
   trainerId: "",
   acknowledgePrivateLesson: false,
+  riderId: "",
 };
 
 export const portalLessonFormOpts = formOptions({
@@ -39,6 +41,7 @@ export function buildPortalLessonDefaultValues(input: {
   initialValues: PortalLessonInitalValues;
   boards: types.Board[];
   trainers: types.Trainer[];
+  riderId?: string;
 }): PortalLessonInputSchema {
   // Validate that the trainer is assigned to the board
   const selectedTrainer = input.trainers.find(
@@ -58,5 +61,6 @@ export function buildPortalLessonDefaultValues(input: {
     boardId: selectedBoard ? selectedBoard.id : "",
     trainerId:
       selectedTrainer && isTrainerAssignedToBoard ? selectedTrainer.id : "",
+    riderId: input.riderId ?? "",
   };
 }

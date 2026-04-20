@@ -12,18 +12,10 @@ export const WaiverStep = withFieldGroup({
     name: "",
   },
   render: function Render({ group, waiverContent, name }) {
-    console.log(name);
     return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-semibold">Liability Waiver</h2>
-          <p className="mt-1 text-muted-foreground">
-            Please read and sign the waiver to continue
-          </p>
-        </div>
-
-        <ScrollArea className="h-64 rounded-md border p-4">
-          <div className="prose prose-sm max-w-none space-y-4">
+      <FieldGroup>
+        <ScrollArea className="h-64 rounded-md border p-4 bg-muted text-muted-foreground">
+          <div className="prose prose-sm max-w-none space-y-4 leading-relaxed">
             {waiverContent || "No waiver available."}
           </div>
         </ScrollArea>
@@ -41,7 +33,13 @@ export const WaiverStep = withFieldGroup({
                 }
               },
             }}
-            children={(field) => <field.TextField label="Sign your name" />}
+            children={(field) => (
+              <field.TextField
+                label="Signature"
+                placeholder={name}
+                description={`must match: ${name}`}
+              />
+            )}
           />
           <group.AppField
             name="termsAgreed"
@@ -53,10 +51,7 @@ export const WaiverStep = withFieldGroup({
               },
             }}
             children={(field) => (
-              <field.CheckboxField
-                label="I agree to the terms"
-                description="I have read and agree to the terms and conditions of the waiver."
-              />
+              <field.CheckboxField label="I have read and agree to the terms and conditions of this waiver." />
             )}
           />
           <group.AppField
@@ -69,14 +64,11 @@ export const WaiverStep = withFieldGroup({
               },
             }}
             children={(field) => (
-              <field.CheckboxField
-                label="Signature acknowledgement"
-                description="I acknowledge that typing my name above constitutes a legal signature."
-              />
+              <field.CheckboxField label="I acknowledge that typing my name constitutes a legal electronic signature." />
             )}
           />
         </FieldGroup>
-      </div>
+      </FieldGroup>
     );
   },
 });

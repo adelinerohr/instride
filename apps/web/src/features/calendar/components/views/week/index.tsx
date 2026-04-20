@@ -1,3 +1,4 @@
+import { isWorkingHour } from "@instride/shared";
 import {
   addDays,
   areIntervalsOverlapping,
@@ -9,7 +10,6 @@ import {
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
-import { isWorkingHour } from "@/features/calendar/utils/business-hours";
 import {
   getLessonBlockStyle,
   groupLessons,
@@ -90,11 +90,11 @@ export function WeekView() {
                 return (
                   <div key={dayIndex} className="relative">
                     {HOURS.map((hour, index) => {
-                      const isDisabled = !isWorkingHour(
+                      const isDisabled = !isWorkingHour({
                         day,
                         hour,
-                        organizationBusinessHours
-                      );
+                        businessHours: organizationBusinessHours,
+                      });
 
                       return (
                         <HourCell

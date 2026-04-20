@@ -1,4 +1,4 @@
-import { signWaiverInputSchema, updateUserSchema } from "@instride/shared";
+import { signWaiverSchema, updateUserSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import z from "zod";
 
@@ -15,35 +15,41 @@ export const memberOnboardingSteps = [
   {
     id: MemberOnboardingStep.PersonalDetails,
     label: "Personal Details",
+    description: "Tell us about yourself",
   },
   {
     id: MemberOnboardingStep.AccountType,
     label: "Account Type",
+    description: "How will you be using InStride?",
   },
   {
     id: MemberOnboardingStep.Questionnaire,
     label: "Questionnaire",
+    description: "Answer a few questions to help us get to know you better",
   },
   {
     id: MemberOnboardingStep.Waiver,
     label: "Waiver",
+    description: "Please review and sign to continue",
   },
 ];
 
-const personalDetailsSchema = updateUserSchema.extend({
-  imageFile: z.file().nullable(),
-  removeImage: z.boolean(),
-});
-
-const signWaiverSchema = signWaiverInputSchema.extend({
-  signedBy: z.string().min(1, "Signature is required"),
-  termsAgreed: z.boolean().refine((value) => value, {
-    message: "You must agree to the terms",
-  }),
-  signatureAcknowledgement: z.boolean().refine((value) => value, {
-    message: "You must acknowledge your signature",
-  }),
-});
+const personalDetailsSchema = updateUserSchema
+  .omit({
+    email: true,
+  })
+  .extend({
+    imageFile: z.file().nullable(),
+    removeImage: z.boolean(),
+    email: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+        "Enter a valid email address"
+      ),
+  });
 
 export const memberOnboardingSchema = z.object({
   section: z.enum(MemberOnboardingStep),
@@ -78,9 +84,6 @@ export const defaultMemberOnboardingValues: MemberOnboardingFormValues = {
     responses: [],
   },
   waiver: {
-    signerMemberId: "",
-    onBehalfOfMemberId: null,
-    waiverId: "",
     signedBy: "",
     termsAgreed: false,
     signatureAcknowledgement: false,
@@ -117,9 +120,6 @@ export function buildMemberOnboardingDefaultValues(user: {
       responses: [],
     },
     waiver: {
-      signerMemberId: "",
-      onBehalfOfMemberId: null,
-      waiverId: "",
       signedBy: "",
       termsAgreed: false,
       signatureAcknowledgement: false,

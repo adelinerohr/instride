@@ -28,8 +28,6 @@ export function MultiDayRow() {
     selectedTrainerIds,
   } = useCalendar();
 
-  console.log(organizationEvents);
-
   const weekStart = startOfWeek(selectedDate);
   const weekEnd = endOfWeek(selectedDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -67,8 +65,6 @@ export function MultiDayRow() {
       });
   }, [eventsToProcess]);
 
-  console.log(multiDayEvents);
-
   const processedEvents = React.useMemo(() => {
     return (
       multiDayEvents
@@ -102,8 +98,6 @@ export function MultiDayRow() {
     );
   }, [multiDayEvents, weekStart, weekEnd]);
 
-  console.log(processedEvents);
-
   const eventRows = React.useMemo(() => {
     const rows: (typeof processedEvents)[] = [];
 
@@ -129,8 +123,6 @@ export function MultiDayRow() {
     return rows;
   }, [processedEvents]);
 
-  console.log(eventRows);
-
   const hasEventsInWeek = React.useMemo(() => {
     return multiDayEvents.some((event) => {
       const start = parseISO(event.startDate);
@@ -146,8 +138,6 @@ export function MultiDayRow() {
       );
     });
   }, [multiDayEvents, weekStart, weekEnd]);
-
-  console.log(hasEventsInWeek);
 
   if (!hasEventsInWeek) {
     return null;

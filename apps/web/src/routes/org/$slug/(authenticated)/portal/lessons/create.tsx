@@ -1,9 +1,11 @@
 import {
   boardsOptions,
+  guardianOptions,
   membersOptions,
   servicesOptions,
   useCreateLessonSeries,
 } from "@instride/api";
+import { canDependentPerform, DependentAction } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertCircleIcon } from "lucide-react";
@@ -28,7 +30,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
+import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
+import { formatError } from "@/shared/lib/utils/errors";
 
 import { BookingCalendar } from "./-booking-calendar";
 
@@ -40,27 +44,67 @@ export const Route = createFileRoute(
     date: z.string().optional(),
     boardId: z.string().optional(),
     trainerId: z.string().optional(),
+    riderId: z.string().optional(),
   }),
+  beforeLoad: async ({ context }) => {
+    const bookableRiders: string[] = [];
+
+    if (context.rider && context.user) {
+      bookableRiders.push(context.rider.id);
+    }
+
+    if (context.isGuardian) {
+      const relationships = await context.queryClient.ensureQueryData(
+        guardianOptions.myDependents()
+      );
+      for (const rel of relationships) {
+        if (rel.dependent.riderId) {
+          bookableRiders.push(rel.dependent.riderId);
+        }
+      }
+    }
+
+    if (bookableRiders.length === 0) {
+      throw Route.redirect({
+        to: "/org/$slug/portal",
+      });
+    }
+
+    return { bookableRiders };
+  },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      boardsOptions.list({ riderId: context.rider.id })
-    );
-    await context.queryClient.ensureQueryData(servicesOptions.all());
-    await context.queryClient.ensureQueryData(membersOptions.trainers());
+    await Promise.all([
+      context.queryClient.ensureQueryData(boardsOptions.list()),
+      context.queryClient.ensureQueryData(membersOptions.riders()),
+      context.queryClient.ensureQueryData(servicesOptions.all()),
+      context.queryClient.ensureQueryData(membersOptions.trainers()),
+      context.isGuardian
+        ? context.queryClient.ensureQueryData(guardianOptions.myDependents())
+        : Promise.resolve(),
+    ]);
   },
 });
 
 function RouteComponent() {
-  const { rider } = Route.useRouteContext();
+  const { bookableRiders, isGuardian, rider } = Route.useRouteContext();
   const search = Route.useSearch();
 
-  const { data: boards } = useSuspenseQuery(
-    boardsOptions.list({ riderId: rider.id })
-  );
+  const { data: boards } = useSuspenseQuery(boardsOptions.list());
+  const { data: riders } = useSuspenseQuery(membersOptions.riders());
   const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
   const { data: services } = useSuspenseQuery(servicesOptions.all());
 
   const createLesson = useCreateLessonSeries();
+
+  const getInitialRiderId = () => {
+    if (bookableRiders.length === 1) {
+      return bookableRiders[0];
+    }
+    if (search.riderId) {
+      return search.riderId;
+    }
+    return undefined;
+  };
 
   const form = useAppForm({
     ...portalLessonFormOpts,
@@ -68,6 +112,7 @@ function RouteComponent() {
       initialValues: search,
       boards,
       trainers,
+      riderId: getInitialRiderId(),
     }),
     onSubmit: async ({ value }) => {
       const service = services.find((s) => s.id === value.serviceId);
@@ -78,6 +123,19 @@ function RouteComponent() {
         return;
       }
 
+      if (rider && rider.isRestricted) {
+        const canBookLesson = canDependentPerform(
+          DependentAction.BOOK_LESSON,
+          rider.permissions
+        );
+        if (!canBookLesson.allowed) {
+          toast.error(
+            canBookLesson.reason ?? "You are not allowed to book lessons"
+          );
+          return;
+        }
+      }
+
       await createLesson.mutateAsync({
         boardId: value.boardId,
         serviceId: value.serviceId,
@@ -85,7 +143,7 @@ function RouteComponent() {
         trainerId: value.trainerId,
         duration: service.duration,
         maxRiders: service.maxRiders,
-        riderIds: [rider.id],
+        riderIds: [value.riderId],
       });
     },
   });
@@ -93,6 +151,25 @@ function RouteComponent() {
   const filteredBoards = boards.filter((board) =>
     board.serviceBoardAssignments?.some(
       (assignment) => assignment.service?.canRiderAdd === true
+    )
+  );
+
+  const isOnlyOneDependent =
+    isGuardian && !rider && bookableRiders.length === 1;
+
+  if (!isGuardian) {
+    return null;
+  }
+
+  const riderOptions = riders.filter((rider) =>
+    bookableRiders.includes(rider.id)
+  );
+
+  const riderBoards = filteredBoards.filter((board) =>
+    riders.some((rider) =>
+      rider.boardAssignments?.some(
+        (assignment) => assignment.boardId === board.id
+      )
     )
   );
 
@@ -137,41 +214,94 @@ function RouteComponent() {
           </form.AppForm>
         </PageHeader>
         <PageBody className="space-y-4">
+          {isGuardian && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Rider</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form.AppField
+                  name="riderId"
+                  listeners={{
+                    onChange: () => {
+                      form.setFieldValue("boardId", "");
+                      form.setFieldValue("trainerId", "");
+                      form.setFieldValue("serviceId", "");
+                      form.setFieldValue("start", "");
+                      form.setFieldValue("acknowledgePrivateLesson", false);
+                    },
+                  }}
+                  children={(field) => (
+                    <field.RiderSelectField
+                      riders={riderOptions}
+                      disabled={isOnlyOneDependent}
+                      hideLabel
+                      placeholder="Select a rider"
+                    />
+                  )}
+                />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Board</CardTitle>
             </CardHeader>
             <CardContent>
-              <form.AppField
-                name="boardId"
-                listeners={{
-                  onChange: ({ value }) => {
-                    // Check if the trainer is assigned to the board changed to
-                    const trainer = form.getFieldValue("trainerId");
-                    const isAssigned = trainers
-                      .find((t) => t.id === trainer)
-                      ?.boardAssignments?.some((b) => b.boardId === value);
+              <form.Subscribe selector={(state) => state.values.riderId}>
+                {(riderId) => {
+                  if (isGuardian && riderId.length === 0) {
+                    return (
+                      <div className="text-sm text-muted-foreground">
+                        Please select a rider to continue.
+                      </div>
+                    );
+                  }
 
-                    if (!isAssigned) {
-                      form.setFieldValue("trainerId", "");
-                      form.setFieldValue("serviceId", "");
-                      form.setFieldValue("start", "");
-                    } else {
-                      // If it is assigned, only clear the service and start date
-                      form.setFieldValue("serviceId", "");
-                      form.setFieldValue("start", "");
-                    }
-                  },
+                  const boardOptions = riderBoards.filter((board) =>
+                    riders.some((rider) =>
+                      rider.boardAssignments?.some(
+                        (assignment) => assignment.boardId === board.id
+                      )
+                    )
+                  );
+
+                  return (
+                    <form.AppField
+                      name="boardId"
+                      listeners={{
+                        onChange: ({ value }) => {
+                          // Check if the trainer is assigned to the board changed to
+                          const trainer = form.getFieldValue("trainerId");
+                          const isAssigned = trainers
+                            .find((t) => t.id === trainer)
+                            ?.boardAssignments?.some(
+                              (b) => b.boardId === value
+                            );
+
+                          if (!isAssigned) {
+                            form.setFieldValue("trainerId", "");
+                            form.setFieldValue("serviceId", "");
+                            form.setFieldValue("start", "");
+                          } else {
+                            // If it is assigned, only clear the service and start date
+                            form.setFieldValue("serviceId", "");
+                            form.setFieldValue("start", "");
+                          }
+                        },
+                      }}
+                      children={(field) => (
+                        <field.SelectField
+                          items={boardOptions}
+                          placeholder="Select a board"
+                          itemToValue={(board) => board.id}
+                          renderValue={(board) => board.name}
+                        />
+                      )}
+                    />
+                  );
                 }}
-                children={(field) => (
-                  <field.SelectField
-                    items={filteredBoards}
-                    placeholder="Select a board"
-                    itemToValue={(board) => board.id}
-                    renderValue={(board) => board.name}
-                  />
-                )}
-              />
+              </form.Subscribe>
             </CardContent>
           </Card>
           <Card>
@@ -247,7 +377,7 @@ function RouteComponent() {
 
                   if (boardId.length > 0 && trainerId.length > 0) {
                     return (
-                      <>
+                      <FieldGroup>
                         <form.AppField
                           name="serviceId"
                           children={(field) => (
@@ -275,15 +405,19 @@ function RouteComponent() {
                             name="acknowledgePrivateLesson"
                             validators={{
                               onChange: ({ value }) => {
-                                if (!selectedService?.isPrivate && !value) {
-                                  return "You must acknowledge that the lesson may become private";
+                                if (
+                                  !selectedService?.isPrivate &&
+                                  value === false
+                                ) {
+                                  return formatError(
+                                    "You must acknowledge that the lesson may become private"
+                                  );
                                 }
-                                return undefined;
                               },
                             }}
                             children={(field) => (
                               <field.CheckboxField
-                                label="You understand that if no one else signs up for this lesson, it will become a private lesson and you will be charged as such."
+                                label="I understand that if no one else signs up for this lesson, it will become a private lesson and you will be charged as such."
                                 checked={field.state.value ?? false}
                                 onCheckedChange={(checked) => {
                                   field.handleChange(checked === true);
@@ -292,7 +426,7 @@ function RouteComponent() {
                             )}
                           />
                         )}
-                      </>
+                      </FieldGroup>
                     );
                   } else {
                     return (

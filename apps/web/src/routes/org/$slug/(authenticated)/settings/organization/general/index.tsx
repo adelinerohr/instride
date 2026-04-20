@@ -1,11 +1,14 @@
-import { levelOptions } from "@instride/api";
+import { levelOptions, useUpdateOrganization } from "@instride/api";
 import { createFileRoute } from "@tanstack/react-router";
 
 import {
   AnnotatedLayout,
   AnnotatedSection,
 } from "@/shared/components/layout/annotated";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Separator } from "@/shared/components/ui/separator";
+import { Switch } from "@/shared/components/ui/switch";
 
 import { OrganizationDetails } from "./-details";
 import { OrganizationLevelsCard } from "./-levels";
@@ -22,6 +25,9 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { organization } = Route.useRouteContext();
+  const updateOrganization = useUpdateOrganization();
+
   return (
     <AnnotatedLayout>
       <AnnotatedSection
@@ -36,6 +42,33 @@ function RouteComponent() {
         description="Basic details about your organization."
       >
         <OrganizationDetails />
+      </AnnotatedSection>
+      <Separator />
+      <AnnotatedSection
+        title="Public join"
+        description="Allow any user to join your organization without an invitation."
+      >
+        <Card>
+          <CardContent>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="allowSameDayBookings">
+                Allow public join
+              </FieldLabel>
+              <Switch
+                id="allowPublicJoin"
+                checked={organization.allowPublicJoin}
+                onCheckedChange={(value) =>
+                  updateOrganization.mutateAsync({
+                    organizationId: organization.id,
+                    request: {
+                      allowPublicJoin: value,
+                    },
+                  })
+                }
+              />
+            </Field>
+          </CardContent>
+        </Card>
       </AnnotatedSection>
       <Separator />
       <AnnotatedSection

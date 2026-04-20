@@ -21,9 +21,5 @@ function RouteComponent() {
     navigate({ to: returnTo });
   };
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <RegisterForm returnTo={returnTo} onSuccess={handleSuccess} />
-    </div>
-  );
+  return <RegisterForm returnTo={returnTo} onSuccess={handleSuccess} />;
 }

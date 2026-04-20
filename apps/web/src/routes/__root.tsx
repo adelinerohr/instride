@@ -1,13 +1,18 @@
+import { authOptions, useSession } from "@instride/api";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+
+import "../index.css";
 import {
   HeadContent,
   Outlet,
   createRootRouteWithContext,
   redirect,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "sonner";
 
-import "../index.css";
+import Loader from "@/shared/components/loader";
 import { Modals } from "@/shared/components/modals";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
@@ -34,7 +39,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   beforeLoad: async ({ context, location }) => {
-    const { isAuthenticated } = context as RouterContext;
+    // Fetch session data
+    const sessionData = await context.queryClient.ensureQueryData(
+      authOptions.session()
+    );
+
+    const isAuthenticated = !!sessionData?.session;
 
     // Public routes that don't require auth
     const publicPaths = [
@@ -50,8 +60,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
     // Also check for org-specific login/register pages
     const isOrgAuthPage = location.pathname.match(
-      /^\/org\/[^/]+\/auth\/(login|register)$/ // CHANGED: Added /auth/ to path
+      /^\/org\/[^/]+\/auth\/(login|register)$/
     );
+
+    if (isAuthenticated && isPublicPath && !isOrgAuthPage) {
+      throw redirect({
+        to: "/",
+      });
+    }
 
     if (!isAuthenticated && !isPublicPath && !isOrgAuthPage) {
       const currentPath = location.pathname;
@@ -59,7 +75,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
       if (orgMatch) {
         throw redirect({
-          to: "/org/$slug/auth/login", // CHANGED: Added /auth/
+          to: "/org/$slug/auth/login",
           params: { slug: orgMatch[1] },
           search: {
             redirect:
@@ -76,11 +92,21 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       });
     }
 
-    return context;
+    return {
+      ...context,
+      isAuthenticated,
+    };
   },
 });
 
 function RootComponent() {
+  const { isPending } = useSession();
+
+  // Show loader while checking session
+  if (isPending) {
+    return <Loader />;
+  }
+
   return (
     <TooltipProvider>
       <HeadContent />
@@ -96,7 +122,18 @@ function RootComponent() {
         <Toaster richColors />
         <Modals />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
+      <TanStackDevtools
+        plugins={[
+          {
+            name: "TanStack Query",
+            render: <ReactQueryDevtoolsPanel />,
+          },
+          {
+            name: "TanStack Router",
+            render: <TanStackRouterDevtoolsPanel />,
+          },
+        ]}
+      />
     </TooltipProvider>
   );
 }

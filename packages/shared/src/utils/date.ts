@@ -12,15 +12,33 @@ export interface LocalParts {
   second?: number;
 }
 
+export interface TimeSlot {
+  openTime: string; // "HH:MM" or "HH:MM:SS"
+  closeTime: string;
+}
+
 export interface DayHours {
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  openTime: string | null;
-  closeTime: string | null;
+  slots: TimeSlot[];
 }
 
-export interface TrainerDayHours extends DayHours {
-  inheritsFromOrg: boolean;
+export interface EffectiveBusinessHoursDay extends DayHours {
+  boardId: string | null;
+}
+
+export type EffectiveBusinessHours = Record<
+  DayOfWeek,
+  EffectiveBusinessHoursDay
+>;
+export type TrainerEffectiveBusinessHours = Record<
+  string,
+  EffectiveBusinessHours
+>;
+
+interface BusinessHoursBundle<TRow extends DayHours> {
+  defaults: TRow[];
+  boardOverrides: Record<string, TRow[]>;
 }
 
 /**
@@ -34,29 +52,92 @@ export function timeToMinutes(time: string): number {
 }
 
 /**
+ * Project an org or trainer list-business-hours response into a per-day
+ * lookup for the given board. Falls back to defaults when the board has no
+ * override. Missing days default to closed.
+ */
+export function resolveEffectiveBusinessHours<TRow extends DayHours>(
+  businessHours: BusinessHoursBundle<TRow>,
+  boardId?: string
+): EffectiveBusinessHours {
+  const rows =
+    (boardId && businessHours.boardOverrides[boardId]) ||
+    businessHours.defaults;
+
+  const byDay = new Map(rows.map((day) => [day.dayOfWeek, day]));
+
+  return Object.fromEntries(
+    Object.values(DayOfWeek).map((dow) => {
+      const row = byDay.get(dow);
+      const slots = row?.isOpen
+        ? [...row.slots]
+            .sort((a, b) =>
+              a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
+            )
+            .map((slot) => ({
+              openTime: slot.openTime.slice(0, 5),
+              closeTime: slot.closeTime.slice(0, 5),
+            }))
+        : [];
+
+      return [
+        dow,
+        {
+          dayOfWeek: dow,
+          isOpen: row?.isOpen ?? false,
+          boardId: boardId ?? null,
+          slots,
+        } satisfies EffectiveBusinessHoursDay,
+      ];
+    })
+  ) as EffectiveBusinessHours;
+}
+
+/**
+ * Does the given hour (0-23) fall inside any slot on the given day?
+ * Used by the calendar to shade non-working hours.
+ */
+export function isWorkingHour(input: {
+  day: Date;
+  hour: number;
+  businessHours: EffectiveBusinessHours | undefined;
+}): boolean {
+  if (!input.businessHours) return false;
+
+  const dayKey = getDayOfWeek(input.day);
+  const dayHours = input.businessHours[dayKey];
+
+  if (!dayHours?.isOpen || dayHours.slots.length === 0) return false;
+
+  const slotStart = input.hour * 60;
+
+  return dayHours.slots.some((slot) => {
+    const open = timeToMinutes(slot.openTime);
+    const close = timeToMinutes(slot.closeTime);
+    return slotStart >= open && slotStart < close;
+  });
+}
+
+/**
  * Check if a time range falls within business hours
  * @param startTime - The start time to check in the format "HH:MM"
  * @param endTime - The end time to check in the format "HH:MM"
- * @param hours - The hours to check
+ * @param slots - The slots to check
  * @returns Whether the time range falls within business hours
  */
-export function isWithinHours(
-  startTime: string,
-  endTime: string,
-  hours: {
-    openTime: string | null;
-    closeTime: string | null;
-    isOpen: boolean;
-  }
-): boolean {
-  if (!hours.isOpen || !hours.openTime || !hours.closeTime) return false;
+export function isWithinAnySlot(input: {
+  startTime: string;
+  endTime: string;
+  slots: TimeSlot[];
+}): boolean {
+  const start = timeToMinutes(input.startTime);
+  const end = timeToMinutes(input.endTime);
 
-  const start = timeToMinutes(startTime);
-  const end = timeToMinutes(endTime);
-  const open = timeToMinutes(hours.openTime);
-  const close = timeToMinutes(hours.closeTime);
-
-  return start >= open && end <= close;
+  return input.slots.some((slot) => {
+    const slotStart = timeToMinutes(slot.openTime);
+    const slotEnd = timeToMinutes(slot.closeTime);
+    return start >= slotStart && end <= slotEnd;
+  });
 }
 
 /**
@@ -67,22 +148,7 @@ export function buildEmptyWeek(): DayHours[] {
   return Object.values(DayOfWeek).map((day) => ({
     dayOfWeek: day,
     isOpen: false,
-    openTime: null,
-    closeTime: null,
-  }));
-}
-
-/**
- * Build an empty week of trainer day hours
- * @returns An array of empty trainer day hours
- */
-export function buildEmptyTrainerWeek(): TrainerDayHours[] {
-  return Object.values(DayOfWeek).map((day) => ({
-    dayOfWeek: day,
-    isOpen: false,
-    openTime: null,
-    closeTime: null,
-    inheritsFromOrg: true,
+    slots: [],
   }));
 }
 

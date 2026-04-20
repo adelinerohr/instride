@@ -1,7 +1,7 @@
 import { useUpdateGuardianRelationship, type types } from "@instride/api";
 import { toast } from "sonner";
-import z from "zod";
 
+import { GuardianControlsStep } from "@/features/onboarding/components/steps/guardian-controls";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -13,11 +13,10 @@ import {
   DialogPortal,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
 
 export const guardianControlsModalHandler = DialogHandler.createHandle<{
-  relationship: types.GuardianRelationship;
+  relationship: types.GuardianRelationshipWithDependent;
 }>();
 
 export function GuardianControlsModal() {
@@ -35,7 +34,7 @@ export function GuardianControlsModal() {
 }
 
 interface GuardianControlsModalFormProps {
-  relationship: types.GuardianRelationship;
+  relationship: types.GuardianRelationshipWithDependent;
 }
 
 export function GuardianControlsModalForm({
@@ -46,23 +45,37 @@ export function GuardianControlsModalForm({
 
   const form = useAppForm({
     defaultValues: {
-      canBookLessons: relationship.canBookLessons ?? false,
-      canPostOnFeed: relationship.canPostOnFeed ?? false,
-    },
-    validators: {
-      onSubmit: z.object({
-        canBookLessons: z.boolean(),
-        canPostOnFeed: z.boolean(),
-      }),
+      permissions: {
+        bookings: {
+          canBookLessons:
+            relationship.permissions?.bookings.canBookLessons ?? false,
+          canJoinEvents:
+            relationship.permissions?.bookings.canJoinEvents ?? false,
+          requiresApproval:
+            relationship.permissions?.bookings.requiresApproval ?? false,
+          canCancel: relationship.permissions?.bookings.canCancel ?? false,
+        },
+        communication: {
+          canPost: relationship.permissions?.communication.canPost ?? false,
+          canComment:
+            relationship.permissions?.communication.canComment ?? false,
+          receiveEmailNotifications:
+            relationship.permissions?.communication.receiveEmailNotifications ??
+            false,
+          receiveTextNotifications:
+            relationship.permissions?.communication.receiveTextNotifications ??
+            false,
+        },
+        profile: {
+          canEdit: relationship.permissions?.profile.canEdit ?? false,
+        },
+      },
     },
     onSubmit: async ({ value }) => {
       await updateGuardianRelationship.mutateAsync(
         {
           relationshipId: relationship.id,
-          request: {
-            canBookLessons: value.canBookLessons,
-            canPostOnFeed: value.canPostOnFeed,
-          },
+          params: value,
         },
         {
           onSuccess: () => {
@@ -93,26 +106,7 @@ export function GuardianControlsModalForm({
             Edit {relationship.dependent.authUser?.name}'s Controls
           </DialogTitle>
         </DialogHeader>
-        <FieldGroup>
-          <form.AppField
-            name="canBookLessons"
-            children={(field) => (
-              <field.SwitchField
-                label="Can Book Lessons"
-                description="Allow this dependent to book their own lessons"
-              />
-            )}
-          />
-          <form.AppField
-            name="canPostOnFeed"
-            children={(field) => (
-              <field.SwitchField
-                label="Can Post on Feed"
-                description="Allow this dependent to post updates on the community feed"
-              />
-            )}
-          />
-        </FieldGroup>
+        <GuardianControlsStep form={form} fields="permissions" />
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>
             Cancel

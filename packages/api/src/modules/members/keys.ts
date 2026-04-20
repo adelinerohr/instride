@@ -7,6 +7,7 @@ const getTrainerRootKey = [...getMemberRootKey, "trainers"] as const;
 export const memberKeys = {
   list: () => getMemberRootKey,
   byId: (memberId: string) => [...getMemberRootKey, memberId] as const,
+  /** Include org slug so switching orgs does not reuse another org's cached membership. */
   me: () => [...getMemberRootKey, "me"] as const,
 
   // Trainers

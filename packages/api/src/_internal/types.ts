@@ -19,31 +19,6 @@ export type MutationHookOptions<
   mutationConfig?: MutationConfig<MutationFnType>;
 };
 
-type MutationFn = (variables: any) => Promise<any>;
-
-type MutationData<TMutationFn extends MutationFn> = Awaited<
-  ReturnType<TMutationFn>
->;
-
-type MutationVariables<TMutationFn extends MutationFn> =
-  Parameters<TMutationFn>[0];
-
-type OrganizationMutationVariables<TMutationFn extends MutationFn> = Omit<
-  MutationVariables<TMutationFn>,
-  "organizationId"
->;
-
-export type OrganizationMutationHookOptions<TMutationFn extends MutationFn> = {
-  mutationConfig?: Omit<
-    UseMutationOptions<
-      MutationData<TMutationFn>,
-      APIError,
-      OrganizationMutationVariables<TMutationFn>
-    >,
-    "mutationFn"
-  >;
-};
-
 export function useWrappedMutation<TData, TVariables, TContext = unknown>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   options: Omit<

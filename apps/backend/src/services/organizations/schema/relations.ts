@@ -166,6 +166,10 @@ export const organizationsRelations = defineRelationsPart(schema, (r) => ({
       from: r.members.id,
       to: r.events.createdByMemberId,
     }),
+    questionnaireResponses: r.many.questionnaireResponses({
+      from: r.members.id,
+      to: r.questionnaireResponses.submittedByMemberId,
+    }),
   },
 
   trainers: {

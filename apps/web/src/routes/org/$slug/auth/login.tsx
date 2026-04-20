@@ -16,9 +16,8 @@ export const Route = createFileRoute("/org/$slug/auth/login")({
 
 function RouteComponent() {
   const navigate = Route.useNavigate();
-  const { org } = Route.useRouteContext();
   const search = Route.useSearch();
-  const returnTo = search.redirect || "/dashboard";
+  const returnTo = search.redirect || "/";
 
   const handleSuccess = () => {
     navigate({ to: returnTo });
@@ -26,11 +25,7 @@ function RouteComponent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <LoginForm
-        orgName={org.name}
-        returnTo={returnTo}
-        onSuccess={handleSuccess}
-      />
+      <LoginForm returnTo={returnTo} onSuccess={handleSuccess} />
     </div>
   );
 }

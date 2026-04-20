@@ -1,4 +1,4 @@
-import { APIError, ErrCode, useSession } from "@instride/api";
+import { APIError, ErrCode } from "@instride/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
@@ -28,8 +28,9 @@ export const queryClient = new QueryClient({
 });
 
 export interface RouterContext {
-  isAuthenticated: boolean;
   queryClient: QueryClient;
+  /** Set by root route `beforeLoad` from the session query */
+  isAuthenticated?: boolean;
 }
 
 const isProd = import.meta.env.PROD;
@@ -41,7 +42,6 @@ const router = createRouter({
   defaultErrorComponent: DefaultCatchBoundary,
   defaultNotFoundComponent: DefaultNotFound,
   context: {
-    isAuthenticated: false,
     queryClient,
   },
   ...(isProd && {
@@ -87,23 +87,6 @@ declare module "@tanstack/react-router" {
   }
 }
 
-function App() {
-  const { data: sessionResponse, isPending } = useSession();
-
-  if (isPending) {
-    return <Loader />;
-  }
-
-  return (
-    <RouterProvider
-      router={router}
-      context={{
-        isAuthenticated: !!sessionResponse?.session,
-      }}
-    />
-  );
-}
-
 const rootElement = document.querySelector("#app");
 
 if (!rootElement) {
@@ -115,7 +98,7 @@ if (!rootElement.innerHTML) {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <RouterProvider router={router} />
       </QueryClientProvider>
     </React.StrictMode>
   );

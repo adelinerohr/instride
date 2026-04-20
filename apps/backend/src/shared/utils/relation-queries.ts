@@ -1,3 +1,14 @@
+export const memberRelation = {
+  with: {
+    with: {
+      authUser: true,
+    },
+  } as const,
+  where: {
+    authUser: true,
+  } as const,
+} as const;
+
 export const withAuthUser = {
   with: { authUser: true },
 } as const;

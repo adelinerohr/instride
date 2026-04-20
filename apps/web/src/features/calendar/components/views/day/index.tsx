@@ -44,9 +44,9 @@ export function DayView() {
         </div>
 
         <ScrollArea className="h-full">
-          <div className="flex">
+          <div className="flex relative">
             {/* Hours column */}
-            <div className="relative w-18">
+            <div className="relative w-18 shrink-0">
               {HOURS.map((hour, index) => (
                 <div
                   key={hour}
@@ -63,15 +63,16 @@ export function DayView() {
                 </div>
               ))}
             </div>
-
             {/* Day grid */}
-            {selectedTrainers.map((trainer) => (
-              <div className="relative flex-1 border-l">
-                <DayColumn key={trainer.id} trainer={trainer} />
-              </div>
-            ))}
+            <div className="relative flex-1 flex">
+              {selectedTrainers.map((trainer) => (
+                <div className="relative flex-1 border-l" key={trainer.id}>
+                  <DayColumn key={trainer.id} trainer={trainer} />
+                </div>
+              ))}
 
-            <CalendarTimeline />
+              <CalendarTimeline />
+            </div>
           </div>
         </ScrollArea>
       </div>

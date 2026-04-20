@@ -1,10 +1,25 @@
 {
   "version": 1,
   "skills": {
+    "Expo UI Jetpack Compose": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "52db319a6e4b0a5c6fe4d4add7ee32ede16abffab2143a1d81da48cd610a5b1b"
+    },
+    "Expo UI SwiftUI": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "409d466e43888f62987ceaf5c8be34aa76a49328528ebe290bab866f6d07e958"
+    },
     "building-native-ui": {
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "342df93f481a0dba919f372d6c7b40d2b4bf5b51dd24363aea2e5d0bae27a6fa"
+    },
+    "deploy-to-vercel": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "03e0eaaa9bf13ba1e7ffa387f5893de6f324c0868c627001f179395a8feaa7c9"
     },
     "encore-api": {
       "source": "encoredev/skills",
@@ -36,6 +51,56 @@
       "sourceType": "github",
       "computedHash": "aaf828f27f0403f08890166ca271bacf038a2ca57ec0b5e59ee8c528bbc6d59f"
     },
+    "encore-go-api": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "f158299c157580871ddb498871addfb510b449412a5b86d6d739c322a12d77f8"
+    },
+    "encore-go-auth": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "88829f83ede73bdd390d706fce17fa81a50268852de0142b10a0de776cb8b198"
+    },
+    "encore-go-code-review": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "603e9a695bc0ed02f6806a021ef59e9e05efdac36a451ffe0a24c65874ec3a2c"
+    },
+    "encore-go-database": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "e9ec002159375c3195cc79c39842430c9c0efabf5305ee198f70eb9f403fc942"
+    },
+    "encore-go-getting-started": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "05dc3a68b5c20c93d3c9bdb71afa608f4ab935d3c388953e9c941dc8610970f3"
+    },
+    "encore-go-infrastructure": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "540e90d43d85597a4964ff04b57a764b01ac1992d8a464e9e81674937114ff15"
+    },
+    "encore-go-service": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "e0cae841fd50b7460a8465a62e944f404f7f694e34487e6a572b2e3770949c7f"
+    },
+    "encore-go-testing": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "d52ecd99fa49454554d3f8d50164e0cf6ff920f0269fbb8563f01e06b66dfe8b"
+    },
+    "encore-infrastructure": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "ac2e301359f423b5d4fa111025cbd9362abd8d41c6602feb1318164623abb13c"
+    },
+    "encore-migrate": {
+      "source": "encoredev/skills",
+      "sourceType": "github",
+      "computedHash": "5e52268c410fc611c349d5401ebd8c68201856baa501c9674b0b2ce125421cbd"
+    },
     "encore-service": {
       "source": "encoredev/skills",
       "sourceType": "github",
@@ -45,6 +110,11 @@
       "source": "encoredev/skills",
       "sourceType": "github",
       "computedHash": "fcccc2f6c732b16a710f8b01a5bf7c91ef84fe39770a247f509c0326dbc304e5"
+    },
+    "expo-api-routes": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "015c6b849507fda73fcc32d2448f033aaaaa21f5229085342b8421727a90cafb"
     },
     "expo-cicd-workflows": {
       "source": "expo/skills",
@@ -61,15 +131,30 @@
       "sourceType": "github",
       "computedHash": "234e2633b7fbcef2d479f8fe8ab20d53d08ed3e4beec7c965da4aff5b43affe7"
     },
+    "expo-module": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "c1e47893d207b68c9a2a5b0de3f97042f82a65c0b3c3a33a7114029211b8e89b"
+    },
     "expo-tailwind-setup": {
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "d39e806942fe880347f161056729b588a3cb0f1796270eebf52633fe11cfdce1"
     },
+    "heroui-migration": {
+      "source": "heroui-inc/heroui",
+      "sourceType": "github",
+      "computedHash": "9696b5cf0009120bfe03e00cc94c0e2defc1f5af981fc5bb10b1eeffa53e34cf"
+    },
     "heroui-native": {
       "source": "heroui-inc/heroui",
       "sourceType": "github",
-      "computedHash": "f677f5246f10d5a754e2b45fda92e4edd4a7121ec7b568f316d352e5dce2fd13"
+      "computedHash": "d2fc03a13d03678d40799726a144ba72ba1cb08126176ddbf0a0461c901aef29"
+    },
+    "heroui-react": {
+      "source": "heroui-inc/heroui",
+      "sourceType": "github",
+      "computedHash": "c9e1bb41fbc3cee782faae08bd465ae05cd685a6ed7cc3392464fdf29b3ab467"
     },
     "native-data-fetching": {
       "source": "expo/skills",
@@ -79,42 +164,77 @@
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
-      "computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
+      "computedHash": "873c67922d80775a9fdf596db7964b579f0408c30ec6e3d11989f6055bbec89f"
+    },
+    "tanstack-integration-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "f8454d0835f04539c0d90a5a481937bc0e1cd7e31ac8610f302abd3421f3d24a"
+    },
+    "tanstack-query-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "21d2e8b7468a81d772b6527ad8ca178cc2f3f08af777bb9061333013ee88a0c9"
+    },
+    "tanstack-router-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "65764bc7b90e47f6023cb7f89b3af93eaaafc517754f10b9382e184d4646a77d"
+    },
+    "tanstack-start-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "8b073187405a10f9997158f9139a9664cc801595d2fe63d542a0bac9bf2152f5"
     },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
-      "computedHash": "753d6e471529e30c48bf6802b9531e6e86e5df8b4d25cfe542989cf414b3f4e2"
+      "computedHash": "af51e16468977f0a5db2bad0baa50b6452f690318d81f3c0382f701830acdbdc"
     },
     "ultracite": {
       "source": "haydenbleasel/ultracite",
       "sourceType": "github",
-      "computedHash": "41cdab62af0f9cf6a34c34ae37919751dae6a254394a2c8aca98cc97816068d1"
+      "computedHash": "74f0784eb45e1246471f31331f36b76eb45525f16604dfd8fbdf4c34f731ee67"
     },
     "upgrading-expo": {
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "939a6820e0d6ead943bb4ad93cec647815e73fbc04043401773b2138e9e13b69"
     },
+    "use-dom": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "8eca0e229f16e3499e5dbf791a79f5a5cba1e98b4af88ca495c903930d7f1ba0"
+    },
+    "vercel-cli-with-tokens": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "eb16b20dcbe6ce51e0372083d624e0847af1b09487ec99249227d5a8eddebfc0"
+    },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "f98931159fa9c7fed043bcd18a891a46dcf89ababa38df13a4c5b7b30dc0ce07"
+      "computedHash": "575757e3e25761c8c562d6e395d29f0b76c98b1273c0bd72d88e6ab1bc9c7d42"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "bbc31a48537b473ff4feea6360ef0de3bfdcbef26c14f4967a5deefe8ca801d3"
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
     },
     "vercel-react-native-skills": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "2e9088a7333666d8c2833b8ff58bd51b955501c42b4c7244f72b4cbf22dafcc4"
+      "computedHash": "41d24eafa7c3d82e270439808f7cfbc4d51aeb2d14f2809a2267c16275784d06"
+    },
+    "vercel-react-view-transitions": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "c8952fc9127fa0564d0cb71dccb4215a5608ac933b5831104f09173a97a46f85"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
     }
   }
 }

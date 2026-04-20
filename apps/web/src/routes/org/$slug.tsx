@@ -1,4 +1,9 @@
-import { organizationOptions } from "@instride/api";
+import {
+  APIError,
+  ErrCode,
+  membersOptions,
+  organizationOptions,
+} from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { authClient } from "@/shared/lib/auth/client";
@@ -51,6 +56,21 @@ export const Route = createFileRoute("/org/$slug")({
       throw Route.redirect({ to: "/" });
     }
 
-    return { organization, isPortal };
+    // Session is now pointing at the new organization
+    // Drop any member cache from previous organization before fetching
+    context.queryClient.removeQueries({
+      queryKey: membersOptions.me().queryKey,
+    });
+
+    const member = await context.queryClient
+      .ensureQueryData(membersOptions.me())
+      .catch((error) => {
+        if (error instanceof APIError && error.code === ErrCode.NotFound) {
+          return null;
+        }
+        throw error;
+      });
+
+    return { organization, isPortal, member };
   },
 });

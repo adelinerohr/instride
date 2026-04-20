@@ -1,6 +1,27 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { authClient, organizationOptions } from "@instride/api";
+import { ROLE_VARIANTS } from "@instride/shared";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import {
+  BuildingIcon,
+  ChevronRightIcon,
+  ShieldIcon,
+  UserPlusIcon,
+} from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { OrganizationLogo } from "@/shared/components/fragments/org-logo";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
+import { FieldSeparator } from "@/shared/components/ui/field";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/shared/components/ui/item";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Path: /
@@ -10,21 +31,57 @@ import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/(authenticated)/")({
   component: HomeComponent,
-  beforeLoad: ({ context }) => {
-    if (!context.isAuthenticated) {
-      throw redirect({ to: "/auth/login" });
-    }
-
-    // TODO: Check if user is part of an organization
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      organizationOptions.listByUser(context.user.id)
+    );
   },
 });
 
 function HomeComponent() {
-  const navigate = useNavigate();
+  const { user } = Route.useRouteContext();
+  const navigate = Route.useNavigate();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const { data: organizations } = useSuspenseQuery(
+    organizationOptions.listByUser(user.id)
+  );
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+    await router.invalidate();
+    navigate({
+      to: "/auth/login",
+    });
+  };
+
+  const isSuperAdmin = user.role?.includes("admin") || false;
+  console.log(user.role);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-      <div className="w-full max-w-sm space-y-8 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background relative">
+      <Button
+        variant="ghost"
+        className="absolute top-4 left-4"
+        onClick={handleSignOut}
+      >
+        Sign out
+      </Button>
+      {isSuperAdmin && (
+        <Link
+          to="/admin"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "absolute top-4 right-4"
+          )}
+        >
+          <ShieldIcon />
+          Admin
+        </Link>
+      )}
+      <div className="w-full max-w-lg gap-6 px-4 flex flex-col">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome to Instride
@@ -34,20 +91,64 @@ function HomeComponent() {
           </p>
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to="/create-organization"
+            className="hover:bg-muted border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+          >
+            <BuildingIcon className="text-muted-foreground" />
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-semibold">Create organization</span>
+              <span className="text-xs text-muted-foreground">
+                I would like to create a new organization.
+              </span>
+            </div>
+          </Link>
+          <Link
+            to="/join-organization"
+            className="hover:bg-muted border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+          >
+            <UserPlusIcon className="text-muted-foreground" />
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-semibold">Join organization</span>
+              <span className="text-xs text-muted-foreground">
+                I would like to join an existing organization.
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        <FieldSeparator>OR JUMP BACK IN</FieldSeparator>
+
         <div className="flex flex-col gap-3">
-          <Button
-            size="lg"
-            onClick={() => navigate({ to: "/create-organization" })}
-          >
-            Create organization
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => navigate({ to: "/join-organization" })}
-          >
-            Join organization
-          </Button>
+          {organizations.map(({ organization, roles }) => (
+            <Item
+              variant="outline"
+              key={organization.id}
+              render={
+                <Link to="/org/$slug" params={{ slug: organization.slug }} />
+              }
+            >
+              <ItemMedia>
+                <OrganizationLogo size="lg" organization={organization} />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>{organization.name}</ItemTitle>
+                <ItemDescription className="flex flex-wrap gap-2">
+                  {roles.map((role) => (
+                    <Badge key={role} variant={ROLE_VARIANTS[role]}>
+                      {role}
+                    </Badge>
+                  ))}
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Button variant="ghost" size="icon">
+                  <ChevronRightIcon />
+                </Button>
+              </ItemActions>
+            </Item>
+          ))}
         </div>
       </div>
     </div>

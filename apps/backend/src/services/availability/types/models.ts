@@ -1,4 +1,22 @@
-import { DayOfWeek } from "@instride/shared";
+import { DayOfWeek, TimeSlot } from "@instride/shared";
+
+export interface OrganizationAvailabilitySlot {
+  id: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  availabilityId: string;
+  openTime: string;
+  closeTime: string;
+}
+
+export interface TrainerAvailabilitySlot {
+  id: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  availabilityId: string;
+  openTime: string;
+  closeTime: string;
+}
 
 export interface OrganizationBusinessHours {
   id: string;
@@ -8,22 +26,27 @@ export interface OrganizationBusinessHours {
   boardId: string | null;
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  openTime: string | null;
-  closeTime: string | null;
+  slots: OrganizationAvailabilitySlot[];
+}
+
+export interface OrganizationBoardBusinessHours extends OrganizationBusinessHours {
+  boardId: string;
 }
 
 export interface TrainerBusinessHours {
-  organizationId: string;
-  trainerId: string;
   id: string;
   createdAt: Date | string;
   updatedAt: Date | string;
+  organizationId: string;
+  trainerId: string;
   boardId: string | null;
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  openTime: string | null;
-  closeTime: string | null;
-  inheritsFromOrg: boolean;
+  slots: TrainerAvailabilitySlot[];
+}
+
+export interface TrainerBoardBusinessHours extends TrainerBusinessHours {
+  boardId: string;
 }
 
 export interface TimeBlock {
@@ -38,24 +61,8 @@ export interface TimeBlock {
   reason: string | null;
 }
 
-export interface DayHours {
+export interface BusinessHoursDay {
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  openTime: string | null;
-  closeTime: string | null;
-}
-
-export interface TrainerDayHours extends DayHours {
-  inheritsFromOrg: boolean;
-}
-
-export enum EffectiveDayHoursSource {
-  BOARD_OVERRIDE = "board_override",
-  ORGANIZATION_DEFAULT = "organization_default",
-  TRAINER_DEFAULT = "trainer_default",
-  TRAINER_BOARD_OVERRIDE = "trainer_board_override",
-}
-
-export interface EffectiveDayHours extends DayHours {
-  source: EffectiveDayHoursSource;
+  slots: TimeSlot[];
 }

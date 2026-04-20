@@ -35,7 +35,7 @@ export const questionnairesRelations = defineRelationsPart(schema, (r) => ({
       from: r.questionnaireResponses.memberId,
       to: r.members.id,
     }),
-    submittedBy: r.one.members({
+    submittedBy: r.many.members({
       from: r.questionnaireResponses.submittedByMemberId,
       to: r.members.id,
     }),

@@ -3,6 +3,8 @@ import * as p from "drizzle-orm/pg-core";
 
 import { organizations, members } from "@/database/schema";
 
+import { defaultPermissions, GuardianPermissions } from "../types/models";
+
 export const guardianRelationshipStatuses = p.pgEnum(
   "guardian_relationship_statuses",
   GuardianRelationshipStatus
@@ -35,8 +37,11 @@ export const guardianRelationships = p.pgTable(
     revokedAt: p.timestamp("revoked_at", { withTimezone: true }),
 
     // parental controls
-    canBookLessons: p.boolean("can_book_lessons").notNull().default(true),
-    canPostOnFeed: p.boolean("can_post_on_feed").notNull().default(false),
+    permissions: p
+      .jsonb("permissions")
+      .$type<GuardianPermissions>()
+      .notNull()
+      .default(defaultPermissions),
 
     // COPPA compliance
     coppaConsentGiven: p

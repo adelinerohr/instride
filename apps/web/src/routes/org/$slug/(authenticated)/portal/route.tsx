@@ -1,6 +1,6 @@
 import { guardianOptions } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { AppHeader } from "@/shared/components/layout/app-header";
 import { AppSidebar } from "@/shared/components/layout/app-sidebar";
@@ -8,47 +8,42 @@ import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
-    const rider = context.member.rider ?? null;
+  beforeLoad: async ({ context, params }) => {
+    const rider = context.member.rider;
     const isGuardian = context.member.roles.includes(MembershipRole.GUARDIAN);
 
+    // Members who are not riders or guardians are not allowed to access the portal
     if (!rider && !isGuardian) {
-      throw Error("NO_PORTAL_ACCESS");
+      throw redirect({
+        to: "/org/$slug",
+        params: { slug: params.slug },
+      });
     }
 
-    if (isGuardian) {
-      const dependents = await context.queryClient.fetchQuery(
-        guardianOptions.myDependents()
-      );
+    const guardian =
+      rider && rider.isRestricted
+        ? await context.queryClient.ensureQueryData(
+            guardianOptions.myGuardian()
+          )
+        : null;
 
-      return {
-        ...context,
-        rider,
-        isGuardian: true,
-        isOnlyGuardian: rider === null && isGuardian,
-        dependents,
-      };
-    }
+    const dependents = isGuardian
+      ? await context.queryClient.ensureQueryData(
+          guardianOptions.myDependents()
+        )
+      : null;
 
     return {
-      ...context,
-      rider,
-      isGuardian: false,
-      isOnlyGuardian: false,
-      dependents: null,
+      rider: rider
+        ? {
+            ...rider,
+            permissions: guardian?.permissions ?? null,
+          }
+        : null,
+      isGuardian,
+      isOnlyGuardian: isGuardian && !rider,
+      dependents,
     };
-  },
-  errorComponent: ({ error }) => {
-    if (error.message === "NO_PORTAL_ACCESS") {
-      return (
-        <div className="flex flex-col items-center justify-center h-full pt-64 gap-2">
-          <h1 className="text-2xl font-bold">You don't have portal access</h1>
-          <p className="text-sm text-muted-foreground">
-            Please contact your administrator to add you to the portal.
-          </p>
-        </div>
-      );
-    }
   },
 });
 

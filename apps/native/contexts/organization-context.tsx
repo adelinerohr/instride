@@ -106,7 +106,7 @@ export function useOrganization() {
  * Must be used inside an authenticated + org-ready subtree.
  */
 export function useCurrentMember() {
-  const { data: member } = useMyMembership();
+  const { data: member } = useMyMembership(ORGANIZATION_SLUG);
 
   const roles = React.useMemo(() => member?.roles ?? [], [member]);
 

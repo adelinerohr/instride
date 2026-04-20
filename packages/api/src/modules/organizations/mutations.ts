@@ -11,16 +11,13 @@ export const organizationMutations = {
       await apiClient.organizations.createOrganization(request);
     return organization;
   },
-  update: async ({
-    organizationId,
-    request,
-  }: {
+  update: async (input: {
     organizationId: string;
     request: organizations.UpdateOrganizationRequest;
   }) => {
     const { organization } = await apiClient.organizations.updateOrganization(
-      organizationId,
-      request
+      input.organizationId,
+      input.request
     );
     return organization;
   },
@@ -31,16 +28,13 @@ export const levelMutations = {
     const { level } = await apiClient.organizations.createLevel(request);
     return level;
   },
-  update: async ({
-    levelId,
-    request,
-  }: {
+  update: async (input: {
     levelId: string;
     request: levels.UpdateLevelRequest;
   }) => {
     const { level } = await apiClient.organizations.updateLevel(
-      levelId,
-      request
+      input.levelId,
+      input.request
     );
     return level;
   },
@@ -81,10 +75,6 @@ export function useUpdateOrganization({
   return useWrappedMutation(organizationMutations.update, {
     ...config,
     onSuccess: (organization, ...args) => {
-      queryClient.setQueryData(
-        organizationKeys.byId(organization.id),
-        organization
-      );
       queryClient.invalidateQueries({
         queryKey: organizationKeys.byId(organization.id),
       });

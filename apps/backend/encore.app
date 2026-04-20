@@ -17,6 +17,7 @@
     ],
     "allow_origins_without_credentials": [
       "http://localhost:3000",
+      "http://localhost:4000",
       "https://instride.vercel.app",
       "https://*.instride.vercel.app",
       "https://instrideapp.com",

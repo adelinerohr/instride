@@ -34,7 +34,8 @@ export function BooleanRadioField({
   ...props
 }: BooleanRadioFieldProps) {
   const field = useFieldContext<boolean>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const isInvalid =
+    !field.state.meta.isValid || field.state.meta.errors.length > 0;
   const errors = field.state.meta.errors;
 
   return (

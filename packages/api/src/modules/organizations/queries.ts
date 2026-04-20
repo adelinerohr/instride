@@ -18,6 +18,15 @@ export const organizationOptions = {
       },
       staleTime: STALE.MINUTES.FIVE,
     }),
+  listByUser: (userId: string) =>
+    queryOptions({
+      queryKey: organizationKeys.listByUser(userId),
+      queryFn: async () => {
+        const { organizations } =
+          await apiClient.organizations.listMyOrganizations();
+        return organizations;
+      },
+    }),
   bySlug: (slug: string) =>
     queryOptions({
       queryKey: organizationKeys.bySlug(slug),
@@ -89,6 +98,10 @@ export const levelOptions = {
 
 export function useOrganizations() {
   return useQuery(organizationOptions.all());
+}
+
+export function useListMyOrganizations(userId: string) {
+  return useQuery(organizationOptions.listByUser(userId));
 }
 
 export function useOrganizationBySlug(slug: string) {

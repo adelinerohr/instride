@@ -9,7 +9,7 @@
       "outputs": ["dist/**"]
     },
     "backend#dev": {
-      "dependsOn": ["@instride/shared#build"],
+      "dependsOn": ["@instride/shared#build", "@instride/auth#build"],
       "cache": false,
       "persistent": true
     },

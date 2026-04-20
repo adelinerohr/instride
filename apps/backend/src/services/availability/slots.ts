@@ -62,11 +62,30 @@ function assertValidDateRange(startDate: string, endDate: string) {
 }
 
 /**
+ * Intersect two lists of open windows (expressed in minutes-since-midnight)
+ * and return the resulting list of windows where BOTH are open.
+ */
+function intersectWindows(
+  a: Array<{ start: number; end: number }>,
+  b: Array<{ start: number; end: number }>
+): Array<{ start: number; end: number }> {
+  const result: Array<{ start: number; end: number }> = [];
+  for (const aw of a) {
+    for (const bw of b) {
+      const start = Math.max(aw.start, bw.start);
+      const end = Math.min(aw.end, bw.end);
+      if (start < end) result.push({ start, end });
+    }
+  }
+  return result;
+}
+
+/**
  * Get available time slots for booking a lesson
  *
  * Generates time slots based on:
- * - Organization business hours
- * - Trainer business hours (for the specific board)
+ * - Organization business hours (multi-slot per day supported)
+ * - Trainer business hours (multi-slot per day supported)
  * - Service duration
  * - Date range
  *
@@ -197,41 +216,41 @@ export const getAvailableSlots = api(
       if (
         !orgHoursForDay?.isOpen ||
         !trainerHoursForDay?.isOpen ||
-        !orgHoursForDay.startTime ||
-        !orgHoursForDay.endTime ||
-        !trainerHoursForDay.startTime ||
-        !trainerHoursForDay.endTime
+        orgHoursForDay.slots.length === 0 ||
+        trainerHoursForDay.slots.length === 0
       ) {
         currentDate.setDate(currentDate.getDate() + 1);
         continue;
       }
 
-      const orgStart = timeToMinutes(orgHoursForDay.startTime);
-      const orgEnd = timeToMinutes(orgHoursForDay.endTime);
-      const trainerStart = timeToMinutes(trainerHoursForDay.startTime);
-      const trainerEnd = timeToMinutes(trainerHoursForDay.endTime);
-      const slotStart = Math.max(trainerStart, orgStart);
-      const slotEnd = Math.min(trainerEnd, orgEnd);
+      // Intersect org and trainer slots to get effective bookable windows
+      const orgWindows = orgHoursForDay.slots.map((s) => ({
+        start: timeToMinutes(s.openTime),
+        end: timeToMinutes(s.closeTime),
+      }));
+      const trainerWindows = trainerHoursForDay.slots.map((s) => ({
+        start: timeToMinutes(s.openTime),
+        end: timeToMinutes(s.closeTime),
+      }));
+      const bookableWindows = intersectWindows(orgWindows, trainerWindows);
 
-      if (slotStart < slotEnd) {
-        // For today, start from rounded up current time, otherwise start from business hours
+      for (const window of bookableWindows) {
+        // For today, start from rounded-up current time; otherwise from window start
         let currentMinutes = isToday
-          ? Math.max(slotStart, roundedUpMinutes)
-          : slotStart;
+          ? Math.max(window.start, roundedUpMinutes)
+          : window.start;
 
-        // Round to nearest 30-minute interval
+        // Round up to the nearest 30-minute interval
         currentMinutes = Math.ceil(currentMinutes / 30) * 30;
 
-        while (currentMinutes + service.duration <= slotEnd) {
-          // Create a date in the organization's local timezone
+        while (currentMinutes + service.duration <= window.end) {
           const localHours = Math.floor(currentMinutes / 60);
           const localMinutes = currentMinutes % 60;
 
-          // Create a date object representing this time in the local timezone
           const slotDateInLocalTZ = new Date(localDate);
           slotDateInLocalTZ.setHours(localHours, localMinutes, 0, 0);
 
-          // Convert from local timezone to UTC using fromZonedTime
+          // Convert from local timezone to UTC
           const slotDateUTC = fromZonedTime(slotDateInLocalTZ, timezone);
 
           const slotStartISO = slotDateUTC.toISOString();
@@ -253,8 +272,6 @@ export const getAvailableSlots = api(
               const lessonEnd = new Date(lesson.end).getTime();
               const slotStartTime = slotDateUTC.getTime();
               const slotEndTime = slotEndDate.getTime();
-
-              // Check for overlap
               return slotStartTime < lessonEnd && slotEndTime > lessonStart;
             }) ||
             timeBlocks.some((block) => {
@@ -262,8 +279,6 @@ export const getAvailableSlots = api(
               const blockEnd = new Date(block.end).getTime();
               const slotStartTime = slotDateUTC.getTime();
               const slotEndTime = slotEndDate.getTime();
-
-              // Check for overlap
               return slotStartTime < blockEnd && slotEndTime > blockStart;
             });
 
@@ -275,7 +290,6 @@ export const getAvailableSlots = api(
             });
           }
 
-          // Move to next slot (30-minute intervals)
           currentMinutes += 30;
         }
       }

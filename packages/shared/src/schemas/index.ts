@@ -8,3 +8,4 @@ export * from "./availability";
 export * from "./questionnaire";
 export * from "./events";
 export * from "./auth";
+export * from "./guardians";

@@ -63,20 +63,27 @@ export async function checkBusinessHours(
   const dayOfWeek = getDayOfWeek(new Date(input.window.date));
   const hours = effectiveHours[dayOfWeek];
 
-  if (!hours || !hours.isOpen || !hours.openTime || !hours.closeTime) {
+  if (!hours || !hours.isOpen || hours.slots.length === 0) {
     return {
       type: AvailabilityViolationType.OUTSIDE_BUSINESS_HOURS,
       message: "Trainer is not available on this day",
     };
   }
 
-  if (
-    input.window.startTime < hours.openTime ||
-    input.window.endTime > hours.closeTime
-  ) {
+  // Lesson must fit entirely inside at least one slot
+  const fitsInSomeSlot = hours.slots.some(
+    (slot) =>
+      input.window.startTime >= slot.openTime &&
+      input.window.endTime <= slot.closeTime
+  );
+
+  if (!fitsInSomeSlot) {
+    const ranges = hours.slots
+      .map((s) => `${s.openTime.slice(0, 5)} - ${s.closeTime.slice(0, 5)}`)
+      .join(", ");
     return {
       type: AvailabilityViolationType.OUTSIDE_BUSINESS_HOURS,
-      message: `Trainer is not available during this time. Lesson must be winthin ${hours.openTime} - ${hours.closeTime}`,
+      message: `Trainer is not available during this time. Lesson must be within ${ranges}.`,
     };
   }
 

@@ -1,5 +1,7 @@
+import { useStore } from "@tanstack/react-form";
 import { differenceInYears } from "date-fns";
 import { CakeIcon } from "lucide-react";
+import * as React from "react";
 
 import { FieldGroup } from "@/shared/components/ui/field";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
@@ -11,7 +13,23 @@ import { guardianInvitationModalHandler } from "../modals/guardian-invitation";
 
 export const PersonalDetailsStep = withFieldGroup({
   defaultValues: defaultMemberOnboardingValues.personalDetails,
-  render: function Render({ group }) {
+  props: {
+    isDependent: false,
+  },
+  render: function Render({ group, isDependent }) {
+    const imageFile = useStore(group.store, (state) => state.values.imageFile);
+
+    const previewUrl = React.useMemo(() => {
+      if (!imageFile) return null;
+      return URL.createObjectURL(imageFile);
+    }, [imageFile]);
+
+    React.useEffect(() => {
+      return () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      };
+    }, [previewUrl]);
+
     return (
       <FieldGroup>
         <div className="flex justify-center">
@@ -59,7 +77,7 @@ export const PersonalDetailsStep = withFieldGroup({
             },
           }}
           children={(field) => (
-            <field.TextField label="Name" placeholder="John Doe" required />
+            <field.TextField label="Name" placeholder="John Doe" />
           )}
         />
 
@@ -68,9 +86,14 @@ export const PersonalDetailsStep = withFieldGroup({
           children={(field) => (
             <field.TextField
               label="Email"
-              disabled
+              disabled={!isDependent}
               placeholder="john.doe@example.com"
               type="email"
+              description={
+                isDependent
+                  ? "Optional. Used to invite this dependent to the portal"
+                  : undefined
+              }
             />
           )}
         />
@@ -93,11 +116,13 @@ export const PersonalDetailsStep = withFieldGroup({
                 const dob = new Date(value);
                 const age = differenceInYears(new Date(), dob);
 
-                if (age < 18) {
+                if (age < 18 && !isDependent) {
                   guardianInvitationModalHandler.open(null);
                   return formatError(
                     "You must be at least 18 years old to complete onboarding"
                   );
+                } else if (age > 18 && isDependent) {
+                  return formatError("Dependent must be under 18");
                 }
               },
             }}

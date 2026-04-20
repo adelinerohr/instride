@@ -54,6 +54,7 @@ interface LessonModalPayload {
   start?: string;
   boardId?: string;
   trainerId?: string;
+  overrideBusinessHours?: boolean;
 }
 
 export const lessonModalHandler =
@@ -195,6 +196,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
               ? (value.recurrenceFrequency ?? RecurrenceFrequency.WEEKLY)
               : null,
             effectiveFrom: new Date().toISOString(),
+            overrideAvailability: initialValues.overrideBusinessHours,
           },
           {
             onSuccess,

@@ -1,15 +1,16 @@
 import { eq } from "drizzle-orm";
-import { api, APIError } from "encore.dev/api";
+import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
 import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { assertAdmin } from "../auth/gates";
 import { questionnaireResponses, questionnaires } from "./schema";
 import {
+  assertMaySubmitForMember,
   evaluateBoardAssignmentRules,
-  resolveSubjectMember,
   syncRiderBoardAssignments,
   validateResponses,
 } from "./submit";
@@ -113,7 +114,7 @@ export const deactivateQuestionnaire = api(
 
 interface SubmitQuestionnaireResponseRequest {
   questionnaireId: string;
-  userId?: string;
+  memberId?: string;
   responses: {
     questionId: string;
     responseValue: string | boolean;
@@ -135,17 +136,28 @@ export const submitResponse = api(
   async (
     request: SubmitQuestionnaireResponseRequest
   ): Promise<SubmitQuestionnaireResponseResponse> => {
-    const { organizationId, userID } = requireOrganizationAuth();
+    const { organizationId } = requireOrganizationAuth();
     const rawResponses = request.responses;
 
     const caller = await organizations.getMember();
 
-    const subjectMember = await resolveSubjectMember({
+    await assertMaySubmitForMember({
       organizationId,
-      authUserId: userID,
-      optionalSubjectUserId: request.userId,
+      targetMemberId: request.memberId ?? caller.member.id,
       callerMemberId: caller.member.id,
     });
+
+    const subjectMember = await db.query.members.findFirst({
+      where: {
+        id: request.memberId ?? caller.member.id,
+        organizationId,
+      },
+      with: {
+        rider: true,
+      },
+    });
+
+    assertExists(subjectMember, "Subject member not found");
 
     const questionnaire = await db.query.questionnaires.findFirst({
       where: {
@@ -153,10 +165,8 @@ export const submitResponse = api(
         isActive: true,
       },
     });
-    if (!questionnaire) {
-      throw APIError.notFound("Questionnaire not found");
-    }
 
+    assertExists(questionnaire, "Questionnaire not found");
     validateResponses(rawResponses, questionnaire);
 
     const assignedBoardIds = evaluateBoardAssignmentRules(

@@ -9,7 +9,9 @@ export function ImpersonationBanner() {
   const { session } = useRouteContext({ strict: false });
   const navigate = useNavigate();
 
-  if (!session) return null;
+  console.log(session);
+
+  if (!session?.impersonatedBy) return null;
 
   const stopImpersonation = async () => {
     await authClient.admin.stopImpersonating();

@@ -5,6 +5,7 @@ import { api, APIError } from "encore.dev/api";
 import { db } from "@/database";
 import { auth } from "@/services/auth/auth";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { members, riders, trainers } from "../schema";
 import {
@@ -256,9 +257,7 @@ export const joinOrganization = api(
       where: { id: organizationId },
     });
 
-    if (!organization) {
-      throw APIError.notFound(`Organization "${organizationId}" not found`);
-    }
+    assertExists(organization, "Organization not found");
 
     if (!organization.allowPublicJoin) {
       throw APIError.permissionDenied(

@@ -1,12 +1,15 @@
+import { MembershipRole } from "@instride/shared/models/enums";
 import { api, APIError } from "encore.dev/api";
 
 import { db } from "@/database";
 import { auth } from "@/services/auth/auth";
+import { requireAuth } from "@/shared/auth";
 
 import {
   GetOrganizationResponse,
   ListOrganizationsResponse,
 } from "../types/contracts";
+import { Organization } from "../types/models";
 
 export const listOrganizations = api(
   {
@@ -18,6 +21,48 @@ export const listOrganizations = api(
   async (): Promise<ListOrganizationsResponse> => {
     const organizations = await db.query.organizations.findMany();
     return { organizations };
+  }
+);
+
+interface ListMyOrganizationsResponse {
+  organizations: {
+    organization: Organization;
+    roles: MembershipRole[];
+  }[];
+}
+
+export const listMyOrganizations = api(
+  {
+    expose: true,
+    method: "GET",
+    path: "/organizations/my",
+    auth: true,
+  },
+  async (): Promise<ListMyOrganizationsResponse> => {
+    const { userID } = requireAuth();
+
+    const memberships = await db.query.members.findMany({
+      where: {
+        userId: userID,
+      },
+      with: {
+        organization: true,
+      },
+    });
+
+    const organizations = memberships
+      .map((membership) => membership.organization)
+      .filter((organization) => organization !== null);
+
+    return {
+      organizations: organizations.map((organization) => ({
+        organization,
+        roles:
+          memberships.find(
+            (membership) => membership.organization?.id === organization.id
+          )?.roles ?? [],
+      })),
+    };
   }
 );
 

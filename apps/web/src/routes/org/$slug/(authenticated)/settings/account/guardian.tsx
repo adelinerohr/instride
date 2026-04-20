@@ -1,18 +1,29 @@
-import { guardianOptions, useChangeRole, type types } from "@instride/api";
+import {
+  guardianOptions,
+  membersOptions,
+  questionnaireOptions,
+  useChangeRole,
+  waiverOptions,
+} from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { differenceInYears } from "date-fns";
 import {
   AlertCircleIcon,
   EllipsisVerticalIcon,
   PlusIcon,
+  SendIcon,
   SlidersIcon,
-  TrashIcon,
   UserPenIcon,
   UsersIcon,
 } from "lucide-react";
 import * as React from "react";
 
+import {
+  AddDependentModal,
+  addDependentModalHandler,
+} from "@/features/onboarding/components/modals/add-dependent";
 import {
   GuardianControlsModal,
   guardianControlsModalHandler,
@@ -21,15 +32,11 @@ import {
   EditDependentProfileModal,
   editDependentProfileModalHandler,
 } from "@/features/organization/components/guardians/dependent-profile-modal";
+import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import {
   AnnotatedLayout,
   AnnotatedSection,
 } from "@/shared/components/layout/annotated";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
@@ -64,7 +71,6 @@ import {
 } from "@/shared/components/ui/item";
 import { Separator } from "@/shared/components/ui/separator";
 import { Switch } from "@/shared/components/ui/switch";
-import { getInitials } from "@/shared/lib/utils/format";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/settings/account/guardian"
@@ -74,41 +80,52 @@ export const Route = createFileRoute(
     const isGuardian = context.member.roles.includes(MembershipRole.GUARDIAN);
 
     if (isGuardian) {
-      context.queryClient.ensureQueryData(guardianOptions.myDependents());
+      await context.queryClient.ensureQueryData(guardianOptions.myDependents());
+      await context.queryClient.ensureQueryData(questionnaireOptions.list());
+      await context.queryClient.ensureQueryData(waiverOptions.list());
     }
   },
 });
 
 function RouteComponent() {
-  const { member } = Route.useRouteContext();
+  const changeRole = useChangeRole();
+
+  const [addDependentKey, setAddDependentKey] = React.useState(0);
+
+  const { data: member } = useSuspenseQuery(membersOptions.me());
   const { data: relationships } = useSuspenseQuery(
     guardianOptions.myDependents()
   );
-  const toggleGuardianStatus = useChangeRole();
 
   const isGuardian = member.roles.includes(MembershipRole.GUARDIAN);
   const isRider = member.roles.includes(MembershipRole.RIDER);
 
   const handleToggleGuardianStatus = async () => {
-    await toggleGuardianStatus.mutateAsync({
+    const nextRoles = isGuardian
+      ? member.roles.filter((role) => role !== MembershipRole.GUARDIAN)
+      : [...member.roles, MembershipRole.GUARDIAN];
+
+    await changeRole.mutateAsync({
       memberId: member.id,
-      request: {
-        roles: isGuardian
-          ? member.roles.filter((role) => role !== MembershipRole.GUARDIAN)
-          : [...member.roles, MembershipRole.GUARDIAN],
-      },
+      request: { roles: nextRoles },
     });
   };
 
   const handleToggleRiderStatus = async () => {
-    await toggleGuardianStatus.mutateAsync({
+    const nextRoles = isRider
+      ? member.roles.filter((role) => role !== MembershipRole.RIDER)
+      : [...member.roles, MembershipRole.RIDER];
+
+    await changeRole.mutateAsync({
       memberId: member.id,
-      request: {
-        roles: isRider
-          ? member.roles.filter((role) => role !== MembershipRole.RIDER)
-          : [...member.roles, MembershipRole.RIDER],
-      },
+      request: { roles: nextRoles },
     });
+  };
+
+  const canInviteDependent = (dateOfBirth: string) => {
+    const dob = new Date(dateOfBirth);
+    const age = differenceInYears(new Date(), dob);
+    return age >= 12;
   };
 
   return (
@@ -172,9 +189,57 @@ function RouteComponent() {
               {relationships.length > 0 ? (
                 <ItemGroup>
                   {relationships.map((relationship) => (
-                    <React.Fragment key={relationship.dependentMemberId}>
-                      <DependentRow relationship={relationship} />
-                    </React.Fragment>
+                    <Item variant="outline" key={relationship.id}>
+                      <ItemMedia>
+                        <UserAvatar
+                          name={relationship.dependent.name}
+                          image={relationship.dependent.image}
+                        />
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>{relationship.dependent.name}</ItemTitle>
+                      </ItemContent>
+                      <ItemActions>
+                        <DropdownMenu modal={false}>
+                          <DropdownMenuTrigger
+                            render={<Button variant="ghost" size="icon" />}
+                          >
+                            <EllipsisVerticalIcon />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-fit">
+                            <DialogTrigger
+                              render={<DropdownMenuItem />}
+                              nativeButton={false}
+                              handle={editDependentProfileModalHandler}
+                              payload={{ relationship }}
+                            >
+                              <UserPenIcon />
+                              Edit Profile
+                            </DialogTrigger>
+                            <DialogTrigger
+                              render={<DropdownMenuItem />}
+                              nativeButton={false}
+                              handle={guardianControlsModalHandler}
+                              payload={{ relationship }}
+                            >
+                              <SlidersIcon />
+                              Edit Controls
+                            </DialogTrigger>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              disabled={
+                                !canInviteDependent(
+                                  relationship.dependent.dateOfBirth!
+                                )
+                              }
+                            >
+                              <SendIcon />
+                              Invite Dependent
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </ItemActions>
+                    </Item>
                   ))}
                 </ItemGroup>
               ) : (
@@ -192,7 +257,13 @@ function RouteComponent() {
               )}
             </CardContent>
             <CardFooter className="flex w-full justify-end">
-              <Button variant="default">
+              <Button
+                variant="default"
+                onClick={() => {
+                  setAddDependentKey((k) => k + 1);
+                  addDependentModalHandler.open(null);
+                }}
+              >
                 <PlusIcon />
                 Add Dependent
               </Button>
@@ -200,79 +271,9 @@ function RouteComponent() {
           </Card>
         </AnnotatedSection>
       </AnnotatedLayout>
-    </div>
-  );
-}
-
-interface DependentRowProps {
-  relationship: types.GuardianRelationship;
-}
-
-export function DependentRow({ relationship }: DependentRowProps) {
-  if (!relationship.dependent) return null;
-
-  return (
-    <Item
-      variant="outline"
-      className="cursor-pointer hover:bg-muted/50 not-first:rounded-t-none not-last:border-b-0 not-last:rounded-b-none"
-    >
-      <ItemMedia>
-        <Avatar>
-          <AvatarImage
-            src={relationship.dependent.authUser?.image ?? undefined}
-            alt={relationship.dependent.authUser?.name}
-          />
-          <AvatarFallback>
-            {getInitials(relationship.dependent.authUser?.name)}
-          </AvatarFallback>
-        </Avatar>
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>{relationship.dependent.authUser?.name}</ItemTitle>
-        <ItemDescription>
-          {relationship.canBookLessons
-            ? "Can book lessons"
-            : "Cannot book lessons"}
-          ,{" "}
-          {relationship.canPostOnFeed
-            ? "Can post on feed"
-            : "Cannot post on feed"}
-        </ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
-            <EllipsisVerticalIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DialogTrigger
-              render={<DropdownMenuItem />}
-              nativeButton={false}
-              handle={editDependentProfileModalHandler}
-              payload={{ relationship }}
-            >
-              <UserPenIcon />
-              Edit Profile
-            </DialogTrigger>
-            <DialogTrigger
-              render={<DropdownMenuItem />}
-              nativeButton={false}
-              handle={guardianControlsModalHandler}
-              payload={{ relationship }}
-            >
-              <SlidersIcon />
-              Edit Controls
-            </DialogTrigger>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <TrashIcon />
-              Delete Dependent
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ItemActions>
       <GuardianControlsModal />
       <EditDependentProfileModal />
-    </Item>
+      <AddDependentModal key={addDependentKey} />
+    </div>
   );
 }

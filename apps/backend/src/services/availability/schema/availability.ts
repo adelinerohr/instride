@@ -17,6 +17,10 @@ import { timeStamps } from "@/shared/utils/schema";
  * A board row overrides the org default for that day/board
  *
  * Hierarchy: org default → board override
+ *
+ * The unique constraint uses NULLS NOT DISTINCT so that org-wide rows
+ * (boardId = NULL) still participate in uniqueness — otherwise every save
+ * of org defaults would silently insert duplicate rows instead of updating.
  * ---------------------------------------------------------------------------
  */
 export const organizationAvailability = p.pgTable(
@@ -35,16 +39,13 @@ export const organizationAvailability = p.pgTable(
     dayOfWeek: dayOfWeekEnum("day_of_week").notNull(),
     isOpen: p.boolean("is_open").notNull().default(false),
 
-    // null when isOpen = false
-    openTime: p.time({ withTimezone: true }),
-    closeTime: p.time({ withTimezone: true }),
-
     ...timeStamps,
   },
   (table) => [
     p
       .unique("org_avail_organization_board_day_unique")
-      .on(table.organizationId, table.boardId, table.dayOfWeek),
+      .on(table.organizationId, table.boardId, table.dayOfWeek)
+      .nullsNotDistinct(),
     p.index("org_avail_organization_idx").on(table.organizationId),
     p
       .index("org_avail_organization_day_idx")
@@ -59,18 +60,35 @@ export const organizationAvailability = p.pgTable(
   ]
 );
 
+export const organizationAvailabilitySlots = p.pgTable(
+  "organization_availability_slots",
+  {
+    id: p.uuid("id").primaryKey().defaultRandom(),
+    availabilityId: p
+      .uuid("availability_id")
+      .notNull()
+      .references(() => organizationAvailability.id, { onDelete: "cascade" }),
+    openTime: p.time({ withTimezone: true }).notNull(),
+    closeTime: p.time({ withTimezone: true }).notNull(),
+    ...timeStamps,
+  },
+  (table) => [
+    p.index("org_avail_slots_availability_idx").on(table.availabilityId),
+  ]
+);
+
 /**
  * ---------------------------------------------------------------------------
  * TRAINER AVAILABILITY
- * Trainer-specific overrides of org/board hours
+ * Trainer-specific hours, optionally board-specific
  * ---------------------------------------------------------------------------
  * Hierarchy: effective org/board hours → trainer override (clamped)
  *
  * boardId null = trainer's general availability (fallback for all boards)
  * boardId non-null = trainer's override for that specific board
  *
- * inheritsFromOrg: true → use the effective org/board hours; rows can still
- * exist to store last-set custom times but are NOT applied.
+ * Same NULLS NOT DISTINCT reasoning as organizationAvailability applies to
+ * the trainer-defaults (boardId = NULL) rows.
  * ---------------------------------------------------------------------------
  */
 export const trainerAvailability = p.pgTable(
@@ -91,18 +109,15 @@ export const trainerAvailability = p.pgTable(
       .uuid("board_id")
       .references(() => boards.id, { onDelete: "cascade" }),
     dayOfWeek: dayOfWeekEnum("day_of_week").notNull(),
-
-    // When try this day uses the effective org/board hours (no custom times)
-    inheritsFromOrg: p.boolean("inherits_from_org").notNull().default(true),
     isOpen: p.boolean("is_open").notNull().default(false),
-
-    // null when inheritsFromOrg = true or isOpen = false
-    openTime: p.time({ withTimezone: true }),
-    closeTime: p.time({ withTimezone: true }),
 
     ...timeStamps,
   },
   (table) => [
+    p
+      .unique("trainer_avail_trainer_board_day_unique")
+      .on(table.trainerId, table.boardId, table.dayOfWeek)
+      .nullsNotDistinct(),
     p.index("trainer_avail_organization_idx").on(table.organizationId),
     p
       .index("trainer_avail_organization_trainer_idx")
@@ -118,6 +133,23 @@ export const trainerAvailability = p.pgTable(
     p
       .index("trainer_avail_trainer_day_board_idx")
       .on(table.trainerId, table.dayOfWeek, table.boardId),
+  ]
+);
+
+export const trainerAvailabilitySlots = p.pgTable(
+  "trainer_availability_slots",
+  {
+    id: p.uuid("id").primaryKey().defaultRandom(),
+    availabilityId: p
+      .uuid("trainer_availability_id")
+      .notNull()
+      .references(() => trainerAvailability.id, { onDelete: "cascade" }),
+    openTime: p.time({ withTimezone: true }).notNull(),
+    closeTime: p.time({ withTimezone: true }).notNull(),
+    ...timeStamps,
+  },
+  (table) => [
+    p.index("trainer_avail_slots_availability_idx").on(table.availabilityId),
   ]
 );
 

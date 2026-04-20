@@ -3,6 +3,7 @@ const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
 
 export const STALE = {
+  NONE: 0,
   SECONDS: {
     FIFTEEN: 15 * SECOND,
     THIRTY: 30 * SECOND,

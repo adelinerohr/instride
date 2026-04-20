@@ -1,17 +1,17 @@
 import { businessHoursOptions, type types } from "@instride/api";
-import { EventScope } from "@instride/shared";
+import {
+  EventScope,
+  resolveEffectiveBusinessHours,
+  type EffectiveBusinessHours,
+  type TrainerEffectiveBusinessHours,
+} from "@instride/shared";
 import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import * as React from "react";
 
 import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 
-import type {
-  CalendarView,
-  EffectiveBusinessHours,
-  TrainerEffectiveBusinessHours,
-} from "../lib/types";
-import { resolveEffectiveBusinessHours } from "../utils/business-hours";
+import type { CalendarView } from "../lib/types";
 
 interface CalendarContext {
   selectedDate: Date;
@@ -86,7 +86,8 @@ export function CalendarProvider({
   } = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
 
-  const date = new Date(selectedDate);
+  const date = React.useMemo(() => new Date(selectedDate), [selectedDate]);
+
   const { data: organizationBusinessHours } = useSuspenseQuery(
     businessHoursOptions.organization()
   );
@@ -178,16 +179,15 @@ export function CalendarProvider({
 
   const effectiveTrainerBusinessHours = React.useMemo(() => {
     const result: TrainerEffectiveBusinessHours = {};
-    for (let i = 0; i < trainerIdsToFetch.length; i++) {
-      const trainerId = trainerIdsToFetch[i];
-      const trainerBusinessHours = trainerBusinessHoursQueries[i]?.data;
-      if (trainerBusinessHours) {
+    trainerIdsToFetch.forEach((trainerId, i) => {
+      const data = trainerBusinessHoursQueries[i]?.data;
+      if (data) {
         result[trainerId] = resolveEffectiveBusinessHours(
-          trainerBusinessHours,
+          data,
           selectedBoardId
         );
       }
-    }
+    });
     return result;
   }, [trainerBusinessHoursQueries, trainerIdsToFetch, selectedBoardId]);
 
@@ -237,7 +237,7 @@ export function CalendarProvider({
         });
       }
     },
-    [lessonModalHandler]
+    [type, navigate]
   );
 
   return (

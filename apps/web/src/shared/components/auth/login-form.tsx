@@ -1,30 +1,44 @@
+import { useSignInEmail, useSignInSocial } from "@instride/api";
 import { loginSchema } from "@instride/shared";
 import { Link, linkOptions, useParams } from "@tanstack/react-router";
 import { APIError } from "better-auth";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
+import {
+  FieldDescription,
+  FieldGroup,
+  FieldSet,
+} from "@/shared/components/ui/field";
 import { Separator } from "@/shared/components/ui/separator";
 import { useAppForm } from "@/shared/hooks/use-form";
-import { authClient } from "@/shared/lib/auth/client";
 import { oAuthProviders } from "@/shared/lib/auth/oauth-providers";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+
 interface LoginFormProps {
-  orgName?: string;
   returnTo: string;
   onSuccess: () => void;
 }
 
-export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
+export function LoginForm({ returnTo, onSuccess }: LoginFormProps) {
   const params = useParams({ strict: false });
+  const signInEmail = useSignInEmail();
+  const signInSocial = useSignInSocial();
+
   const orgSlug = params.slug;
 
   const form = useAppForm({
     defaultValues: { email: "", password: "" },
     validators: { onSubmit: loginSchema },
-    onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
+    onSubmit: ({ value }) => {
+      signInEmail.mutate(
         {
           email: value.email,
           password: value.password,
@@ -52,7 +66,7 @@ export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
         to: "/auth/register",
       });
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     const isDev = !import.meta.env.PROD;
 
     // Build callback URL with org context
@@ -67,92 +81,90 @@ export function LoginForm({ orgName, returnTo, onSuccess }: LoginFormProps) {
     }
     callbackUrl.searchParams.set("returnTo", returnTo);
 
-    await authClient.signIn.social({
+    signInSocial.mutate({
       provider: "google",
       callbackURL: callbackUrl.toString(),
     });
   };
 
-  const displayName =
-    orgName || (orgSlug ? formatOrgName(orgSlug) : "Instride");
-
   return (
-    <div className="w-full max-w-sm space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome to {displayName}
-        </h1>
-        <p className="text-sm text-muted-foreground">Sign in to your account</p>
-      </div>
+    <Card>
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">Welcome back!</CardTitle>
+        <CardDescription>Sign in to your account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="space-y-4"
+        >
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting) => (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+                type="button"
+                disabled={isSubmitting}
+              >
+                <oAuthProviders.google.icon />
+                Continue with Google
+              </Button>
+            )}
+          </form.Subscribe>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="space-y-4"
-      >
-        <form.Subscribe selector={(state) => state.isSubmitting}>
-          {(isSubmitting) => (
-            <Button
-              variant="outline"
+          <div className="flex items-center gap-2">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <Separator className="flex-1" />
+          </div>
+
+          <FieldSet>
+            <FieldGroup>
+              <form.AppField
+                name="email"
+                children={(field) => (
+                  <field.TextField
+                    label="Email"
+                    placeholder="you@example.com"
+                  />
+                )}
+              />
+              <form.AppField
+                name="password"
+                children={(field) => (
+                  <field.TextField
+                    label="Password"
+                    type="password"
+                    placeholder="********"
+                  />
+                )}
+              />
+            </FieldGroup>
+          </FieldSet>
+
+          <form.AppForm>
+            <form.SubmitButton
+              label="Sign in"
+              loadingLabel="Signing in..."
               className="w-full"
-              onClick={handleGoogleSignIn}
-              type="button"
-              disabled={isSubmitting}
+            />
+          </form.AppForm>
+
+          <FieldDescription className="text-center px-6">
+            Don't have an account?
+            <Link
+              {...registerPath}
+              className={buttonVariants({ variant: "link" })}
             >
-              <oAuthProviders.google.icon />
-              Continue with Google
-            </Button>
-          )}
-        </form.Subscribe>
-
-        <div className="flex items-center gap-2">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or</span>
-          <Separator className="flex-1" />
-        </div>
-
-        <FieldSet>
-          <FieldGroup>
-            <form.AppField
-              name="email"
-              children={(field) => (
-                <field.TextField label="Email" placeholder="you@example.com" />
-              )}
-            />
-            <form.AppField
-              name="password"
-              children={(field) => (
-                <field.TextField
-                  label="Password"
-                  type="password"
-                  placeholder="********"
-                />
-              )}
-            />
-          </FieldGroup>
-        </FieldSet>
-
-        <form.AppForm>
-          <form.SubmitButton label="Sign in" loadingLabel="Signing in..." />
-        </form.AppForm>
-      </form>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Don't have an account?{" "}
-        <Link {...registerPath} className={buttonVariants({ variant: "link" })}>
-          Create one
-        </Link>
-      </p>
-    </div>
+              Create one
+            </Link>
+          </FieldDescription>
+        </form>
+      </CardContent>
+    </Card>
   );
-}
-
-// Helper to format slug into readable name
-function formatOrgName(slug: string): string {
-  return slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 }

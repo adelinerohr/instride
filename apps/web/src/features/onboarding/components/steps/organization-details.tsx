@@ -81,6 +81,8 @@ export const OrganizationDetailsStep = withForm({
                       label: state,
                       value: state,
                     }))}
+                    itemToValue={(item) => item.value}
+                    renderValue={(value) => value.label}
                   />
                 )}
               />

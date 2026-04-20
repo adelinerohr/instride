@@ -1,4 +1,4 @@
-import { useUpdateCurrentUser } from "@instride/api";
+import { useUpdateUser } from "@instride/api";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -16,7 +16,7 @@ enum FileUploadAction {
 
 export function PersonalDetails() {
   const { user } = Route.useRouteContext();
-  const updateUser = useUpdateCurrentUser();
+  const updateUser = useUpdateUser();
 
   const form = useAppForm({
     defaultValues: {

@@ -12,6 +12,17 @@ export const availabilityRelations = defineRelationsPart(schema, (r) => ({
       from: r.organizationAvailability.boardId,
       to: r.boards.id,
     }),
+    slots: r.many.organizationAvailabilitySlots({
+      from: r.organizationAvailability.id,
+      to: r.organizationAvailabilitySlots.availabilityId,
+    }),
+  },
+
+  organizationAvailabilitySlots: {
+    availability: r.one.organizationAvailability({
+      from: r.organizationAvailabilitySlots.availabilityId,
+      to: r.organizationAvailability.id,
+    }),
   },
 
   trainerAvailability: {
@@ -26,6 +37,17 @@ export const availabilityRelations = defineRelationsPart(schema, (r) => ({
     board: r.one.boards({
       from: r.trainerAvailability.boardId,
       to: r.boards.id,
+    }),
+    slots: r.many.trainerAvailabilitySlots({
+      from: r.trainerAvailability.id,
+      to: r.trainerAvailabilitySlots.availabilityId,
+    }),
+  },
+
+  trainerAvailabilitySlots: {
+    availability: r.one.trainerAvailability({
+      from: r.trainerAvailabilitySlots.availabilityId,
+      to: r.trainerAvailability.id,
     }),
   },
 

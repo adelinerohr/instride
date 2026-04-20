@@ -28,6 +28,25 @@ export interface Organization {
   allowPublicJoin: boolean;
 }
 
+export interface BaseMember {
+  organizationId: string;
+  id: string;
+  kioskPin: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  userId: string;
+  authMemberId: string;
+  isPlaceholder: boolean;
+  roles: MembershipRole[];
+  onboardingComplete: boolean;
+  deletedAt: Date | string | null;
+  authUser?: AuthUser | null;
+}
+
+export interface MemberWithRider extends BaseMember {
+  rider: RiderWithAssignments;
+}
+
 export interface Member {
   organizationId: string;
   id: string;
@@ -43,6 +62,28 @@ export interface Member {
   authUser?: AuthUser | null;
   rider?: Rider | null;
   trainer?: Trainer | null;
+}
+
+export interface BaseRider {
+  id: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  organizationId: string;
+  deletedAt: Date | string | null;
+  memberId: string;
+  isRestricted: boolean;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  ridingLevelId: string | null;
+}
+
+export interface RiderWithMember extends BaseRider {
+  member: Member;
+}
+
+export interface RiderWithAssignments extends BaseRider {
+  boardAssignments: BoardAssignment[];
+  level?: Level | null;
 }
 
 export interface Rider {

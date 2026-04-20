@@ -169,43 +169,37 @@ export namespace auth {
         host: string
     }
 
+    export interface ExportUsersParams {
+        userIds: string[]
+    }
+
+    export interface ExportUsersResponse {
+        csv: string
+        filename: string
+    }
+
     export interface GetSessionParams {
     }
 
     export interface GetSessionResponse {
-        session: Session | null
+        session: types.Session | null
     }
 
-    export interface Session {
-        session: {
-            id: string
-            createdAt: string
-            updatedAt: string
-            userId: string
-            expiresAt: string
-            token: string
-            ipAddress?: string | null
-            userAgent?: string | null
-            impersonatedBy?: string | null
-            activeOrganizationId?: string | null
-            contextOrganizationId?: string | null
-        }
-        user: {
-            id: string
-            createdAt: string
-            updatedAt: string
-            email: string
-            emailVerified: boolean
-            dateOfBirth?: string | null
-            name: string
-            image?: string | null
-            phone?: string | null
-            profilePictureUrl?: string | null
-            banned?: boolean | null
-            role?: string | null
-            banReason?: string | null
-            banExpires?: string | null
-        }
+    export interface ListUsersParams {
+        query?: string
+        limit: number
+        offset: number
+        sortBy: string
+        sortOrder: "asc" | "desc"
+        role?: ("admin" | "user")[]
+        banned?: ("active" | "banned")[]
+        emailVerified?: ("verified" | "pending")[]
+        createdAt?: ("today" | "this-week" | "this-month" | "older")[]
+    }
+
+    export interface ListUsersResponse {
+        users: types.AuthUser[]
+        total: number
     }
 
     export interface UpdateUserRequest {
@@ -221,7 +215,9 @@ export namespace auth {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.authRoutes = this.authRoutes.bind(this)
+            this.exportUsers = this.exportUsers.bind(this)
             this.getSession = this.getSession.bind(this)
+            this.listUsers = this.listUsers.bind(this)
             this.updateUser = this.updateUser.bind(this)
         }
 
@@ -233,10 +229,35 @@ export namespace auth {
             return this.baseClient.callAPI(method, `/auth/${path.map(encodeURIComponent).join("/")}`, body, options)
         }
 
+        public async exportUsers(params: ExportUsersParams): Promise<ExportUsersResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/admin/users/export`, JSON.stringify(params))
+            return await resp.json() as ExportUsersResponse
+        }
+
         public async getSession(params: GetSessionParams): Promise<GetSessionResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/session`)
             return await resp.json() as GetSessionResponse
+        }
+
+        public async listUsers(params: ListUsersParams): Promise<ListUsersResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                banned:        params.banned?.map((v) => String(v)),
+                createdAt:     params.createdAt?.map((v) => String(v)),
+                emailVerified: params.emailVerified?.map((v) => String(v)),
+                limit:         String(params.limit),
+                offset:        String(params.offset),
+                query:         params.query,
+                role:          params.role?.map((v) => String(v)),
+                sortBy:        params.sortBy,
+                sortOrder:     String(params.sortOrder),
+            })
+
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/admin/users`, undefined, {query})
+            return await resp.json() as ListUsersResponse
         }
 
         public async updateUser(params: UpdateUserRequest): Promise<void> {
@@ -291,16 +312,22 @@ export namespace availability {
             this.updateTrainerBusinessHours = this.updateTrainerBusinessHours.bind(this)
         }
 
+        /**
+         * Check whether a proposed lesson falls inside the effective org and trainer hours.
+         * 
+         * "Within hours" means the entire [startTime, endTime) interval fits inside
+         * at least one slot of the effective day.
+         */
         public async checkLessonHours(params: business_hours.CheckLessonHoursRequest): Promise<business_hours.CheckLessonHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/business-hours/check-lesson`, JSON.stringify(params))
             return await resp.json() as business_hours.CheckLessonHoursResponse
         }
 
-        public async createTimeBlock(params: time_blocks.CreateTimeBlockRequest): Promise<types.GetTimeBlockResponse> {
+        public async createTimeBlock(params: time_blocks.CreateTimeBlockParams): Promise<types.TimeBlock> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/time-blocks`, JSON.stringify(params))
-            return await resp.json() as types.GetTimeBlockResponse
+            return await resp.json() as types.TimeBlock
         }
 
         public async deleteTimeBlock(id: string): Promise<void> {
@@ -311,8 +338,8 @@ export namespace availability {
          * Get available time slots for booking a lesson
          * 
          * Generates time slots based on:
-         * - Organization business hours
-         * - Trainer business hours (for the specific board)
+         * - Organization business hours (multi-slot per day supported)
+         * - Trainer business hours (multi-slot per day supported)
          * - Service duration
          * - Date range
          * 
@@ -338,19 +365,19 @@ export namespace availability {
             return await resp.json() as AvailableSlotResponse
         }
 
-        public async getTimeBlock(id: string): Promise<types.GetTimeBlockResponse> {
+        public async getTimeBlock(id: string): Promise<types.TimeBlock> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/time-blocks/${encodeURIComponent(id)}`)
-            return await resp.json() as types.GetTimeBlockResponse
+            return await resp.json() as types.TimeBlock
         }
 
-        public async listOrganizationBusinessHours(): Promise<types.ListBusinessHoursResponse> {
+        public async listOrganizationBusinessHours(): Promise<types.ListOrganizationBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/organization`)
-            return await resp.json() as types.ListBusinessHoursResponse
+            return await resp.json() as types.ListOrganizationBusinessHoursResponse
         }
 
-        public async listTimeBlocks(params: time_blocks.ListTimeBlocksRequest): Promise<types.ListTimeBlocksResponse> {
+        public async listTimeBlocks(params: time_blocks.ListTimeBlocksParams): Promise<types.ListTimeBlocksResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 from:      params.from,
@@ -363,10 +390,10 @@ export namespace availability {
             return await resp.json() as types.ListTimeBlocksResponse
         }
 
-        public async listTrainerBusinessHours(trainerId: string): Promise<types.ListBusinessHoursResponse> {
+        public async listTrainerBusinessHours(trainerId: string): Promise<types.ListTrainerBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/business-hours/trainer/${encodeURIComponent(trainerId)}`)
-            return await resp.json() as types.ListBusinessHoursResponse
+            return await resp.json() as types.ListTrainerBusinessHoursResponse
         }
 
         public async resetBoardBusinessHours(boardId: string): Promise<void> {
@@ -377,17 +404,42 @@ export namespace availability {
             await this.baseClient.callTypedAPI("DELETE", `/business-hours/trainer/${encodeURIComponent(trainerId)}/boards/${encodeURIComponent(boardId)}`)
         }
 
-        public async updateOrganizationBusinessHours(params: business_hours.UpdateOrganizationBusinessHoursRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("PUT", `/business-hours/organization`, JSON.stringify(params))
+        /**
+         * Replace the organization (or board-override) business hours for the given days.
+         * 
+         * For each day:
+         * 1. Upsert the day-row (organizationId, boardId, dayOfWeek) with its isOpen flag.
+         * 2. Delete all existing slots for that day-row.
+         * 3. Insert the new slots (if the day is open).
+         * 
+         * All wrapped in a transaction so partial writes never leak through. The
+         * post-write list read happens on the same tx so we return a snapshot that's
+         * guaranteed consistent with what we just wrote.
+         * 
+         * The unique constraint on (organizationId, boardId, dayOfWeek) uses
+         * NULLS NOT DISTINCT so org-default rows (boardId = NULL) participate in
+         * uniqueness and the conflict path fires correctly.
+         */
+        public async updateOrganizationBusinessHours(params: business_hours.UpdateOrganizationBusinessHoursParams): Promise<types.ListOrganizationBusinessHoursResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/business-hours/organization`, JSON.stringify(params))
+            return await resp.json() as types.ListOrganizationBusinessHoursResponse
         }
 
-        public async updateTimeBlock(id: string, params: time_blocks.UpdateTimeBlockRequest): Promise<types.GetTimeBlockResponse> {
+        public async updateTimeBlock(id: string, params: time_blocks.UpdateTimeBlockParams): Promise<types.TimeBlock> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/time-blocks/${encodeURIComponent(id)}`, JSON.stringify(params))
-            return await resp.json() as types.GetTimeBlockResponse
+            return await resp.json() as types.TimeBlock
         }
 
-        public async updateTrainerBusinessHours(trainerId: string, params: business_hours.UpdateTrainerBusinessHoursRequest): Promise<types.ListTrainerBusinessHoursResponse> {
+        /**
+         * Replace a trainer's business hours for the given days.
+         * 
+         * Clamping: each trainer slot must fit entirely inside one of the effective
+         * org/board slots for that day. A trainer cannot open when the org is closed,
+         * and cannot open earlier or later than the org's slots allow.
+         */
+        public async updateTrainerBusinessHours(trainerId: string, params: business_hours.UpdateTrainerBusinessHoursParams): Promise<types.ListTrainerBusinessHoursResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("PUT", `/business-hours/trainer/${encodeURIComponent(trainerId)}`, JSON.stringify(params))
             return await resp.json() as types.ListTrainerBusinessHoursResponse
@@ -877,42 +929,111 @@ export namespace feed {
 }
 
 export namespace guardians {
-    export interface CreateGuardianRelationshipRequest {
-        /**
-         * Request body
-         */
+    export interface CreateGuardianRelationshipParams {
         guardianMemberId: string
-
         dependentMemberId: string
-        canBookLessons: boolean
-        canPostOnFeed: boolean
+        permissions: {
+            bookings?: {
+                canBookLessons: boolean
+                canJoinEvents: boolean
+                requiresApproval: boolean
+                canCancel: boolean
+            }
+            communication?: {
+                canPost: boolean
+                canComment: boolean
+                receiveEmailNotifications: boolean
+                receiveTextNotifications: boolean
+            }
+            profile?: {
+                canEdit: boolean
+            }
+        }
         coppaConsentGiven: boolean
         coppaConsentGivenAt: string | null
     }
 
-    export interface CreatePlaceholderRelationshipRequest {
-        /**
-         * Request body
-         */
+    export interface CreatePlaceholderRelationshipParams {
         placeholderProfile: {
             name: string
             email?: string
             phone?: string | null
             image?: string | null
+            dateOfBirth: string
         }
+        permissions: {
+            bookings?: {
+                canBookLessons: boolean
+                canJoinEvents: boolean
+                requiresApproval: boolean
+                canCancel: boolean
+            }
+            communication?: {
+                canPost: boolean
+                canComment: boolean
+                receiveEmailNotifications: boolean
+                receiveTextNotifications: boolean
+            }
+            profile?: {
+                canEdit: boolean
+            }
+        }
+        questionnaire?: {
+            questionnaireId: string
+            responses: types.QuestionnaireQuestionResponse[]
+        }
+        waiver?: {
+            waiverId: string
+        }
+    }
 
-        dependentControls: {
-            canBookLessons: boolean
-            canPostOnFeed: boolean
-        }
+    export interface GetMyDependendentsResponse {
+        relationships: {
+            id: string
+            dependentMemberId: string
+            permissions: types.GuardianPermissions | null
+            createdAt: string
+            dependent: {
+                name: string
+                image: string | null
+                dateOfBirth: string | null
+                riderId: string
+                isRestricted: boolean
+                level: {
+                    id: string
+                    name: string
+                    color: string
+                } | null
+                boardAssignments: string[]
+            }
+        }[]
+    }
+
+    export interface SendInvitationParams {
+        email: string
     }
 
     export interface UpdateGuardianRelationshipRequest {
         guardianMemberId?: string
         dependentMemberId?: string
         status?: models.GuardianRelationshipStatus
-        canBookLessons?: boolean
-        canPostOnFeed?: boolean
+        permissions?: {
+            bookings?: {
+                canBookLessons: boolean
+                canJoinEvents: boolean
+                requiresApproval: boolean
+                canCancel: boolean
+            }
+            communication?: {
+                canPost: boolean
+                canComment: boolean
+                receiveEmailNotifications: boolean
+                receiveTextNotifications: boolean
+            }
+            profile?: {
+                canEdit: boolean
+            }
+        }
         coppaConsentGiven?: boolean
         coppaConsentGivenAt?: string | null
     }
@@ -922,81 +1043,107 @@ export namespace guardians {
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
-            this.confirmRelationship = this.confirmRelationship.bind(this)
+            this.acceptInvitation = this.acceptInvitation.bind(this)
+            this.acceptRelationship = this.acceptRelationship.bind(this)
+            this.canAccessOrganization = this.canAccessOrganization.bind(this)
             this.createGuardianRelationship = this.createGuardianRelationship.bind(this)
             this.createPlaceholderRelationship = this.createPlaceholderRelationship.bind(this)
-            this.getGuardianRelationships = this.getGuardianRelationships.bind(this)
             this.getMyDependents = this.getMyDependents.bind(this)
             this.getMyGuardians = this.getMyGuardians.bind(this)
             this.getRelationshipById = this.getRelationshipById.bind(this)
             this.listAllRelationships = this.listAllRelationships.bind(this)
             this.listPendingGuardianRequests = this.listPendingGuardianRequests.bind(this)
             this.revokeRelationship = this.revokeRelationship.bind(this)
+            this.sendInvitation = this.sendInvitation.bind(this)
             this.updateGuardianRelationship = this.updateGuardianRelationship.bind(this)
         }
 
-        public async confirmRelationship(relationshipId: string): Promise<types.GetGuardianRelationshipResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/confirm`)
-            return await resp.json() as types.GetGuardianRelationshipResponse
+        public async acceptInvitation(token: string): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/guardians/invitations/${encodeURIComponent(token)}/accept`)
         }
 
-        public async createGuardianRelationship(organizationId: string, params: CreateGuardianRelationshipRequest): Promise<types.GetGuardianRelationshipResponse> {
+        public async acceptRelationship(relationshipId: string): Promise<types.GuardianRelationship> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/guardians`, JSON.stringify(params))
-            return await resp.json() as types.GetGuardianRelationshipResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/accept`)
+            return await resp.json() as types.GuardianRelationship
         }
 
-        public async createPlaceholderRelationship(organizationId: string, params: CreatePlaceholderRelationshipRequest): Promise<types.GetGuardianRelationshipResponse> {
+        public async canAccessOrganization(organizationId: string): Promise<{
+    canAccess: boolean
+    reason?: string
+}> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/${encodeURIComponent(organizationId)}/guardians/placeholder`, JSON.stringify(params))
-            return await resp.json() as types.GetGuardianRelationshipResponse
+            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/${encodeURIComponent(organizationId)}/can-access`)
+            return await resp.json() as {
+    canAccess: boolean
+    reason?: string
+}
         }
 
-        public async getGuardianRelationships(guardianMemberId: string): Promise<types.ListGuardianRelationshipsResponse> {
+        public async createGuardianRelationship(params: CreateGuardianRelationshipParams): Promise<types.GuardianRelationship> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/relationships/${encodeURIComponent(guardianMemberId)}`)
-            return await resp.json() as types.ListGuardianRelationshipsResponse
+            const resp = await this.baseClient.callTypedAPI("POST", `/guardians`, JSON.stringify(params))
+            return await resp.json() as types.GuardianRelationship
         }
 
-        public async getMyDependents(): Promise<types.ListGuardianRelationshipsResponse> {
+        public async createPlaceholderRelationship(params: CreatePlaceholderRelationshipParams): Promise<types.GuardianRelationship> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/placeholder`, JSON.stringify(params))
+            return await resp.json() as types.GuardianRelationship
+        }
+
+        public async getMyDependents(): Promise<GetMyDependendentsResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-dependents`)
-            return await resp.json() as types.ListGuardianRelationshipsResponse
+            return await resp.json() as GetMyDependendentsResponse
         }
 
-        public async getMyGuardians(): Promise<types.ListGuardianRelationshipsResponse> {
+        public async getMyGuardians(): Promise<types.GuardianRelationshipWithGuardian> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-guardians`)
-            return await resp.json() as types.ListGuardianRelationshipsResponse
+            return await resp.json() as types.GuardianRelationshipWithGuardian
         }
 
-        public async getRelationshipById(relationshipId: string): Promise<types.GetGuardianRelationshipResponse> {
+        public async getRelationshipById(relationshipId: string): Promise<types.GuardianRelationshipWithMembers> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/${encodeURIComponent(relationshipId)}`)
-            return await resp.json() as types.GetGuardianRelationshipResponse
+            return await resp.json() as types.GuardianRelationshipWithMembers
         }
 
-        public async listAllRelationships(): Promise<types.ListGuardianRelationshipsResponse> {
+        public async listAllRelationships(): Promise<{
+    relationships: types.GuardianRelationshipWithMembers[]
+}> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians`)
-            return await resp.json() as types.ListGuardianRelationshipsResponse
+            return await resp.json() as {
+    relationships: types.GuardianRelationshipWithMembers[]
+}
         }
 
-        public async listPendingGuardianRequests(): Promise<types.ListGuardianRelationshipsResponse> {
+        public async listPendingGuardianRequests(): Promise<{
+    relationships: types.GuardianRelationship[]
+}> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/pending`)
-            return await resp.json() as types.ListGuardianRelationshipsResponse
+            return await resp.json() as {
+    relationships: types.GuardianRelationship[]
+}
         }
 
-        public async revokeRelationship(relationshipId: string): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/revoke`)
+        public async revokeRelationship(relationshipId: string): Promise<types.GuardianRelationship> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/revoke`)
+            return await resp.json() as types.GuardianRelationship
         }
 
-        public async updateGuardianRelationship(relationshipId: string, params: UpdateGuardianRelationshipRequest): Promise<types.GetGuardianRelationshipResponse> {
+        public async sendInvitation(relationshipId: string, params: SendInvitationParams): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/invitations`, JSON.stringify(params))
+        }
+
+        public async updateGuardianRelationship(relationshipId: string, params: UpdateGuardianRelationshipRequest): Promise<types.GuardianRelationship> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/guardians/${encodeURIComponent(relationshipId)}/update`, JSON.stringify(params))
-            return await resp.json() as types.GetGuardianRelationshipResponse
+            return await resp.json() as types.GuardianRelationship
         }
     }
 }
@@ -1392,6 +1539,13 @@ export namespace organizations {
         organization: types.Organization
     }
 
+    export interface ListMyOrganizationsResponse {
+        organizations: {
+            organization: types.Organization
+            roles: models.MembershipRole[]
+        }[]
+    }
+
     export interface SendInvitationRequest {
         email: string
         role: models.MembershipRole[]
@@ -1444,10 +1598,12 @@ export namespace organizations {
             this.listInvitations = this.listInvitations.bind(this)
             this.listLevels = this.listLevels.bind(this)
             this.listMembers = this.listMembers.bind(this)
+            this.listMyOrganizations = this.listMyOrganizations.bind(this)
             this.listOrganizations = this.listOrganizations.bind(this)
             this.listRiders = this.listRiders.bind(this)
             this.listTrainers = this.listTrainers.bind(this)
             this.listUserInvitations = this.listUserInvitations.bind(this)
+            this.onboardMember = this.onboardMember.bind(this)
             this.sendInvitation = this.sendInvitation.bind(this)
             this.setKioskPin = this.setKioskPin.bind(this)
             this.updateLevel = this.updateLevel.bind(this)
@@ -1570,6 +1726,12 @@ export namespace organizations {
             return await resp.json() as types.ListMembersResponse
         }
 
+        public async listMyOrganizations(): Promise<ListMyOrganizationsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/organizations/my`)
+            return await resp.json() as ListMyOrganizationsResponse
+        }
+
         public async listOrganizations(): Promise<types.ListOrganizationsResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/organizations`)
@@ -1597,6 +1759,12 @@ export namespace organizations {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/invitations/user`)
             return await resp.json() as types.ListInvitationsResponse
+        }
+
+        public async onboardMember(params: members.OnboardMemberParams): Promise<types.BaseMember> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/organizations/members/onboard`, JSON.stringify(params))
+            return await resp.json() as types.BaseMember
         }
 
         public async sendInvitation(organizationId: string, params: SendInvitationRequest): Promise<void> {
@@ -1693,7 +1861,7 @@ export namespace questionnaires {
     }
 
     export interface SubmitQuestionnaireResponseRequest {
-        userId?: string
+        memberId?: string
         responses: {
             questionId: string
             responseValue: string | boolean
@@ -1980,19 +2148,19 @@ export namespace business_hours {
     export interface CheckLessonHoursResponse {
         withinOrgHours: boolean
         withinTrainerHours: boolean | null
-        effectiveOrgHours: types.EffectiveDayHours | null
-        effectiveTrainerHours: types.EffectiveDayHours | null
+        effectiveOrgHours: types.BusinessHoursDay | null
+        effectiveTrainerHours: types.BusinessHoursDay | null
         passes: boolean
     }
 
-    export interface UpdateOrganizationBusinessHoursRequest {
+    export interface UpdateOrganizationBusinessHoursParams {
         boardId: string | null
-        days: types.DayHours[]
+        days: utils.DayHours[]
     }
 
-    export interface UpdateTrainerBusinessHoursRequest {
+    export interface UpdateTrainerBusinessHoursParams {
         boardId: string | null
-        days: types.TrainerDayHours[]
+        days: utils.DayHours[]
     }
 }
 
@@ -2127,6 +2295,24 @@ export namespace members {
 
     export interface ListTrainersRequest {
         boardId?: string
+    }
+
+    export interface OnboardMemberParams {
+        organizationId: string
+        user: {
+            name: string
+            phone?: string | null
+            dateOfBirth?: string | null
+            image?: string | null
+            roles: models.MembershipRole[]
+        }
+        questionnaire?: {
+            questionnaireId: string
+            responses: types.QuestionnaireQuestionResponse[]
+        }
+        waiver?: {
+            waiverId: string
+        }
     }
 
     export interface SetKioskPinRequest {
@@ -2300,7 +2486,7 @@ export namespace services {
 }
 
 export namespace time_blocks {
-    export interface CreateTimeBlockRequest {
+    export interface CreateTimeBlockParams {
         trainerId: string
         start: string
         end: string
@@ -2308,13 +2494,13 @@ export namespace time_blocks {
         reason?: string | null
     }
 
-    export interface ListTimeBlocksRequest {
+    export interface ListTimeBlocksParams {
         trainerId?: string
         from?: string
         to?: string
     }
 
-    export interface UpdateTimeBlockRequest {
+    export interface UpdateTimeBlockParams {
         trainerId: string
         start: string
         end: string
@@ -2416,6 +2602,21 @@ export namespace types {
         dateOfBirth?: string | null
     }
 
+    export interface BaseMember {
+        organizationId: string
+        id: string
+        kioskPin: string | null
+        createdAt: string
+        updatedAt: string
+        userId: string
+        authMemberId: string
+        isPlaceholder: boolean
+        roles: models.MembershipRole[]
+        onboardingComplete: boolean
+        deletedAt: string | null
+        authUser?: AuthUser | null
+    }
+
     export interface Board {
         organizationId: string
         id: string
@@ -2439,22 +2640,11 @@ export namespace types {
         board?: Board | null
     }
 
-    export interface DayHours {
+    export interface BusinessHoursDay {
         dayOfWeek: models.DayOfWeek
         isOpen: boolean
-        openTime: string | null
-        closeTime: string | null
+        slots: utils.TimeSlot[]
     }
-
-    export interface EffectiveDayHours {
-        source: EffectiveDayHoursSource
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        openTime: string | null
-        closeTime: string | null
-    }
-
-    export type EffectiveDayHoursSource = "board_override" | "organization_default" | "trainer_default" | "trainer_board_override"
 
     export interface Event {
         organizationId: string
@@ -2548,10 +2738,6 @@ export namespace types {
         post: FeedPost
     }
 
-    export interface GetGuardianRelationshipResponse {
-        relationship: GuardianRelationship
-    }
-
     export interface GetInstanceEnrollmentResponse {
         enrollment: LessonInstanceEnrollment
     }
@@ -2624,10 +2810,6 @@ export namespace types {
         signature: WaiverSignature
     }
 
-    export interface GetTimeBlockResponse {
-        timeBlock: TimeBlock
-    }
-
     export interface GetTrainerResponse {
         trainer: Trainer
     }
@@ -2640,6 +2822,24 @@ export namespace types {
         waiver: Waiver
     }
 
+    export interface GuardianPermissions {
+        bookings: {
+            canBookLessons: boolean
+            canJoinEvents: boolean
+            requiresApproval: boolean
+            canCancel: boolean
+        }
+        communication: {
+            canPost: boolean
+            canComment: boolean
+            receiveEmailNotifications: boolean
+            receiveTextNotifications: boolean
+        }
+        profile: {
+            canEdit: boolean
+        }
+    }
+
     export interface GuardianRelationship {
         id: string
         createdAt: string
@@ -2647,11 +2847,36 @@ export namespace types {
         organizationId: string
         guardianMemberId: string
         dependentMemberId: string
-        canBookLessons: boolean
-        canPostOnFeed: boolean
+        permissions: GuardianPermissions | null
         coppaConsentGiven: boolean
         coppaConsentGivenAt: string | null
-        dependent?: Member | null
+    }
+
+    export interface GuardianRelationshipWithGuardian {
+        guardian: Member
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        guardianMemberId: string
+        dependentMemberId: string
+        permissions: GuardianPermissions | null
+        coppaConsentGiven: boolean
+        coppaConsentGivenAt: string | null
+    }
+
+    export interface GuardianRelationshipWithMembers {
+        guardian: Member
+        dependent: Member
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        guardianMemberId: string
+        dependentMemberId: string
+        permissions: GuardianPermissions | null
+        coppaConsentGiven: boolean
+        coppaConsentGivenAt: string | null
     }
 
     export interface Invitation {
@@ -2807,17 +3032,8 @@ export namespace types {
         boards: Board[]
     }
 
-    export interface ListBusinessHoursResponse {
-        defaults: TrainerBusinessHours[] | OrganizationBusinessHours[]
-        boardOverrides: { [key: string]: TrainerBusinessHours[] | OrganizationBusinessHours[] }
-    }
-
     export interface ListEventsResponse {
         events: GetEventResponse[]
-    }
-
-    export interface ListGuardianRelationshipsResponse {
-        relationships: GuardianRelationship[]
     }
 
     export interface ListInvitationsResponse {
@@ -2848,6 +3064,11 @@ export namespace types {
         members: Member[]
     }
 
+    export interface ListOrganizationBusinessHoursResponse {
+        defaults: OrganizationBusinessHours[]
+        boardOverrides: { [key: string]: OrganizationBoardBusinessHours[] }
+    }
+
     export interface ListOrganizationsResponse {
         organizations: Organization[]
     }
@@ -2876,8 +3097,13 @@ export namespace types {
         timeBlocks: TimeBlock[]
     }
 
+    /**
+     * Business hours grouped into org-wide defaults vs per-board overrides.
+     * Both `defaults` and `boardOverrides[id]` contain day-rows with their slots inlined.
+     */
     export interface ListTrainerBusinessHoursResponse {
-        businessHours: TrainerBusinessHours[]
+        defaults: TrainerBusinessHours[]
+        boardOverrides: { [key: string]: TrainerBoardBusinessHours[] }
     }
 
     export interface ListTrainerServiceAssignmentsResponse {
@@ -2966,6 +3192,26 @@ export namespace types {
         allowPublicJoin: boolean
     }
 
+    export interface OrganizationAvailabilitySlot {
+        id: string
+        createdAt: string
+        updatedAt: string
+        availabilityId: string
+        openTime: string
+        closeTime: string
+    }
+
+    export interface OrganizationBoardBusinessHours {
+        boardId: string
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        dayOfWeek: models.DayOfWeek
+        isOpen: boolean
+        slots: OrganizationAvailabilitySlot[]
+    }
+
     export interface OrganizationBusinessHours {
         id: string
         createdAt: string
@@ -2974,8 +3220,7 @@ export namespace types {
         boardId: string | null
         dayOfWeek: models.DayOfWeek
         isOpen: boolean
-        openTime: string | null
-        closeTime: string | null
+        slots: OrganizationAvailabilitySlot[]
     }
 
     export interface Questionnaire {
@@ -3097,6 +3342,38 @@ export namespace types {
         trainer?: Trainer | null
     }
 
+    export interface Session {
+        session: {
+            id: string
+            createdAt: string
+            updatedAt: string
+            userId: string
+            expiresAt: string
+            token: string
+            ipAddress?: string | null
+            userAgent?: string | null
+            contextOrganizationId?: string | null
+            impersonatedBy?: string | null
+            activeOrganizationId?: string | null
+        }
+        user: {
+            id: string
+            createdAt: string
+            updatedAt: string
+            email: string
+            emailVerified: boolean
+            name: string
+            image?: string | null
+            phone?: string | null
+            profilePictureUrl?: string | null
+            dateOfBirth?: string | null
+            banned?: boolean | null
+            role?: string | null
+            banReason?: string | null
+            banExpires?: string | null
+        }
+    }
+
     export interface TimeBlock {
         organizationId: string
         id: string
@@ -3122,26 +3399,37 @@ export namespace types {
         boardAssignments?: BoardAssignment[] | null
     }
 
-    export interface TrainerBusinessHours {
-        organizationId: string
-        trainerId: string
+    export interface TrainerAvailabilitySlot {
         id: string
         createdAt: string
         updatedAt: string
+        availabilityId: string
+        openTime: string
+        closeTime: string
+    }
+
+    export interface TrainerBoardBusinessHours {
+        boardId: string
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        trainerId: string
+        dayOfWeek: models.DayOfWeek
+        isOpen: boolean
+        slots: TrainerAvailabilitySlot[]
+    }
+
+    export interface TrainerBusinessHours {
+        id: string
+        createdAt: string
+        updatedAt: string
+        organizationId: string
+        trainerId: string
         boardId: string | null
         dayOfWeek: models.DayOfWeek
         isOpen: boolean
-        openTime: string | null
-        closeTime: string | null
-        inheritsFromOrg: boolean
-    }
-
-    export interface TrainerDayHours {
-        inheritsFromOrg: boolean
-        dayOfWeek: models.DayOfWeek
-        isOpen: boolean
-        openTime: string | null
-        closeTime: string | null
+        slots: TrainerAvailabilitySlot[]
     }
 
     export interface Waiver {
@@ -3168,6 +3456,19 @@ export namespace types {
         isValid: boolean
         invalidatedAt: string | null
         invalidatedReason: string | null
+    }
+}
+
+export namespace utils {
+    export interface DayHours {
+        dayOfWeek: models.DayOfWeek
+        isOpen: boolean
+        slots: TimeSlot[]
+    }
+
+    export interface TimeSlot {
+        openTime: string
+        closeTime: string
     }
 }
 

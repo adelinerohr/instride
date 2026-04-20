@@ -1,9 +1,9 @@
 import type { types } from "@instride/api";
+import { isWorkingHour } from "@instride/shared";
 import { areIntervalsOverlapping, parseISO } from "date-fns";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { HOURS } from "@/features/calendar/lib/constants";
-import { isWorkingHour } from "@/features/calendar/utils/business-hours";
 import {
   getLessonBlockStyle,
   groupLessons,
@@ -28,11 +28,11 @@ export function DayColumn({ trainer }: DayColumnProps) {
   return (
     <div className="relative flex-1">
       {HOURS.map((hour, index) => {
-        const isDisabled = !isWorkingHour(
-          selectedDate,
+        const isDisabled = !isWorkingHour({
+          day: selectedDate,
           hour,
-          currentTrainerBusinessHours
-        );
+          businessHours: currentTrainerBusinessHours,
+        });
 
         return (
           <HourCell

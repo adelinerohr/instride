@@ -1,152 +1,224 @@
-import { DayOfWeek } from "@instride/shared";
 import {
-  formatTimeLabel,
+  DayOfWeek,
   normalizeTimeSlot,
-  DAY_LABEL_MAP,
   TIME_OPTIONS,
+  type TimeSlot,
 } from "@instride/shared";
+import { DAY_LABEL_MAP } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
+import { PlusIcon, XIcon } from "lucide-react";
 
-import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import { withFieldGroup } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
+const DEFAULT_SLOT: TimeSlot = { openTime: "09:00", closeTime: "17:00" };
+
+/**
+ * A single day's row in the business hours editor.
+ *
+ * Layout:
+ *   [Day ☐] [Closed]                                 (when closed)
+ *   [Day ☑] [09:00 → 17:00]              [+ Add slot] (single-slot open day)
+ *   [Day ☑] [09:00 → 12:00]        [×]
+ *           [15:00 → 18:00]        [×]   [+ Add slot] (multi-slot open day)
+ *
+ * No inheritance toggle (trainer rows no longer inherit — hours are always
+ * explicit). No client-side clamping of time dropdowns — clamp violations
+ * are surfaced by schema validation on submit instead, since with multiple
+ * org slots per day filtering options would hide legitimate choices.
+ */
 export const DayRow = withFieldGroup({
   defaultValues: {
     dayOfWeek: DayOfWeek.MON as DayOfWeek,
     isOpen: false as boolean,
-    openTime: null as string | null,
-    closeTime: null as string | null,
+    slots: [] as TimeSlot[],
   },
   props: {} as {
-    /** Effective org hours shown as a hint when trainer inherits */
+    /**
+     * Optional visual hint showing the org's slots for this day, rendered
+     * under trainer rows so the user knows what windows they have to stay
+     * inside. Purely informational; no enforcement here.
+     */
     orgHint?: {
       isOpen: boolean;
-      openTime: string | null;
-      closeTime: string | null;
-    } | null;
-    /** Whether to show the "Inherit from org" toggle */
-    showInheritToggle?: boolean;
-    inheritsFromOrg?: boolean;
-    onInheritChange?: (_inherits: boolean) => void;
-    /** Clamp time selections to within these bounds */
-    clampTo?: {
-      openTime: string;
-      closeTime: string;
+      slots: TimeSlot[];
     } | null;
   },
   render: ({ group, ...props }) => {
-    const {
-      clampTo,
-      orgHint,
-      showInheritToggle,
-      inheritsFromOrg,
-      onInheritChange,
-    } = props;
-
-    const dayOfWeek = useStore(group.store, (s) => s.values.dayOfWeek);
-    const isOpen = useStore(group.store, (s) => s.values.isOpen);
-
-    const clampOpen = clampTo
-      ? normalizeTimeSlot(clampTo.openTime, "00:00")
-      : null;
-    const clampClose = clampTo
-      ? normalizeTimeSlot(clampTo.closeTime, "23:30")
-      : null;
-
-    const filteredOpen = clampTo
-      ? TIME_OPTIONS.filter((t) => t.value >= clampOpen!)
-      : TIME_OPTIONS;
-
-    const filteredClose = clampTo
-      ? TIME_OPTIONS.filter((t) => t.value <= clampClose!)
-      : TIME_OPTIONS;
-
-    const isInheriting = showInheritToggle && inheritsFromOrg;
+    const slots = useStore(group.store, (s) => s.values.slots);
 
     return (
-      <div
-        className={cn(
-          "grid items-center gap-3 py-3 border-b last:border-b-0",
-          "grid-cols-[6rem_auto]"
-        )}
-      >
+      <div className="grid min-h-10 w-full grid-cols-5 px-6 items-start py-2">
         {/* Day label + open toggle */}
-        <div className="flex items-center gap-2 pl-2">
-          <group.AppField
-            name="isOpen"
-            children={(field) => (
-              <field.CheckboxField
-                label={DAY_LABEL_MAP[dayOfWeek].slice(0, 3)}
-                labelClassName={cn(
-                  "text-sm font-medium w-10",
-                  (!isOpen || isInheriting) && "text-muted-foreground"
+        <div className="col-span-5 max-h-10 sm:col-span-1 items-start">
+          <group.Subscribe
+            selector={(state) => ({
+              dayOfWeek: state.values.dayOfWeek,
+              isOpen: state.values.isOpen,
+            })}
+          >
+            {({ dayOfWeek, isOpen }) => (
+              <group.AppField
+                name="isOpen"
+                listeners={{
+                  onChange: ({ value }) => {
+                    if (value && slots.length === 0) {
+                      group.setFieldValue("slots", [DEFAULT_SLOT]);
+                    }
+                  },
+                }}
+                children={(field) => (
+                  <field.CheckboxField
+                    fieldClassName="flex h-8 items-center! gap-3"
+                    label={DAY_LABEL_MAP[dayOfWeek].slice(0, 3)}
+                    labelClassName={cn(
+                      "text-sm font-medium w-10",
+                      !isOpen && "text-muted-foreground"
+                    )}
+                  />
                 )}
               />
             )}
-          />
+          </group.Subscribe>
         </div>
 
-        {/* Hours or closed/inherit state */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {isInheriting ? (
-            <span className="text-sm text-muted-foreground">
-              {orgHint?.isOpen
-                ? `Inherits org hours (${formatTimeLabel(orgHint.openTime)} – ${formatTimeLabel(orgHint.closeTime)})`
-                : "Closed (org default)"}
-            </span>
-          ) : !isOpen ? (
-            <span className="text-sm text-muted-foreground">Closed</span>
-          ) : (
-            <>
-              <group.AppField
-                name="openTime"
-                children={(field) => (
-                  <field.SelectField
-                    alignItemWithTrigger
-                    items={filteredOpen}
-                    itemToValue={(t) => t.value}
-                    matchValue={(v) => normalizeTimeSlot(v, "09:00")}
-                    renderValue={(t) => t.label}
-                    fieldClassName="w-28"
-                  />
-                )}
-              />
+        <div className="col-span-5 sm:col-span-4 items-start">
+          <group.Subscribe selector={(state) => state.values.isOpen}>
+            {(isOpen) =>
+              isOpen ? (
+                <group.AppField
+                  name="slots"
+                  mode="array"
+                  children={(field) => (
+                    <div className="flex flex-row justify-between items-start">
+                      <div className="flex flex-col gap-4">
+                        {field.state.value.map((_, slotIndex) => (
+                          <SlotRow
+                            key={`${field.state.value[slotIndex].openTime}-${field.state.value[slotIndex].closeTime}`}
+                            form={group}
+                            fields={`slots[${slotIndex}]`}
+                            canRemove={field.state.value.length > 1}
+                            onRemove={() => field.removeValue(slotIndex)}
+                          />
+                        ))}
+                      </div>
 
-              <span className="text-muted-foreground text-sm">to</span>
+                      <div className="flex h-9 flex-row items-center">
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => {
+                                  const last = field.state.value.at(-1);
+                                  const nextStart = last?.closeTime ?? "09:00";
+                                  field.pushValue({
+                                    openTime: nextStart,
+                                    closeTime: DEFAULT_SLOT.closeTime,
+                                  });
+                                }}
+                              />
+                            }
+                          >
+                            <PlusIcon className="size-4 shrink-0" />
+                          </TooltipTrigger>
+                          <TooltipContent>New time slot</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  )}
+                />
+              ) : (
+                <span className="flex h-9 items-center pl-2 text-sm text-muted-foreground">
+                  Closed
+                </span>
+              )
+            }
+          </group.Subscribe>
 
-              <group.AppField
-                name="closeTime"
-                children={(field) => (
-                  <field.SelectField
-                    alignItemWithTrigger
-                    items={filteredClose}
-                    itemToValue={(t) => t.value}
-                    matchValue={(v) => normalizeTimeSlot(v, "17:00")}
-                    renderValue={(t) => t.label}
-                    fieldClassName="w-28"
-                  />
-                )}
-              />
-            </>
-          )}
-
-          {/* Inherit toggle for trainer rows */}
-          {showInheritToggle && (
-            <button
-              type="button"
-              onClick={() => onInheritChange?.(!inheritsFromOrg)}
-              className="ml-auto"
-            >
-              <Badge
-                variant={inheritsFromOrg ? "secondary" : "outline"}
-                className="cursor-pointer text-xs"
-              >
-                {inheritsFromOrg ? "Using org hours" : "Custom"}
-              </Badge>
-            </button>
+          {props.orgHint && (
+            <p className="text-xs text-muted-foreground">
+              {props.orgHint.isOpen && props.orgHint.slots.length > 0
+                ? `Org hours: ${props.orgHint.slots
+                    .map(
+                      (s) =>
+                        `${s.openTime.slice(0, 5)}–${s.closeTime.slice(0, 5)}`
+                    )
+                    .join(", ")}`
+                : "Org closed this day"}
+            </p>
           )}
         </div>
+      </div>
+    );
+  },
+});
+
+const SlotRow = withFieldGroup({
+  defaultValues: {
+    openTime: "09:00",
+    closeTime: "17:00",
+  },
+  props: {} as {
+    canRemove: boolean;
+    onRemove: () => void;
+  },
+  render: ({ group, ...props }) => {
+    return (
+      <div className="flex items-center gap-2 flex-wrap">
+        <group.AppField
+          name={`openTime`}
+          children={(field) => (
+            <field.SelectField
+              defaultHeight
+              alignItemWithTrigger
+              items={TIME_OPTIONS}
+              itemToValue={(t: { value: string }) => t.value}
+              matchValue={(v) => normalizeTimeSlot(v, "09:00")}
+              renderValue={(t: { label: string }) => t.label}
+              fieldClassName="w-fit"
+            />
+          )}
+        />
+
+        <span className="text-muted-foreground text-sm">to</span>
+
+        <group.AppField
+          name={`closeTime`}
+          children={(field) => (
+            <field.SelectField
+              defaultHeight
+              alignItemWithTrigger
+              items={TIME_OPTIONS}
+              itemToValue={(t: { value: string }) => t.value}
+              matchValue={(v) => normalizeTimeSlot(v, "17:00")}
+              renderValue={(t: { label: string }) => t.label}
+              fieldClassName="w-fit"
+            />
+          )}
+        />
+
+        {props.canRemove && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={props.onRemove}
+            aria-label="Remove slot"
+          >
+            <XIcon className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
     );
   },

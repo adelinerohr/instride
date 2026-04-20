@@ -49,6 +49,9 @@ export const membersMutations = {
     return trainer;
   },
 
+  onboardMember: async (params: members.OnboardMemberParams) =>
+    await apiClient.organizations.onboardMember(params),
+
   changeRole: async ({
     memberId,
     request,
@@ -63,6 +66,21 @@ export const membersMutations = {
     await apiClient.organizations.completeOnboarding(memberId);
   },
 };
+
+export function useOnboardMember({
+  mutationConfig,
+}: MutationHookOptions<typeof membersMutations.onboardMember> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(membersMutations.onboardMember, {
+    ...config,
+    onSuccess: (member, ...args) => {
+      queryClient.invalidateQueries({ queryKey: memberKeys.me() });
+      onSuccess?.(member, ...args);
+    },
+  });
+}
 
 export function useJoinOrganization({
   mutationConfig,
@@ -143,6 +161,7 @@ export function useChangeRole({
       queryClient.invalidateQueries({
         queryKey: memberKeys.list(),
       });
+      queryClient.invalidateQueries({ queryKey: memberKeys.me() });
       onSuccess?.(...args);
     },
   });

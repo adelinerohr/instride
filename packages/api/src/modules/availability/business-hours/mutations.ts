@@ -12,31 +12,25 @@ export const businessHoursMutations = {
 
 export const organizationBusinessHoursMutations = {
   upsert: async (
-    request: business_hours.UpdateOrganizationBusinessHoursRequest
-  ) => await apiClient.availability.updateOrganizationBusinessHours(request),
+    params: business_hours.UpdateOrganizationBusinessHoursParams
+  ) => await apiClient.availability.updateOrganizationBusinessHours(params),
   reset: async ({ boardId }: { boardId: string }) =>
     await apiClient.availability.resetBoardBusinessHours(boardId),
 };
 
 export const trainerBusinessHoursMutations = {
-  upsert: async ({
-    trainerId,
-    request,
-  }: {
+  upsert: async (input: {
     trainerId: string;
-    request: business_hours.UpdateTrainerBusinessHoursRequest;
+    params: business_hours.UpdateTrainerBusinessHoursParams;
   }) =>
-    await apiClient.availability.updateTrainerBusinessHours(trainerId, request),
-  resetBoard: async ({
-    trainerId,
-    boardId,
-  }: {
-    trainerId: string;
-    boardId: string;
-  }) =>
+    await apiClient.availability.updateTrainerBusinessHours(
+      input.trainerId,
+      input.params
+    ),
+  resetBoard: async (input: { trainerId: string; boardId: string }) =>
     await apiClient.availability.resetTrainerBoardBusinessHours(
-      trainerId,
-      boardId
+      input.trainerId,
+      input.boardId
     ),
 };
 
@@ -84,21 +78,22 @@ export function useCheckLessonHours({
 }
 
 export function useUpsertTrainerBusinessHours({
-  trainerId,
   mutationConfig,
-}: MutationHookOptions<typeof trainerBusinessHoursMutations.upsert> & {
-  trainerId: string;
-}) {
+}: MutationHookOptions<typeof trainerBusinessHoursMutations.upsert> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
   return useWrappedMutation(trainerBusinessHoursMutations.upsert, {
     ...config,
-    onSuccess: (result, ...args) => {
+    onSuccess: (result, variables, ...args) => {
+      queryClient.setQueryData(
+        availabilityKeys.trainerBusinessHours(variables.trainerId),
+        result
+      );
       queryClient.invalidateQueries({
-        queryKey: availabilityKeys.trainerBusinessHours(trainerId),
+        queryKey: availabilityKeys.trainerBusinessHours(variables.trainerId),
       });
-      onSuccess?.(result, ...args);
+      onSuccess?.(result, variables, ...args);
     },
   });
 }

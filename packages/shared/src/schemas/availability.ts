@@ -1,72 +1,88 @@
-import z from "zod";
+import { z } from "zod";
 
 import { DayOfWeek } from "../models/enums";
 
+/**
+ * A single open window within a day.
+ * Time format is "HH:MM" or "HH:MM:SS" — we accept both because server rows
+ * come back as "HH:MM:SS" but form selects emit "HH:MM".
+ */
+export const timeSlotSchema = z
+  .object({
+    openTime: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Invalid time format"),
+    closeTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Invalid time format"),
+  })
+  .refine((slot) => slot.openTime < slot.closeTime, {
+    message: "Open time must be before close time",
+    path: ["closeTime"],
+  });
+
+/**
+ * A single day's hours. Closed days must have zero slots; open days must have
+ * at least one slot with non-overlapping time ranges.
+ */
 export const dayHoursSchema = z
   .object({
     dayOfWeek: z.enum(DayOfWeek),
     isOpen: z.boolean(),
-    openTime: z
-      .union([z.string(), z.null()])
-      .optional()
-      .transform((v) => v ?? null),
-    closeTime: z
-      .union([z.string(), z.null()])
-      .optional()
-      .transform((v) => v ?? null),
+    slots: z.array(timeSlotSchema),
   })
-  .refine(
-    (data) => {
-      if (!data.isOpen) return true;
-      const open = data.openTime;
-      const close = data.closeTime;
-      return open != null && open !== "" && close != null && close !== "";
-    },
-    { message: "Open days must have both open and close times" }
-  )
-  .refine(
-    (data) => {
-      if (!data.isOpen) return true;
-      const open = data.openTime;
-      const close = data.closeTime;
-      if (open == null || close == null || open === "" || close === "")
-        return true;
-      return open < close;
-    },
-    { message: "Open time must be before close time" }
-  );
+  .superRefine((day, ctx) => {
+    if (!day.isOpen) {
+      if (day.slots.length > 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Closed days must not have any slots",
+          path: ["slots"],
+        });
+      }
+      return;
+    }
 
-export type DayHoursSchema = z.infer<typeof dayHoursSchema>;
+    if (day.slots.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Open days must have at least one slot",
+        path: ["slots"],
+      });
+      return;
+    }
 
-/** Form state is only `days`; `boardId` is taken from route/props at submit. */
+    // Detect overlaps by sorting a copy and checking consecutive pairs.
+    // Report the overlap on the *later* slot's openTime so the error lands
+    // next to the field the user most likely just changed.
+    const indexed = day.slots.map((slot, index) => ({ slot, index }));
+    const sorted = [...indexed].sort((a, b) =>
+      a.slot.openTime < b.slot.openTime
+        ? -1
+        : a.slot.openTime > b.slot.openTime
+          ? 1
+          : 0
+    );
+
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = sorted[i - 1];
+      const curr = sorted[i];
+      if (curr.slot.openTime < prev.slot.closeTime) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Slot overlaps with ${prev.slot.openTime.slice(0, 5)}–${prev.slot.closeTime.slice(0, 5)}`,
+          path: ["slots", curr.index, "openTime"],
+        });
+      }
+    }
+  });
+
+/**
+ * The full week as edited in the business-hours form.
+ * Exactly 7 entries, one per day of week, in the canonical DayOfWeek order.
+ */
 export const availabilityDaysFormSchema = z.object({
-  days: z.array(dayHoursSchema).length(7),
+  days: z.array(dayHoursSchema).length(7, "Must include exactly 7 days"),
 });
 
-export type AvailabilityDaysFormSchema = z.infer<
+export type AvailabilityDaysFormValues = z.infer<
   typeof availabilityDaysFormSchema
->;
-
-export const organizationAvailabilitySchema = z.object({
-  boardId: z.uuid().nullable(),
-  days: z.array(dayHoursSchema).length(7),
-});
-
-export type OrganizationAvailabilitySchema = z.infer<
-  typeof organizationAvailabilitySchema
->;
-
-export const trainerDayHoursSchema = dayHoursSchema.extend({
-  inheritsFromOrg: z.boolean(),
-});
-
-export type TrainerDayHoursSchema = z.infer<typeof trainerDayHoursSchema>;
-
-export const trainerAvailabilitySchema = z.object({
-  boardId: z.uuid().nullable(),
-  days: z.array(dayHoursSchema).length(7),
-});
-
-export type TrainerAvailabilitySchema = z.infer<
-  typeof trainerAvailabilitySchema
 >;
