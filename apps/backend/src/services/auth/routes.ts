@@ -89,6 +89,8 @@ export const authRoutes = api.raw(
       } else if (error instanceof Error) {
         log.error(error, error.message);
       }
+      res.writeHead(500);
+      res.end();
     }
   }
 );

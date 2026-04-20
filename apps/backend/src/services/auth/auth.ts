@@ -67,48 +67,32 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      if (!isProd) {
-        console.log("─────────────────────────────────────");
-        console.log("📧 Reset password");
-        console.log(`To: ${user.email}`);
-        console.log(`URL: ${url}`);
-        console.log("─────────────────────────────────────");
-      } else {
-        const html = passwordResetEmail({
-          userName: user.name,
-          resetUrl: url,
-        });
+      const html = passwordResetEmail({
+        userName: user.name,
+        resetUrl: url,
+      });
 
-        await sendEmailTopic.publish({
-          to: user.email,
-          subject: "Reset your password",
-          html,
-        });
-      }
+      await sendEmailTopic.publish({
+        to: user.email,
+        subject: "Reset your password",
+        html,
+      });
     },
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      if (!isProd) {
-        console.log("─────────────────────────────────────");
-        console.log("📧 Email verification");
-        console.log(`To: ${user.email}`);
-        console.log(`URL: ${url}`);
-        console.log("─────────────────────────────────────");
-      } else {
-        const html = verificationEmail({
-          userName: user.name,
-          verificationUrl: url,
-        });
+      const html = verificationEmail({
+        userName: user.name,
+        verificationUrl: url,
+      });
 
-        await sendEmailTopic.publish({
-          to: user.email,
-          subject: "Verify your email address",
-          html,
-        });
-      }
+      await sendEmailTopic.publish({
+        to: user.email,
+        subject: "Verify your email address",
+        html,
+      });
     },
   },
   socialProviders: {
@@ -136,33 +120,24 @@ export const auth = betterAuth({
           existingUser
             ? `/org/${organization.slug}/login`
             : `/org/${organization.slug}/register`,
-          baseURL
+          "https://api.instrideapp.com"
         );
 
         url.searchParams.set("invitationId", id);
         url.searchParams.set("email", email);
 
-        if (process.env.NODE_ENV === "development") {
-          console.log("─────────────────────────────────────");
-          console.log("📧 Invitation");
-          console.log(`To: ${email}`);
-          console.log(`Invited by: ${existingUser?.name}`);
-          console.log(`URL: ${url.toString()}`);
-          console.log("─────────────────────────────────────");
-        } else {
-          const html = invitationEmail({
-            invitedByName: existingUser?.name || "Someone",
-            organizationName: organization.name,
-            invitationUrl: url.toString(),
-            isExistingUser: !!existingUser,
-          });
+        const html = invitationEmail({
+          invitedByName: existingUser?.name || "Someone",
+          organizationName: organization.name,
+          invitationUrl: url.toString(),
+          isExistingUser: !!existingUser,
+        });
 
-          await sendEmailTopic.publish({
-            to: email,
-            subject: `You've been invited to ${organization.name}`,
-            html,
-          });
-        }
+        await sendEmailTopic.publish({
+          to: email,
+          subject: `You've been invited to ${organization.name}`,
+          html,
+        });
       },
       ac,
       roles: {

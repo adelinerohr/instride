@@ -1,6 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { SQLDatabase } from "encore.dev/storage/sqldb";
-import { Pool } from "pg";
 
 import { activityRelations } from "@/services/activity/schema/relations";
 import { eventsRelations } from "@/services/events/schema/relations";
@@ -26,12 +25,7 @@ export const DB = new SQLDatabase("instride", {
   },
 });
 
-export const pool = new Pool({
-  connectionString: DB.connectionString,
-});
-
-export const db = drizzle({
-  client: pool,
+export const db = drizzle(DB.connectionString, {
   schema,
   relations: {
     ...mainRelations,
