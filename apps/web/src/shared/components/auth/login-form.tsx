@@ -72,7 +72,7 @@ export function LoginForm({ returnTo, onSuccess }: LoginFormProps) {
     // Build callback URL with org context
     const baseUrl = isDev
       ? "http://localhost:3000" // Dev uses same domain
-      : "https://app.instrideapp.com"; // Prod uses canonical domain
+      : "https://instrideapp.com"; // Prod uses canonical domain
 
     const callbackUrl = new URL("/auth/callback", baseUrl);
 
