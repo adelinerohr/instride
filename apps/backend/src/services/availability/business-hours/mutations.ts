@@ -2,10 +2,10 @@ import { DayHours, DayOfWeek } from "@instride/shared";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { assertAdmin, assertAdminOrSelf } from "@/services/auth/gates";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import {
   organizationAvailability,
   organizationAvailabilitySlots,

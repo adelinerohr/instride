@@ -2,9 +2,9 @@ import { and, eq, isNull } from "drizzle-orm";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { feedComments, feedLikes, feedPosts } from "./schema";
 import { postCreated } from "./topics";
 import {

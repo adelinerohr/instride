@@ -7,8 +7,7 @@ import {
 import { addMinutes } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
-import { db } from "@/database";
-
+import { db } from "../db";
 import { createLessonInstance } from "../instances/post";
 import { LessonInstance, LessonSeries } from "../types/models";
 import { checkLessonAvailability } from "../utils/availability";

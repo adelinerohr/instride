@@ -1,7 +1,7 @@
 import { MembershipRole } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
-import { db } from "@/database";
+import { db } from "./db";
 
 export async function assertAdmin(
   organizationId: string,

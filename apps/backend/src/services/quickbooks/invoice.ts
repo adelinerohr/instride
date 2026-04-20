@@ -1,9 +1,9 @@
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { refreshAccessToken } from "./auth";
+import { db } from "./db";
 import { quickbooksInvoices } from "./schema";
 import {
   QuickBooksInvoicePayload,

@@ -1,10 +1,10 @@
 import { EventScope } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { ListLessonInstancesResponse } from "../lessons/types/contracts";
+import { db } from "./db";
 import { GetEventResponse, ListEventsResponse } from "./types/contracts";
 import { findAffectedInstances, getEventResponse } from "./utils";
 

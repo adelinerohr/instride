@@ -6,11 +6,11 @@ import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 import log from "encore.dev/log";
 
-import { db } from "../../database";
 import { invitationEmail } from "../email/templates/invitation";
 import { passwordResetEmail } from "../email/templates/password-reset";
 import { verificationEmail } from "../email/templates/verification";
 import { sendEmailTopic } from "../email/topic";
+import { db } from "./db";
 import {
   ac,
   admin as adminRole,

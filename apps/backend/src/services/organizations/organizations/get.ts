@@ -1,10 +1,10 @@
 import { MembershipRole } from "@instride/shared/models/enums";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { auth } from "@/services/auth/auth";
 import { requireAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import {
   GetOrganizationResponse,
   ListOrganizationsResponse,

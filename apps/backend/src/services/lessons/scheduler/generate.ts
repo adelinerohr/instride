@@ -2,8 +2,7 @@ import { LessonSeriesEnrollmentStatus } from "@instride/shared/models/enums";
 import { eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
-
+import { db } from "../db";
 import { enrollInInstance } from "../enrollments/post";
 import { lessonSeries } from "../schema";
 import { getLessonSeries } from "../series/get";

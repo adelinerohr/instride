@@ -3,7 +3,6 @@ import { and, eq, inArray, not } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import {
   events,
   eventSchedulingBlocks,
@@ -11,6 +10,7 @@ import {
 } from "@/database/schema";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { GetEventResponse } from "./types/contracts";
 import { Event } from "./types/models";
 import { findAffectedInstances } from "./utils";

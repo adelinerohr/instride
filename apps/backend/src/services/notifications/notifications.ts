@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { notificationDeliveries, notifications } from "@/database/schema";
 
+import { db } from "./db";
 import { getPreferences } from "./preferences";
 import { GetNotificationResponse } from "./types/contracts";
 import {

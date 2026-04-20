@@ -3,11 +3,10 @@ import { IncomingMessage, ServerResponse } from "http";
 import busboy from "busboy";
 import { eq } from "drizzle-orm";
 
-import { db } from "@/database";
-
 import { authUsers } from "../auth/schema";
 import { organizations } from "../organizations/schema";
 import { avatarsBucket } from "./bucket";
+import { db } from "./db";
 
 interface UserAvatarOptions {
   target: "user";

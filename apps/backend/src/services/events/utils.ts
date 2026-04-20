@@ -1,10 +1,10 @@
 import { EventScope, LessonInstanceStatus } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { Transaction } from "@/shared/utils/schema";
 
 import { LessonInstance } from "../lessons/types/models";
+import { db } from "./db";
 import { GetEventResponse } from "./types/contracts";
 import { Event } from "./types/models";
 

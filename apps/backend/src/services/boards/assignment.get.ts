@@ -1,7 +1,6 @@
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
-
+import { db } from "./db";
 import { ListBoardAssignmentsResponse } from "./types/contracts";
 
 interface ListBoardAssignmentsRequest {

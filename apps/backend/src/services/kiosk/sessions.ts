@@ -1,9 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { clearKioskIdentity } from "./identity";
 import { kioskSessions } from "./schema";
 import { KioskScope, KioskSession } from "./types/models";

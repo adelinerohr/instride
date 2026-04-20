@@ -2,11 +2,11 @@ import { GuardianRelationshipStatus } from "@instride/shared";
 import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { guardianRelationships } from "@/database/schema";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "./db";
 import {
   defaultPermissions,
   GuardianPermissions,

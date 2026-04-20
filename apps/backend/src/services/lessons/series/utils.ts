@@ -1,8 +1,7 @@
 import { LessonSeriesEnrollmentStatus } from "@instride/shared/models/enums";
 import { eq, inArray } from "drizzle-orm";
 
-import { db } from "@/database";
-
+import { db } from "../db";
 import { lessonSeriesEnrollments } from "../schema";
 
 /** `db` or the `tx` passed to `db.transaction((tx) => …)`. */

@@ -4,9 +4,9 @@ import { promisify } from "node:util";
 import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import { members } from "../schema";
 import { GetMemberResponse } from "../types/contracts";
 import { Member } from "../types/models";

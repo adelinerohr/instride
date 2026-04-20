@@ -1,9 +1,10 @@
 import { GuardianRelationshipStatus } from "@instride/shared";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
+
+import { db } from "./db";
 
 export const canAccessOrganization = api(
   {

@@ -1,9 +1,9 @@
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { assertAdminOrSelf } from "@/services/auth/gates";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import {
   ListOrganizationBusinessHoursResponse,
   ListTrainerBusinessHoursResponse,

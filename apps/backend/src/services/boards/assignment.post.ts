@@ -1,9 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { boardAssignments } from "./schema";
 import { GetBoardAssignmentResponse } from "./types/contracts";
 

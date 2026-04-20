@@ -1,10 +1,9 @@
 import { isSameDay } from "date-fns";
 import { boards } from "~encore/clients";
 
-import { db } from "@/database";
-
 import { LessonInstance } from "../../lessons/types/models";
 import { Rider } from "../../organizations/types/models";
+import { db } from "../db";
 import { KioskScope } from "../types/models";
 
 interface AssertKioskBookingRulesResponse {

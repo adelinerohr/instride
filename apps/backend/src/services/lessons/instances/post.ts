@@ -3,9 +3,9 @@ import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import { listInstanceEnrollments } from "../enrollments/get";
 import { enrollInInstance, unenrollFromInstance } from "../enrollments/post";
 import { lessonInstances } from "../schema";

@@ -9,9 +9,9 @@ import { and, eq, gte } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import { generateLessonInstances } from "../scheduler/generate";
 import { lessonInstances, lessonSeries } from "../schema";
 import { GetLessonSeriesResponse } from "../types/contracts";

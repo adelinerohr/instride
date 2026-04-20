@@ -20,9 +20,9 @@ import {
 import { api } from "encore.dev/api";
 import { Min, Max, MaxLen } from "encore.dev/validate";
 
-import { db } from "@/database";
 import { authUsers } from "@/database/schema";
 
+import { db } from "./db";
 import { AuthUser } from "./types/models";
 
 interface ListUsersParams {

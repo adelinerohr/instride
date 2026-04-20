@@ -2,10 +2,10 @@ import { MembershipRole } from "@instride/shared";
 import { and, eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { verifyKioskPin } from "../organizations/members/pin";
+import { db } from "./db";
 import { kioskSessions } from "./schema";
 import { KioskSessionResponse } from "./types/contracts";
 import { KioskScope } from "./types/models";

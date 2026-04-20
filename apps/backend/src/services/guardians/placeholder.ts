@@ -6,7 +6,6 @@ import {
 import { generateId } from "better-auth";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
@@ -24,6 +23,7 @@ import {
 } from "../questionnaires/types/models";
 import { waiverSignatures } from "../waivers/schema";
 import { Waiver } from "../waivers/types/models";
+import { db } from "./db";
 import { guardianRelationships } from "./schema";
 import {
   defaultPermissions,

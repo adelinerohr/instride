@@ -3,7 +3,6 @@ import { generateId } from "better-auth";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import {
   authMembers,
   authUsers,
@@ -25,6 +24,7 @@ import { Waiver } from "@/services/waivers/types/models";
 import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "../db";
 import { BaseMember } from "../types/models";
 
 interface OnboardMemberParams {

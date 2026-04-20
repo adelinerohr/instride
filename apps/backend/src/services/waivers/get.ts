@@ -1,8 +1,8 @@
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import {
   GetSignatureResponse,
   GetWaiverResponse,

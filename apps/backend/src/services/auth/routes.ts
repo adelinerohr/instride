@@ -4,10 +4,10 @@ import { appMeta } from "encore.dev";
 import { api, APIError, Cookie } from "encore.dev/api";
 import log from "encore.dev/log";
 
-import { db } from "@/database";
 import { requireAuth } from "@/shared/auth";
 
 import { auth } from "./auth";
+import { db } from "./db";
 import { authUsers } from "./schema";
 import { Session } from "./types/models";
 

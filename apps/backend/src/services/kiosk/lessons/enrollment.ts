@@ -1,10 +1,10 @@
 import { api, APIError } from "encore.dev/api";
 import { lessons } from "~encore/clients";
 
-import { db } from "@/database";
 import { EnrollInInstanceResponse } from "@/services/lessons/enrollments/post";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import { assertKioskActionAllowed } from "../permissions";
 import { getKioskSession } from "../sessions";
 import { KioskAction } from "../types/models";

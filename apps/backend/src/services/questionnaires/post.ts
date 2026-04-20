@@ -2,11 +2,11 @@ import { eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { assertAdmin } from "../auth/gates";
+import { db } from "./db";
 import { questionnaireResponses, questionnaires } from "./schema";
 import {
   assertMaySubmitForMember,

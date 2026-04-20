@@ -1,11 +1,11 @@
 // apps/backend/src/services/activity-feed/subscriptions.ts
 import { Subscription } from "encore.dev/pubsub";
 
-import { db } from "@/database";
 import { activity } from "@/database/schema";
 
 import { postCreated } from "../feed/topics";
 import { lessonEnrolled } from "../lessons/topics";
+import { db } from "./db";
 import { ActivitySubjectType, ActivityType } from "./types/models";
 
 export const onRiderEnrolledInInstance = new Subscription(

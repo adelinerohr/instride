@@ -1,9 +1,9 @@
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { riderRelationQuery } from "@/shared/utils/relation-queries";
 
+import { db } from "../db";
 import {
   GetLessonSeriesResponse,
   ListLessonSeriesResponse,

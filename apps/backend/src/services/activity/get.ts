@@ -1,8 +1,8 @@
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { ListActivityResponse } from "./types/contracts";
 import { Activity } from "./types/models";
 

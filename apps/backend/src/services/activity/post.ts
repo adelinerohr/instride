@@ -1,9 +1,9 @@
 import { MembershipRole } from "@instride/shared";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { activity } from "./schema";
 import { GetActivityResponse } from "./types/contracts";
 import {

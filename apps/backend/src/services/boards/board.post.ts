@@ -2,9 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 import { boards as boardsApi } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { db } from "./db";
 import { boards } from "./schema";
 import { GetBoardResponse } from "./types/contracts";
 

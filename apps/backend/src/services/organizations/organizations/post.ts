@@ -2,11 +2,11 @@ import { MembershipRole } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { auth } from "@/services/auth/auth";
 import { assertAdmin } from "@/services/auth/gates";
 import { requireAuth } from "@/shared/auth";
 
+import { db } from "../db";
 import { members, organizations } from "../schema";
 import { GetOrganizationResponse } from "../types/contracts";
 import { Member } from "../types/models";

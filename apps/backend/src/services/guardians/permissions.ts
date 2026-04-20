@@ -6,10 +6,10 @@ import {
 import { APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { Member } from "../organizations/types/models";
+import { db } from "./db";
 
 export async function requireGuardianPermissions(input: {
   targetMemberId: string;

@@ -5,8 +5,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { APIError } from "encore.dev/api";
 
-import { db } from "@/database";
-
+import { db } from "../db";
 import {
   lessonInstanceEnrollments,
   lessonInstances,

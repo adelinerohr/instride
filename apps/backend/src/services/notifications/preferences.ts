@@ -1,10 +1,10 @@
 import { sql } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "./db";
 import { notificationPreferences } from "./schema";
 import { NotificationPreference, NotificationType } from "./types/models";
 

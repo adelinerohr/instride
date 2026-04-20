@@ -2,7 +2,6 @@ import { GuardianRelationshipStatus } from "@instride/shared";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { memberFragment } from "@/shared/utils/fragments";
 import {
@@ -11,6 +10,7 @@ import {
   assertMemberWithRider,
 } from "@/shared/utils/validation";
 
+import { db } from "./db";
 import {
   GuardianPermissions,
   GuardianRelationship,

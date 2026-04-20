@@ -2,13 +2,13 @@ import { GuardianRelationshipStatus, InvitationStatus } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 import { memberFragment } from "@/shared/utils/fragments";
 import { assertExists, assertMember } from "@/shared/utils/validation";
 
 import { auth } from "../auth/auth";
 import { members } from "../organizations/schema";
+import { db } from "./db";
 import { guardianInvitations, guardianRelationships } from "./schema";
 
 interface SendInvitationParams {

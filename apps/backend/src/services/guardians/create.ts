@@ -1,9 +1,9 @@
 import { api } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "./db";
 import { updateGuardianRelationship } from "./mutations";
 import { guardianRelationships } from "./schema";
 import {

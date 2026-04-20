@@ -1,9 +1,9 @@
 import { api, APIError } from "encore.dev/api";
 
-import { db } from "@/database";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "../db";
 import {
   GetMemberResponse,
   GetRiderResponse,

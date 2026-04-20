@@ -25,22 +25,36 @@ export const DB = new SQLDatabase("instride", {
   },
 });
 
-export const db = drizzle(DB.connectionString, {
-  schema,
-  relations: {
-    ...mainRelations,
-    ...authRelations,
-    ...organizationsRelations,
-    ...boardsRelations,
-    ...lessonsRelations,
-    ...availabilityRelations,
-    ...feedRelations,
-    ...questionnairesRelations,
-    ...guardiansRelations,
-    ...waiversRelations,
-    ...activityRelations,
-    ...notificationsRelations,
-    ...kioskRelations,
-    ...eventsRelations,
-  },
-});
+// Build the relations config once, reuse across services
+const relations = {
+  ...mainRelations,
+  ...authRelations,
+  ...organizationsRelations,
+  ...boardsRelations,
+  ...lessonsRelations,
+  ...availabilityRelations,
+  ...feedRelations,
+  ...questionnairesRelations,
+  ...guardiansRelations,
+  ...waiversRelations,
+  ...activityRelations,
+  ...notificationsRelations,
+  ...kioskRelations,
+  ...eventsRelations,
+};
+
+let _db: ReturnType<typeof createDb> | undefined;
+
+function createDb() {
+  return drizzle(DB.connectionString, { schema, relations });
+}
+
+export function initDrizzle() {
+  if (!_db) {
+    _db = createDb();
+  }
+  return _db;
+}
+
+export type Db = ReturnType<typeof initDrizzle>;
+export { schema };

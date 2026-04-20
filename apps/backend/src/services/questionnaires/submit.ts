@@ -6,8 +6,7 @@ import {
 import { APIError } from "encore.dev/api";
 import { boards } from "~encore/clients";
 
-import { db } from "@/database";
-
+import { db } from "./db";
 import {
   Questionnaire,
   QuestionnaireQuestion,
