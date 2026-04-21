@@ -49,10 +49,11 @@ const router = createRouter({
       input: ({ url }) => {
         const parts = url.hostname.split(".");
 
-        // Check if we're on a subdomain (not root or app subdomain)
+        const NON_ORG_SUBDOMAINS = new Set(["app", "www"]);
+
         const isRootDomain =
-          parts.length === 2 || // instride.vercel.app or instrideapp.com
-          (parts.length === 3 && parts[0] === "app"); // app.instride.vercel.app
+          parts.length === 2 ||
+          (parts.length === 3 && NON_ORG_SUBDOMAINS.has(parts[0]));
 
         // Check which domain we're on
         const baseDomain = parts.slice(-2).join(".");

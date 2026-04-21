@@ -22,6 +22,31 @@ import { authClient } from "@/shared/lib/auth/client";
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
   beforeLoad: async ({ params, context, location }) => {
+    const isPublicRoute = location.pathname.includes("auth");
+
+    // Public routes: only fetch the org, no auth-requiring calls
+    if (isPublicRoute || !context.isAuthenticated) {
+      const organization = await context.queryClient.ensureQueryData(
+        organizationOptions.bySlug(params.slug)
+      );
+
+      if (!organization) {
+        throw Route.redirect({ to: "/" });
+      }
+
+      if (!context.isAuthenticated) {
+        if (isPublicRoute) {
+          return { organization, isPortal: false };
+        }
+        throw Route.redirect({ to: "/org/$slug/auth/login" });
+      }
+
+      // Authenticated but on a public route (like login) — let them through
+      // with minimal data; the app can redirect them away if needed
+      return { organization, isPortal: false };
+    }
+
+    // Authenticated + non-public route: fetch everything
     const [organization, member] = await Promise.all([
       context.queryClient.ensureQueryData(
         organizationOptions.bySlug(params.slug)
@@ -39,22 +64,7 @@ export const Route = createFileRoute("/org/$slug")({
       throw Route.redirect({ to: "/" });
     }
 
-    const isPublicRoute = location.pathname.includes("auth");
-
-    if (!context.isAuthenticated) {
-      if (isPublicRoute) {
-        return {
-          organization,
-          isPortal: false,
-        };
-      }
-      throw Route.redirect({
-        to: "/org/$slug/auth/login",
-      });
-    }
-
     const isPortal = location.pathname.includes("/portal");
-
     const currentActiveOrgId = context.session?.contextOrganizationId;
     const orgChanged = currentActiveOrgId !== organization.id;
 
@@ -67,7 +77,6 @@ export const Route = createFileRoute("/org/$slug")({
         throw Route.redirect({ to: "/" });
       }
 
-      // Force a fresh fetch and wait for it
       await Promise.all([
         context.queryClient.refetchQueries({
           queryKey: authOptions.session().queryKey,

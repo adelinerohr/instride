@@ -55,6 +55,20 @@ export const auth = betterAuth({
     },
   },
 
+  ...(isProd && {
+    advanced: {
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: ".instrideapp.com",
+      },
+      defaultCookieAttributes: {
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+      },
+    },
+  }),
+
   trustedOrigins: isProd
     ? [
         // Custom domain (when ready)
@@ -187,16 +201,6 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
-
-    ...(isProd && {
-      cookieAttributes: {
-        // Cookie domain depends on which domain you're using
-        domain: ".instrideapp.com",
-        sameSite: "none",
-        secure: true,
-        httpOnly: true,
-      },
-    }),
 
     additionalFields: {
       contextOrganizationId: { type: "string", required: false },
