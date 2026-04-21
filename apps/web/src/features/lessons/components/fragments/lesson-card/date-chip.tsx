@@ -4,6 +4,11 @@ import { ChevronRightIcon, ClockIcon, UserIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tag, TagGroup } from "@/shared/components/ui/tag";
+import {
+  categoryColorClasses,
+  type CategoryColor,
+} from "@/shared/lib/config/colors";
+import { cn } from "@/shared/lib/utils";
 
 import type { LessonCardVariantProps } from ".";
 import { viewLessonModalHandler } from "../../modals/view-lesson";
@@ -25,12 +30,30 @@ export function DateChipLessonCard({
         </div>
       </div>
       <div className="col-span-9 flex items-center gap-4">
-        <div className="h-full w-1 bg-primary rounded-full" />
-        <div className="flex flex-col gap-2">
+        <div
+          className={cn(
+            "h-full w-1 bg-primary rounded-full",
+            lesson.level
+              ? categoryColorClasses(
+                  (lesson.level?.color as CategoryColor) ?? "clay"
+                )
+              : undefined
+          )}
+        />
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <span className="font-medium text-lg">{props.lessonTitle}</span>
-              <Badge variant="outline">
+              <Badge
+                variant={lesson.level ? "outline" : "secondary"}
+                className={
+                  lesson.level
+                    ? categoryColorClasses(
+                        (lesson.level?.color as CategoryColor) ?? "clay"
+                      )
+                    : undefined
+                }
+              >
                 {lesson.level?.name ?? "Unrestricted"}
               </Badge>
             </div>

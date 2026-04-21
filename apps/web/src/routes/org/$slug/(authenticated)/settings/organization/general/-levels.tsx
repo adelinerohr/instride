@@ -5,6 +5,7 @@ import * as React from "react";
 
 import { levelModalHandler } from "@/features/organization/components/levels/modal";
 import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { CategoryDot } from "@/shared/components/fragments/category-dot";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
@@ -72,17 +73,14 @@ export function OrganizationLevelsCard() {
         {filteredLevels.length > 0 ? (
           <ScrollArea className="h-full">
             <ul role="list" className="m-0 list-none divide-y p-0">
-              {levels.map((level) => (
+              {filteredLevels.map((level) => (
                 <li
                   key={level.id}
                   role="listitem"
                   className="flex w-full flex-row items-center justify-between p-6"
                 >
                   <div className="flex flex-row items-center gap-4">
-                    <div
-                      className="size-4 rounded-full"
-                      style={{ background: level.color }}
-                    />
+                    <CategoryDot color={level.color} />
                     <div className="flex flex-col">
                       <div className="font-medium">{level.name}</div>
                       <div className="text-sm font-normal text-muted-foreground">

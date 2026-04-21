@@ -132,14 +132,6 @@ export function useCreateLevel({
   return useWrappedMutation(levelMutations.create, {
     ...config,
     onSuccess: (level, ...args) => {
-      queryClient.setQueryData(
-        organizationKeys.listLevels(),
-        (
-          old: Awaited<
-            ReturnType<typeof apiClient.organizations.listLevels>
-          >["levels"]
-        ) => [...old, level]
-      );
       queryClient.invalidateQueries({
         queryKey: organizationKeys.listLevels(),
       });

@@ -219,7 +219,7 @@ function RouteComponent() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex font-display text-xl font-semibold items-center gap-2">
               Lessons This Week
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">

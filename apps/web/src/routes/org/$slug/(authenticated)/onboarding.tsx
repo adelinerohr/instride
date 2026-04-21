@@ -132,53 +132,55 @@ function RouteComponent() {
     ...memberOnboardingFormOpts,
     defaultValues: buildMemberOnboardingDefaultValues(user),
     onSubmit: async ({ value, formApi }) => {
-      const { section, accountType } = value;
+      const { section } = value;
 
-      const isGuardianOnly =
-        accountType.isGuardian && accountType.isRider === false;
+      // Advance to the next visible step, or complete if we're at the end.
+      const advance = async () => {
+        const currentIndex = visibleSteps.findIndex((s) => s.id === section);
+        const nextStep = visibleSteps[currentIndex + 1];
+        if (nextStep) {
+          formApi.setFieldValue("section", nextStep.id);
+        } else {
+          await completeOnboarding(value);
+        }
+      };
 
-      // Validate current step
       try {
         if (section === MemberOnboardingStep.PersonalDetails) {
           await formApi.validateField("personalDetails", "submit");
-          formApi.setFieldValue("section", MemberOnboardingStep.AccountType);
+          await advance();
           return;
         }
 
         if (section === MemberOnboardingStep.AccountType) {
-          if (accountType.isGuardian && accountType.isRider === null) {
+          if (
+            value.accountType.isGuardian &&
+            value.accountType.isRider === null
+          ) {
             setError("Please select whether you'll also be riding");
             return;
           }
-
           await formApi.validateField("accountType", "submit");
-          formApi.setFieldValue("section", MemberOnboardingStep.Questionnaire);
+          await advance();
           return;
         }
 
         if (section === MemberOnboardingStep.Questionnaire) {
           await formApi.validateField("questionnaire", "submit");
-
-          // If guardian-only, skip to completion
-          if (isGuardianOnly) {
-            await completeOnboarding(value);
-          } else {
-            formApi.setFieldValue("section", MemberOnboardingStep.Waiver);
-          }
+          await advance();
           return;
         }
 
         if (section === MemberOnboardingStep.Waiver) {
           await formApi.validateField("waiver", "submit");
-
-          // All validation passed - submit the onboarding
-          await completeOnboarding(value);
+          await advance();
           return;
         }
       } catch (err) {
-        // Validation failed - form will show errors
-        if (section === MemberOnboardingStep.Waiver) {
-          console.error(err);
+        console.error(err);
+        const isAtLastStep =
+          visibleSteps[visibleSteps.length - 1]?.id === section;
+        if (isAtLastStep) {
           setError("Failed to complete onboarding. Please try again.");
         }
       }
@@ -186,29 +188,32 @@ function RouteComponent() {
   });
 
   const section = useStore(form.store, (state) => state.values.section);
-  const accountType = useStore(form.store, (state) => state.values.accountType);
+  const name = useStore(
+    form.store,
+    (state) => state.values.personalDetails.name
+  );
 
-  const isGuardianOnly =
-    accountType.isGuardian && accountType.isRider === false;
-
-  // Filter steps based on account type
+  // The set of steps the current user will see. Order comes from
+  // memberOnboardingSteps; presence is gated by org config.
   const visibleSteps = React.useMemo(() => {
-    const steps: MemberOnboardingStep[] = [
+    const includedIds = new Set<MemberOnboardingStep>([
       MemberOnboardingStep.PersonalDetails,
       MemberOnboardingStep.AccountType,
-    ];
+    ]);
 
-    if (activeWaiver) {
-      steps.push(MemberOnboardingStep.Waiver);
-    }
     if (activeQuestionnaire) {
-      steps.push(MemberOnboardingStep.Questionnaire);
+      includedIds.add(MemberOnboardingStep.Questionnaire);
+    }
+    if (activeWaiver) {
+      includedIds.add(MemberOnboardingStep.Waiver);
     }
 
-    return memberOnboardingSteps.filter((step) => steps.includes(step.id));
-  }, [isGuardianOnly, activeWaiver, activeQuestionnaire]);
+    return memberOnboardingSteps.filter((step) => includedIds.has(step.id));
+  }, [activeWaiver, activeQuestionnaire]);
 
   const currentStepIndex = visibleSteps.findIndex((s) => s.id === section);
+  const canGoBack = currentStepIndex > 0;
+  const isLastStep = currentStepIndex === visibleSteps.length - 1;
 
   const goToStep = (stepId: WizardStep["id"]) => {
     const targetIndex = visibleSteps.findIndex((s) => s.id === stepId);
@@ -218,15 +223,12 @@ function RouteComponent() {
     form.setFieldValue("section", stepId as MemberOnboardingStep);
   };
 
-  const canGoBack = currentStepIndex > 0;
-  const isLastStep =
-    section === MemberOnboardingStep.Waiver ||
-    (isGuardianOnly && section === MemberOnboardingStep.AccountType);
-
-  const name = useStore(
-    form.store,
-    (state) => state.values.personalDetails.name
-  );
+  const goBack = () => {
+    const previousStep = visibleSteps[currentStepIndex - 1];
+    if (previousStep) {
+      goToStep(previousStep.id);
+    }
+  };
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -301,13 +303,7 @@ function RouteComponent() {
 
           <div className="flex justify-end gap-2">
             {canGoBack && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  goToStep(memberOnboardingSteps[currentStepIndex - 1].id)
-                }
-              >
+              <Button type="button" variant="outline" onClick={goBack}>
                 Back
               </Button>
             )}

@@ -1,6 +1,7 @@
 import { ColorPicker } from "@/shared/components/ui/color-picker";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { useFieldContext } from "@/shared/hooks/use-form";
+import type { CategoryColor } from "@/shared/lib/config/colors";
 
 type ColorPickerFieldProps = {
   label?: string;
@@ -16,8 +17,8 @@ export function ColorPickerField({ label, className }: ColorPickerFieldProps) {
       <FieldLabel>{label}</FieldLabel>
       <ColorPicker
         className={className}
-        background={field.state.value}
-        setBackground={field.handleChange}
+        value={field.state.value}
+        onChange={(color: CategoryColor) => field.handleChange(color)}
       />
       {!!isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
