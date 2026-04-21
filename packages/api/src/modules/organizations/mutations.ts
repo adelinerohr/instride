@@ -58,7 +58,7 @@ export function useCreateOrganization({
   return useWrappedMutation(organizationMutations.create, {
     ...config,
     onSuccess: (organization, ...args) => {
-      queryClient.invalidateQueries({ queryKey: organizationKeys.all });
+      queryClient.invalidateQueries({ queryKey: organizationKeys.all() });
       onSuccess?.(organization, ...args);
     },
   });
@@ -73,9 +73,12 @@ export function useUpdateOrganization({
   return useWrappedMutation(organizationMutations.update, {
     ...config,
     onSuccess: (organization, ...args) => {
-      queryClient.invalidateQueries({
-        queryKey: organizationKeys.byId(organization.id),
-      });
+      queryClient.setQueryData(
+        organizationKeys.byId(organization.id),
+        organization
+      );
+      queryClient.invalidateQueries({ queryKey: organizationKeys.details() });
+      queryClient.invalidateQueries({ queryKey: organizationKeys.lists() });
       onSuccess?.(organization, ...args);
     },
   });

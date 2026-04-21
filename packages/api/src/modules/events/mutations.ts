@@ -27,7 +27,7 @@ export function useCreateEvent({
         queryKey: eventKeys.byId(response.event.id),
       });
       queryClient.invalidateQueries({
-        queryKey: ["events"],
+        queryKey: eventKeys.all(),
       });
       onSuccess?.(response, ...args);
     },
@@ -47,12 +47,7 @@ export function useUpdateEvent({
         eventKeys.byId(response.event.id),
         response.event
       );
-      queryClient.invalidateQueries({
-        queryKey: eventKeys.byId(response.event.id),
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["events"],
-      });
+      queryClient.invalidateQueries({ queryKey: eventKeys.all() });
       onSuccess?.(response, ...args);
     },
   });
@@ -68,7 +63,7 @@ export function useDeleteEvent({
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: ["events"],
+        queryKey: eventKeys.all(),
       });
       onSuccess?.(...args);
     },

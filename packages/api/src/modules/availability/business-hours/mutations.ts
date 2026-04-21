@@ -86,10 +86,6 @@ export function useUpsertTrainerBusinessHours({
   return useWrappedMutation(trainerBusinessHoursMutations.upsert, {
     ...config,
     onSuccess: (result, variables, ...args) => {
-      queryClient.setQueryData(
-        availabilityKeys.trainerBusinessHours(variables.trainerId),
-        result
-      );
       queryClient.invalidateQueries({
         queryKey: availabilityKeys.trainerBusinessHours(variables.trainerId),
       });

@@ -91,9 +91,8 @@ export function useJoinOrganization({
   return useWrappedMutation(membersMutations.joinOrganization, {
     ...config,
     onSuccess: (member, ...args) => {
-      queryClient.invalidateQueries({
-        queryKey: [memberKeys.list(), memberKeys.byId(member.id)],
-      });
+      queryClient.invalidateQueries({ queryKey: memberKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: memberKeys.byId(member.id) });
       onSuccess?.(member, ...args);
     },
   });
@@ -144,6 +143,7 @@ export function useUpdateTrainer({
     ...config,
     onSuccess: (trainer, ...args) => {
       queryClient.setQueryData(memberKeys.trainerById(trainer.id), trainer);
+      queryClient.invalidateQueries({ queryKey: memberKeys.trainersRoot() });
       onSuccess?.(trainer, ...args);
     },
   });

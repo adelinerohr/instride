@@ -1,19 +1,13 @@
 import type { feed } from "#client";
 
-/**
- * Key Hierarchy:
- *   ["feed", orgId]                    ← invalidate entire feed
- *   ["feed", orgId, "posts"]           ← all posts (infinite query root)
- *   ["feed", orgId, "posts", filters]  ← posts list with filters
- *   ["feed", orgId, "posts", id]       ← one post
- */
-
-const getFeedRootKey = ["feed"] as const;
+const ROOT = ["feed"] as const;
 
 export const feedKeys = {
-  all: () => getFeedRootKey,
-  posts: () => [...getFeedRootKey, "posts"] as const,
+  all: () => ROOT,
+  postsRoot: () => [...ROOT, "posts"] as const,
+  postsLists: () => [...ROOT, "posts", "list"] as const,
   postsList: (filters: feed.ListFeedRequest) =>
-    [...getFeedRootKey, "posts", filters] as const,
-  postById: (id: string) => [...getFeedRootKey, "posts", id] as const,
+    [...ROOT, "posts", "list", filters] as const,
+  postsDetails: () => [...ROOT, "posts", "detail"] as const,
+  postById: (id: string) => [...ROOT, "posts", "detail", id] as const,
 };

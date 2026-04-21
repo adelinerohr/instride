@@ -8,8 +8,8 @@ import { availabilityKeys } from "../keys";
 // ---- Standalone functions ----------------------------------------------
 
 export const timeBlockMutations = {
-  create: async (request: time_blocks.CreateTimeBlockRequest) => {
-    const { timeBlock } = await apiClient.availability.createTimeBlock(request);
+  create: async (request: time_blocks.CreateTimeBlockParams) => {
+    const timeBlock = await apiClient.availability.createTimeBlock(request);
     return timeBlock;
   },
   update: async ({
@@ -17,12 +17,9 @@ export const timeBlockMutations = {
     request,
   }: {
     id: string;
-    request: time_blocks.UpdateTimeBlockRequest;
+    request: time_blocks.UpdateTimeBlockParams;
   }) => {
-    const { timeBlock } = await apiClient.availability.updateTimeBlock(
-      id,
-      request
-    );
+    const timeBlock = await apiClient.availability.updateTimeBlock(id, request);
     return timeBlock;
   },
 

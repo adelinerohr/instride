@@ -1,18 +1,17 @@
-const ROOT_KEY = "organizations";
+const ROOT = ["organizations"] as const;
 
 export const organizationKeys = {
-  all: [ROOT_KEY] as const,
-  listByUser: (userId: string) => [ROOT_KEY, userId] as const,
-  bySlug: (slug: string) => [ROOT_KEY, slug] as const,
-  byId: (id: string) => [ROOT_KEY, id] as const,
-  checkSlug: (slug: string) => [ROOT_KEY, "slug-check", slug] as const,
+  all: () => ROOT,
+  lists: () => [...ROOT, "list"] as const,
+  listByUser: (userId: string) => [...ROOT, "list", "by-user", userId] as const,
+  details: () => [...ROOT, "detail"] as const,
+  byId: (id: string) => [...ROOT, "detail", "by-id", id] as const,
+  bySlug: (slug: string) => [...ROOT, "detail", "by-slug", slug] as const,
+  checkSlug: (slug: string) => [...ROOT, "slug-check", slug] as const,
 
-  // Invitations
-  listInvitations: () => ["invitations"] as const,
-  listUserInvitations: () => ["invitations", "user"] as const,
+  listInvitations: () => [...ROOT, "invitations"] as const,
+  listUserInvitations: () => [...ROOT, "invitations", "user"] as const,
 
-  // Levels
-  listLevels: () => ["levels"] as const,
-  levelById: (levelId: string) =>
-    [...organizationKeys.listLevels(), levelId] as const,
+  listLevels: () => [...ROOT, "levels"] as const,
+  levelById: (id: string) => [...ROOT, "levels", id] as const,
 };

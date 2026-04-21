@@ -10,7 +10,7 @@ import { organizationKeys } from "./keys";
 export const organizationOptions = {
   all: () =>
     queryOptions({
-      queryKey: organizationKeys.all,
+      queryKey: organizationKeys.all(),
       queryFn: async () => {
         const { organizations } =
           await apiClient.organizations.listOrganizations();

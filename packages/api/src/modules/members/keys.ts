@@ -1,23 +1,22 @@
 import type { members } from "#client";
 
-const getMemberRootKey = ["members"] as const;
-const getRiderRootKey = [...getMemberRootKey, "riders"] as const;
-const getTrainerRootKey = [...getMemberRootKey, "trainers"] as const;
+const ROOT = ["members"] as const;
 
 export const memberKeys = {
-  list: () => getMemberRootKey,
-  byId: (memberId: string) => [...getMemberRootKey, memberId] as const,
-  /** Include org slug so switching orgs does not reuse another org's cached membership. */
-  me: () => [...getMemberRootKey, "me"] as const,
+  all: () => ROOT,
+  lists: () => [...ROOT, "list"] as const,
+  list: () => [...ROOT, "list", "all"] as const,
+  details: () => [...ROOT, "detail"] as const,
+  byId: (id: string) => [...ROOT, "detail", id] as const,
+  me: () => [...ROOT, "me"] as const,
 
-  // Trainers
   trainers: (params?: members.ListTrainersRequest) =>
-    [getTrainerRootKey, params] as const,
-  trainerById: (trainerId: string) =>
-    [...getTrainerRootKey, trainerId] as const,
+    [...ROOT, "trainers", "list", params ?? null] as const,
+  trainersRoot: () => [...ROOT, "trainers"] as const,
+  trainerById: (id: string) => [...ROOT, "trainers", "detail", id] as const,
 
-  // Riders
-  riders: () => getRiderRootKey,
-  riderById: (riderId: string) => [...getRiderRootKey, riderId] as const,
-  stats: () => [...getRiderRootKey, "stats"] as const,
+  riders: () => [...ROOT, "riders", "list"] as const,
+  ridersRoot: () => [...ROOT, "riders"] as const,
+  riderById: (id: string) => [...ROOT, "riders", "detail", id] as const,
+  stats: () => [...ROOT, "riders", "stats"] as const,
 };

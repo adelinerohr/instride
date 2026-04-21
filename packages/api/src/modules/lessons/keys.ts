@@ -23,11 +23,12 @@ export const lessonKeys = {
 
   // Instances — scoped by date range since that's always how the calendar fetches
   instances: () => [...getLessonRootKey, "instances"] as const,
+  instanceLists: () => [...getLessonRootKey, "instances", "list"] as const,
   instancesInRange: (from: string, to: string) =>
-    [...lessonKeys.instances(), { from, to }] as const,
-  instanceById: (instanceId: string) =>
-    [...lessonKeys.instances(), instanceId] as const,
-  stats: () => [...lessonKeys.instances(), "stats"] as const,
+    [...getLessonRootKey, "instances", "list", "range", { from, to }] as const,
+  instanceById: (id: string) =>
+    [...getLessonRootKey, "instances", "detail", id] as const,
+  stats: () => [...getLessonRootKey, "instances", "stats"] as const,
 
   // Enrollments
   enrollments: () => [...getLessonRootKey, "enrollments"] as const,

@@ -16,29 +16,17 @@ function replaceFeedPostInCaches(
   post: types.FeedPost
 ) {
   queryClient.setQueryData(feedKeys.postById(post.id), post);
-  queryClient.setQueriesData({ queryKey: feedKeys.posts() }, (old: unknown) => {
-    if (!old || typeof old !== "object") {
-      return old;
-    }
-    if (
-      "pages" in old &&
-      Array.isArray((old as InfiniteData<feed.ListFeedResponse>).pages)
-    ) {
-      const data = old as InfiniteData<feed.ListFeedResponse>;
-      return {
-        ...data,
-        pages: data.pages.map((page) => ({
+  queryClient.setQueriesData<InfiniteData<feed.ListFeedResponse>>(
+    { queryKey: feedKeys.postsLists() },
+    (old) =>
+      old && {
+        ...old,
+        pages: old.pages.map((page) => ({
           ...page,
           posts: page.posts.map((p) => (p.id === post.id ? post : p)),
         })),
-      };
-    }
-    const cached = old as types.FeedPost;
-    if ("id" in cached && cached.id === post.id) {
-      return post;
-    }
-    return old;
-  });
+      }
+  );
 }
 
 // ---- Standalone functions -----------------------------------------------------
@@ -121,7 +109,7 @@ export function useCreatePost({
     ...config,
     onSuccess: (post, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: feedKeys.posts(),
+        queryKey: feedKeys.postsRoot(),
       });
       onSuccess?.(post, ...args);
     },
@@ -138,7 +126,7 @@ export function useUpdatePost({
     ...config,
     onSuccess: (post, ...args) => {
       replaceFeedPostInCaches(queryClient, post);
-      queryClient.invalidateQueries({ queryKey: feedKeys.posts() });
+      queryClient.invalidateQueries({ queryKey: feedKeys.postsRoot() });
       onSuccess?.(post, ...args);
     },
   });
@@ -156,7 +144,7 @@ export function useUpdateComment({
       queryClient.invalidateQueries({
         queryKey: feedKeys.postById(comment.postId),
       });
-      queryClient.invalidateQueries({ queryKey: feedKeys.posts() });
+      queryClient.invalidateQueries({ queryKey: feedKeys.postsRoot() });
       onSuccess?.(comment, ...args);
     },
   });
@@ -172,7 +160,7 @@ export function useDeletePost({
     ...config,
     onSuccess: (postId, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: feedKeys.posts(),
+        queryKey: feedKeys.postsRoot(),
       });
       onSuccess?.(postId, ...args);
     },
@@ -227,7 +215,7 @@ export function useLikePost({
         ],
       });
       queryClient.setQueriesData(
-        { queryKey: feedKeys.posts() },
+        { queryKey: feedKeys.postsRoot() },
         (old: unknown) => {
           if (!old || typeof old !== "object") return old;
           if (
@@ -252,7 +240,7 @@ export function useLikePost({
       );
     },
     onSettled: (_data, _error) => {
-      queryClient.invalidateQueries({ queryKey: feedKeys.posts() });
+      queryClient.invalidateQueries({ queryKey: feedKeys.postsRoot() });
     },
   });
 }
@@ -271,7 +259,7 @@ export function useUnlikePost({
         likes: post.likes?.filter((l) => l.id !== likeId) ?? [],
       });
       queryClient.setQueriesData(
-        { queryKey: feedKeys.posts() },
+        { queryKey: feedKeys.postsRoot() },
         (old: unknown) => {
           if (!old || typeof old !== "object") return old;
           if (
@@ -296,7 +284,7 @@ export function useUnlikePost({
       );
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedKeys.posts() });
+      queryClient.invalidateQueries({ queryKey: feedKeys.postsRoot() });
     },
   });
 }
@@ -310,14 +298,10 @@ export function useCreateComment({
   return useWrappedMutation(feedMutations.createComment, {
     ...config,
     onSuccess: (comment, ...args) => {
-      queryClient.setQueryData(
+      queryClient.setQueryData<types.FeedPost>(
         feedKeys.postById(comment.postId),
-        (old: types.FeedPost) => {
-          return {
-            ...old,
-            comments: [...(old.comments || []), comment],
-          };
-        }
+        (old) =>
+          old ? { ...old, comments: [...(old.comments ?? []), comment] } : old
       );
       queryClient.invalidateQueries({
         queryKey: feedKeys.postById(comment.postId),

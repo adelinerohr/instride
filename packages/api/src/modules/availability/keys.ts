@@ -14,7 +14,7 @@ const businessHoursRootKey = [
   ...availableSlotsRootKey,
   "business-hours",
 ] as const;
-const timeBlocksRootKey = [...availableSlotsRootKey, "time-blocks"] as const;
+const BLOCKS_ROOT = [...availableSlotsRootKey, "time-blocks"] as const;
 
 export const availabilityKeys = {
   listBusinessHours: () => businessHoursRootKey,
@@ -22,17 +22,19 @@ export const availabilityKeys = {
   trainerBusinessHours: (trainerId: string) =>
     [...businessHoursRootKey, "trainer", trainerId] as const,
 
-  listTimeBlocks: () => timeBlocksRootKey,
-  timeBlockById: (id: string) => [...timeBlocksRootKey, id] as const,
+  listTimeBlocks: () => BLOCKS_ROOT,
+  timeBlocksAll: () => [...BLOCKS_ROOT, "list", "all"] as const,
   timeBlocksInRange: (from: Date, to: Date) =>
     [
-      ...timeBlocksRootKey,
+      ...BLOCKS_ROOT,
+      "list",
       "range",
       from.toISOString(),
       to.toISOString(),
     ] as const,
   timeBlocksForTrainer: (trainerId: string) =>
-    [...timeBlocksRootKey, "trainer", trainerId] as const,
+    [...BLOCKS_ROOT, "list", "trainer", trainerId] as const,
+  timeBlockById: (id: string) => [...BLOCKS_ROOT, "detail", id] as const,
 
   availableSlots: (params: availability.AvailableSlotsParams) =>
     [...availableSlotsRootKey, params] as const,

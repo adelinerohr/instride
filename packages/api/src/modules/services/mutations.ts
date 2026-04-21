@@ -3,7 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
 import { apiClient, type services } from "#client";
 
-import { serviceKeys } from "./keys";
+import {
+  serviceBoardAssignmentKeys,
+  serviceKeys,
+  serviceTrainerAssignmentKeys,
+} from "./keys";
 
 // ---- Standalone functions ----------------------------------------------
 
@@ -115,6 +119,12 @@ export function useAssignToService({
     onSuccess: (assignment, ...args) => {
       queryClient.invalidateQueries({
         queryKey: serviceKeys.byId(assignment.assignment.serviceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: serviceTrainerAssignmentKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: serviceBoardAssignmentKeys.all(),
       });
       onSuccess?.(assignment, ...args);
     },
