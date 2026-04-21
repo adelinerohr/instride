@@ -29,13 +29,13 @@ function AuthCallback() {
 
         // Determine if we're on the canonical auth domain
         const isAuthDomain = import.meta.env.PROD
-          ? currentHost === "app.instrideapp.com"
+          ? currentHost === "instrideapp.com"
           : currentHost === "localhost:3000" ||
             currentHost === "127.0.0.1:3000";
 
         if (isDev && orgSlug) {
           // In dev, use path-based routing
-          const targetPath = `/org/${orgSlug}${returnTo || "/dashboard"}`;
+          const targetPath = `/org/${orgSlug}${returnTo || "/"}`;
           console.log("Navigating to org path:", targetPath);
           navigate({ to: targetPath as any });
           return;
@@ -45,7 +45,7 @@ function AuthCallback() {
           // Production: redirect to org subdomain
           const protocol = window.location.protocol;
           const targetDomain = `${orgSlug}.instrideapp.com`;
-          const targetPath = returnTo || "/dashboard";
+          const targetPath = returnTo || "/";
           const targetUrl = `${protocol}//${targetDomain}${targetPath}`;
 
           console.log("Redirecting to org subdomain:", targetUrl);
@@ -54,13 +54,13 @@ function AuthCallback() {
         }
 
         if (isAuthDomain && !orgSlug) {
-          // No org context - redirect to root domain dashboard
+          // No org context - redirect to root domain
           if (isDev) {
-            navigate({ to: returnTo || "/dashboard" });
+            navigate({ to: returnTo || "/" });
             return;
           }
 
-          const targetPath = returnTo || "/dashboard";
+          const targetPath = returnTo || "/";
           const targetUrl = `https://instrideapp.com${targetPath}`;
           console.log("Redirecting to root domain:", targetUrl);
           window.location.href = targetUrl;
@@ -68,7 +68,7 @@ function AuthCallback() {
         }
 
         // Already on target domain, just navigate
-        navigate({ to: returnTo || "/dashboard" });
+        navigate({ to: returnTo || "/" });
       } catch (err) {
         console.error("Auth callback error:", err);
         setError("Failed to complete sign in. Please try again.");

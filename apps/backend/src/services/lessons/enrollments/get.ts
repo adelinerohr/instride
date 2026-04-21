@@ -1,8 +1,9 @@
-import { api, APIError } from "encore.dev/api";
-import { organizations } from "~encore/clients";
+import { api } from "encore.dev/api";
+import { guardians, organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 import { riderRelationQuery } from "@/shared/utils/relation-queries";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
 import {
@@ -69,6 +70,10 @@ interface ListMyEnrollmentsResponse {
   seriesEnrollments: LessonSeriesEnrollment[];
 }
 
+/**
+ * List the enrollments for the current user.
+ * Include the enrollments for the current user's dependents, if any.
+ */
 export const listMyEnrollments = api(
   {
     expose: true,
@@ -81,14 +86,19 @@ export const listMyEnrollments = api(
 
     const { member } = await organizations.getMember();
 
-    if (!member.rider) {
-      throw APIError.notFound("Rider not found");
-    }
+    assertExists(member.rider, "Rider not found");
+
+    const { relationships } = await guardians.getMyDependents();
+    const dependentRiderIds = relationships.map(
+      (relationship) => relationship.dependent.riderId
+    );
 
     const instanceEnrollments =
       await db.query.lessonInstanceEnrollments.findMany({
         where: {
-          riderId: member.rider.id,
+          riderId: {
+            in: [member.rider.id, ...dependentRiderIds],
+          },
           organizationId,
         },
         with: {
@@ -121,12 +131,23 @@ export const listMyEnrollments = api(
               },
             },
           },
+          rider: {
+            with: {
+              member: {
+                with: {
+                  authUser: true,
+                },
+              },
+            },
+          },
         },
       });
 
     const seriesEnrollments = await db.query.lessonSeriesEnrollments.findMany({
       where: {
-        riderId: member.rider.id,
+        riderId: {
+          in: [member.rider.id, ...dependentRiderIds],
+        },
         organizationId,
       },
     });

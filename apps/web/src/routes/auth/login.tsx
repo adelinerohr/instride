@@ -15,7 +15,7 @@ export const Route = createFileRoute("/auth/login")({
 function RouteComponent() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const returnTo = search.redirect || "/dashboard";
+  const returnTo = search.redirect || "/";
 
   const handleSuccess = () => {
     navigate({ to: returnTo });

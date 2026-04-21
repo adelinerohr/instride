@@ -1,23 +1,26 @@
-import { enrollmentOptions, getUser } from "@instride/api";
+import { enrollmentOptions } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   endOfWeek,
   format,
+  isBefore,
+  isSameDay,
   isSameMonth,
   isWithinInterval,
+  setHours,
   startOfWeek,
 } from "date-fns";
 import {
   AlertTriangleIcon,
+  ArrowRightIcon,
   ChevronRightIcon,
   ClipboardIcon,
   PlusIcon,
 } from "lucide-react";
 
 import { CalendarView } from "@/features/calendar/lib/types";
-import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
-import { UserAvatar } from "@/shared/components/fragments/user-avatar";
+import { LessonCard } from "@/features/lessons/components/fragments/lesson-card";
 import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import {
   Alert,
@@ -26,7 +29,7 @@ import {
   AlertTitle,
 } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button, buttonVariants } from "@/shared/components/ui/button";
+import { buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -35,7 +38,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   Empty,
   EmptyTitle,
@@ -43,15 +45,7 @@ import {
   EmptyHeader,
   EmptyDescription,
 } from "@/shared/components/ui/empty";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "@/shared/components/ui/item";
+import { ItemGroup } from "@/shared/components/ui/item";
 import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/portal/")({
@@ -64,7 +58,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal/")({
 });
 
 function RouteComponent() {
-  const { member, isGuardian, dependents, isOnlyGuardian } =
+  const { member, isGuardian, dependents, isOnlyGuardian, user } =
     Route.useRouteContext();
   const { slug } = Route.useParams();
 
@@ -78,6 +72,31 @@ function RouteComponent() {
 
   const showDependentAlert = isGuardian && dependents?.length === 0;
 
+  const renderGreeting = () => {
+    if (!isGuardian) {
+      return "Here's what's on the schedule for you.";
+    } else {
+      const dependentNames = dependents?.map(({ dependent }) => dependent.name);
+
+      if (!dependentNames) {
+        return "Here's what's on the schedule for you.";
+      }
+
+      const dependentNamesString =
+        dependentNames.length === 1
+          ? dependentNames[0]
+          : dependentNames.slice(0, -1).join(", ") +
+            " and " +
+            dependentNames[dependentNames.length - 1];
+
+      if (isOnlyGuardian) {
+        return `Here's what's on the schedule for ${dependentNamesString}.`;
+      } else {
+        return `Here's what's on the schedule for you and ${dependentNamesString}.`;
+      }
+    }
+  };
+
   const lessonsThisWeek = instanceEnrollments?.filter((enrollment) => {
     return (
       enrollment.instance &&
@@ -88,8 +107,17 @@ function RouteComponent() {
     );
   });
 
+  const lessonsToday = instanceEnrollments?.filter((enrollment) => {
+    return enrollment.instance && isSameDay(enrollment.instance.start, now);
+  });
+
   const hasPin = member.kioskPin !== null;
 
+  const phaseOfDay = isBefore(now, setHours(now, 12))
+    ? "morning"
+    : isBefore(now, setHours(now, 18))
+      ? "afternoon"
+      : "evening";
   const endFormat = isSameMonth(weekStart, weekEnd)
     ? "d, yyyy"
     : "MMMM d, yyyy";
@@ -151,17 +179,52 @@ function RouteComponent() {
             </AlertAction>
           </Alert>
         )}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold font-display">
+            Good {phaseOfDay}, {user.name.split(" ")[0]}
+          </h1>
+          <p className="text-sm text-muted-foreground">{renderGreeting()}</p>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-semibold font-display">Today</h2>
+            <Badge variant="accent">{format(now, "EEEE, MMMM d")}</Badge>
+            <Link
+              to="/org/$slug/portal/calendar"
+              params={{ slug }}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "ml-auto"
+              )}
+            >
+              Open calendar
+              <ArrowRightIcon />
+            </Link>
+          </div>
+          {lessonsToday.length === 0 ? (
+            <Empty className="border border-dashed w-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ClipboardIcon className="size-6" />
+                </EmptyMedia>
+                <EmptyTitle>No lessons today</EmptyTitle>
+                <EmptyDescription>
+                  You don't have any lessons scheduled for today.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <LessonCard variant="detail" lessonEnrollment={lessonsToday[0]} />
+          )}
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span>Lessons This Week</span>{" "}
-              <Badge variant="secondary">
-                {lessonsThisWeek.length} lesson
-                {lessonsThisWeek.length === 1 ? "" : "s"}
-              </Badge>
+              Lessons This Week
             </CardTitle>
-            <CardDescription>
-              {format(weekStart, "MMMM d")} - {format(weekEnd, endFormat)}
+            <CardDescription className="text-xs text-muted-foreground">
+              {format(weekStart, "MMMM d")} - {format(weekEnd, endFormat)}{" "}
+              &middot; {lessonsThisWeek.length} lesson
             </CardDescription>
             <CardAction>
               <Link
@@ -170,7 +233,7 @@ function RouteComponent() {
                 search={{
                   view: CalendarView.AGENDA,
                 }}
-                className={buttonVariants({ variant: "ghost" })}
+                className={buttonVariants({ variant: "outline" })}
               >
                 View All
               </Link>
@@ -194,41 +257,11 @@ function RouteComponent() {
                 {lessonsThisWeek.map(
                   (enrollment) =>
                     enrollment.instance && (
-                      <DialogTrigger
+                      <LessonCard
                         key={enrollment.id}
-                        className="cursor-pointer"
-                        handle={viewLessonModalHandler}
-                        payload={{ lesson: enrollment.instance }}
-                        nativeButton={false}
-                        render={<Item variant="outline" />}
-                      >
-                        <ItemMedia>
-                          <UserAvatar
-                            size="lg"
-                            user={getUser({
-                              trainer: enrollment.instance.trainer!,
-                            })}
-                          />
-                        </ItemMedia>
-                        <ItemContent>
-                          <ItemTitle>
-                            {enrollment.instance.name ??
-                              enrollment.instance.series?.name}
-                          </ItemTitle>
-                          <ItemDescription>
-                            {format(
-                              enrollment.instance.start,
-                              "MMM d, yyyy h:mm a"
-                            )}{" "}
-                            - {format(enrollment.instance.end, "h:mm a")}
-                          </ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                          <Button variant="ghost" size="icon">
-                            <ChevronRightIcon />
-                          </Button>
-                        </ItemActions>
-                      </DialogTrigger>
+                        variant="date-chip"
+                        lessonEnrollment={enrollment}
+                      />
                     )
                 )}
               </ItemGroup>

@@ -1392,6 +1392,10 @@ export namespace lessons {
             return await resp.json() as types.ListLessonSeriesResponse
         }
 
+        /**
+         * List the enrollments for the current user.
+         * Include the enrollments for the current user's dependents, if any.
+         */
         public async listMyEnrollments(): Promise<enrollments.ListMyEnrollmentsResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/lessons/series/enrollments/me`)

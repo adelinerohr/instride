@@ -58,8 +58,7 @@ function RouteComponent() {
   const onboardMember = useOnboardMember();
 
   const activeWaiver = waivers.find((w) => w.status === WaiverStatus.ACTIVE);
-  const activeQuestionnaire =
-    questionnaires.find((q) => q.isActive) ?? questionnaires[0];
+  const activeQuestionnaire = questionnaires.find((q) => q.isActive);
 
   const completeOnboarding = async (value: MemberOnboardingFormValues) => {
     setError(null);
@@ -197,7 +196,6 @@ function RouteComponent() {
     const steps: MemberOnboardingStep[] = [
       MemberOnboardingStep.PersonalDetails,
       MemberOnboardingStep.AccountType,
-      MemberOnboardingStep.Questionnaire,
     ];
 
     if (activeWaiver) {
@@ -272,20 +270,21 @@ function RouteComponent() {
             <AccountTypeStep form={form} fields="accountType" />
           )}
 
-          {section === MemberOnboardingStep.Questionnaire && (
-            <QuestionnaireStep
-              form={form}
-              fields="questionnaire"
-              isDependent={false}
-              questionnaire={activeQuestionnaire}
-            />
-          )}
+          {section === MemberOnboardingStep.Questionnaire &&
+            activeQuestionnaire && (
+              <QuestionnaireStep
+                form={form}
+                fields="questionnaire"
+                isDependent={false}
+                questionnaire={activeQuestionnaire}
+              />
+            )}
 
-          {section === MemberOnboardingStep.Waiver && (
+          {section === MemberOnboardingStep.Waiver && activeWaiver && (
             <WaiverStep
               form={form}
               fields="waiver"
-              waiverContent={activeWaiver?.content ?? ""}
+              waiverContent={activeWaiver.content}
               name={name}
             />
           )}
