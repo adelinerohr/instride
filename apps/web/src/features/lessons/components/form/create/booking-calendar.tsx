@@ -37,13 +37,13 @@ export function BookingCalendar({
   selectedSlotStart,
 }: BookingCalendarProps) {
   const [currentWeekStart, setCurrentWeekStart] = React.useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 0 })
+    startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [currentMobileDay, setCurrentMobileDay] = React.useState(
     () => new Date()
   );
 
-  const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 1 });
 
   // Fetch available slots for the current week
   const { data: availableSlots } = useAvailableSlots({

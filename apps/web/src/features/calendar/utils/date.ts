@@ -16,7 +16,7 @@ export function rangeText(view: CalendarView, date: Date) {
       end = dateFns.endOfMonth(date);
       break;
     case "week":
-      start = dateFns.startOfWeek(date);
+      start = dateFns.startOfWeek(date, { weekStartsOn: 1 });
       end = dateFns.endOfWeek(date);
       break;
     case "day":

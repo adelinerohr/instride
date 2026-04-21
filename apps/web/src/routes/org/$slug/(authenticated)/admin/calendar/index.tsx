@@ -13,10 +13,9 @@ import {
   addMonths,
   subDays,
   subMonths,
-  subWeeks,
-  addWeeks,
   endOfMonth,
   startOfMonth,
+  startOfWeek,
 } from "date-fns";
 
 import { Calendar } from "@/features/calendar/components";
@@ -47,7 +46,7 @@ export const Route = createFileRoute(
   },
   loaderDeps: ({ search }) => ({
     // Only refetch when moving to a different month
-    month: startOfMonth(search.date).toISOString(),
+    month: startOfMonth(new Date(search.date)).toISOString(),
     view: search.view,
   }),
   loader: async ({ context, deps }) => {
@@ -77,7 +76,10 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
-  const { date, view } = Route.useSearch();
+  const search = Route.useSearch();
+
+  const date = new Date(search.date);
+  const view = search.view;
 
   const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
   const { data: boards } = useSuspenseQuery(boardsOptions.list());
@@ -97,14 +99,14 @@ function RouteComponent() {
       ? subDays(date, 1)
       : view === CalendarView.AGENDA
         ? subMonths(date, 1)
-        : subWeeks(date, 1);
+        : startOfWeek(date, { weekStartsOn: 1 });
 
   const visibleTo =
     view === CalendarView.DAY
       ? addDays(date, 1)
       : view === CalendarView.AGENDA
         ? addMonths(date, 1)
-        : addWeeks(date, 1);
+        : addDays(startOfWeek(date, { weekStartsOn: 1 }), 7);
 
   // Filter to visible range
   const lessons = allLessons.filter((lesson) => {
@@ -117,8 +119,6 @@ function RouteComponent() {
     const blockEnd = new Date(block.end);
     return blockStart >= visibleFrom && blockEnd <= visibleTo;
   });
-
-  console.log(lessons);
 
   return (
     <CalendarProvider

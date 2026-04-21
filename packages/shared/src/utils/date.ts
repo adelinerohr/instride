@@ -1,7 +1,6 @@
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 import { DayOfWeek } from "../models/enums";
-import { DAYS_OF_WEEK } from "./formatters";
 
 export interface LocalParts {
   year: number;
@@ -158,13 +157,26 @@ export function buildEmptyWeek(): DayHours[] {
  * @returns The day of week
  */
 export function getDayOfWeek(date: Date): DayOfWeek {
-  const day = DAYS_OF_WEEK[date.getDay()];
+  const jsDay = date.getDay();
 
-  if (!day) {
-    throw Error("Invalid date");
+  switch (jsDay) {
+    case 0:
+      return DayOfWeek.SUN;
+    case 1:
+      return DayOfWeek.MON;
+    case 2:
+      return DayOfWeek.TUE;
+    case 3:
+      return DayOfWeek.WED;
+    case 4:
+      return DayOfWeek.THU;
+    case 5:
+      return DayOfWeek.FRI;
+    case 6:
+      return DayOfWeek.SAT;
+    default:
+      throw Error("Invalid date");
   }
-
-  return day.value;
 }
 
 /**

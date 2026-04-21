@@ -137,7 +137,11 @@ export function CalendarFilters({
                     <ItemMedia>
                       <AvatarGroup>
                         {selectedTrainers.map((trainer) => (
-                          <UserAvatar size="sm" user={getUser({ trainer })} />
+                          <UserAvatar
+                            size="sm"
+                            user={getUser({ trainer })}
+                            key={trainer?.id}
+                          />
                         ))}
                       </AvatarGroup>
                     </ItemMedia>
@@ -153,7 +157,10 @@ export function CalendarFilters({
             <SelectGroup>
               {trainers.map((trainer) => (
                 <SelectItem key={trainer.id} value={trainer.id}>
-                  <UserAvatarItem user={getUser({ trainer })} />
+                  <UserAvatarItem
+                    user={getUser({ trainer })}
+                    className="w-full flex-nowrap"
+                  />
                 </SelectItem>
               ))}
             </SelectGroup>

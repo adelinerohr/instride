@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format, isSameDay, parseISO } from "date-fns";
 import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
@@ -12,7 +12,7 @@ import { CalendarTimeline } from "../fragments/timeline";
 import { DayColumn } from "./column";
 
 export function DayView() {
-  const { selectedTrainerIds, trainers, lessons } = useCalendar();
+  const { selectedTrainerIds, trainers, lessons, selectedDate } = useCalendar();
 
   const selectedTrainers = trainers.filter((trainer) =>
     selectedTrainerIds.includes(trainer.id)
@@ -71,7 +71,7 @@ export function DayView() {
                 </div>
               ))}
 
-              <CalendarTimeline />
+              {isSameDay(selectedDate, new Date()) && <CalendarTimeline />}
             </div>
           </div>
         </ScrollArea>

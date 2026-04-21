@@ -63,8 +63,8 @@ function RouteComponent() {
   const { slug } = Route.useParams();
 
   const now = new Date();
-  const weekStart = startOfWeek(now);
-  const weekEnd = endOfWeek(now);
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
 
   const {
     data: { instanceEnrollments },

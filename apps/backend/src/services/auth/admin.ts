@@ -113,7 +113,7 @@ export const listUsers = api(
                 lte(authUsers.createdAt, todayEnd)
               );
             case "this-week":
-              const weekStart = startOfWeek(now);
+              const weekStart = startOfWeek(now, { weekStartsOn: 1 });
               return gte(authUsers.createdAt, weekStart);
             case "this-month":
               const monthStart = startOfMonth(now);

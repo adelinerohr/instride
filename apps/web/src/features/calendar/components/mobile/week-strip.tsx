@@ -8,7 +8,7 @@ export function MobileWeekStrip() {
   const { selectedDate, setSelectedDate } = useCalendar();
 
   const today = new Date();
-  const weekStart = startOfWeek(selectedDate);
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (

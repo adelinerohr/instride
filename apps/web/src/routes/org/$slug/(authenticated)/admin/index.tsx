@@ -47,8 +47,8 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
     );
     await context.queryClient.ensureQueryData(
       instanceOptions.inRange(
-        startOfWeek(new Date(), { weekStartsOn: 0 }),
-        endOfWeek(new Date(), { weekStartsOn: 0 })
+        startOfWeek(new Date(), { weekStartsOn: 1 }),
+        endOfWeek(new Date(), { weekStartsOn: 1 })
       )
     );
   },
@@ -62,8 +62,8 @@ function RouteComponent() {
   const { data: lessonStats } = useSuspenseQuery(instanceOptions.stats());
   const { data: lessonsThisWeek } = useSuspenseQuery(
     instanceOptions.inRange(
-      startOfWeek(new Date(), { weekStartsOn: 0 }),
-      endOfWeek(new Date(), { weekStartsOn: 0 })
+      startOfWeek(new Date(), { weekStartsOn: 1 }),
+      endOfWeek(new Date(), { weekStartsOn: 1 })
     )
   );
   const { data: lessonsToday } = useSuspenseQuery(
@@ -71,8 +71,8 @@ function RouteComponent() {
   );
 
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 0 }); // Sunday
-  const weekEnd = endOfWeek(now, { weekStartsOn: 0 }); // Saturday
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Sunday
+  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }); // Saturday
 
   const hasPin = member.kioskPin !== null;
 

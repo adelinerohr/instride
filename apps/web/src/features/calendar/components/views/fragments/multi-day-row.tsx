@@ -30,7 +30,7 @@ export function MultiDayRow() {
     selectedTrainerIds,
   } = useCalendar();
 
-  const weekStart = startOfWeek(selectedDate);
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 

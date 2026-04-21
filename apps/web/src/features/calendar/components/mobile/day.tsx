@@ -1,5 +1,12 @@
 import type { types } from "@instride/api";
-import { differenceInMinutes, format, isSameDay, parseISO } from "date-fns";
+import { isWorkingHour } from "@instride/shared";
+import {
+  areIntervalsOverlapping,
+  differenceInMinutes,
+  format,
+  isSameDay,
+  parseISO,
+} from "date-fns";
 import * as React from "react";
 
 import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
@@ -8,8 +15,20 @@ import { SheetTrigger } from "@/shared/components/ui/sheet";
 import { cn } from "@/shared/lib/utils";
 
 import { useCalendar } from "../../hooks/use-calendar";
-import { HOURS, MOBILE_SLOT_HEIGHT, START_HOUR } from "../../lib/constants";
-import { getTrainerColor } from "../../utils/lesson";
+import {
+  HOURS,
+  MOBILE_SLOT_HEIGHT,
+  SLOT_HEIGHT,
+  START_HOUR,
+} from "../../lib/constants";
+import {
+  getLessonBlockStyle,
+  getTrainerColor,
+  groupLessons,
+} from "../../utils/lesson";
+import { HourCell } from "../views/fragments/hour-cell";
+import { LessonBlock } from "../views/fragments/lesson-block";
+import { CalendarTimeline } from "../views/fragments/timeline";
 
 const lessonBlockColors = {
   amber:
@@ -24,16 +43,14 @@ const lessonBlockColors = {
 };
 
 export function MobileDayView() {
-  const { selectedDate, lessons } = useCalendar();
+  const { selectedDate, lessons, selectedTrainerIds, trainerBusinessHours } =
+    useCalendar();
 
-  const dayLessons = React.useMemo(
-    () =>
-      lessons
-        .filter((lesson) => isSameDay(parseISO(lesson.start), selectedDate))
-        .sort(
-          (a, b) => parseISO(a.start).getTime() - parseISO(b.start).getTime()
-        ),
-    [lessons, selectedDate]
+  const currentTrainerBusinessHours =
+    trainerBusinessHours[selectedTrainerIds[0]];
+
+  const groupedLessons = groupLessons(
+    lessons.filter((lesson) => lesson.trainer?.id === selectedTrainerIds[0])
   );
 
   // Scroll to "now" on mount / selected date change
@@ -41,10 +58,7 @@ export function MobileDayView() {
   React.useEffect(() => {
     const now = new Date();
     const targetHour = isSameDay(now, selectedDate) ? now.getHours() : 9;
-    const offset = Math.max(
-      0,
-      (targetHour - START_HOUR - 1) * MOBILE_SLOT_HEIGHT
-    );
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
     scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
   }, [selectedDate]);
 
@@ -57,7 +71,7 @@ export function MobileDayView() {
             <div
               key={hour}
               className="relative"
-              style={{ height: MOBILE_SLOT_HEIGHT }}
+              style={{ height: `${SLOT_HEIGHT}px` }}
             >
               {index !== 0 && (
                 <span className="absolute -top-2 right-2 text-xs text-muted-foreground">
@@ -70,29 +84,61 @@ export function MobileDayView() {
 
         {/* Day timeline */}
         <div className="relative flex-1 border-l">
-          {HOURS.map((hour, index) => (
-            <div
-              key={hour}
-              className="relative"
-              style={{ height: MOBILE_SLOT_HEIGHT }}
-            >
-              {index !== 0 && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 border-b border-dashed" />
-              )}
-            </div>
-          ))}
+          {HOURS.map((hour, index) => {
+            const isDisabled = !isWorkingHour({
+              day: selectedDate,
+              hour,
+              businessHours: currentTrainerBusinessHours,
+            });
 
-          {/* Lesson blocks */}
-          {dayLessons.map((lesson) => (
-            <MobileLessonBlock
-              key={lesson.id}
-              lesson={lesson}
-              day={selectedDate}
-            />
-          ))}
+            return (
+              <HourCell
+                key={hour}
+                isDisabled={isDisabled}
+                index={index}
+                day={selectedDate}
+                hour={hour}
+              />
+            );
+          })}
+
+          {groupedLessons.map((group, groupIndex) =>
+            group.map((lesson) => {
+              let style = getLessonBlockStyle(
+                lesson,
+                selectedDate,
+                groupIndex,
+                groupedLessons.length
+              );
+              const hasOverlap = groupedLessons.some(
+                (otherGroup, otherIndex) =>
+                  otherIndex !== groupIndex &&
+                  otherGroup.some((otherLesson) =>
+                    areIntervalsOverlapping(
+                      {
+                        start: parseISO(lesson.start),
+                        end: parseISO(lesson.end),
+                      },
+                      {
+                        start: parseISO(otherLesson.start),
+                        end: parseISO(otherLesson.end),
+                      }
+                    )
+                  )
+              );
+
+              if (!hasOverlap) style = { ...style, width: "100%", left: "0%" };
+
+              return (
+                <div key={lesson.id} className="absolute p-1" style={style}>
+                  <LessonBlock lesson={lesson} />
+                </div>
+              );
+            })
+          )}
 
           {/* Current time indicator (only when viewing today) */}
-          {isSameDay(selectedDate, new Date()) && <MobileTimeline />}
+          {isSameDay(selectedDate, new Date()) && <CalendarTimeline />}
         </div>
       </div>
     </ScrollArea>
