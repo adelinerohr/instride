@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, organizations, type levels } from "#client";
+import { apiClient, organizations, upload, type levels } from "#client";
 
 import { organizationKeys } from "./keys";
 
@@ -21,6 +21,12 @@ export const organizationMutations = {
     );
     return organization;
   },
+  startUploadLogo: async (input: upload.StartUploadLogoParams) =>
+    await apiClient.upload.startUploadLogo(input),
+  confirmUploadLogo: async (input: upload.ConfirmLogoUploadParams) =>
+    await apiClient.upload.confirmLogoUpload(input),
+  deleteUploadLogo: async (input: upload.DeleteLogoParams) =>
+    await apiClient.upload.deleteLogo(input),
 };
 
 export const levelMutations = {
@@ -71,6 +77,48 @@ export function useUpdateOrganization({
         queryKey: organizationKeys.byId(organization.id),
       });
       onSuccess?.(organization, ...args);
+    },
+  });
+}
+
+export function useStartUploadLogo({
+  mutationConfig,
+}: MutationHookOptions<typeof organizationMutations.startUploadLogo> = {}) {
+  const config = mutationConfig || {};
+
+  return useWrappedMutation(organizationMutations.startUploadLogo, config);
+}
+
+export function useConfirmUploadLogo({
+  mutationConfig,
+}: MutationHookOptions<typeof organizationMutations.confirmUploadLogo> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(organizationMutations.confirmUploadLogo, {
+    ...config,
+    onSuccess: (response, variables, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: organizationKeys.byId(variables.organizationId),
+      });
+      onSuccess?.(response, variables, ...args);
+    },
+  });
+}
+
+export function useDeleteLogo({
+  mutationConfig,
+}: MutationHookOptions<typeof organizationMutations.deleteUploadLogo> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(organizationMutations.deleteUploadLogo, {
+    ...config,
+    onSuccess: (response, variables, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: organizationKeys.byId(variables.organizationId),
+      });
+      onSuccess?.(response, variables, ...args);
     },
   });
 }

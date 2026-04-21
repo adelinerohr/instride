@@ -11,33 +11,32 @@ import {
   getOrganizationLogoKey,
   getOrganizationLogoPrefix,
   isAllowedContentType,
-  AllowedImageType,
   ALLOWED_IMAGE_TYPES,
 } from "./utils";
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const UPLOAD_TTL_SECONDS = 300; // 5 minutes
 
-interface UploadLogoParams {
+export interface StartUploadLogoParams {
   organizationId: string;
-  contentType: AllowedImageType;
+  contentType: string;
   size: number;
 }
 
-interface UploadLogoResponse {
+export interface StartUploadLogoResponse {
   uploadUrl: string;
   key: string;
   expiresAt: string;
 }
 
-export const uploadLogo = api(
+export const startUploadLogo = api(
   {
     method: "POST",
     path: "/upload/logo",
     auth: true,
     expose: true,
   },
-  async (params: UploadLogoParams): Promise<UploadLogoResponse> => {
+  async (params: StartUploadLogoParams): Promise<StartUploadLogoResponse> => {
     await requireOrganizationAdmin(params.organizationId);
 
     if (!isAllowedContentType(params.contentType, ALLOWED_IMAGE_TYPES)) {

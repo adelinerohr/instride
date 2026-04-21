@@ -5,6 +5,9 @@ import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
 import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 import log from "encore.dev/log";
+import { Pool } from "pg";
+
+import { DB } from "@/database";
 
 import { invitationEmail } from "../email/templates/invitation";
 import { passwordResetEmail } from "../email/templates/password-reset";
@@ -28,6 +31,10 @@ const baseURL = isProd
   ? "https://api.instrideapp.com"
   : "http://localhost:4000";
 
+const pool = new Pool({
+  connectionString: DB.connectionString,
+});
+
 export const auth = betterAuth({
   /** Configuration */
   basePath: "/auth",
@@ -35,9 +42,9 @@ export const auth = betterAuth({
   secret: authSecret(),
   logger: {
     disableColors: true,
-    level: "warn",
-    log: (message) => {
-      log.warn(message);
+    level: "debug",
+    log: (level, message, ...args) => {
+      log.info("better-auth", { level, message, args: JSON.stringify(args) });
     },
   },
 
@@ -60,7 +67,7 @@ export const auth = betterAuth({
         "http://127.0.0.1:3000",
       ],
 
-  database: drizzleAdapter(db, {
+  database: drizzleAdapter(pool, {
     provider: "pg",
   }),
 

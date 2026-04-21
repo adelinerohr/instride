@@ -1,4 +1,3 @@
-import { isAPIError } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import { appMeta } from "encore.dev";
 import { api, APIError, Cookie } from "encore.dev/api";
@@ -51,7 +50,12 @@ export const authRoutes = api.raw(
       });
 
       // Pass to Better Auth and forward the response
+      log.info("calling auth handler", {
+        url: webReq.url,
+        method: webReq.method,
+      });
       const response = await auth.handler(webReq);
+      log.info("auth handler response", { status: response.status });
 
       // Handle set-cookie separately to preserve multiple values
       const setCookieValues = response.headers.getSetCookie?.() ?? [];
@@ -85,11 +89,10 @@ export const authRoutes = api.raw(
         res.end();
       }
     } catch (error) {
-      if (isAPIError(error)) {
-        log.error(error, error.message);
-      } else if (error instanceof Error) {
-        log.error(error, error.message);
-      }
+      log.error("auth handler threw", {
+        error: String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       res.writeHead(500);
       res.end();
     }

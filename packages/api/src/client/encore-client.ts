@@ -1433,25 +1433,6 @@ export namespace lessons {
 }
 
 export namespace notifications {
-    export interface CreateNotificationRequest {
-        organizationId: string
-        recipientId: string
-        type: types.NotificationType
-        title: string
-        message: string
-        entityType: string
-        entityId?: string
-        deepLink?: string
-        /**
-         * Override default channels for this specific notification
-         */
-        channels?: types.NotificationChannel[]
-    }
-
-    export interface DispatchNotificationRequest {
-        channel: types.NotificationChannel
-    }
-
     export interface GetUnreadResponse {
         notifications: types.Notification[]
         unreadCount: number
@@ -1473,7 +1454,6 @@ export namespace notifications {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.createNotification = this.createNotification.bind(this)
-            this.dispatch = this.dispatch.bind(this)
             this.getPreferences = this.getPreferences.bind(this)
             this.getUnread = this.getUnread.bind(this)
             this.handleSMSWebhook = this.handleSMSWebhook.bind(this)
@@ -1482,14 +1462,8 @@ export namespace notifications {
             this.updatePreferences = this.updatePreferences.bind(this)
         }
 
-        public async createNotification(params: CreateNotificationRequest): Promise<types.GetNotificationResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/notifications`, JSON.stringify(params))
-            return await resp.json() as types.GetNotificationResponse
-        }
-
-        public async dispatch(notificationId: string, params: DispatchNotificationRequest): Promise<void> {
-            await this.baseClient.callTypedAPI("POST", `/notifications/${encodeURIComponent(notificationId)}/dispatch`, JSON.stringify(params))
+        public async createNotification(): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/notifications`)
         }
 
         public async getPreferences(memberId: string): Promise<types.NotificationPreference> {
@@ -2041,8 +2015,6 @@ export namespace quickbooks {
 }
 
 export namespace upload {
-    export type AllowedImageType = "image/jpeg" | "image/png" | "image/webp"
-
     export interface ConfirmAvatarUploadParams {
         userId?: string
         key: string
@@ -2069,6 +2041,18 @@ export namespace upload {
         userId?: string
     }
 
+    export interface StartUploadLogoParams {
+        organizationId: string
+        contentType: string
+        size: number
+    }
+
+    export interface StartUploadLogoResponse {
+        uploadUrl: string
+        key: string
+        expiresAt: string
+    }
+
     export interface UploadAvatarParams {
         userId?: string
         contentType: string
@@ -2076,18 +2060,6 @@ export namespace upload {
     }
 
     export interface UploadAvatarResponse {
-        uploadUrl: string
-        key: string
-        expiresAt: string
-    }
-
-    export interface UploadLogoParams {
-        organizationId: string
-        contentType: AllowedImageType
-        size: number
-    }
-
-    export interface UploadLogoResponse {
         uploadUrl: string
         key: string
         expiresAt: string
@@ -2102,8 +2074,8 @@ export namespace upload {
             this.confirmLogoUpload = this.confirmLogoUpload.bind(this)
             this.deleteLogo = this.deleteLogo.bind(this)
             this.deleteUserAvatar = this.deleteUserAvatar.bind(this)
+            this.startUploadLogo = this.startUploadLogo.bind(this)
             this.uploadAvatar = this.uploadAvatar.bind(this)
-            this.uploadLogo = this.uploadLogo.bind(this)
         }
 
         public async confirmAvatarUpload(params: ConfirmAvatarUploadParams): Promise<ConfirmAvatarUploadResponse> {
@@ -2136,16 +2108,16 @@ export namespace upload {
             await this.baseClient.callTypedAPI("DELETE", `/upload/avatar/user`, undefined, {query})
         }
 
+        public async startUploadLogo(params: StartUploadLogoParams): Promise<StartUploadLogoResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/upload/logo`, JSON.stringify(params))
+            return await resp.json() as StartUploadLogoResponse
+        }
+
         public async uploadAvatar(params: UploadAvatarParams): Promise<UploadAvatarResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/upload/avatar`, JSON.stringify(params))
             return await resp.json() as UploadAvatarResponse
-        }
-
-        public async uploadLogo(params: UploadLogoParams): Promise<UploadLogoResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("POST", `/upload/logo`, JSON.stringify(params))
-            return await resp.json() as UploadLogoResponse
         }
     }
 }
@@ -3246,8 +3218,6 @@ export namespace types {
         isRead: boolean
         readAt: string | null
     }
-
-    export type NotificationChannel = "email" | "sms" | "push" | "in_app"
 
     export interface NotificationPreference {
         id: string

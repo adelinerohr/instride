@@ -4,6 +4,7 @@ import {
   useStartUploadAvatar,
   useUpdateUser,
 } from "@instride/api";
+import { FileUploadAction } from "@instride/shared";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -12,12 +13,6 @@ import { AvatarUpload } from "@/shared/components/ui/file-upload";
 import { useAppForm } from "@/shared/hooks/use-form";
 
 import { Route } from "./index";
-
-enum FileUploadAction {
-  NONE = "none",
-  UPDATE = "update",
-  DELETE = "delete",
-}
 
 export function PersonalDetails() {
   const { user } = Route.useRouteContext();
@@ -56,7 +51,7 @@ export function PersonalDetails() {
       image: user.image,
       dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : null,
       newImage: null as File | null,
-      imageAction: FileUploadAction.NONE,
+      imageAction: FileUploadAction.NONE as FileUploadAction,
       phone: user.phone,
     },
     validators: {
