@@ -118,7 +118,9 @@ export function LoginForm({ returnTo, onSuccess }: LoginFormProps) {
 
           <div className="flex items-center gap-2">
             <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">or</span>
+            <span className="text-xs text-muted-foreground">
+              or continue with
+            </span>
             <Separator className="flex-1" />
           </div>
 

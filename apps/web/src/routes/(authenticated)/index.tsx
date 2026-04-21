@@ -94,41 +94,11 @@ function HomeComponent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Link
-            to="/create-organization"
-            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
-          >
-            <BuildingIcon className="text-muted-foreground" />
-            <div className="flex flex-col items-center gap-1">
-              <span className="font-semibold">Create organization</span>
-              <span className="text-xs text-muted-foreground">
-                I would like to create a new organization.
-              </span>
-            </div>
-          </Link>
-          <Link
-            to="/join-organization"
-            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
-          >
-            <UserPlusIcon className="text-muted-foreground" />
-            <div className="flex flex-col items-center gap-1">
-              <span className="font-semibold">Join organization</span>
-              <span className="text-xs text-muted-foreground">
-                I would like to join an existing organization.
-              </span>
-            </div>
-          </Link>
-        </div>
-
-        {organizations.length > 0 && (
-          <FieldSeparator>OR JUMP BACK IN</FieldSeparator>
-        )}
-
         <div className="flex flex-col gap-3">
           {organizations.map(({ organization, roles }) => (
             <Item
               variant="outline"
+              className="bg-card"
               key={organization.id}
               render={
                 <Link to="/org/$slug" params={{ slug: organization.slug }} />
@@ -154,6 +124,35 @@ function HomeComponent() {
               </ItemActions>
             </Item>
           ))}
+        </div>
+
+        {organizations.length > 0 && <FieldSeparator>or</FieldSeparator>}
+
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to="/create-organization"
+            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+          >
+            <BuildingIcon className="text-muted-foreground" />
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-semibold">Create organization</span>
+              <span className="text-xs text-muted-foreground">
+                I would like to create a new organization.
+              </span>
+            </div>
+          </Link>
+          <Link
+            to="/join-organization"
+            className="hover:bg-muted bg-card border text-center rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+          >
+            <UserPlusIcon className="text-muted-foreground" />
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-semibold">Join organization</span>
+              <span className="text-xs text-muted-foreground">
+                I would like to join an existing organization.
+              </span>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

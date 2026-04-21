@@ -43,7 +43,6 @@ export interface AuthSession {
   userId: string | null;
   impersonatedBy: string | null;
   activeOrganizationId: string | null;
-  contextOrganizationId: string | null;
 }
 
 export interface AuthVerification {
@@ -81,7 +80,6 @@ export interface Session {
     token: string;
     ipAddress?: string | null | undefined | undefined;
     userAgent?: string | null | undefined | undefined;
-    contextOrganizationId?: string | null | undefined;
     impersonatedBy?: string | null | undefined;
     activeOrganizationId?: string | null | undefined;
   };

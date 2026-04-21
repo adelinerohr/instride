@@ -31,12 +31,6 @@ export const authClient = createAuthClient({
       },
     }),
     inferAdditionalFields({
-      session: {
-        contextOrganizationId: {
-          type: "string",
-          required: false,
-        },
-      },
       user: {
         phone: {
           type: "string",

@@ -5,7 +5,6 @@ import {
   rider as riderRole,
   guardian as guardianRole,
   userAdditionalFields,
-  sessionAdditionalFields,
   organizationAdditionalFields,
 } from "@instride/auth";
 import {
@@ -28,7 +27,6 @@ export const authClient = createAuthClient({
     adminClient(),
     inferAdditionalFields({
       user: userAdditionalFields,
-      session: sessionAdditionalFields,
     }),
     organizationClient({
       schema: inferOrgAdditionalFields({

@@ -20,7 +20,6 @@ export const authSessions = p.pgTable(
       .references(() => authUsers.id, { onDelete: "cascade" }),
     impersonatedBy: p.text("impersonated_by"),
     activeOrganizationId: p.text("active_organization_id"),
-    contextOrganizationId: p.text("context_organization_id"),
   },
   (table) => [p.index("authSessions_userId_idx").on(table.userId)]
 );

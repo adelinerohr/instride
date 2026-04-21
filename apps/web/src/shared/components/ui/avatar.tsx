@@ -1,23 +1,46 @@
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { cn } from "@/shared/lib/utils";
 
+const avatarVariants = cva(
+  "group/avatar relative flex size-8 shrink-0 select-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten",
+  {
+    variants: {
+      shape: {
+        square:
+          "rounded-md after:rounded-md *:data-[slot=avatar-image]:rounded-md *:data-[slot=avatar-fallback]:text-sm",
+        circle:
+          "rounded-full after:rounded-full *:data-[slot=avatar-image]:rounded-full *:data-[slot=avatar-fallback]:text-sm",
+      },
+      size: {
+        default: "size-8 *:data-[slot=avatar-fallback]:text-sm",
+        sm: "size-6 *:data-[slot=avatar-fallback]:text-xs",
+        lg: "size-10 *:data-[slot=avatar-fallback]:text-base",
+        xl: "size-16 *:data-[slot=avatar-fallback]:text-3xl",
+        "2xl": "size-24 *:data-[slot=avatar-fallback]:text-5xl",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+      shape: "circle",
+    },
+  }
+);
+
 function Avatar({
   className,
   size = "default",
+  shape = "circle",
   ...props
-}: AvatarPrimitive.Root.Props & {
-  size?: "default" | "sm" | "lg" | "xl";
-}) {
+}: AvatarPrimitive.Root.Props & VariantProps<typeof avatarVariants>) {
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
       data-size={size}
-      className={cn(
-        "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 data-[size=xl]:size-24 dark:after:mix-blend-lighten",
-        className
-      )}
+      data-shape={shape}
+      className={cn(avatarVariants({ size, shape, className }))}
       {...props}
     />
   );
@@ -27,10 +50,7 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
-      className={cn(
-        "aspect-square size-full rounded-full object-cover",
-        className
-      )}
+      className={cn("aspect-square size-full object-cover", className)}
       {...props}
     />
   );
@@ -44,7 +64,7 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs group-data-[size=lg]/avatar:text-base group-data-[size=xl]/avatar:text-5xl",
+        "flex size-full items-center justify-center bg-muted text-muted-foreground",
         className
       )}
       {...props}

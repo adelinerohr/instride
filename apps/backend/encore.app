@@ -27,5 +27,6 @@
       "https://instrideapp.com",
       "https://*.instrideapp.com"
     ]
-  }
+  },
+  "allow_headers": ["X-Organization-Id"]
 }

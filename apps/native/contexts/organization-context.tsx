@@ -1,6 +1,7 @@
 import {
   APIError,
   organizationOptions,
+  setOrganizationContext,
   types,
   useMyMembership,
 } from "@instride/api";
@@ -43,10 +44,7 @@ export function OrganizationProvider({ children }: React.PropsWithChildren) {
 
       setOrganizationId(organization.id);
       setOrganization(organization);
-
-      const { error: sessionError } = await authClient.updateSession({
-        contextOrganizationId: organization.id,
-      } as Parameters<typeof authClient.updateSession>[0]);
+      setOrganizationContext(organization.id);
 
       const { error: organizationError } =
         await authClient.organization.setActive({
@@ -54,11 +52,7 @@ export function OrganizationProvider({ children }: React.PropsWithChildren) {
           organizationSlug: organization.slug,
         });
 
-      setError(
-        sessionError || organizationError
-          ? "Failed to bootstrap organization"
-          : null
-      );
+      setError(organizationError ? "Failed to bootstrap organization" : null);
       setIsReady(true);
     } catch (error) {
       setError(
@@ -106,7 +100,7 @@ export function useOrganization() {
  * Must be used inside an authenticated + org-ready subtree.
  */
 export function useCurrentMember() {
-  const { data: member } = useMyMembership(ORGANIZATION_SLUG);
+  const { data: member } = useMyMembership();
 
   const roles = React.useMemo(() => member?.roles ?? [], [member]);
 
