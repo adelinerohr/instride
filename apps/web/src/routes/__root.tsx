@@ -78,6 +78,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     return {
       ...context,
       isAuthenticated,
+      session: sessionData?.session,
+      user: sessionData?.user,
     };
   },
   head: ({ loaderData, match }) => {

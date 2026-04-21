@@ -5,8 +5,6 @@ import { apiClient, boards } from "#client";
 
 import { boardAssignmentKeys, boardKeys } from "./keys";
 
-// ---- Query options ------------------------------------------------------------
-
 export const boardsOptions = {
   list: (params?: boards.ListBoardsRequest) =>
     queryOptions({
@@ -17,21 +15,20 @@ export const boardsOptions = {
       },
       staleTime: STALE.MINUTES.FIVE,
     }),
-  byId: (boardId: string) => {
-    return queryOptions({
+  byId: (boardId: string) =>
+    queryOptions({
       queryKey: boardKeys.byId(boardId),
       queryFn: async () => {
         const { board } = await apiClient.boards.getBoard(boardId);
         return board;
       },
-    });
-  },
+    }),
 };
 
 export const boardAssignmentsOptions = {
   byBoard: (boardId: string, type: "all" | "trainer" | "rider") =>
     queryOptions({
-      queryKey: boardAssignmentKeys.byBoard(boardId),
+      queryKey: [...boardAssignmentKeys.byBoard(boardId), type] as const,
       queryFn: async () => {
         const { assignments } = await apiClient.boards.listBoardAssignments(
           boardId,
@@ -63,8 +60,6 @@ export const boardAssignmentsOptions = {
       },
     }),
 };
-
-// ---- Hooks --------------------------------------------------------------------
 
 export function useBoards() {
   return useQuery(boardsOptions.list());

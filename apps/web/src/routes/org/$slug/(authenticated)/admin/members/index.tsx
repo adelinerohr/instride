@@ -5,12 +5,14 @@ import type { Table } from "@tanstack/react-table";
 import { CopyIcon } from "lucide-react";
 import * as React from "react";
 
+import { MemberList } from "@/features/organization/components/members/list";
 import { DataTable } from "@/shared/components/data-table";
 import { DataTableActionBar } from "@/shared/components/data-table/action-bar";
 import { DataTableToolbar } from "@/shared/components/data-table/toolbar";
 import { DataTableSortList } from "@/shared/components/data-table/toolbar/sort-list";
 import { Button } from "@/shared/components/ui/button";
 import { useDataTable } from "@/shared/hooks/use-data-table";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { tableSearchParams } from "@/shared/lib/search/table";
 
 import { getMembersTableColumns } from "./-columns";
@@ -28,6 +30,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const search = Route.useSearch();
   const { data, isLoading } = useSuspenseQuery(membersOptions.all());
+  const isMobile = useIsMobile();
 
   const columns = React.useMemo(() => getMembersTableColumns(), []);
   const pageCount = React.useMemo(() => {
@@ -42,6 +45,10 @@ function RouteComponent() {
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (isMobile) {
+    return <MemberList members={data} />;
   }
 
   return (

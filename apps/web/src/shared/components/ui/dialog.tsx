@@ -5,30 +5,86 @@ import { XIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/shared/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
+
+// ---- Context ------------------------------------------------------------
+// Only used to coordinate Content/Header/Footer/etc. with the Root's choice.
+// Triggers (and anything called imperatively) read useIsMobile() directly.
+
+type DialogContextValue = { isMobile: boolean };
+const DialogContext = React.createContext<DialogContextValue | null>(null);
+
+function useDialogContext() {
+  // Fall back to runtime check so subcomponents rendered outside a Root
+  // (rare, but possible) still behave correctly.
+  const ctx = React.useContext(DialogContext);
+  const runtimeIsMobile = useIsMobile();
+  return ctx ?? { isMobile: runtimeIsMobile };
+}
+
+// ---- Root ---------------------------------------------------------------
 
 function Dialog<Payload = unknown>({
   ...props
 }: DialogPrimitive.Root.Props<Payload>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+  const isMobile = useIsMobile();
+
+  return (
+    <DialogContext.Provider value={{ isMobile }}>
+      {isMobile ? (
+        <Sheet data-slot="dialog" {...props} />
+      ) : (
+        <DialogPrimitive.Root data-slot="dialog" {...props} />
+      )}
+    </DialogContext.Provider>
+  );
 }
 
-function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
+// ---- Trigger ------------------------------------------------------------
+// Reads viewport directly — works whether rendered inside <Dialog> or via
+// a detached handle (e.g. changeRoleModalHandler.openWithPayload()).
+
+function DialogTrigger(props: DialogPrimitive.Trigger.Props) {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <SheetTrigger data-slot="dialog-trigger" {...props} />;
+  }
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
-function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+function DialogClose(props: DialogPrimitive.Close.Props) {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <SheetClose data-slot="dialog-close" {...props} />;
+  }
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
-function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+function DialogPortal(props: DialogPrimitive.Portal.Props) {
+  // Sheet owns its own portal; on mobile this is a passthrough.
+  const { isMobile } = useDialogContext();
+  if (isMobile) return <>{props.children}</>;
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
 function DialogOverlay({
   className,
   ...props
 }: DialogPrimitive.Backdrop.Props) {
+  const { isMobile } = useDialogContext();
+  if (isMobile) return null;
+
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
@@ -41,6 +97,8 @@ function DialogOverlay({
   );
 }
 
+// ---- Content ------------------------------------------------------------
+
 function DialogContent({
   className,
   children,
@@ -49,6 +107,22 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
 }) {
+  const { isMobile } = useDialogContext();
+
+  if (isMobile) {
+    return (
+      <SheetContent
+        data-slot="dialog-content"
+        side="bottom"
+        showCloseButton={showCloseButton}
+        className={cn("rounded-t-xl", className)}
+        {...(props as React.ComponentProps<typeof SheetContent>)}
+      >
+        {children}
+      </SheetContent>
+    );
+  }
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -81,7 +155,15 @@ function DialogContent({
   );
 }
 
+// ---- Header / Footer / Title / Description -----------------------------
+
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+  const { isMobile } = useDialogContext();
+  if (isMobile) {
+    return (
+      <SheetHeader data-slot="dialog-header" className={className} {...props} />
+    );
+  }
   return (
     <div
       data-slot="dialog-header"
@@ -99,6 +181,19 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
 }) {
+  const { isMobile } = useDialogContext();
+
+  if (isMobile) {
+    return (
+      <SheetFooter data-slot="dialog-footer" className={className} {...props}>
+        {children}
+        {showCloseButton && (
+          <SheetClose render={<Button variant="outline" />}>Close</SheetClose>
+        )}
+      </SheetFooter>
+    );
+  }
+
   return (
     <div
       data-slot="dialog-footer"
@@ -119,6 +214,12 @@ function DialogFooter({
 }
 
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+  const { isMobile } = useDialogContext();
+  if (isMobile) {
+    return (
+      <SheetTitle data-slot="dialog-title" className={className} {...props} />
+    );
+  }
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -135,6 +236,16 @@ function DialogDescription({
   className,
   ...props
 }: DialogPrimitive.Description.Props) {
+  const { isMobile } = useDialogContext();
+  if (isMobile) {
+    return (
+      <SheetDescription
+        data-slot="dialog-description"
+        className={className}
+        {...props}
+      />
+    );
+  }
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"

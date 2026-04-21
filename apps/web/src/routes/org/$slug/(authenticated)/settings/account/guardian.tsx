@@ -80,9 +80,11 @@ export const Route = createFileRoute(
     const isGuardian = context.member.roles.includes(MembershipRole.GUARDIAN);
 
     if (isGuardian) {
-      await context.queryClient.ensureQueryData(guardianOptions.myDependents());
-      await context.queryClient.ensureQueryData(questionnaireOptions.list());
-      await context.queryClient.ensureQueryData(waiverOptions.list());
+      await Promise.all([
+        context.queryClient.ensureQueryData(guardianOptions.myDependents()),
+        context.queryClient.ensureQueryData(questionnaireOptions.list()),
+        context.queryClient.ensureQueryData(waiverOptions.list()),
+      ]);
     }
   },
 });

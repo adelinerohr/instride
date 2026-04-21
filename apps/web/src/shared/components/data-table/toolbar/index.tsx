@@ -83,7 +83,7 @@ interface DataTableToolbarSearchProps extends Omit<
   debounce?: number;
 }
 
-function DataTableToolbarSearch({
+export function DataTableToolbarSearch({
   value: initialValue,
   onChange,
   debounce = 500,
@@ -114,16 +114,21 @@ function DataTableToolbarSearch({
 
 interface DataTableToolbarFilterProps<TData> {
   column: Column<TData>;
+  fullWidth?: boolean;
 }
 
-function DataTableToolbarFilter<TData>({
+export function DataTableToolbarFilter<TData>({
   column,
+  fullWidth = false,
 }: DataTableToolbarFilterProps<TData>) {
   {
     const columnMeta = column.columnDef.meta;
 
     const onFilterRender = React.useCallback(() => {
       if (!columnMeta?.variant) return null;
+
+      const widthClass = fullWidth ? "w-full" : "h-8 w-40 lg:w-56";
+      const numberWidthClass = fullWidth ? "w-full" : "h-8 w-[120px]";
 
       switch (columnMeta.variant) {
         case "text":
@@ -132,7 +137,7 @@ function DataTableToolbarFilter<TData>({
               placeholder={columnMeta.placeholder ?? columnMeta.label}
               value={(column.getFilterValue() as string) ?? ""}
               onChange={(event) => column.setFilterValue(event.target.value)}
-              className="h-8 w-40 lg:w-56"
+              className={widthClass}
             />
           );
 
@@ -145,7 +150,7 @@ function DataTableToolbarFilter<TData>({
                 placeholder={columnMeta.placeholder ?? columnMeta.label}
                 value={(column.getFilterValue() as string) ?? ""}
                 onChange={(event) => column.setFilterValue(event.target.value)}
-                className={cn("h-8 w-[120px]", columnMeta.unit && "pr-8")}
+                className={cn(numberWidthClass, columnMeta.unit && "pr-8")}
               />
               {columnMeta.unit && (
                 <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">

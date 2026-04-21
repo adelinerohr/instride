@@ -1,41 +1,46 @@
 import type { boards } from "#client";
 
-const getBoardRootKey = ["boards"] as const;
+const boardRootKey = ["boards"] as const;
+const assignmentRootKey = ["board-assignments"] as const;
 
-const getAssignmentRootKey = ["board-assignments"] as const;
+const normalizeListParams = (params?: boards.ListBoardsRequest) => {
+  if (!params) return params;
+  return {
+    ...params,
+    ...(params.riderIds && { riderIds: [...params.riderIds].sort() }),
+  };
+};
 
 export const boardKeys = {
-  /** Everything for this organization's boards */
+  /** Root — invalidates everything board-related */
+  all: () => boardRootKey,
+  /** Prefix for every list variant, regardless of params */
+  lists: () => [...boardRootKey, "list"] as const,
+  /** One specific parameterized list */
   list: (params?: boards.ListBoardsRequest) =>
-    [...getBoardRootKey, params] as const,
-  /** One board and all its sub-keys */
-  byId: (boardId: string) => [...getBoardRootKey, boardId] as const,
-  /** All assignments for a board */
-  assignments: (boardId: string) =>
-    [...getBoardRootKey, boardId, "assigned-to"] as const,
-  /** All assignments for a rider */
-  assignedToRider: (riderId: string) =>
-    [...getBoardRootKey, "assigned-to", "rider", riderId] as const,
-  /** All assignments for a trainer */
-  assignedToTrainer: (trainerId: string) =>
-    [...getBoardRootKey, "assigned-to", "trainer", trainerId] as const,
+    [...boardRootKey, "list", normalizeListParams(params)] as const,
+  /** Prefix for every byId entry */
+  details: () => [...boardRootKey, "byId"] as const,
+  /** One board */
+  byId: (boardId: string) => [...boardRootKey, "byId", boardId] as const,
 };
 
 export const boardAssignmentKeys = {
-  /** All assignments for a board */
-  list: () => getAssignmentRootKey,
-  /** All assignments for one board */
-  byBoard: (boardId: string) => [...getAssignmentRootKey, boardId] as const,
-  /** All assignments for one rider */
+  /** Root — invalidates every assignment query */
+  all: () => assignmentRootKey,
+  /** Prefix for per-board listings */
+  byBoards: () => [...assignmentRootKey, "board"] as const,
+  /** Assignments for one board */
+  byBoard: (boardId: string) =>
+    [...assignmentRootKey, "board", boardId] as const,
+  /** Prefix for per-rider listings */
+  byRiders: () => [...assignmentRootKey, "rider"] as const,
+  /** Assignments for one rider */
   byRider: (riderId: string) =>
-    [...getAssignmentRootKey, "rider", riderId] as const,
-  /** All assignments for one trainer */
+    [...assignmentRootKey, "rider", riderId] as const,
+  /** Prefix for per-trainer listings */
+  byTrainers: () => [...assignmentRootKey, "trainer"] as const,
+  /** Assignments for one trainer */
   byTrainer: (trainerId: string) =>
-    [...getAssignmentRootKey, "trainer", trainerId] as const,
-  /** Assignment for one board and one rider */
-  byBoardAndRider: (boardId: string, riderId: string) =>
-    [...getAssignmentRootKey, boardId, "rider", riderId] as const,
-  /** Assignment for one board and one trainer */
-  byBoardAndTrainer: (boardId: string, trainerId: string) =>
-    [...getAssignmentRootKey, boardId, "trainer", trainerId] as const,
+    [...assignmentRootKey, "trainer", trainerId] as const,
 };

@@ -8,11 +8,21 @@ import {
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  addDays,
+  addMonths,
+  subDays,
+  subMonths,
+  subWeeks,
+  addWeeks,
+  endOfMonth,
+  startOfMonth,
+} from "date-fns";
 
 import { Calendar } from "@/features/calendar/components";
 import { CalendarProvider } from "@/features/calendar/hooks/use-calendar";
 import { calendarSearchSchema } from "@/features/calendar/lib/search-params";
-import { getCalendarRange } from "@/features/calendar/utils/date";
+import { CalendarView } from "@/features/calendar/lib/types";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/portal/calendar/"
@@ -22,12 +32,20 @@ export const Route = createFileRoute(
   beforeLoad: async ({ context, search }) => {
     if (search.boardId.trim() !== "") return;
 
-    const riderId = context.member.rider?.id;
+    if (context.effectiveRiderIds.length === 0) return;
 
-    const assignments = await context.queryClient.ensureQueryData(
-      boardAssignmentsOptions.byRider(riderId ?? "")
+    // Find the first board across any of the effective riders
+    const assignments = await Promise.all(
+      context.effectiveRiderIds.map(async (riderId) =>
+        context.queryClient.ensureQueryData(
+          boardAssignmentsOptions.byRider(riderId)
+        )
+      )
     );
-    const defaultAssignment = assignments[0];
+
+    const defaultAssignment = assignments
+      .flatMap((assignment) => assignment)
+      .at(0);
 
     if (defaultAssignment) {
       throw Route.redirect({
@@ -37,21 +55,32 @@ export const Route = createFileRoute(
       });
     }
   },
-  loaderDeps: ({ search }) => ({ search }),
+  loaderDeps: ({ search }) => ({
+    // Only refetch when moving to a different month
+    month: startOfMonth(search.date).toISOString(),
+    view: search.view,
+    boardId: search.boardId,
+  }),
   loader: async ({ context, deps }) => {
-    const { from, to } = getCalendarRange(deps.search.view, deps.search.date);
+    const monthStart = new Date(deps.month);
 
-    context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(
-      membersOptions.trainers({ boardId: deps.search.boardId })
-    );
-    context.queryClient.ensureQueryData(
-      boardsOptions.list({ riderId: context.rider.id })
-    );
-    context.queryClient.ensureQueryData(
-      eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
-    );
+    // Fetch the entire month
+    const from = startOfMonth(monthStart);
+    const to = endOfMonth(monthStart);
+
+    await Promise.all([
+      context.queryClient.ensureQueryData(instanceOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(
+        membersOptions.trainers({ boardId: deps.boardId })
+      ),
+      context.queryClient.ensureQueryData(
+        boardsOptions.list({ riderIds: context.effectiveRiderIds })
+      ),
+      context.queryClient.ensureQueryData(
+        eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+      ),
+    ]);
 
     return {
       from,
@@ -62,34 +91,53 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
-  const { rider } = Route.useRouteContext();
-  const search = Route.useSearch();
+  const { effectiveRiderIds } = Route.useRouteContext();
+  const { date, view, boardId } = Route.useSearch();
 
-  const { data: trainers, isLoading: isLoadingTrainers } = useSuspenseQuery(
-    membersOptions.trainers({ boardId: search.boardId })
+  const { data: trainers } = useSuspenseQuery(
+    membersOptions.trainers({ boardId })
   );
-  const { data: boards, isLoading: isLoadingBoards } = useSuspenseQuery(
-    boardsOptions.list({ riderId: rider.id })
+  const { data: boards } = useSuspenseQuery(
+    boardsOptions.list({ riderIds: effectiveRiderIds })
   );
-  const { data: lessons, isLoading: isLoadingLessons } = useSuspenseQuery(
+  const { data: allLessons } = useSuspenseQuery(
     instanceOptions.inRange(from, to)
   );
-  const { data: timeBlocks, isLoading: isLoadingTimeBlocks } = useSuspenseQuery(
+  const { data: allTimeBlocks } = useSuspenseQuery(
     timeBlockOptions.inRange(from, to)
   );
   const { data: allEvents } = useSuspenseQuery(
     eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
   );
 
-  const isLoading =
-    isLoadingTrainers ||
-    isLoadingBoards ||
-    isLoadingLessons ||
-    isLoadingTimeBlocks;
+  // Calculate visible range based on current view
+  const visibleFrom =
+    view === CalendarView.DAY
+      ? subDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? subMonths(date, 1)
+        : subWeeks(date, 1);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const visibleTo =
+    view === CalendarView.DAY
+      ? addDays(date, 1)
+      : view === CalendarView.AGENDA
+        ? addMonths(date, 1)
+        : addWeeks(date, 1);
+
+  // Filter to visible range
+  const lessons = allLessons.filter((lesson) => {
+    const lessonDate = new Date(lesson.start);
+    return lessonDate >= visibleFrom && lessonDate <= visibleTo;
+  });
+
+  const timeBlocks = allTimeBlocks.filter((block) => {
+    const blockStart = new Date(block.start);
+    const blockEnd = new Date(block.end);
+    return blockStart >= visibleFrom && blockEnd <= visibleTo;
+  });
+
+  console.log(lessons);
 
   return (
     <CalendarProvider

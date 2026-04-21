@@ -467,6 +467,7 @@ export namespace boards {
 
     export interface ListBoardsRequest {
         riderId?: string
+        riderIds?: string[]
         trainerId?: string
     }
 
@@ -598,6 +599,7 @@ export namespace boards {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 riderId:   params.riderId,
+                riderIds:  params.riderIds?.map((v) => v),
                 trainerId: params.trainerId,
             })
 

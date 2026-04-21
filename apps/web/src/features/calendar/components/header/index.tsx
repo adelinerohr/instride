@@ -32,17 +32,11 @@ export function CalendarHeader() {
     <div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
       <DateNavigator />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-2">
-        <div className="options flex-wrap flex items-center gap-4 md:gap-2">
+        <div className="options flex items-center gap-4 md:gap-2">
           <ViewSwitcher />
           <CalendarFilters />
-          <Link
-            to="/org/$slug/portal/lessons/create"
-            params={{ slug: slug ?? "" }}
-            className={buttonVariants({ variant: "default", size: "icon" })}
-          >
-            <PlusIcon />
-          </Link>
-          {type === "admin" && (
+
+          {type === "admin" ? (
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button />}>
                 <PlusIcon />
@@ -82,6 +76,14 @@ export function CalendarHeader() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <Link
+              to="/org/$slug/portal/lessons/create"
+              params={{ slug: slug ?? "" }}
+              className={buttonVariants({ variant: "default", size: "icon" })}
+            >
+              <PlusIcon />
+            </Link>
           )}
         </div>
       </div>

@@ -4,7 +4,6 @@ import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
 import { apiClient, boards } from "#client";
 
 import { boardAssignmentKeys, boardKeys } from "./keys";
-import type { useBoards } from "./queries";
 
 // ---- Standalone functions ----------------------------------------------
 
@@ -49,16 +48,10 @@ export function useCreateBoard({
   return useWrappedMutation(boardsMutations.createBoard, {
     ...config,
     onSuccess: (board, ...args) => {
-      queryClient.setQueryData(
-        boardKeys.list(),
-        (old: Awaited<ReturnType<typeof useBoards>["data"]>) => [
-          ...(old ?? []),
-          board,
-        ]
-      );
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.list(),
-      });
+      // Seed the byId cache with the fresh board
+      queryClient.setQueryData(boardKeys.byId(board.id), board);
+      // Invalidate every list variant so paginated/filtered views refetch
+      queryClient.invalidateQueries({ queryKey: boardKeys.lists() });
       onSuccess?.(board, ...args);
     },
   });
@@ -74,9 +67,8 @@ export function useUpdateBoard({
     ...config,
     onSuccess: (board, ...args) => {
       queryClient.setQueryData(boardKeys.byId(board.id), board);
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.byId(board.id),
-      });
+      // Lists contain board summaries — invalidate them all
+      queryClient.invalidateQueries({ queryKey: boardKeys.lists() });
       onSuccess?.(board, ...args);
     },
   });
@@ -91,15 +83,14 @@ export function useDeleteBoard({
   return useWrappedMutation(boardsMutations.deleteBoard, {
     ...config,
     onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.list(),
-      });
+      // Nuke every board-related cache entry; cheapest way to stay correct
+      queryClient.invalidateQueries({ queryKey: boardKeys.all() });
       onSuccess?.(...args);
     },
   });
 }
 
-// ---- Board Assignments ------------------------------------------------------------
+// ---- Board Assignments -------------------------------------------------
 
 export function useAssignToBoard({
   mutationConfig,
@@ -110,23 +101,10 @@ export function useAssignToBoard({
   return useWrappedMutation(boardAssignmentsMutations.assignToBoard, {
     ...config,
     onSuccess: (assignment, ...args) => {
-      if (assignment.trainerId) {
-        queryClient.setQueryData(
-          boardKeys.assignedToTrainer(assignment.trainerId),
-          assignment
-        );
-      } else if (assignment.riderId) {
-        queryClient.setQueryData(
-          boardKeys.assignedToRider(assignment.riderId),
-          assignment
-        );
-      }
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.list(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: boardAssignmentKeys.list(),
-      });
+      // An assignment change potentially changes which boards a rider/trainer
+      // sees. Invalidate both domains at their root.
+      queryClient.invalidateQueries({ queryKey: boardKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: boardAssignmentKeys.all() });
       onSuccess?.(assignment, ...args);
     },
   });
@@ -140,14 +118,10 @@ export function useRemoveFromBoard({
 
   return useWrappedMutation(boardAssignmentsMutations.removeFromBoard, {
     ...config,
-    onSuccess: (assignment, ...args) => {
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.list(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: boardAssignmentKeys.list(),
-      });
-      onSuccess?.(assignment, ...args);
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: boardAssignmentKeys.all() });
+      onSuccess?.(...args);
     },
   });
 }

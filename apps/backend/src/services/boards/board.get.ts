@@ -7,6 +7,7 @@ import { GetBoardResponse, ListBoardsResponse } from "./types/contracts";
 
 interface ListBoardsRequest {
   riderId?: string;
+  riderIds?: string[];
   trainerId?: string;
 }
 
@@ -20,6 +21,9 @@ export const listBoards = api(
   async (request: ListBoardsRequest): Promise<ListBoardsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
+    const riderIds =
+      request.riderIds ?? (request.riderId ? [request.riderId] : undefined);
+
     let memberCondition: {} | undefined = undefined;
 
     if (request.trainerId) {
@@ -28,10 +32,12 @@ export const listBoards = api(
           trainerId: request.trainerId,
         },
       };
-    } else if (request.riderId) {
+    } else if (riderIds && riderIds.length > 0) {
       memberCondition = {
         assignments: {
-          riderId: request.riderId,
+          riderId: {
+            in: riderIds,
+          },
         },
       };
     }

@@ -1,0 +1,29 @@
+import * as React from "react";
+
+import { useCalendar } from "@/features/calendar/hooks/use-calendar";
+import { CalendarView } from "@/features/calendar/lib/types";
+
+import { MobileDayView } from "./day";
+import { MobileHeader } from "./header";
+import { MobileWeekStrip } from "./week-strip";
+
+export function MobileCalendar() {
+  const { selectedView, setSelectedView } = useCalendar();
+
+  // Force day view on mobile — other views don't make sense at this size
+  React.useEffect(() => {
+    if (selectedView !== CalendarView.DAY) {
+      setSelectedView(CalendarView.DAY);
+    }
+  }, [selectedView, setSelectedView]);
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex flex-col gap-0 bg-primary">
+        <MobileHeader />
+        <MobileWeekStrip />
+      </div>
+      <MobileDayView />
+    </div>
+  );
+}

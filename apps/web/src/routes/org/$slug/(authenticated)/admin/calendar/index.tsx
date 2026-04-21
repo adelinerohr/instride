@@ -57,14 +57,16 @@ export const Route = createFileRoute(
     const from = startOfMonth(monthStart);
     const to = endOfMonth(monthStart);
 
-    context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(membersOptions.trainers());
-    context.queryClient.ensureQueryData(boardsOptions.list());
-    context.queryClient.ensureQueryData(servicesOptions.all());
-    context.queryClient.ensureQueryData(
-      eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
-    );
+    await Promise.all([
+      context.queryClient.ensureQueryData(instanceOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(membersOptions.trainers()),
+      context.queryClient.ensureQueryData(boardsOptions.list()),
+      context.queryClient.ensureQueryData(servicesOptions.all()),
+      context.queryClient.ensureQueryData(
+        eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+      ),
+    ]);
 
     return {
       from,
@@ -115,6 +117,8 @@ function RouteComponent() {
     const blockEnd = new Date(block.end);
     return blockStart >= visibleFrom && blockEnd <= visibleTo;
   });
+
+  console.log(lessons);
 
   return (
     <CalendarProvider

@@ -15,8 +15,10 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(invitationOptions.list());
-    await context.queryClient.ensureQueryData(membersOptions.all());
+    await Promise.all([
+      context.queryClient.ensureQueryData(invitationOptions.list()),
+      context.queryClient.ensureQueryData(membersOptions.all()),
+    ]);
   },
 });
 

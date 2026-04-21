@@ -25,6 +25,8 @@ import { CalendarTimeline } from "../fragments/timeline";
 export function WeekView() {
   const { selectedDate, organizationBusinessHours, lessons } = useCalendar();
 
+  console.log(lessons);
+
   const weekStart = startOfWeek(selectedDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -85,6 +87,7 @@ export function WeekView() {
                 const dayLessons = lessons.filter((lesson) =>
                   isSameDay(parseISO(lesson.start), day)
                 );
+                console.log(dayLessons);
                 const groupedLessons = groupLessons(dayLessons);
 
                 return (

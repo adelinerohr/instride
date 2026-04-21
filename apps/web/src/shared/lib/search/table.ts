@@ -76,7 +76,7 @@ export function validateFilterKeys(
 
   return ({ search, next }) => {
     const result = next(search);
-    if (!result.filters?.length) return result;
+    if (Object.keys(result.filters ?? {}).length === 0) return result;
 
     return {
       ...result,

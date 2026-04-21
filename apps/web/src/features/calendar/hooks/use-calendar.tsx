@@ -10,6 +10,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import * as React from "react";
 
 import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 import type { CalendarView } from "../lib/types";
 
@@ -61,6 +62,8 @@ export function CalendarProvider({
   timeBlocks,
   events,
 }: CalendarProviderProps) {
+  const isMobile = useIsMobile();
+
   const kioskRouteApi = getRouteApi(
     "/org/$slug/(authenticated)/kiosk/$sessionId/calendar"
   );
@@ -84,7 +87,20 @@ export function CalendarProvider({
     boardId: selectedBoardId,
     view: selectedView,
   } = routeApi.useSearch();
+
   const navigate = routeApi.useNavigate();
+
+  // Enforce single-trainer selection on mobile
+  React.useEffect(() => {
+    if (!isMobile) return;
+    if (selectedTrainerIds.length <= 1) return;
+
+    // Keep the first one, drop the rest
+    navigate({
+      search: (prev) => ({ ...prev, trainerIds: [selectedTrainerIds[0]] }),
+      replace: true,
+    });
+  }, [isMobile, selectedTrainerIds, navigate]);
 
   const date = React.useMemo(() => new Date(selectedDate), [selectedDate]);
 

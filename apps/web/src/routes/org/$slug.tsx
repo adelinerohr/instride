@@ -1,5 +1,6 @@
 import {
   APIError,
+  authOptions,
   ErrCode,
   membersOptions,
   organizationOptions,
@@ -11,6 +12,12 @@ import { authClient } from "@/shared/lib/auth/client";
 /**
  * Path: /org/[slug]
  * Description: Main organization route, loads organization
+ *   1. Get organization by slug
+ *   2. Confirm organization exists, if not redirect to home
+ *   3. Check if current route is a public auth route
+ *   4. If not authenticated and not a public auth route, redirect to login
+ *   5. Check if the active organization in the session is the same as the organization in the route
+ *   6. If authenticated and a public auth route, return organization and isPortal false
  */
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
@@ -23,7 +30,6 @@ export const Route = createFileRoute("/org/$slug")({
       throw Route.redirect({ to: "/" });
     }
 
-    // Check if current route is a public auth route
     const isPublicRoute = location.pathname.includes("auth");
 
     if (!context.isAuthenticated) {
@@ -40,27 +46,34 @@ export const Route = createFileRoute("/org/$slug")({
 
     const isPortal = location.pathname.includes("/portal");
 
-    // Set active organization in session
-    const { error } = await authClient.updateSession({
-      contextOrganizationId: organization.id,
-    } as Parameters<typeof authClient.updateSession>[0]);
+    const currentActiveOrgId = context.session?.activeOrganizationId;
+    const orgChanged = currentActiveOrgId !== organization.authOrganizationId;
 
-    const { error: organizationError } =
-      await authClient.organization.setActive({
-        organizationId: organization.authOrganizationId,
-        organizationSlug: organization.slug,
-      });
+    if (orgChanged) {
+      const [{ error }, { error: organizationError }] = await Promise.all([
+        authClient.updateSession({
+          contextOrganizationId: organization.id,
+        } as Parameters<typeof authClient.updateSession>[0]),
+        authClient.organization.setActive({
+          organizationId: organization.authOrganizationId,
+          organizationSlug: organization.slug,
+        }),
+      ]);
 
-    if (error || organizationError) {
-      console.error(error, organizationError);
-      throw Route.redirect({ to: "/" });
+      if (error || organizationError) {
+        console.error(error, organizationError);
+        throw Route.redirect({ to: "/" });
+      }
+
+      await Promise.all([
+        context.queryClient.invalidateQueries({
+          queryKey: authOptions.session().queryKey,
+        }),
+        context.queryClient.invalidateQueries({
+          queryKey: membersOptions.me().queryKey,
+        }),
+      ]);
     }
-
-    // Session is now pointing at the new organization
-    // Drop any member cache from previous organization before fetching
-    context.queryClient.removeQueries({
-      queryKey: membersOptions.me().queryKey,
-    });
 
     const member = await context.queryClient
       .ensureQueryData(membersOptions.me())

@@ -1,11 +1,11 @@
+import { getUser } from "@instride/api";
 import * as React from "react";
 
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
+  UserAvatar,
+  UserAvatarItem,
+} from "@/shared/components/fragments/user-avatar";
+import { AvatarGroup } from "@/shared/components/ui/avatar";
 import { Item, ItemContent, ItemMedia } from "@/shared/components/ui/item";
 import {
   Select,
@@ -15,11 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { getInitials } from "@/shared/lib/utils/format";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { cn } from "@/shared/lib/utils";
 
 import { useCalendar } from "../../hooks/use-calendar";
 
-export function CalendarFilters() {
+export function CalendarFilters({
+  className,
+  fullWidth = false,
+  ...props
+}: React.ComponentProps<"div"> & { fullWidth?: boolean }) {
   const {
     setSelectedBoardId,
     setSelectedTrainerIds,
@@ -28,26 +33,30 @@ export function CalendarFilters() {
     selectedTrainerIds,
     boards,
   } = useCalendar();
+  const isMobile = useIsMobile();
 
   React.useEffect(() => {
-    // Initialize selected trainer ids with all trainer ids if no selected trainer ids are provided
-    if (trainers && trainers.length > 0) {
-      if (!selectedTrainerIds || selectedTrainerIds.length === 0) {
-        const allTrainerIds = trainers.map((trainer) => trainer.id);
-        setSelectedTrainerIds(allTrainerIds);
-      }
+    if (!trainers || trainers.length === 0) return;
+    if (selectedTrainerIds.length > 0) return;
+
+    if (isMobile) {
+      // Single trainer on mobile
+      setSelectedTrainerIds([trainers[0].id]);
+    } else {
+      // All trainers on desktop
+      setSelectedTrainerIds(trainers.map((t) => t.id));
     }
-  }, [trainers, selectedBoardId, selectedTrainerIds, setSelectedTrainerIds]);
+  }, [trainers, selectedTrainerIds, setSelectedTrainerIds, isMobile]);
 
   if (!trainers) return null;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", className)} {...props}>
       <Select
         value={selectedBoardId}
         onValueChange={(value) => setSelectedBoardId(value ?? undefined)}
       >
-        <SelectTrigger>
+        <SelectTrigger className={cn(fullWidth && "w-full!")}>
           <SelectValue>
             {(value) => {
               if (value) {
@@ -66,94 +75,91 @@ export function CalendarFilters() {
           ))}
         </SelectContent>
       </Select>
-      <Select
-        multiple
-        value={selectedTrainerIds}
-        onValueChange={setSelectedTrainerIds}
-      >
-        <SelectTrigger className="w-56">
-          <SelectValue>
-            {(value: string[]) => {
-              if (value.length === 0) {
-                return "Select trainers";
-              }
-              if (value.length === 1) {
-                const selectedTrainer = trainers.find(
-                  (trainer) => trainer.id === value[0]
+      {isMobile ? (
+        <Select
+          value={selectedTrainerIds[0] ?? ""}
+          onValueChange={(value) => setSelectedTrainerIds(value ? [value] : [])}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue>
+              {(value: string) => {
+                if (!value) return "Select trainer";
+                const trainer = trainers.find((t) => t.id === value);
+                const name = trainer
+                  ? getUser({ trainer }).name
+                  : "Select trainer";
+                return name;
+              }}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {trainers.map((trainer) => (
+                <SelectItem key={trainer.id} value={trainer.id}>
+                  <UserAvatarItem user={getUser({ trainer })} />
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      ) : (
+        <Select
+          multiple
+          value={selectedTrainerIds}
+          onValueChange={setSelectedTrainerIds}
+        >
+          <SelectTrigger className={cn(fullWidth ? "w-full!" : "w-fit")}>
+            <SelectValue>
+              {(value: string[]) => {
+                if (value.length === 0) {
+                  return "Select trainers";
+                }
+
+                if (value.length === 1) {
+                  const selectedTrainer = trainers.find(
+                    (trainer) => trainer.id === value[0]
+                  );
+                  if (!selectedTrainer) return "Select trainer";
+
+                  return (
+                    <UserAvatarItem
+                      user={getUser({ trainer: selectedTrainer })}
+                    />
+                  );
+                }
+
+                const selectedTrainers = value.map((id) =>
+                  trainers.find((trainer) => trainer.id === id)
                 );
+
                 return (
-                  <Item size="xs" className="w-full p-0">
+                  <Item size="xs" className="w-full p-0 flex-nowrap">
                     <ItemMedia>
-                      <Avatar className="size-4">
-                        <AvatarImage
-                          src={
-                            selectedTrainer?.member?.authUser?.image ??
-                            undefined
-                          }
-                          alt={selectedTrainer?.member?.authUser?.name}
-                        />
-                        <AvatarFallback className="text-[8px]">
-                          {getInitials(selectedTrainer?.member?.authUser?.name)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <AvatarGroup>
+                        {selectedTrainers.map((trainer) => (
+                          <UserAvatar size="sm" user={getUser({ trainer })} />
+                        ))}
+                      </AvatarGroup>
                     </ItemMedia>
                     <ItemContent>
-                      {selectedTrainer?.member?.authUser?.name}
+                      {selectedTrainers.length} trainers selected
                     </ItemContent>
                   </Item>
                 );
-              }
-              const selectedTrainers = value.map((id) =>
-                trainers.find((trainer) => trainer.id === id)
-              );
-              return (
-                <Item size="xs" className="w-full p-0">
-                  <ItemMedia>
-                    <AvatarGroup>
-                      {selectedTrainers.map((trainer) => (
-                        <Avatar key={trainer?.id} className="size-4">
-                          <AvatarImage
-                            src={trainer?.member?.authUser?.image ?? undefined}
-                            alt={trainer?.member?.authUser?.name}
-                          />
-                          <AvatarFallback className="text-[8px]">
-                            {getInitials(trainer?.member?.authUser?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                    </AvatarGroup>
-                  </ItemMedia>
-                  <ItemContent>
-                    {selectedTrainers.length} trainers selected
-                  </ItemContent>
-                </Item>
-              );
-            }}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
-          <SelectGroup>
-            {trainers.map((trainer) => (
-              <SelectItem key={trainer.id} value={trainer.id}>
-                <Item size="xs" className="w-full p-0">
-                  <ItemMedia>
-                    <Avatar size="sm">
-                      <AvatarImage
-                        src={trainer.member?.authUser?.image ?? undefined}
-                        alt={trainer.member?.authUser?.name}
-                      />
-                      <AvatarFallback>
-                        {getInitials(trainer.member?.authUser?.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </ItemMedia>
-                  <ItemContent>{trainer.member?.authUser?.name}</ItemContent>
-                </Item>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+              }}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}>
+            <SelectGroup>
+              {trainers.map((trainer) => (
+                <SelectItem key={trainer.id} value={trainer.id}>
+                  <UserAvatarItem user={getUser({ trainer })} />
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

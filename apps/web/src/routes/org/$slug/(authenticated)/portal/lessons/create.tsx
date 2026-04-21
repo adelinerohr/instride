@@ -46,30 +46,11 @@ export const Route = createFileRoute(
     riderId: z.string().optional(),
   }),
   beforeLoad: async ({ context }) => {
-    const bookableRiders: string[] = [];
-
-    if (context.rider && context.user) {
-      bookableRiders.push(context.rider.id);
-    }
-
-    if (context.isGuardian) {
-      const relationships = await context.queryClient.ensureQueryData(
-        guardianOptions.myDependents()
-      );
-      for (const rel of relationships) {
-        if (rel.dependent.riderId) {
-          bookableRiders.push(rel.dependent.riderId);
-        }
-      }
-    }
-
-    if (bookableRiders.length === 0) {
+    if (context.effectiveRiderIds.length === 0) {
       throw Route.redirect({
         to: "/org/$slug/portal",
       });
     }
-
-    return { bookableRiders };
   },
   loader: async ({ context }) => {
     await Promise.all([
@@ -85,7 +66,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { bookableRiders, isGuardian, rider } = Route.useRouteContext();
+  const { effectiveRiderIds, ...context } = Route.useRouteContext();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
@@ -96,9 +77,21 @@ function RouteComponent() {
 
   const createLesson = useCreateLessonSeries();
 
+  const isGuardian = context.isGuardian;
+  const ownRider =
+    context.isGuardian && context.isOnlyGuardian
+      ? null
+      : context.isGuardian
+        ? context.rider
+        : context.rider;
+  const dependentPermissions =
+    !context.isGuardian && context.isDependent ? context.permissions : null;
+  const onlyOneDependent =
+    isGuardian && !ownRider && effectiveRiderIds.length === 1;
+
   const getInitialRiderId = () => {
-    if (bookableRiders.length === 1) {
-      return bookableRiders[0];
+    if (effectiveRiderIds.length === 1) {
+      return effectiveRiderIds[0];
     }
     if (search.riderId) {
       return search.riderId;
@@ -151,10 +144,10 @@ function RouteComponent() {
         return;
       }
 
-      if (rider && rider.isRestricted) {
+      if (dependentPermissions && value.riderId === ownRider?.id) {
         const canBookLesson = canDependentPerform(
           DependentAction.BOOK_LESSON,
-          rider.permissions
+          dependentPermissions
         );
         if (!canBookLesson.allowed) {
           toast.error(
@@ -193,23 +186,8 @@ function RouteComponent() {
     )
   );
 
-  const isOnlyOneDependent =
-    isGuardian && !rider && bookableRiders.length === 1;
-
-  if (!isGuardian) {
-    return null;
-  }
-
   const riderOptions = riders.filter((rider) =>
-    bookableRiders.includes(rider.id)
-  );
-
-  const riderBoards = filteredBoards.filter((board) =>
-    riders.some((rider) =>
-      rider.boardAssignments?.some(
-        (assignment) => assignment.boardId === board.id
-      )
-    )
+    effectiveRiderIds.includes(rider.id)
   );
 
   if (filteredBoards.length === 0) {
@@ -253,7 +231,7 @@ function RouteComponent() {
           </form.AppForm>
         </PageHeader>
         <PageBody className="space-y-4">
-          {isGuardian && (
+          {effectiveRiderIds.length > 1 && (
             <Card>
               <CardHeader>
                 <CardTitle>Rider</CardTitle>
@@ -273,7 +251,7 @@ function RouteComponent() {
                   children={(field) => (
                     <field.RiderSelectField
                       riders={riderOptions}
-                      disabled={isOnlyOneDependent}
+                      disabled={onlyOneDependent}
                       hideLabel
                       placeholder="Select a rider"
                     />
@@ -297,7 +275,7 @@ function RouteComponent() {
                     );
                   }
 
-                  const boardOptions = riderBoards.filter((board) =>
+                  const boardOptions = filteredBoards.filter((board) =>
                     riders.some((rider) =>
                       rider.boardAssignments?.some(
                         (assignment) => assignment.boardId === board.id
@@ -414,6 +392,16 @@ function RouteComponent() {
                       selectedService?.maxRiders === 1) ??
                     false;
 
+                  const serviceOptions = services.filter(
+                    (service) =>
+                      service.boardAssignments?.some(
+                        (assignment) => assignment.boardId === boardId
+                      ) &&
+                      service.trainerAssignments?.some(
+                        (assignment) => assignment.trainerId === trainerId
+                      )
+                  );
+
                   if (boardId.length > 0 && trainerId.length > 0) {
                     return (
                       <FieldGroup>
@@ -423,19 +411,7 @@ function RouteComponent() {
                             <field.ServiceSelectField
                               hideLabel
                               placeholder="Select a service"
-                              services={
-                                services?.filter(
-                                  (service) =>
-                                    service.boardAssignments?.some(
-                                      (assignment) =>
-                                        assignment.boardId === boardId
-                                    ) &&
-                                    service.trainerAssignments?.some(
-                                      (assignment) =>
-                                        assignment.trainerId === trainerId
-                                    )
-                                ) ?? []
-                              }
+                              services={serviceOptions ?? []}
                             />
                           )}
                         />

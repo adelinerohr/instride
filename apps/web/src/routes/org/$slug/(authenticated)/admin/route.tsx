@@ -18,7 +18,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin")({
 
 function RouteComponent() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="max-w-screen">
       <AppSidebar type="admin" />
       <SidebarInset className="max-h-screen min-h-screen overflow-hidden">
         <AppHeader type="admin" />
