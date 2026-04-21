@@ -5,7 +5,9 @@ import { api, APIError } from "encore.dev/api";
 import { auth } from "@/services/auth/auth";
 import { buildSessionCookieHeader } from "@/services/auth/session-cookie";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
+import { db } from "../db";
 import { ListInvitationsResponse } from "../types/contracts";
 
 export const listInvitations = api(
@@ -16,16 +18,20 @@ export const listInvitations = api(
     expose: true,
   },
   async (): Promise<ListInvitationsResponse> => {
-    const { token, session } = requireOrganizationAuth();
+    const { token, session, organizationId } = requireOrganizationAuth();
 
-    if (!session.session.activeOrganizationId) {
-      throw APIError.failedPrecondition("Active organization ID is required");
-    }
+    const organization = await db.query.organizations.findFirst({
+      where: {
+        id: organizationId,
+      },
+    });
+
+    assertExists(organization, "Organization not found");
 
     try {
       const data = await auth.api.listInvitations({
         query: {
-          organizationId: session.session.activeOrganizationId,
+          organizationId: organization.authOrganizationId,
         },
         headers: new Headers({
           cookie: buildSessionCookieHeader(token),

@@ -55,30 +55,24 @@ export const Route = createFileRoute("/org/$slug")({
 
     const isPortal = location.pathname.includes("/portal");
 
-    const currentActiveOrgId = context.session?.activeOrganizationId;
-    const orgChanged = currentActiveOrgId !== organization.authOrganizationId;
+    const currentActiveOrgId = context.session?.contextOrganizationId;
+    const orgChanged = currentActiveOrgId !== organization.id;
 
     if (orgChanged) {
-      const [{ error }, { error: organizationError }] = await Promise.all([
-        authClient.updateSession({
-          contextOrganizationId: organization.id,
-        } as Parameters<typeof authClient.updateSession>[0]),
-        authClient.organization.setActive({
-          organizationId: organization.authOrganizationId,
-          organizationSlug: organization.slug,
-        }),
-      ]);
-
-      if (error || organizationError) {
-        console.error(error, organizationError);
+      const { error: updateError } = await authClient.updateSession({
+        contextOrganizationId: organization.id,
+      } as Parameters<typeof authClient.updateSession>[0]);
+      if (updateError) {
+        console.error(updateError);
         throw Route.redirect({ to: "/" });
       }
 
+      // Force a fresh fetch and wait for it
       await Promise.all([
-        context.queryClient.invalidateQueries({
+        context.queryClient.refetchQueries({
           queryKey: authOptions.session().queryKey,
         }),
-        context.queryClient.invalidateQueries({
+        context.queryClient.refetchQueries({
           queryKey: membersOptions.me().queryKey,
         }),
       ]);

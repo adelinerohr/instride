@@ -192,7 +192,7 @@ export const auth = betterAuth({
       cookieAttributes: {
         // Cookie domain depends on which domain you're using
         domain: ".instrideapp.com",
-        sameSite: "lax",
+        sameSite: "none",
         secure: true,
         httpOnly: true,
       },
