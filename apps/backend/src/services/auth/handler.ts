@@ -44,21 +44,24 @@ const handler = authHandler<AuthParams, AuthData>(async (params) => {
     throw APIError.unauthenticated("invalid session");
   }
 
-  // The active organization id travels on the X-Organization-Id header;
-  // membership is verified below so clients can't assert arbitrary org IDs.
-  const organizationId = params.organizationId ?? null;
+  // The active organization id travels on the X-Organization-Id header.
+  // Membership is verified so clients can't assert arbitrary org IDs; when
+  // the user isn't a member, we soft-fail to null so pre-membership flows
+  // (invitation acceptance, onboarding) can still hit non-org endpoints.
+  const requestedOrganizationId = params.organizationId ?? null;
 
-  if (organizationId) {
+  let organizationId: string | null = null;
+  if (requestedOrganizationId) {
     const membership = await db.query.members.findFirst({
       where: {
         userId: session.user.id,
-        organizationId,
+        organizationId: requestedOrganizationId,
       },
       columns: { id: true },
     });
 
-    if (!membership) {
-      throw APIError.permissionDenied("Not a member of this organization");
+    if (membership) {
+      organizationId = requestedOrganizationId;
     }
   }
 
