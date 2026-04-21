@@ -3,6 +3,7 @@ import { APIError, Gateway } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 
 import { auth } from "./auth";
+import { db } from "./db";
 import { buildSessionCookieHeader } from "./session-cookie";
 import { Session } from "./types/models";
 
@@ -12,6 +13,7 @@ export interface AuthParams {
   sessionData?: Cookie<"better-auth.session_data">;
   secureSessionData?: Cookie<"__Secure-better-auth.session_data">;
   host: Header<"Host">;
+  organizationId?: Header<"X-Organization-Id">;
 }
 
 export interface AuthData {
@@ -42,9 +44,27 @@ const handler = authHandler<AuthParams, AuthData>(async (params) => {
     throw APIError.unauthenticated("invalid session");
   }
 
+  // The active organization id travels on the X-Organization-Id header;
+  // membership is verified below so clients can't assert arbitrary org IDs.
+  const organizationId = params.organizationId ?? null;
+
+  if (organizationId) {
+    const membership = await db.query.members.findFirst({
+      where: {
+        userId: session.user.id,
+        organizationId,
+      },
+      columns: { id: true },
+    });
+
+    if (!membership) {
+      throw APIError.permissionDenied("Not a member of this organization");
+    }
+  }
+
   return {
     userID: session.user.id,
-    organizationId: session.session.contextOrganizationId,
+    organizationId,
     session,
     token,
   };

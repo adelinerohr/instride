@@ -14,10 +14,6 @@ export const userAdditionalFields = {
   dateOfBirth: { type: "string", required: false },
 } as const;
 
-export const sessionAdditionalFields = {
-  contextOrganizationId: { type: "string", required: false },
-} as const;
-
 export const organizationAdditionalFields = {
   slug: { type: "string", required: true, unique: true },
   timezone: { type: "string", required: true },

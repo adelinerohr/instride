@@ -201,10 +201,6 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
-
-    additionalFields: {
-      contextOrganizationId: { type: "string", required: false },
-    },
   },
   user: {
     modelName: "authUsers",

@@ -4,7 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
 
 import { organizationConfig } from "./organization";
-import { sessionAdditionalFields, userAdditionalFields } from "./schema";
+import { userAdditionalFields } from "./schema";
 
 interface DB {
   [key: string]: any;
@@ -58,7 +58,6 @@ export const betterAuthOptions = (opts: {
         httpOnly: true,
       },
     }),
-    additionalFields: sessionAdditionalFields,
   },
   user: {
     modelName: "authUsers",

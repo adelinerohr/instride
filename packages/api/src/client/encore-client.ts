@@ -4329,7 +4329,6 @@ export namespace types {
       token: string;
       ipAddress?: string | null;
       userAgent?: string | null;
-      contextOrganizationId?: string | null;
       impersonatedBy?: string | null;
       activeOrganizationId?: string | null;
     };
