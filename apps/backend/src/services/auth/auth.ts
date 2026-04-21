@@ -2,12 +2,14 @@ import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 import log from "encore.dev/log";
 import { Pool } from "pg";
 
 import { DB } from "@/database";
+import * as schema from "@/database/schema";
 
 import { invitationEmail } from "../email/templates/invitation";
 import { passwordResetEmail } from "../email/templates/password-reset";
@@ -35,16 +37,21 @@ const pool = new Pool({
   connectionString: DB.connectionString,
 });
 
+const authDb = drizzle({ client: pool, schema });
+
 export const auth = betterAuth({
   /** Configuration */
   basePath: "/auth",
   baseURL,
   secret: authSecret(),
+  database: drizzleAdapter(authDb, {
+    provider: "pg",
+  }),
   logger: {
     disableColors: true,
-    level: "debug",
+    level: "warn",
     log: (level, message, ...args) => {
-      log.info("better-auth", { level, message, args: JSON.stringify(args) });
+      log.warn("better-auth", { level, message, args: JSON.stringify(args) });
     },
   },
 
@@ -66,10 +73,6 @@ export const auth = betterAuth({
         "http://localhost:3000",
         "http://127.0.0.1:3000",
       ],
-
-  database: drizzleAdapter(pool, {
-    provider: "pg",
-  }),
 
   /** Authentication providers */
   emailAndPassword: {
@@ -160,6 +163,7 @@ export const auth = betterAuth({
           additionalFields: {
             slug: { type: "string", required: true, unique: true },
             timezone: { type: "string", required: true, default: "UTC" },
+            imageKey: { type: "string", required: false },
           },
         },
         member: {
