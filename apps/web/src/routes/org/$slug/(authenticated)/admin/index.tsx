@@ -40,12 +40,12 @@ import { cn } from "@/shared/lib/utils";
 export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(membersOptions.riderStats());
-    await context.queryClient.ensureQueryData(instanceOptions.stats());
-    await context.queryClient.ensureQueryData(
+    context.queryClient.prefetchQuery(membersOptions.riderStats());
+    context.queryClient.prefetchQuery(instanceOptions.stats());
+    context.queryClient.prefetchQuery(
       instanceOptions.inRange(startOfDay(new Date()), endOfDay(new Date()))
     );
-    await context.queryClient.ensureQueryData(
+    context.queryClient.prefetchQuery(
       instanceOptions.inRange(
         startOfWeek(new Date(), { weekStartsOn: 1 }),
         endOfWeek(new Date(), { weekStartsOn: 1 })

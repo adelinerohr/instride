@@ -22,9 +22,18 @@ import { authClient } from "@/shared/lib/auth/client";
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
   beforeLoad: async ({ params, context, location }) => {
-    const organization = await context.queryClient.ensureQueryData(
-      organizationOptions.bySlug(params.slug)
-    );
+    const [organization, member] = await Promise.all([
+      context.queryClient.ensureQueryData(
+        organizationOptions.bySlug(params.slug)
+      ),
+      context.queryClient
+        .ensureQueryData(membersOptions.me())
+        .catch((error) => {
+          if (error instanceof APIError && error.code === ErrCode.NotFound)
+            return null;
+          throw error;
+        }),
+    ]);
 
     if (!organization) {
       throw Route.redirect({ to: "/" });
@@ -74,15 +83,6 @@ export const Route = createFileRoute("/org/$slug")({
         }),
       ]);
     }
-
-    const member = await context.queryClient
-      .ensureQueryData(membersOptions.me())
-      .catch((error) => {
-        if (error instanceof APIError && error.code === ErrCode.NotFound) {
-          return null;
-        }
-        throw error;
-      });
 
     return { organization, isPortal, member };
   },
