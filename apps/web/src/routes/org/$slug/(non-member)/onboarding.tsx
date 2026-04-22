@@ -31,13 +31,8 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const Route = createFileRoute("/org/$slug/(authenticated)/onboarding")({
+export const Route = createFileRoute("/org/$slug/(non-member)/onboarding")({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
-    if (context.member.onboardingComplete) {
-      throw Route.redirect({ to: "/org/$slug/portal" });
-    }
-  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(waiverOptions.list());
   },
@@ -235,7 +230,8 @@ function RouteComponent() {
     queryClient.clear();
     await router.invalidate();
     navigate({
-      to: "/auth/login",
+      to: "/org/$slug/auth/login",
+      params: { slug: organization.slug },
     });
   };
 

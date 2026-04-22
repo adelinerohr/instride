@@ -22,13 +22,14 @@ import { Route as authenticatedJoinOrganizationRouteImport } from './routes/(aut
 import { Route as authenticatedCreateOrganizationRouteImport } from './routes/(authenticated)/create-organization'
 import { Route as authenticatedAdminRouteRouteImport } from './routes/(authenticated)/admin/route'
 import { Route as OrgSlugAuthRouteRouteImport } from './routes/org/$slug/auth/route'
+import { Route as OrgSlugnonMemberRouteRouteImport } from './routes/org/$slug/(non-member)/route'
 import { Route as OrgSlugauthenticatedRouteRouteImport } from './routes/org/$slug/(authenticated)/route'
 import { Route as OrgSlugauthenticatedIndexRouteImport } from './routes/org/$slug/(authenticated)/index'
 import { Route as OrgSlugAuthResetPasswordRouteImport } from './routes/org/$slug/auth/reset-password'
 import { Route as OrgSlugAuthRegisterRouteImport } from './routes/org/$slug/auth/register'
 import { Route as OrgSlugAuthLoginRouteImport } from './routes/org/$slug/auth/login'
 import { Route as OrgSlugAuthForgotPasswordRouteImport } from './routes/org/$slug/auth/forgot-password'
-import { Route as OrgSlugauthenticatedOnboardingRouteImport } from './routes/org/$slug/(authenticated)/onboarding'
+import { Route as OrgSlugnonMemberOnboardingRouteImport } from './routes/org/$slug/(non-member)/onboarding'
 import { Route as OrgSlugauthenticatedSettingsRouteRouteImport } from './routes/org/$slug/(authenticated)/settings/route'
 import { Route as OrgSlugauthenticatedPortalRouteRouteImport } from './routes/org/$slug/(authenticated)/portal/route'
 import { Route as OrgSlugauthenticatedAdminRouteRouteImport } from './routes/org/$slug/(authenticated)/admin/route'
@@ -36,8 +37,8 @@ import { Route as OrgSlugauthenticatedSettingsIndexRouteImport } from './routes/
 import { Route as OrgSlugauthenticatedPortalIndexRouteImport } from './routes/org/$slug/(authenticated)/portal/index'
 import { Route as OrgSlugauthenticatedKioskIndexRouteImport } from './routes/org/$slug/(authenticated)/kiosk/index'
 import { Route as OrgSlugauthenticatedAdminIndexRouteImport } from './routes/org/$slug/(authenticated)/admin/index'
+import { Route as OrgSlugnonMemberInvitationInvitationIdRouteImport } from './routes/org/$slug/(non-member)/invitation/$invitationId'
 import { Route as OrgSlugauthenticatedPortalFeedRouteImport } from './routes/org/$slug/(authenticated)/portal/feed'
-import { Route as OrgSlugauthenticatedInvitationInvitationIdRouteImport } from './routes/org/$slug/(authenticated)/invitation/$invitationId'
 import { Route as OrgSlugauthenticatedAdminFeedRouteImport } from './routes/org/$slug/(authenticated)/admin/feed'
 import { Route as OrgSlugauthenticatedKioskSessionIdRouteRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/route'
 import { Route as OrgSlugauthenticatedPortalCalendarIndexRouteImport } from './routes/org/$slug/(authenticated)/portal/calendar/index'
@@ -142,6 +143,10 @@ const OrgSlugAuthRouteRoute = OrgSlugAuthRouteRouteImport.update({
   path: '/auth',
   getParentRoute: () => OrgSlugRoute,
 } as any)
+const OrgSlugnonMemberRouteRoute = OrgSlugnonMemberRouteRouteImport.update({
+  id: '/(non-member)',
+  getParentRoute: () => OrgSlugRoute,
+} as any)
 const OrgSlugauthenticatedRouteRoute =
   OrgSlugauthenticatedRouteRouteImport.update({
     id: '/(authenticated)',
@@ -175,11 +180,11 @@ const OrgSlugAuthForgotPasswordRoute =
     path: '/forgot-password',
     getParentRoute: () => OrgSlugAuthRouteRoute,
   } as any)
-const OrgSlugauthenticatedOnboardingRoute =
-  OrgSlugauthenticatedOnboardingRouteImport.update({
+const OrgSlugnonMemberOnboardingRoute =
+  OrgSlugnonMemberOnboardingRouteImport.update({
     id: '/onboarding',
     path: '/onboarding',
-    getParentRoute: () => OrgSlugauthenticatedRouteRoute,
+    getParentRoute: () => OrgSlugnonMemberRouteRoute,
   } as any)
 const OrgSlugauthenticatedSettingsRouteRoute =
   OrgSlugauthenticatedSettingsRouteRouteImport.update({
@@ -223,17 +228,17 @@ const OrgSlugauthenticatedAdminIndexRoute =
     path: '/',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
+const OrgSlugnonMemberInvitationInvitationIdRoute =
+  OrgSlugnonMemberInvitationInvitationIdRouteImport.update({
+    id: '/invitation/$invitationId',
+    path: '/invitation/$invitationId',
+    getParentRoute: () => OrgSlugnonMemberRouteRoute,
+  } as any)
 const OrgSlugauthenticatedPortalFeedRoute =
   OrgSlugauthenticatedPortalFeedRouteImport.update({
     id: '/feed',
     path: '/feed',
     getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
-  } as any)
-const OrgSlugauthenticatedInvitationInvitationIdRoute =
-  OrgSlugauthenticatedInvitationInvitationIdRouteImport.update({
-    id: '/invitation/$invitationId',
-    path: '/invitation/$invitationId',
-    getParentRoute: () => OrgSlugauthenticatedRouteRoute,
   } as any)
 const OrgSlugauthenticatedAdminFeedRoute =
   OrgSlugauthenticatedAdminFeedRouteImport.update({
@@ -472,13 +477,13 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/org/$slug': typeof OrgSlugauthenticatedRouteRouteWithChildren
+  '/org/$slug': typeof OrgSlugnonMemberRouteRouteWithChildren
   '/': typeof authenticatedIndexRoute
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
   '/org/$slug/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
+  '/org/$slug/onboarding': typeof OrgSlugnonMemberOnboardingRoute
   '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
@@ -486,8 +491,8 @@ export interface FileRoutesByFullPath {
   '/org/$slug/': typeof OrgSlugauthenticatedIndexRoute
   '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
+  '/org/$slug/invitation/$invitationId': typeof OrgSlugnonMemberInvitationInvitationIdRoute
   '/org/$slug/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
   '/org/$slug/portal/': typeof OrgSlugauthenticatedPortalIndexRoute
@@ -541,15 +546,15 @@ export interface FileRoutesByTo {
   '/org/$slug': typeof OrgSlugauthenticatedIndexRoute
   '/': typeof authenticatedIndexRoute
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
-  '/org/$slug/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
+  '/org/$slug/onboarding': typeof OrgSlugnonMemberOnboardingRoute
   '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
   '/org/$slug/auth/reset-password': typeof OrgSlugAuthResetPasswordRoute
   '/org/$slug/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
+  '/org/$slug/invitation/$invitationId': typeof OrgSlugnonMemberInvitationInvitationIdRoute
   '/org/$slug/admin': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/kiosk': typeof OrgSlugauthenticatedKioskIndexRoute
   '/org/$slug/portal': typeof OrgSlugauthenticatedPortalIndexRoute
@@ -604,11 +609,12 @@ export interface FileRoutesById {
   '/org/$slug': typeof OrgSlugRouteWithChildren
   '/(authenticated)/': typeof authenticatedIndexRoute
   '/org/$slug/(authenticated)': typeof OrgSlugauthenticatedRouteRouteWithChildren
+  '/org/$slug/(non-member)': typeof OrgSlugnonMemberRouteRouteWithChildren
   '/org/$slug/auth': typeof OrgSlugAuthRouteRouteWithChildren
   '/org/$slug/(authenticated)/admin': typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   '/org/$slug/(authenticated)/portal': typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   '/org/$slug/(authenticated)/settings': typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  '/org/$slug/(authenticated)/onboarding': typeof OrgSlugauthenticatedOnboardingRoute
+  '/org/$slug/(non-member)/onboarding': typeof OrgSlugnonMemberOnboardingRoute
   '/org/$slug/auth/forgot-password': typeof OrgSlugAuthForgotPasswordRoute
   '/org/$slug/auth/login': typeof OrgSlugAuthLoginRoute
   '/org/$slug/auth/register': typeof OrgSlugAuthRegisterRoute
@@ -616,8 +622,8 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/': typeof OrgSlugauthenticatedIndexRoute
   '/org/$slug/(authenticated)/kiosk/$sessionId': typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
   '/org/$slug/(authenticated)/admin/feed': typeof OrgSlugauthenticatedAdminFeedRoute
-  '/org/$slug/(authenticated)/invitation/$invitationId': typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   '/org/$slug/(authenticated)/portal/feed': typeof OrgSlugauthenticatedPortalFeedRoute
+  '/org/$slug/(non-member)/invitation/$invitationId': typeof OrgSlugnonMemberInvitationInvitationIdRoute
   '/org/$slug/(authenticated)/admin/': typeof OrgSlugauthenticatedAdminIndexRoute
   '/org/$slug/(authenticated)/kiosk/': typeof OrgSlugauthenticatedKioskIndexRoute
   '/org/$slug/(authenticated)/portal/': typeof OrgSlugauthenticatedPortalIndexRoute
@@ -684,8 +690,8 @@ export interface FileRouteTypes {
     | '/org/$slug/'
     | '/org/$slug/kiosk/$sessionId'
     | '/org/$slug/admin/feed'
-    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/portal/feed'
+    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/admin/'
     | '/org/$slug/kiosk/'
     | '/org/$slug/portal/'
@@ -746,8 +752,8 @@ export interface FileRouteTypes {
     | '/org/$slug/auth/reset-password'
     | '/org/$slug/kiosk/$sessionId'
     | '/org/$slug/admin/feed'
-    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/portal/feed'
+    | '/org/$slug/invitation/$invitationId'
     | '/org/$slug/admin'
     | '/org/$slug/kiosk'
     | '/org/$slug/portal'
@@ -801,11 +807,12 @@ export interface FileRouteTypes {
     | '/org/$slug'
     | '/(authenticated)/'
     | '/org/$slug/(authenticated)'
+    | '/org/$slug/(non-member)'
     | '/org/$slug/auth'
     | '/org/$slug/(authenticated)/admin'
     | '/org/$slug/(authenticated)/portal'
     | '/org/$slug/(authenticated)/settings'
-    | '/org/$slug/(authenticated)/onboarding'
+    | '/org/$slug/(non-member)/onboarding'
     | '/org/$slug/auth/forgot-password'
     | '/org/$slug/auth/login'
     | '/org/$slug/auth/register'
@@ -813,8 +820,8 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/'
     | '/org/$slug/(authenticated)/kiosk/$sessionId'
     | '/org/$slug/(authenticated)/admin/feed'
-    | '/org/$slug/(authenticated)/invitation/$invitationId'
     | '/org/$slug/(authenticated)/portal/feed'
+    | '/org/$slug/(non-member)/invitation/$invitationId'
     | '/org/$slug/(authenticated)/admin/'
     | '/org/$slug/(authenticated)/kiosk/'
     | '/org/$slug/(authenticated)/portal/'
@@ -955,6 +962,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugAuthRouteRouteImport
       parentRoute: typeof OrgSlugRoute
     }
+    '/org/$slug/(non-member)': {
+      id: '/org/$slug/(non-member)'
+      path: ''
+      fullPath: '/org/$slug'
+      preLoaderRoute: typeof OrgSlugnonMemberRouteRouteImport
+      parentRoute: typeof OrgSlugRoute
+    }
     '/org/$slug/(authenticated)': {
       id: '/org/$slug/(authenticated)'
       path: ''
@@ -997,12 +1011,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugAuthForgotPasswordRouteImport
       parentRoute: typeof OrgSlugAuthRouteRoute
     }
-    '/org/$slug/(authenticated)/onboarding': {
-      id: '/org/$slug/(authenticated)/onboarding'
+    '/org/$slug/(non-member)/onboarding': {
+      id: '/org/$slug/(non-member)/onboarding'
       path: '/onboarding'
       fullPath: '/org/$slug/onboarding'
-      preLoaderRoute: typeof OrgSlugauthenticatedOnboardingRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
+      preLoaderRoute: typeof OrgSlugnonMemberOnboardingRouteImport
+      parentRoute: typeof OrgSlugnonMemberRouteRoute
     }
     '/org/$slug/(authenticated)/settings': {
       id: '/org/$slug/(authenticated)/settings'
@@ -1053,19 +1067,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedAdminIndexRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
+    '/org/$slug/(non-member)/invitation/$invitationId': {
+      id: '/org/$slug/(non-member)/invitation/$invitationId'
+      path: '/invitation/$invitationId'
+      fullPath: '/org/$slug/invitation/$invitationId'
+      preLoaderRoute: typeof OrgSlugnonMemberInvitationInvitationIdRouteImport
+      parentRoute: typeof OrgSlugnonMemberRouteRoute
+    }
     '/org/$slug/(authenticated)/portal/feed': {
       id: '/org/$slug/(authenticated)/portal/feed'
       path: '/feed'
       fullPath: '/org/$slug/portal/feed'
       preLoaderRoute: typeof OrgSlugauthenticatedPortalFeedRouteImport
       parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
-    }
-    '/org/$slug/(authenticated)/invitation/$invitationId': {
-      id: '/org/$slug/(authenticated)/invitation/$invitationId'
-      path: '/invitation/$invitationId'
-      fullPath: '/org/$slug/invitation/$invitationId'
-      preLoaderRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRouteImport
-      parentRoute: typeof OrgSlugauthenticatedRouteRoute
     }
     '/org/$slug/(authenticated)/admin/feed': {
       id: '/org/$slug/(authenticated)/admin/feed'
@@ -1546,10 +1560,8 @@ interface OrgSlugauthenticatedRouteRouteChildren {
   OrgSlugauthenticatedAdminRouteRoute: typeof OrgSlugauthenticatedAdminRouteRouteWithChildren
   OrgSlugauthenticatedPortalRouteRoute: typeof OrgSlugauthenticatedPortalRouteRouteWithChildren
   OrgSlugauthenticatedSettingsRouteRoute: typeof OrgSlugauthenticatedSettingsRouteRouteWithChildren
-  OrgSlugauthenticatedOnboardingRoute: typeof OrgSlugauthenticatedOnboardingRoute
   OrgSlugauthenticatedIndexRoute: typeof OrgSlugauthenticatedIndexRoute
   OrgSlugauthenticatedKioskSessionIdRouteRoute: typeof OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren
-  OrgSlugauthenticatedInvitationInvitationIdRoute: typeof OrgSlugauthenticatedInvitationInvitationIdRoute
   OrgSlugauthenticatedKioskIndexRoute: typeof OrgSlugauthenticatedKioskIndexRoute
 }
 
@@ -1561,18 +1573,31 @@ const OrgSlugauthenticatedRouteRouteChildren: OrgSlugauthenticatedRouteRouteChil
       OrgSlugauthenticatedPortalRouteRouteWithChildren,
     OrgSlugauthenticatedSettingsRouteRoute:
       OrgSlugauthenticatedSettingsRouteRouteWithChildren,
-    OrgSlugauthenticatedOnboardingRoute: OrgSlugauthenticatedOnboardingRoute,
     OrgSlugauthenticatedIndexRoute: OrgSlugauthenticatedIndexRoute,
     OrgSlugauthenticatedKioskSessionIdRouteRoute:
       OrgSlugauthenticatedKioskSessionIdRouteRouteWithChildren,
-    OrgSlugauthenticatedInvitationInvitationIdRoute:
-      OrgSlugauthenticatedInvitationInvitationIdRoute,
     OrgSlugauthenticatedKioskIndexRoute: OrgSlugauthenticatedKioskIndexRoute,
   }
 
 const OrgSlugauthenticatedRouteRouteWithChildren =
   OrgSlugauthenticatedRouteRoute._addFileChildren(
     OrgSlugauthenticatedRouteRouteChildren,
+  )
+
+interface OrgSlugnonMemberRouteRouteChildren {
+  OrgSlugnonMemberOnboardingRoute: typeof OrgSlugnonMemberOnboardingRoute
+  OrgSlugnonMemberInvitationInvitationIdRoute: typeof OrgSlugnonMemberInvitationInvitationIdRoute
+}
+
+const OrgSlugnonMemberRouteRouteChildren: OrgSlugnonMemberRouteRouteChildren = {
+  OrgSlugnonMemberOnboardingRoute: OrgSlugnonMemberOnboardingRoute,
+  OrgSlugnonMemberInvitationInvitationIdRoute:
+    OrgSlugnonMemberInvitationInvitationIdRoute,
+}
+
+const OrgSlugnonMemberRouteRouteWithChildren =
+  OrgSlugnonMemberRouteRoute._addFileChildren(
+    OrgSlugnonMemberRouteRouteChildren,
   )
 
 interface OrgSlugAuthRouteRouteChildren {
@@ -1594,11 +1619,13 @@ const OrgSlugAuthRouteRouteWithChildren =
 
 interface OrgSlugRouteChildren {
   OrgSlugauthenticatedRouteRoute: typeof OrgSlugauthenticatedRouteRouteWithChildren
+  OrgSlugnonMemberRouteRoute: typeof OrgSlugnonMemberRouteRouteWithChildren
   OrgSlugAuthRouteRoute: typeof OrgSlugAuthRouteRouteWithChildren
 }
 
 const OrgSlugRouteChildren: OrgSlugRouteChildren = {
   OrgSlugauthenticatedRouteRoute: OrgSlugauthenticatedRouteRouteWithChildren,
+  OrgSlugnonMemberRouteRoute: OrgSlugnonMemberRouteRouteWithChildren,
   OrgSlugAuthRouteRoute: OrgSlugAuthRouteRouteWithChildren,
 }
 

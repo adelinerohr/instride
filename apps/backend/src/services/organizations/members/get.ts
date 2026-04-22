@@ -1,6 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 
-import { requireOrganizationAuth } from "@/shared/auth";
+import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
@@ -57,7 +57,13 @@ export const getMember = api(
     auth: true,
   },
   async (): Promise<GetMemberResponse> => {
-    const { userID, organizationId } = requireOrganizationAuth();
+    const { userID, organizationId } = requireAuth();
+
+    // No org context → caller hasn't picked an org yet. Treat as "not a member".
+    if (!organizationId) {
+      throw APIError.notFound("Member not found");
+    }
+
     const member = await db.query.members.findFirst({
       where: { userId: userID, organizationId },
       with: {

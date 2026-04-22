@@ -17,7 +17,7 @@ import {
 import { authClient } from "@/shared/lib/auth/client";
 
 export const Route = createFileRoute(
-  "/org/$slug/(authenticated)/invitation/$invitationId"
+  "/org/$slug/(non-member)/invitation/$invitationId"
 )({
   component: RouteComponent,
   loader: async ({ params }) => {

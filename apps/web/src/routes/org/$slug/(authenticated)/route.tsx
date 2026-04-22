@@ -5,23 +5,28 @@ import { ImpersonationBanner } from "@/shared/components/auth/impersonation-bann
 
 /**
  * Path: /org/[slug]/(authenticated)
- * Description: Checks membership and onboarding status
+ * Description: Session AND completed membership required. Every route under
+ * this layout can rely on `context.member` being a non-null, fully-onboarded
+ * Member. Non-members and partially-onboarded members are redirected to
+ * /onboarding before any child route resolves.
  */
 export const Route = createFileRoute("/org/$slug/(authenticated)")({
   component: RouteComponent,
-  beforeLoad: async ({ context, location }) => {
+  beforeLoad: async ({ context, location, params }) => {
     const session = await context.queryClient.ensureQueryData(
       authOptions.session()
     );
 
     if (!session?.user) {
-      throw Route.redirect({
-        to: "/org/$slug/auth/login",
-      });
+      throw Route.redirect({ to: "/org/$slug/auth/login", params });
     }
 
     if (!context.member) {
-      throw Route.redirect({ to: "/org/$slug/onboarding" });
+      throw Route.redirect({ to: "/org/$slug/onboarding", params });
+    }
+
+    if (!context.member.onboardingComplete) {
+      throw Route.redirect({ to: "/org/$slug/onboarding", params });
     }
 
     const user: types.AuthUser = {
@@ -31,22 +36,14 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       banExpires: session.user.banExpires?.toISOString() ?? null,
     };
 
-    const isPortal = location.pathname.includes("portal");
+    const isPortal = location.pathname.includes("/portal");
 
     return {
       user,
       session: session.session,
-      member: context.member,
+      member: context.member, // narrowed to Member (non-null)
       isPortal,
     };
-  },
-  loader: async ({ context, location }) => {
-    if (
-      !context.member.onboardingComplete &&
-      !location.pathname.includes("onboarding")
-    ) {
-      throw Route.redirect({ to: "/org/$slug/onboarding" });
-    }
   },
 });
 
