@@ -57,7 +57,6 @@ export default function CreateLessonScreen() {
       onSubmit: lessonSeriesInputSchema,
     },
     onSubmit: ({ value }) => {
-      console.log(value);
       const { riderIds, ...data } = value;
 
       createLesson.mutateAsync(

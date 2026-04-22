@@ -128,7 +128,6 @@ function CommentContent({ comment, member }: CommentContentProps) {
   const isOwn = comment.member?.id === member.id;
 
   const handleDelete = () => {
-    console.log("handleDelete");
     confirmationModalHandler.openWithPayload({
       title: "Delete Comment",
       description: "Are you sure you want to delete this comment?",

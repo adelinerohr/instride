@@ -44,7 +44,6 @@ function RouteComponent() {
   const form = useAppForm({
     ...serviceFormOpts,
     onSubmit: async ({ value }) => {
-      console.log("Submitting board form: ", value);
       createService.mutateAsync(
         { request: value },
         {

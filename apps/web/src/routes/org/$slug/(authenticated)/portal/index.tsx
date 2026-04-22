@@ -214,7 +214,11 @@ function RouteComponent() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <LessonCard variant="detail" lessonEnrollment={lessonsToday[0]} />
+            <LessonCard
+              variant="detail"
+              type="portal"
+              lessonEnrollment={lessonsToday[0]}
+            />
           )}
         </div>
         <Card>
@@ -260,6 +264,7 @@ function RouteComponent() {
                       <LessonCard
                         key={enrollment.id}
                         variant="date-chip"
+                        type="portal"
                         lessonEnrollment={enrollment}
                       />
                     )

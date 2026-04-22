@@ -108,7 +108,6 @@ function RouteComponent() {
       riderId: getInitialRiderId(),
     }),
     onSubmit: async ({ value, formApi }) => {
-      console.log(value);
       const service = services.find((s) => s.id === value.serviceId);
       if (!service) {
         toast.error(

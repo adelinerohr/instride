@@ -1,3 +1,4 @@
+import type { types } from "@instride/api";
 import { RecurrenceFrequency } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
@@ -9,6 +10,7 @@ import {
 import * as React from "react";
 
 import { lessonFormOpts } from "@/features/lessons/lib/new-lesson.form";
+import { CategoryDot } from "@/shared/components/fragments/category-dot";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,8 +30,9 @@ export const DetailsSection = withForm({
     isOpen: true as boolean,
     onOpenChange: (_open: boolean) => {},
     isReady: false as boolean,
+    levels: [] as types.Level[],
   },
-  render: ({ form, isOpen, onOpenChange, isReady }) => {
+  render: ({ form, isOpen, onOpenChange, isReady, levels }) => {
     const [showCustomDetails, setShowCustomDetails] = React.useState(false);
 
     const start = useStore(form.store, (s: any) => s.values.start);
@@ -39,7 +42,7 @@ export const DetailsSection = withForm({
 
     // Summary when collapsed
     const summaryParts: string[] = [];
-    if (start) summaryParts.push(format(new Date(start), "MM/dd/yyyy HH:mm"));
+    if (start) summaryParts.push(format(new Date(start), "MM/dd/yyyy hh:mm a"));
     if (duration) summaryParts.push(`${duration}min`);
     if (maxRiders) summaryParts.push(`${maxRiders} riders`);
     if (isRecurring) summaryParts.push("Weekly");
@@ -86,7 +89,7 @@ export const DetailsSection = withForm({
           />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 border-t p-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_0.3fr_0.3fr]">
+          <div className="grid grid-cols-2 gap-4">
             <form.AppField
               name="start"
               children={(field) => <field.DatetimeField label="Start" />}
@@ -105,6 +108,25 @@ export const DetailsSection = withForm({
                     <InputGroupText>minutes</InputGroupText>
                   </InputGroupAddon>
                 </field.TextField>
+              )}
+            />
+            <form.AppField
+              name="levelId"
+              children={(field) => (
+                <field.ClearableSelectField
+                  items={levels ?? []}
+                  itemToValue={(level) => level?.id ?? null}
+                  label="Level"
+                  placeholder="Unrestricted"
+                  clearableLabel="Unrestricted"
+                  fieldClassName="w-full"
+                  renderValue={(level) => (
+                    <div className="flex items-center gap-2">
+                      <CategoryDot color={level?.color} size="sm" />
+                      {level?.name}
+                    </div>
+                  )}
+                />
               )}
             />
             <form.AppField

@@ -10,12 +10,13 @@ const avatarVariants = cva(
     variants: {
       shape: {
         square:
-          "rounded-md after:rounded-md *:data-[slot=avatar-image]:rounded-md *:data-[slot=avatar-fallback]:text-sm",
+          "rounded-md after:rounded-md *:data-[slot=avatar-image]:rounded-md *:data-[slot=avatar-fallback]:rounded-md",
         circle:
-          "rounded-full after:rounded-full *:data-[slot=avatar-image]:rounded-full *:data-[slot=avatar-fallback]:text-sm",
+          "rounded-full after:rounded-full *:data-[slot=avatar-image]:rounded-full *:data-[slot=avatar-fallback]:rounded-full",
       },
       size: {
         default: "size-8 *:data-[slot=avatar-fallback]:text-sm",
+        xs: "size-4 *:data-[slot=avatar-fallback]:text-[8px]",
         sm: "size-6 *:data-[slot=avatar-fallback]:text-xs",
         lg: "size-10 *:data-[slot=avatar-fallback]:text-base",
         xl: "size-16 *:data-[slot=avatar-fallback]:text-3xl",

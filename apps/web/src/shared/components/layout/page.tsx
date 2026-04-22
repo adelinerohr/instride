@@ -58,7 +58,9 @@ function PageHeader({
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
-      {children && <div className="shrink-0">{children}</div>}
+      {children && (
+        <div className="shrink-0 flex items-center gap-4">{children}</div>
+      )}
     </div>
   );
 }

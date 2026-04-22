@@ -59,10 +59,6 @@ function RouteComponent() {
 
   const deleteService = useDeleteService();
 
-  console.log(service);
-  console.log(boards);
-  console.log(trainers);
-
   const assignedBoards = boards.filter((board) =>
     service.boardAssignments?.some(
       (assignment) => assignment.boardId === board.id

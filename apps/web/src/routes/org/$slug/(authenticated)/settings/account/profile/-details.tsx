@@ -67,10 +67,6 @@ export function PersonalDetails() {
         phone: z.string().nullable(),
       }),
     },
-    onSubmitInvalid: ({ formApi }) => {
-      const errors = formApi.getAllErrors();
-      console.log(errors);
-    },
     onSubmit: async ({ value, formApi }) => {
       let imageUrl = value.image;
 

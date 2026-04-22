@@ -137,8 +137,6 @@ function RouteComponent() {
     return blockStart >= visibleFrom && blockEnd <= visibleTo;
   });
 
-  console.log(lessons);
-
   return (
     <CalendarProvider
       events={allEvents}

@@ -52,7 +52,6 @@ function RouteComponent() {
     ...serviceFormOpts,
     defaultValues: buildServiceDefaultValues(service),
     onSubmit: async ({ value }) => {
-      console.log("Submitting service form: ", value);
       updateService.mutateAsync(
         {
           serviceId: id,

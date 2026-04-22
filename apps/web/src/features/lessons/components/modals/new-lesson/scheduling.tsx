@@ -1,11 +1,6 @@
 import { getUser, type types } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
-import {
-  CalendarIcon,
-  CheckCircle2Icon,
-  ChevronDownIcon,
-  CircleIcon,
-} from "lucide-react";
+import { CalendarIcon, CheckCircle2Icon, ChevronDownIcon } from "lucide-react";
 
 import { lessonFormOpts } from "@/features/lessons/lib/new-lesson.form";
 import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
@@ -23,19 +18,10 @@ export const SchedulingSection = withForm({
     boards: [] as types.Board[],
     trainers: [] as types.Trainer[],
     services: [] as types.Service[],
-    levels: [] as types.Level[],
     isOpen: true as boolean,
     onOpenChange: (_open: boolean) => {},
   },
-  render: ({
-    form,
-    boards,
-    trainers,
-    services,
-    levels,
-    isOpen,
-    onOpenChange,
-  }) => {
+  render: ({ form, boards, trainers, services, isOpen, onOpenChange }) => {
     const boardId = useStore(form.store, (s) => s.values.boardId);
     const trainerId = useStore(form.store, (s) => s.values.trainerId);
     const serviceId = useStore(form.store, (s) => s.values.serviceId);
@@ -155,29 +141,6 @@ export const SchedulingSection = withForm({
                 label="Service"
                 placeholder="Select a service"
                 renderValue={(service) => service.name}
-              />
-            )}
-          />
-          <form.AppField
-            name="levelId"
-            children={(field) => (
-              <field.ClearableSelectField
-                items={levels ?? []}
-                itemToValue={(level) => level?.id ?? null}
-                label="Level"
-                placeholder="Unrestricted"
-                clearableLabel="Unrestricted"
-                fieldClassName="w-full"
-                renderValue={(level) => (
-                  <div className="flex items-center gap-2">
-                    <CircleIcon
-                      className="size-3"
-                      fill={level?.color}
-                      stroke={level?.color}
-                    />
-                    {level?.name}
-                  </div>
-                )}
               />
             )}
           />

@@ -1,17 +1,25 @@
-import { instanceOptions, membersOptions, type types } from "@instride/api";
+import { instanceOptions, type types } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { endOfDay, endOfWeek, format, startOfDay, startOfWeek } from "date-fns";
 import {
   AlertTriangleIcon,
+  ArrowRightIcon,
+  CalendarPlusIcon,
   ChevronRightIcon,
   ClipboardIcon,
-  UsersIcon,
-  type LucideIcon,
+  PlusIcon,
 } from "lucide-react";
+import * as React from "react";
+import z from "zod";
 
-import { AgendaLessonCard } from "@/features/calendar/components/views/agenda/lesson-card";
-import { CalendarView } from "@/features/calendar/lib/types";
+import { LessonCard } from "@/features/lessons/components/fragments/lesson-card";
+import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
+import {
+  findNearestLesson,
+  getPhaseOfDay,
+  groupByDay,
+} from "@/features/lessons/lib/utils";
 import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import {
   Alert,
@@ -19,7 +27,8 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/shared/components/ui/alert";
-import { buttonVariants } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -29,19 +38,33 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
+import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
   component: RouteComponent,
+  validateSearch: z.object({
+    view: z.enum(["admin", "trainer"]).optional(),
+  }),
   loader: async ({ context }) => {
-    context.queryClient.prefetchQuery(membersOptions.riderStats());
-    context.queryClient.prefetchQuery(instanceOptions.stats());
     context.queryClient.prefetchQuery(
       instanceOptions.inRange(startOfDay(new Date()), endOfDay(new Date()))
     );
@@ -55,31 +78,109 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin/")({
 });
 
 function RouteComponent() {
-  const { member } = Route.useRouteContext();
+  const { member, user, trainerId } = Route.useRouteContext();
   const { slug } = Route.useParams();
-
-  const { data: riderStats } = useSuspenseQuery(membersOptions.riderStats());
-  const { data: lessonStats } = useSuspenseQuery(instanceOptions.stats());
-  const { data: lessonsThisWeek } = useSuspenseQuery(
-    instanceOptions.inRange(
-      startOfWeek(new Date(), { weekStartsOn: 1 }),
-      endOfWeek(new Date(), { weekStartsOn: 1 })
-    )
-  );
-  const { data: lessonsToday } = useSuspenseQuery(
-    instanceOptions.inRange(startOfDay(new Date()), endOfDay(new Date()))
-  );
+  const { view } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Sunday
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }); // Saturday
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+
+  const { data: lessonsToday } = useSuspenseQuery(
+    instanceOptions.inRange(startOfDay(now), endOfDay(now))
+  );
+  const { data: lessonsThisWeek } = useSuspenseQuery(
+    instanceOptions.inRange(weekStart, weekEnd)
+  );
+
+  // View resolution: if user has both roles, allow switching. Default to trainer.
+  const isAdmin = member.roles.includes("admin");
+  const isTrainer = trainerId !== null;
+  const canSwitchViews = isAdmin && isTrainer;
+  const activeView = canSwitchViews
+    ? (view ?? "trainer")
+    : isAdmin
+      ? "admin"
+      : "trainer";
+
+  const filterForView = React.useCallback(
+    (lessons: types.LessonInstance[]) =>
+      activeView === "trainer" && trainerId
+        ? lessons.filter((lesson) => lesson.trainerId === trainerId)
+        : lessons,
+    [activeView, trainerId]
+  );
+
+  const todayLessons = React.useMemo(
+    () => filterForView(lessonsToday),
+    [filterForView, lessonsToday]
+  );
+  const weekLessons = React.useMemo(
+    () => filterForView(lessonsThisWeek),
+    [filterForView, lessonsThisWeek]
+  );
+
+  const nearestLesson = React.useMemo(
+    () => findNearestLesson(todayLessons, now),
+    [todayLessons, now]
+  );
+  const lessonsByDay = React.useMemo(
+    () => groupByDay(weekLessons),
+    [weekLessons]
+  );
 
   const hasPin = member.kioskPin !== null;
+  const phaseOfDay = getPhaseOfDay(now);
 
   return (
     <Page className="min-h-0 flex-1">
-      <PageHeader title="Dashboard" backButton={false} />
-      <PageBody className="space-y-4">
+      <PageHeader title="Dashboard" backButton={false}>
+        {canSwitchViews && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Viewing as</span>
+            <Select
+              value={activeView}
+              onValueChange={(value) =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    view: value as "admin" | "trainer" | undefined,
+                  }),
+                  replace: true,
+                })
+              }
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                <SelectItem value="trainer">Trainer</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button />}>
+            <PlusIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-fit">
+            <DropdownMenuItem
+              onClick={() =>
+                lessonModalHandler.openWithPayload({
+                  trainerId: trainerId ?? undefined,
+                })
+              }
+            >
+              <CalendarPlusIcon />
+              Create Lesson
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PageHeader>
+
+      <PageBody className="space-y-8">
         {!hasPin && (
           <Alert className="w-full border-destructive bg-destructive/10 text-destructive">
             <AlertTriangleIcon />
@@ -102,157 +203,109 @@ function RouteComponent() {
             </AlertAction>
           </Alert>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* riders */}
-          <StatsCard
-            title="Total Riders"
-            value={riderStats.totalRiders}
-            percentageChange={riderStats.percentageChange}
-            newThisMonth={riderStats.newRidersThisMonth}
-            icon={UsersIcon}
-          />
 
-          {/* lessons */}
-          <StatsCard
-            title="Total Lessons"
-            value={lessonStats.totalLessonInstancesThisMonth}
-            percentageChange={lessonStats.percentageChange}
-            newThisMonth={lessonStats.totalLessonInstancesThisMonth}
-            icon={ClipboardIcon}
-          />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold font-display">
+            Good {phaseOfDay}, {user.name.split(" ")[0]}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Here's what's on the schedule for you.
+          </p>
         </div>
 
-        {/* Upcoming Lessons */}
-        <LessonSection
-          instances={lessonsToday}
-          title="Lessons Today"
-          description={format(new Date(), "EEEE, MMMM d")}
-          emptyTitle="No lessons scheduled today"
-          emptyDescription="You don't have any lessons scheduled for today."
-          emptyIcon={ClipboardIcon}
-        />
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-semibold font-display">Today</h2>
+            <Badge variant="accent">{format(now, "EEEE, MMMM d")}</Badge>
+            <Link
+              to="/org/$slug/portal/calendar"
+              params={{ slug }}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "ml-auto"
+              )}
+            >
+              Open calendar
+              <ArrowRightIcon />
+            </Link>
+          </div>
 
-        {/* Lessons This Week */}
-        <LessonSection
-          instances={lessonsThisWeek}
-          title="Lessons This Week"
-          description={`${format(weekStart, "MMMM d")} - ${format(weekEnd, "MMMM d, yyyy")}`}
-          emptyTitle="No lessons scheduled this week"
-          emptyDescription="You don't have any lessons scheduled for this week."
-          emptyIcon={ClipboardIcon}
-        />
+          {todayLessons.length === 0 ? (
+            <Empty className="border border-dashed w-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ClipboardIcon className="size-6" />
+                </EmptyMedia>
+                <EmptyTitle>No lessons today</EmptyTitle>
+                <EmptyDescription>
+                  You don't have any lessons scheduled for today.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <>
+              {nearestLesson && (
+                <LessonCard
+                  variant="detail"
+                  type="trainer"
+                  lesson={nearestLesson}
+                />
+              )}
+              {todayLessons.length > 1 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="font-semibold font-display uppercase text-muted-foreground">
+                    Also today
+                  </h2>
+                  {todayLessons
+                    .filter((l) => l.id !== nearestLesson?.id)
+                    .map((lesson) => (
+                      <LessonCard
+                        key={lesson.id}
+                        variant="date-chip"
+                        type="trainer"
+                        lesson={lesson}
+                      />
+                    ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-semibold">Upcoming this week</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              {format(weekStart, "MMMM d")} – {format(weekEnd, "MMMM d")} ·{" "}
+              {weekLessons.length} lessons
+            </CardDescription>
+            <CardAction>
+              <Link
+                to="/org/$slug/portal/calendar"
+                params={{ slug }}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                View all
+              </Link>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {lessonsByDay.map(({ day, lessons }) => (
+              <div key={day.toISOString()} className="flex flex-col gap-4">
+                {lessons.map((lesson, index) => (
+                  <LessonCard
+                    key={lesson.id}
+                    variant="date-chip"
+                    type="trainer"
+                    lesson={lesson}
+                    showDate={index === 0}
+                  />
+                ))}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </PageBody>
     </Page>
-  );
-}
-
-interface LessonSectionProps {
-  instances: types.LessonInstance[];
-  title: string;
-  description: string;
-  emptyTitle: string;
-  emptyDescription: string;
-  emptyIcon: LucideIcon;
-}
-
-function LessonSection({
-  instances,
-  title,
-  description,
-  emptyTitle,
-  emptyDescription,
-  emptyIcon: EmptyIcon,
-}: LessonSectionProps) {
-  const { slug } = Route.useParams();
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-        <CardAction>
-          <Link
-            to="/org/$slug/admin/calendar"
-            params={{
-              slug,
-            }}
-            search={{
-              view: CalendarView.AGENDA,
-            }}
-            className={buttonVariants({ variant: "default" })}
-          >
-            View All
-          </Link>
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        {instances.length === 0 ? (
-          <Empty className="border border-dashed w-full">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <EmptyIcon className="size-6" />
-              </EmptyMedia>
-              <EmptyTitle>{emptyTitle}</EmptyTitle>
-              <EmptyDescription>{emptyDescription}</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <div className="w-full">
-            <div className="space-y-2">
-              {instances.map((instance) => (
-                <AgendaLessonCard key={instance.id} lesson={instance} />
-              ))}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-interface StatsCardProps {
-  title: string;
-  value: number;
-  percentageChange: number;
-  newThisMonth: number;
-  icon: LucideIcon;
-}
-
-function StatsCard({
-  title,
-  value,
-  percentageChange,
-  newThisMonth,
-  icon: Icon,
-}: StatsCardProps) {
-  const isPositiveChange = percentageChange >= 0;
-  const changeColor = isPositiveChange ? "text-accent" : "text-destructive";
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{title}</CardDescription>
-        <div className="flex flex-col gap-2">
-          <h4 className="font-display text-2xl lg:text-3xl">{value}</h4>
-          <div className="text-muted-foreground text-sm flex items-center gap-1">
-            <span className={changeColor}>
-              {isPositiveChange ? "+" : ""}
-              {percentageChange}%
-            </span>
-            <span>from last month</span>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {newThisMonth} new this month
-          </div>
-        </div>
-        <CardAction>
-          <div className="flex gap-4">
-            <div className="bg-muted flex size-12 items-center justify-center rounded-full border">
-              <Icon className="size-5" />
-            </div>
-          </div>
-        </CardAction>
-      </CardHeader>
-    </Card>
   );
 }

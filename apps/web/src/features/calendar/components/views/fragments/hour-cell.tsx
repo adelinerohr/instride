@@ -28,17 +28,19 @@ export function HourCell({ isDisabled, index, day, hour }: HourCellProps) {
         cancelLabel: "No, go back",
         onConfirm: () => {
           const start = getStart(quarter);
+          confirmationModalHandler.close();
           createLesson({
-            start,
+            start: start.toISOString(),
             boardId: selectedBoardId,
             trainerId: selectedTrainerIds[0],
+            overrideBusinessHours: true,
           });
         },
       });
     } else {
       const start = getStart(quarter);
       createLesson({
-        start,
+        start: start.toISOString(),
         boardId: selectedBoardId,
         trainerId: selectedTrainerIds[0],
       });

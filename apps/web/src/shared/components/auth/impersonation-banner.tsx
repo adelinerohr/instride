@@ -9,8 +9,6 @@ export function ImpersonationBanner() {
   const { session } = useRouteContext({ strict: false });
   const navigate = useNavigate();
 
-  console.log(session);
-
   if (!session?.impersonatedBy) return null;
 
   const stopImpersonation = async () => {

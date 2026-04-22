@@ -9,7 +9,10 @@ import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import * as React from "react";
 
-import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
+import {
+  lessonModalHandler,
+  type LessonModalPayload,
+} from "@/features/lessons/components/modals/new-lesson";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 import type { CalendarView } from "../lib/types";
@@ -32,11 +35,7 @@ interface CalendarContext {
   setSelectedView: (view: CalendarView) => void;
   selectedBoardId: string | undefined;
   setSelectedBoardId: (boardId: string | undefined) => void;
-  createLesson: (params: {
-    start?: Date;
-    boardId?: string;
-    trainerId?: string;
-  }) => void;
+  createLesson: (payload: LessonModalPayload) => void;
 }
 
 const CalendarContext = React.createContext<CalendarContext | undefined>(
@@ -240,13 +239,9 @@ export function CalendarProvider({
   );
 
   const createLesson = React.useCallback(
-    (params: { start?: Date; boardId?: string; trainerId?: string }) => {
+    (payload: LessonModalPayload) => {
       if (type === "admin") {
-        lessonModalHandler.openWithPayload({
-          start: params.start?.toISOString(),
-          boardId: params.boardId,
-          trainerId: params.trainerId,
-        });
+        lessonModalHandler.openWithPayload(payload);
       } else {
         navigate({
           to: "/org/$slug/portal/lessons/create",

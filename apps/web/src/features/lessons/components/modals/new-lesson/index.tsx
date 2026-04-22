@@ -49,7 +49,7 @@ import { DetailsSection } from "./details";
 import { RidersSection } from "./riders";
 import { SchedulingSection } from "./scheduling";
 
-interface LessonModalPayload {
+export interface LessonModalPayload {
   lesson?: types.LessonInstance;
   start?: string;
   boardId?: string;
@@ -328,7 +328,6 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
             boards={boards}
             trainers={trainers}
             services={services}
-            levels={levels}
             isOpen={openSection === "scheduling"}
             onOpenChange={() =>
               setOpenSection((prev) =>
@@ -338,6 +337,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
           />
           <DetailsSection
             form={form}
+            levels={levels}
             isReady={detailsReady}
             isOpen={openSection === "details"}
             onOpenChange={() =>
