@@ -1,10 +1,5 @@
 import { invitationOptions, membersOptions, type types } from "@instride/api";
-import {
-  InvitationStatus,
-  MembershipRole,
-  ROLE_LABELS,
-  ROLE_VARIANTS,
-} from "@instride/shared";
+import { InvitationStatus, MembershipRole } from "@instride/shared";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   CheckIcon,
@@ -44,6 +39,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import { authClient } from "@/shared/lib/auth/client";
 import { hasAnyRole, isAdmin } from "@/shared/lib/auth/roles";
 import { cn } from "@/shared/lib/utils";
@@ -229,11 +229,12 @@ function MemberRow(props: MemberRowProps) {
       )}
 
       <div className="flex flex-row items-center gap-2">
-        {roles.map((role) => (
-          <Badge key={role} variant={ROLE_VARIANTS[role]}>
-            {ROLE_LABELS[role]}
-          </Badge>
-        ))}
+        <Tooltip>
+          <TooltipTrigger render={<Badge variant="secondary" />}>
+            {roles.length} roles
+          </TooltipTrigger>
+          <TooltipContent>{roles.join(", ")}</TooltipContent>
+        </Tooltip>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={<Button variant="ghost" size="icon" type="button" />}

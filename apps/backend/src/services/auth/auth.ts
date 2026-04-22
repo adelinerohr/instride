@@ -7,13 +7,14 @@ import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
 import log from "encore.dev/log";
 import { Pool } from "pg";
+import { render } from "react-email";
 
 import { DB } from "@/database";
 import * as schema from "@/database/schema";
 
-import { invitationEmail } from "../email/templates/invitation";
-import { passwordResetEmail } from "../email/templates/password-reset";
-import { verificationEmail } from "../email/templates/verification";
+import OrganizationInvitationEmail from "../email/templates/organization-invitation";
+import PasswordResetEmail from "../email/templates/password-reset";
+import VerifyEmailAddressEmail from "../email/templates/verify-email";
 import { sendEmailTopic } from "../email/topic";
 import { db } from "./db";
 import {
@@ -46,6 +47,7 @@ export const auth = betterAuth({
   secret: authSecret(),
   database: drizzleAdapter(authDb, {
     provider: "pg",
+    schema,
   }),
   logger: {
     disableColors: true,
@@ -92,15 +94,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      const html = passwordResetEmail({
-        userName: user.name,
-        resetUrl: url,
+      const component = PasswordResetEmail({
+        appName: "Instride",
+        name: user.name,
+        resetPasswordLink: url,
       });
+
+      const [html, text] = await Promise.all([
+        render(component),
+        render(component, { plainText: true }),
+      ]);
 
       await sendEmailTopic.publish({
         to: user.email,
         subject: "Reset your password",
         html,
+        text,
       });
     },
   },
@@ -108,15 +117,21 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      const html = verificationEmail({
-        userName: user.name,
-        verificationUrl: url,
+      const component = VerifyEmailAddressEmail({
+        name: user.name,
+        verificationLink: url,
       });
+
+      const [html, text] = await Promise.all([
+        render(component),
+        render(component, { plainText: true }),
+      ]);
 
       await sendEmailTopic.publish({
         to: user.email,
         subject: "Verify your email address",
         html,
+        text,
       });
     },
   },
@@ -136,32 +151,41 @@ export const auth = betterAuth({
     organization({
       sendInvitationEmail: async ({ email, inviter, id, organization }) => {
         const existingUser = await db.query.authUsers.findFirst({
-          where: {
-            id: inviter.userId,
-          },
+          where: { email },
         });
+
+        const baseUrl = isProd
+          ? "https://instrideapp.com"
+          : "http://localhost:3000";
 
         const url = new URL(
           existingUser
-            ? `/org/${organization.slug}/login`
-            : `/org/${organization.slug}/register`,
-          "https://api.instrideapp.com"
+            ? `/org/${organization.slug}/auth/login`
+            : `/org/${organization.slug}/auth/register`,
+          baseUrl
         );
 
         url.searchParams.set("invitationId", id);
         url.searchParams.set("email", email);
 
-        const html = invitationEmail({
-          invitedByName: existingUser?.name || "Someone",
+        const component = OrganizationInvitationEmail({
+          appName: "Instride",
+          invitedByName: inviter.user.name,
+          invitedByEmail: inviter.user.email,
           organizationName: organization.name,
-          invitationUrl: url.toString(),
-          isExistingUser: !!existingUser,
+          inviteLink: url.toString(),
         });
+
+        const [html, text] = await Promise.all([
+          render(component),
+          render(component, { plainText: true }),
+        ]);
 
         await sendEmailTopic.publish({
           to: email,
           subject: `You've been invited to ${organization.name}`,
           html,
+          text,
         });
       },
       ac,

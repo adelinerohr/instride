@@ -30,7 +30,7 @@ export function InviteMember() {
       await authClient.organization.inviteMember(
         {
           ...value,
-          organizationId: organization.id,
+          organizationId: organization.authOrganizationId,
         },
         {
           onSuccess: () => {

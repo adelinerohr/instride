@@ -9,6 +9,7 @@ interface EmailEvent {
   to: string | string[];
   subject: string;
   html: string;
+  text?: string;
 }
 
 export const sendEmailTopic = new Topic<EmailEvent>("send-email", {
@@ -33,7 +34,7 @@ const _ = new Subscription(sendEmailTopic, "send-email-via-resend", {
       log.info("Sent email to development environment", {
         to: event.to,
         subject: event.subject,
-        html: event.html,
+        text: event.text,
       });
     } else {
       const { error } = await resend.emails.send({
@@ -41,6 +42,7 @@ const _ = new Subscription(sendEmailTopic, "send-email-via-resend", {
         to: event.to,
         subject: event.subject,
         html: event.html,
+        text: event.text,
       });
 
       if (error) {

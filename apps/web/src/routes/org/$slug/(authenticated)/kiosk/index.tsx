@@ -1,4 +1,5 @@
-import { kioskOptions } from "@instride/api";
+import { hasRole, kioskOptions } from "@instride/api";
+import { MembershipRole } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon, LaptopIcon } from "lucide-react";
@@ -21,8 +22,15 @@ import {
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/kiosk/")({
   component: RouteComponent,
-  loader: ({ context }) => {
-    context.queryClient.ensureQueryData(kioskOptions.sessions());
+  beforeLoad: async ({ context }) => {
+    const kioskSessions = await context.queryClient.ensureQueryData(
+      kioskOptions.sessions()
+    );
+    const isAdmin = hasRole(context.member, MembershipRole.ADMIN);
+
+    if (isAdmin && kioskSessions.length === 0) {
+      throw Route.redirect({ to: "/org/$slug/settings/organization/kiosk" });
+    }
   },
 });
 

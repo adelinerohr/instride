@@ -7,7 +7,22 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), tanstackRouter({}), react(), devtools()],
+  plugins: [
+    {
+      name: "encore-toolbar-dev-only",
+      apply: "serve", // only runs in `vite dev`, not in `vite build`
+      transformIndexHtml(html) {
+        return html.replace(
+          "<!--encore-toolbar-->",
+          '<script src="https://encore.dev/encore-toolbar.js"></script>'
+        );
+      },
+    },
+    tailwindcss(),
+    tanstackRouter({}),
+    react(),
+    devtools(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
