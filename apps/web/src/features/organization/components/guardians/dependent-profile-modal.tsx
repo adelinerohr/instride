@@ -1,4 +1,5 @@
 import type { types } from "@instride/api";
+import { FileUploadAction } from "@instride/shared";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
@@ -16,9 +17,12 @@ import { FieldGroup } from "@/shared/components/ui/field";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const editDependentProfileModalHandler = DialogHandler.createHandle<{
-  relationship: types.GuardianRelationship;
-}>();
+interface DependentProfileModalPayload {
+  relationship: types.MyDependent;
+}
+
+export const editDependentProfileModalHandler =
+  DialogHandler.createHandle<DependentProfileModalPayload>();
 
 export function EditDependentProfileModal() {
   return (
@@ -34,28 +38,16 @@ export function EditDependentProfileModal() {
   );
 }
 
-interface DependentProfileFormProps {
-  relationship: types.GuardianRelationship;
-}
-
-enum FileUploadAction {
-  NONE = "none",
-  UPDATE = "update",
-  DELETE = "delete",
-}
-
 export function DependentProfileForm({
   relationship,
-}: DependentProfileFormProps) {
-  if (!relationship.dependent) return null;
-
+}: DependentProfileModalPayload) {
   const form = useAppForm({
     defaultValues: {
-      name: relationship.dependent.authUser?.name ?? "",
-      phone: relationship.dependent.authUser?.phone ?? "",
-      image: relationship.dependent.authUser?.image ?? "",
+      name: relationship.dependent.name ?? "",
+      phone: relationship.dependent.phone ?? "",
+      image: relationship.dependent.image ?? "",
       newImage: null as File | null,
-      imageAction: FileUploadAction.NONE,
+      imageAction: FileUploadAction.NONE as FileUploadAction,
     },
     validators: {
       onSubmit: z.object({
@@ -69,6 +61,7 @@ export function DependentProfileForm({
       }),
     },
     onSubmit: ({ value }) => {
+      // TODO: Update dependent profile
       console.log(value);
     },
   });
@@ -85,7 +78,7 @@ export function DependentProfileForm({
       >
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>
-            Edit {relationship?.dependent.authUser?.name}'s Profile
+            Edit {relationship.dependent.name}'s Profile
           </DialogTitle>
         </DialogHeader>
         <FieldGroup>

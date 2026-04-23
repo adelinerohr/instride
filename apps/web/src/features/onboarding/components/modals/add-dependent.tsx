@@ -45,11 +45,15 @@ const dependentStepLabels: Record<DependentOnboardingStep, string> = {
 };
 
 export function AddDependentModal() {
-  const { user, organization } = useRouteContext({ strict: false });
+  const { user, organization } = useRouteContext({
+    from: "/org/$slug/(authenticated)/settings/account/guardian",
+  });
 
-  const { data: waivers } = useSuspenseQuery(waiverOptions.list());
+  const { data: waivers } = useSuspenseQuery(
+    waiverOptions.list(organization.id)
+  );
   const { data: questionnaires } = useSuspenseQuery(
-    questionnaireOptions.list()
+    questionnaireOptions.list(organization.id)
   );
 
   const createPlaceholder = useCreatePlaceholderRelationship();

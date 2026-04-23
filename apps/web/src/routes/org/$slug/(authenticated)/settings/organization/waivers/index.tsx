@@ -36,12 +36,17 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ context }) => {
-    return await context.queryClient.ensureQueryData(waiverOptions.list());
+    return await context.queryClient.ensureQueryData(
+      waiverOptions.list(context.organization.id)
+    );
   },
 });
 
 function RouteComponent() {
-  const { data: waivers, isLoading } = useSuspenseQuery(waiverOptions.list());
+  const { organization } = Route.useRouteContext();
+  const { data: waivers, isLoading } = useSuspenseQuery(
+    waiverOptions.list(organization.id)
+  );
   const archiveWaiver = useArchiveWaiver();
 
   return (

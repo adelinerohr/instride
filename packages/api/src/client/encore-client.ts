@@ -991,28 +991,6 @@ export namespace guardians {
         }
     }
 
-    export interface GetMyDependendentsResponse {
-        relationships: {
-            id: string
-            dependentMemberId: string
-            permissions: types.GuardianPermissions | null
-            createdAt: string
-            dependent: {
-                name: string
-                image: string | null
-                dateOfBirth: string | null
-                riderId: string
-                isRestricted: boolean
-                level: {
-                    id: string
-                    name: string
-                    color: string
-                } | null
-                boardAssignments: string[]
-            }
-        }[]
-    }
-
     export interface GetPendingInvitationResponse {
         invitation: {
             token: string
@@ -1110,10 +1088,14 @@ export namespace guardians {
             return await resp.json() as types.GuardianInvitation
         }
 
-        public async getMyDependents(): Promise<GetMyDependendentsResponse> {
+        public async getMyDependents(): Promise<{
+    relationships: types.MyDependent[]
+}> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-dependents`)
-            return await resp.json() as GetMyDependendentsResponse
+            return await resp.json() as {
+    relationships: types.MyDependent[]
+}
         }
 
         public async getMyGuardians(): Promise<types.GuardianRelationshipWithGuardian> {
@@ -2401,6 +2383,24 @@ export namespace models {
 
     export type EventScope = "organization" | "board" | "trainer"
 
+    export interface GuardianPermissions {
+        bookings: {
+            canBookLessons: boolean
+            canJoinEvents: boolean
+            requiresApproval: boolean
+            canCancel: boolean
+        }
+        communication: {
+            canPost: boolean
+            canComment: boolean
+            receiveEmailNotifications: boolean
+            receiveTextNotifications: boolean
+        }
+        profile: {
+            canEdit: boolean
+        }
+    }
+
     export type GuardianRelationshipStatus = "active" | "revoked" | "pending"
 
     export type InvitationStatus = "pending" | "accepted" | "rejected" | "cancelled"
@@ -3233,6 +3233,34 @@ export namespace types {
         authUser?: AuthUser | null
         rider?: Rider | null
         trainer?: Trainer | null
+    }
+
+    export interface MyDependent {
+        id: string
+        dependentMemberId: string
+        permissions: models.GuardianPermissions
+        createdAt: string
+        dependent: {
+            id: string
+            name: string
+            phone: string | null
+            email: string
+            dateOfBirth: string | null
+            image: string | null
+            riderId: string
+            isRestricted: boolean
+            ridingLevelId: string | null
+            level: {
+                id: string
+                name: string
+                createdAt: string
+                updatedAt: string
+                organizationId: string
+                description: string | null
+                color: string
+            } | null
+            boardAssignments: string[]
+        }
     }
 
     export interface Notification {

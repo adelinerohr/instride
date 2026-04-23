@@ -10,8 +10,8 @@ import {
 } from "@/shared/utils/validation";
 
 import { db } from "./db";
+import { MyDependent } from "./types/contracts";
 import {
-  GuardianPermissions,
   GuardianRelationshipWithGuardian,
   GuardianRelationshipWithMembers,
 } from "./types/models";
@@ -86,28 +86,6 @@ export const listAllRelationships = api(
   }
 );
 
-interface GetMyDependendentsResponse {
-  relationships: {
-    id: string;
-    dependentMemberId: string;
-    permissions: GuardianPermissions | null;
-    createdAt: Date | string;
-    dependent: {
-      name: string;
-      image: string | null;
-      dateOfBirth: string | null;
-      riderId: string;
-      isRestricted: boolean;
-      level: {
-        id: string;
-        name: string;
-        color: string;
-      } | null;
-      boardAssignments: string[];
-    };
-  }[];
-}
-
 export const getMyDependents = api(
   {
     method: "GET",
@@ -115,7 +93,7 @@ export const getMyDependents = api(
     expose: true,
     auth: true,
   },
-  async (): Promise<GetMyDependendentsResponse> => {
+  async (): Promise<{ relationships: MyDependent[] }> => {
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
@@ -152,6 +130,8 @@ export const getMyDependents = api(
           dependent: {
             id: relationship.dependent.id,
             name: relationship.dependent.authUser.name,
+            phone: relationship.dependent.authUser.phone,
+            email: relationship.dependent.authUser.email,
             dateOfBirth: relationship.dependent.authUser.dateOfBirth,
             image: relationship.dependent.authUser.image,
             riderId: relationship.dependent.rider.id,

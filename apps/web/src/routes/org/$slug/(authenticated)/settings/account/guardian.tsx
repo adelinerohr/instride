@@ -82,8 +82,12 @@ export const Route = createFileRoute(
     if (isGuardian) {
       await Promise.all([
         context.queryClient.ensureQueryData(guardianOptions.myDependents()),
-        context.queryClient.ensureQueryData(questionnaireOptions.list()),
-        context.queryClient.ensureQueryData(waiverOptions.list()),
+        context.queryClient.ensureQueryData(
+          questionnaireOptions.list(context.organization.id)
+        ),
+        context.queryClient.ensureQueryData(
+          waiverOptions.list(context.organization.id)
+        ),
       ]);
     }
   },
