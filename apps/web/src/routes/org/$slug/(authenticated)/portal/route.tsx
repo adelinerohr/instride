@@ -1,15 +1,13 @@
-import { guardianOptions, guardians, type types } from "@instride/api";
+import { guardianOptions, type types } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-import { AppHeader } from "@/shared/components/layout/app-header";
-import { AppSidebar } from "@/shared/components/layout/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
+import { AppLayout } from "@/shared/components/layout/app-layout";
 
 type OnlyGuardianContext = {
   isGuardian: true;
   isOnlyGuardian: true;
-  dependents: guardians.GetMyDependendentsResponse;
+  dependents: types.MyDependent[];
   effectiveRiderIds: string[];
 };
 
@@ -17,7 +15,7 @@ type GuardianContext = {
   isGuardian: true;
   isOnlyGuardian: false;
   rider: types.Rider;
-  dependents: guardians.GetMyDependendentsResponse;
+  dependents: types.MyDependent[];
   effectiveRiderIds: string[];
 };
 
@@ -125,14 +123,8 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
 
 function RouteComponent() {
   return (
-    <SidebarProvider>
-      <AppSidebar type="portal" />
-      <SidebarInset className="max-h-screen min-h-0 overflow-hidden">
-        <AppHeader type="portal" />
-        <main className="flex flex-col flex-1 min-h-0">
-          <Outlet />
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <AppLayout type="portal" isAdmin={false}>
+      <Outlet />
+    </AppLayout>
   );
 }

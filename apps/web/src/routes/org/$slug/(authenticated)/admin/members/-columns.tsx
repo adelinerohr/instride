@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { cn } from "@/shared/lib/utils";
 import {
   formatDate,
   ROLE_LABELS,
@@ -38,7 +39,6 @@ export function getMembersTableColumns(): ColumnDef<types.Member>[] {
       header: ({ table }) => (
         <Checkbox
           aria-label="Select all"
-          className="translate-y-0.5"
           checked={
             table.getIsAllPageRowsSelected() ||
             (table.getIsAllRowsSelected() ? true : false)
@@ -49,7 +49,6 @@ export function getMembersTableColumns(): ColumnDef<types.Member>[] {
       cell: ({ row }) => (
         <Checkbox
           aria-label="Select row"
-          className="translate-y-0.5"
           checked={row.getIsSelected()}
           onCheckedChange={row.getToggleSelectedHandler()}
         />
@@ -74,6 +73,17 @@ export function getMembersTableColumns(): ColumnDef<types.Member>[] {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Email" />
       ),
+      cell: ({ row }) => {
+        const isPlaceholderEmail =
+          row.original.authUser?.email.includes("placeholder");
+        return (
+          <div className={cn("text-sm", isPlaceholderEmail && "opacity-50")}>
+            {isPlaceholderEmail
+              ? "managed by guardian"
+              : row.original.authUser?.email}
+          </div>
+        );
+      },
       enableColumnFilter: true,
     },
     {

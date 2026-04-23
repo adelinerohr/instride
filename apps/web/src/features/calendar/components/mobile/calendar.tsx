@@ -10,7 +10,6 @@ import { MobileWeekStrip } from "./week-strip";
 export function MobileCalendar() {
   const { selectedView, setSelectedView } = useCalendar();
 
-  // Force day view on mobile — other views don't make sense at this size
   React.useEffect(() => {
     if (selectedView !== CalendarView.DAY) {
       setSelectedView(CalendarView.DAY);
@@ -19,11 +18,13 @@ export function MobileCalendar() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex flex-col gap-0 bg-primary">
+      <div className="shrink-0 bg-primary">
         <MobileHeader />
         <MobileWeekStrip />
       </div>
-      <MobileDayView />
+      <div className="flex-1 min-h-0">
+        <MobileDayView />
+      </div>
     </div>
   );
 }

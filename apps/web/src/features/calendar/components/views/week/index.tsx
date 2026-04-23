@@ -47,8 +47,8 @@ export function WeekView() {
   }, [weekStart]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div>
+    <div className="flex flex-col h-full min-h-0">
+      <div className="shrink-0">
         <MultiDayRow />
         <div className="relative z-20 flex border-b">
           <div className="w-18" />
@@ -75,7 +75,7 @@ export function WeekView() {
           </div>
         </div>
       </div>
-      <ScrollArea className="h-full" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
         <div className="flex overflow-hidden">
           {/* Hours column */}
           <div className="relative w-18 shrink-0">

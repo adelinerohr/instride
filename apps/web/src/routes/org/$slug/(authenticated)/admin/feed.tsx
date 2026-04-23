@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PostComposer } from "@/features/organization/components/feed/composer";
 import { FeedFilters } from "@/features/organization/components/feed/filters";
 import { Post } from "@/features/organization/components/feed/post";
+import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import { Button } from "@/shared/components/ui/button";
 import {
   Empty,
@@ -54,52 +55,55 @@ function RouteComponent() {
   };
 
   return (
-    <div className="p-4 pb-8 space-y-4">
-      <FeedFilters key={search.query ?? "no-query"} />
-      <PostComposer />
-      {isPending ? (
-        <Empty className="w-full">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Spinner />
-            </EmptyMedia>
-            <EmptyTitle>Loading posts...</EmptyTitle>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <div className="space-y-4">
-          {posts.length > 0 && !isPending ? (
-            posts.map((post) => <Post key={post.id} post={post} />)
-          ) : (
-            <Empty className="w-full border border-dashed">
-              <EmptyHeader>
-                <EmptyTitle>No posts found</EmptyTitle>
-                <EmptyDescription>
-                  No posts found for the selected filters.
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button variant="outline" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              </EmptyContent>
-            </Empty>
-          )}
-        </div>
-      )}
+    <Page className="min-h-0 flex-1">
+      <PageHeader title="Feed" />
+      <PageBody className="space-y-4">
+        <FeedFilters key={search.query ?? "no-query"} />
+        <PostComposer />
+        {isPending ? (
+          <Empty className="w-full">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Spinner />
+              </EmptyMedia>
+              <EmptyTitle>Loading posts...</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <div className="space-y-4">
+            {posts.length > 0 && !isPending ? (
+              posts.map((post) => <Post key={post.id} post={post} />)
+            ) : (
+              <Empty className="w-full border border-dashed">
+                <EmptyHeader>
+                  <EmptyTitle>No posts found</EmptyTitle>
+                  <EmptyDescription>
+                    No posts found for the selected filters.
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </EmptyContent>
+              </Empty>
+            )}
+          </div>
+        )}
 
-      {posts.length > 0 && (
-        <div className="flex justify-center">
-          <Button
-            onClick={() => fetchNextPage()}
-            disabled={!hasNextPage || isFetchingNextPage}
-            variant="outline"
-            className="mx-auto self-center"
-          >
-            Load More
-          </Button>
-        </div>
-      )}
-    </div>
+        {posts.length > 0 && (
+          <div className="flex justify-center">
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={!hasNextPage || isFetchingNextPage}
+              variant="outline"
+              className="mx-auto self-center"
+            >
+              Load More
+            </Button>
+          </div>
+        )}
+      </PageBody>
+    </Page>
   );
 }

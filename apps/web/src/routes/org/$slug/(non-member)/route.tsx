@@ -16,10 +16,6 @@ import { Button } from "@/shared/components/ui/button";
 export const Route = createFileRoute("/org/$slug/(non-member)")({
   component: RouteComponent,
   beforeLoad: async ({ context, params, location }) => {
-    console.log(
-      "[(non-member) beforeLoad] context.organization:",
-      context.organization
-    );
     const session = await context.queryClient.ensureQueryData(
       authOptions.session()
     );

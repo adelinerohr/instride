@@ -34,7 +34,7 @@ function PageHeader({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 border-b border-border p-4",
+        "flex items-center justify-between gap-4 border-b border-border p-4 pb-mobile-nav sm:pb-4",
         className
       )}
     >

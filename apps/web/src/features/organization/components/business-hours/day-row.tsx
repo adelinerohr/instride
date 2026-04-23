@@ -20,20 +20,6 @@ import { cn } from "@/shared/lib/utils";
 
 const DEFAULT_SLOT: TimeSlot = { openTime: "09:00", closeTime: "17:00" };
 
-/**
- * A single day's row in the business hours editor.
- *
- * Layout:
- *   [Day ☐] [Closed]                                 (when closed)
- *   [Day ☑] [09:00 → 17:00]              [+ Add slot] (single-slot open day)
- *   [Day ☑] [09:00 → 12:00]        [×]
- *           [15:00 → 18:00]        [×]   [+ Add slot] (multi-slot open day)
- *
- * No inheritance toggle (trainer rows no longer inherit — hours are always
- * explicit). No client-side clamping of time dropdowns — clamp violations
- * are surfaced by schema validation on submit instead, since with multiple
- * org slots per day filtering options would hide legitimate choices.
- */
 export const DayRow = withFieldGroup({
   defaultValues: {
     dayOfWeek: DayOfWeek.MON as DayOfWeek,
@@ -41,11 +27,6 @@ export const DayRow = withFieldGroup({
     slots: [] as TimeSlot[],
   },
   props: {} as {
-    /**
-     * Optional visual hint showing the org's slots for this day, rendered
-     * under trainer rows so the user knows what windows they have to stay
-     * inside. Purely informational; no enforcement here.
-     */
     orgHint?: {
       isOpen: boolean;
       slots: TimeSlot[];
@@ -55,9 +36,9 @@ export const DayRow = withFieldGroup({
     const slots = useStore(group.store, (s) => s.values.slots);
 
     return (
-      <div className="grid w-full grid-cols-5 px-4 py-2 gap-y-2">
-        {/* Day label + open toggle — always on the first row */}
-        <div className="col-span-5 sm:col-span-1 flex items-center h-9">
+      <div className="flex flex-col gap-3 px-4 py-3 sm:grid sm:grid-cols-5 sm:gap-y-2 sm:py-2">
+        {/* Day label + checkbox — full width on mobile, first column on desktop */}
+        <div className="flex items-center justify-between sm:col-span-1 sm:h-9 sm:justify-start">
           <group.Subscribe
             selector={(state) => ({
               dayOfWeek: state.values.dayOfWeek,
@@ -87,10 +68,17 @@ export const DayRow = withFieldGroup({
               />
             )}
           </group.Subscribe>
+
+          {/* Org hint anchored to the right on mobile (since slots stack below) */}
+          {props.orgHint && (
+            <div className="sm:hidden">
+              <OrgHint hint={props.orgHint} />
+            </div>
+          )}
         </div>
 
-        {/* Slots area + trailing controls */}
-        <div className="col-span-5 sm:col-span-4">
+        {/* Slots area */}
+        <div className="sm:col-span-4">
           <group.Subscribe selector={(state) => state.values.isOpen}>
             {(isOpen) =>
               isOpen ? (
@@ -98,8 +86,8 @@ export const DayRow = withFieldGroup({
                   name="slots"
                   mode="array"
                   children={(field) => (
-                    <div className="flex items-start justify-between gap-2">
-                      {/* Left: stacked slots */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      {/* Stacked slots */}
                       <div className="flex flex-col gap-2">
                         {field.state.value.map((slot, slotIndex) => (
                           <div
@@ -114,10 +102,29 @@ export const DayRow = withFieldGroup({
                             />
                           </div>
                         ))}
+
+                        {/* Mobile: "Add slot" as a full-width text button below the stack */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="justify-start px-2 text-muted-foreground sm:hidden"
+                          onClick={() => {
+                            const last = field.state.value.at(-1);
+                            const nextStart = last?.closeTime ?? "09:00";
+                            field.pushValue({
+                              openTime: nextStart,
+                              closeTime: DEFAULT_SLOT.closeTime,
+                            });
+                          }}
+                        >
+                          <PlusIcon className="size-4 mr-1.5" />
+                          Add time slot
+                        </Button>
                       </div>
 
-                      {/* Right: + and hint, aligned to the first slot row */}
-                      <div className="flex h-9 items-center gap-1 shrink-0">
+                      {/* Desktop: "+" and hint on the right */}
+                      <div className="hidden h-9 shrink-0 items-center gap-1 sm:flex">
                         <Tooltip>
                           <TooltipTrigger
                             render={
@@ -149,10 +156,15 @@ export const DayRow = withFieldGroup({
                 />
               ) : (
                 <div className="flex h-9 items-center justify-between gap-2">
-                  <span className="pl-2 text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground sm:pl-2">
                     Closed
                   </span>
-                  {props.orgHint && <OrgHint hint={props.orgHint} />}
+                  {/* Desktop-only hint; mobile hint lives next to the checkbox */}
+                  {props.orgHint && (
+                    <div className="hidden sm:block">
+                      <OrgHint hint={props.orgHint} />
+                    </div>
+                  )}
                 </div>
               )
             }
@@ -203,7 +215,7 @@ const SlotRow = withFieldGroup({
   },
   render: ({ group, ...props }) => {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full">
         <group.AppField
           name={`openTime`}
           children={(field) => (
@@ -214,12 +226,12 @@ const SlotRow = withFieldGroup({
               itemToValue={(t: { value: string }) => t.value}
               matchValue={(v) => normalizeTimeSlot(v, "09:00")}
               renderValue={(t: { label: string }) => t.label}
-              fieldClassName="w-fit"
+              fieldClassName="flex-1 sm:w-fit sm:flex-initial"
             />
           )}
         />
 
-        <span className="text-muted-foreground text-sm">to</span>
+        <span className="text-muted-foreground text-sm shrink-0">to</span>
 
         <group.AppField
           name={`closeTime`}
@@ -231,7 +243,7 @@ const SlotRow = withFieldGroup({
               itemToValue={(t: { value: string }) => t.value}
               matchValue={(v) => normalizeTimeSlot(v, "17:00")}
               renderValue={(t: { label: string }) => t.label}
-              fieldClassName="w-fit"
+              fieldClassName="flex-1 sm:w-fit sm:flex-initial"
             />
           )}
         />

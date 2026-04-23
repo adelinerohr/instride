@@ -57,6 +57,7 @@ function RouteComponent() {
   const { data: rider } = useSuspenseQuery(membersOptions.riderById(riderId));
 
   const user = getUser({ rider });
+  const isPlaceholderEmail = user.email.includes("placeholder");
 
   return (
     <Page className="gap-0! flex-1">
@@ -85,7 +86,9 @@ function RouteComponent() {
           <div className="flex flex-col items-center justify-center p-6">
             <UserAvatar user={user} size="xl" />
             <span className="text-lg font-medium">{user.name}</span>
-            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <span className={cn("text-sm", isPlaceholderEmail && "opacity-50")}>
+              {isPlaceholderEmail ? "Managed by guardian" : user.email}
+            </span>
           </div>
           <ItemGroup className="p-6">
             <div className="text-xs font-medium mb-2 text-muted-foreground">
@@ -109,7 +112,7 @@ function RouteComponent() {
             <RiderProperty
               icon={MailIcon}
               label="Email"
-              value={user.email}
+              value={isPlaceholderEmail ? "Managed by guardian" : user.email}
               emptyText="No email address set"
             />
             <RiderProperty

@@ -11,6 +11,13 @@ const badgeVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         accent: "bg-accent text-accent-foreground [a]:hover:bg-accent/80",
+        amber:
+          "bg-category-amber-bg text-category-amber-fg [a]:hover:bg-category-amber-bg/80",
+        sage: "bg-category-sage-bg text-category-sage-fg [a]:hover:bg-category-sage-bg/80",
+        terracotta:
+          "bg-category-terracotta-bg text-category-terracotta-fg [a]:hover:bg-category-terracotta-bg/80",
+        plum: "bg-category-plum-bg text-category-plum-fg [a]:hover:bg-category-plum-bg/80",
+        clay: "bg-category-clay-bg text-category-clay-fg [a]:hover:bg-category-clay-bg/80",
         slate:
           "bg-category-slate-bg text-category-slate-fg [a]:hover:bg-category-slate-bg/80",
         secondary:

@@ -1,9 +1,8 @@
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
+import { AppLayout } from "@/shared/components/layout/app-layout";
 import { SettingsPage } from "@/shared/components/layout/settings-page";
-import { SettingsSidebar } from "@/shared/components/layout/settings-sidebar";
-import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { hasRole } from "@/shared/lib/auth/roles";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/settings")({
@@ -20,16 +19,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/settings")({
 });
 
 function RouteComponent() {
+  const { isAdmin } = Route.useRouteContext();
+
   return (
-    <SidebarProvider>
-      <SettingsSidebar />
-      <SidebarInset className="max-h-screen min-h-screen overflow-hidden">
-        <main className="flex flex-col flex-1 min-h-0">
-          <SettingsPage>
-            <Outlet />
-          </SettingsPage>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <AppLayout type="settings" isAdmin={isAdmin}>
+      <SettingsPage>
+        <Outlet />
+      </SettingsPage>
+    </AppLayout>
   );
 }

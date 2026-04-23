@@ -1,3 +1,5 @@
+import { MembershipRole } from "@instride/shared";
+
 export const CATEGORY_COLORS = [
   "amber",
   "sage",
@@ -28,6 +30,21 @@ export function getTrainerColor(trainerId: string): CategoryColor {
     hash = trainerId.charCodeAt(i) + ((hash << 5) - hash);
   }
   return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+}
+
+export function getRoleColor(role: MembershipRole): CategoryColor {
+  switch (role) {
+    case MembershipRole.ADMIN:
+      return "amber";
+    case MembershipRole.TRAINER:
+      return "sage";
+    case MembershipRole.RIDER:
+      return "slate";
+    case MembershipRole.GUARDIAN:
+      return "terracotta";
+    default:
+      return "clay";
+  }
 }
 
 // For display — human-readable label

@@ -35,3 +35,22 @@ export const getRootLink = (orgSlug?: string) => {
     to: "/",
   });
 };
+
+export const getPortalDashboardLink = (orgSlug: string) =>
+  linkOptions({
+    to: "/org/$slug/portal",
+    params: { slug: orgSlug },
+  });
+
+export const getAdminDashboardLink = (orgSlug: string) =>
+  linkOptions({
+    to: "/org/$slug/admin",
+    params: { slug: orgSlug },
+  });
+
+export const getDashboardLink = (orgSlug: string, isAdmin: boolean) => {
+  if (isAdmin) {
+    return getAdminDashboardLink(orgSlug);
+  }
+  return getPortalDashboardLink(orgSlug);
+};

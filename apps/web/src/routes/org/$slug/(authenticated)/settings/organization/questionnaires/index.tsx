@@ -32,14 +32,17 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(questionnaireOptions.list());
+    await context.queryClient.ensureQueryData(
+      questionnaireOptions.list(context.organization.id)
+    );
   },
 });
 
 function RouteComponent() {
   const { slug } = Route.useParams();
+  const { organization } = Route.useRouteContext();
   const { data: questionnaires } = useSuspenseQuery(
-    questionnaireOptions.list()
+    questionnaireOptions.list(organization.id)
   );
 
   return (

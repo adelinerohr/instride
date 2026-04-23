@@ -15,11 +15,19 @@ import {
   CardAction,
 } from "@/shared/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
 } from "@/shared/components/ui/tabs";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 interface BusinessHoursTabsProps {
   defaultsLabel: string;
@@ -32,7 +40,7 @@ interface BusinessHoursTabsProps {
     defaults: types.BusinessHours[];
     boardOverrides: Record<string, types.BoardBusinessHours[]>;
   };
-  onResetBoard: (boardId: string) => void;
+  onResetBoard: (boardId: string) => Promise<void>;
   children: (props: {
     boardId: string | null;
     effectiveHours: types.BusinessHours[];
@@ -49,9 +57,111 @@ export function BusinessHoursTabs({
   children,
 }: BusinessHoursTabsProps) {
   const { data: boards } = useSuspenseQuery(boardsOptions.list());
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = React.useState<"defaults" | string>(
     "defaults"
   );
+
+  const selectedBoard = boards.find((board) => board.id === activeTab);
+  const isDefaults = activeTab === "defaults";
+
+  const boardHours = selectedBoard
+    ? (availability.boardOverrides[selectedBoard.id] ?? [])
+    : [];
+  const hasOverride = boardHours.length > 0;
+  const effectiveHours = isDefaults
+    ? availability.defaults
+    : hasOverride
+      ? boardHours
+      : availability.defaults;
+
+  const orgHoursForBoard =
+    selectedBoard && orgAvailability
+      ? (orgAvailability.boardOverrides[selectedBoard.id]?.length ?? 0) > 0
+        ? orgAvailability.boardOverrides[selectedBoard.id]
+        : orgAvailability.defaults
+      : undefined;
+
+  const handleReset = (boardId: string) => {
+    confirmationModalHandler.openWithPayload({
+      title: "Reset to organization defaults?",
+      description:
+        "This will remove the custom hours for this board and fall back to the organization-wide defaults. This cannot be undone.",
+      confirmLabel: "Reset",
+      cancelLabel: "Cancel",
+      onConfirm: async () => {
+        await onResetBoard(boardId);
+        setActiveTab("defaults");
+        toast.success("Board hours reset to organization defaults");
+      },
+    });
+  };
+
+  if (isMobile) {
+    return (
+      <Card>
+        <CardHeader className="gap-3">
+          <Select
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as string)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="defaults">{defaultsLabel}</SelectItem>
+              {boards.map((board) => {
+                const boardHasOverride =
+                  (availability.boardOverrides[board.id]?.length ?? 0) > 0;
+                return (
+                  <SelectItem key={board.id} value={board.id}>
+                    <span className="flex items-center gap-2">
+                      {board.name}
+                      {boardHasOverride && (
+                        <Badge variant="secondary" className="text-xs">
+                          Custom
+                        </Badge>
+                      )}
+                    </span>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+
+          <div>
+            <CardTitle>
+              {isDefaults ? defaultsLabel : selectedBoard?.name}
+            </CardTitle>
+            <CardDescription>
+              {isDefaults
+                ? defaultsDescription
+                : hasOverride
+                  ? "This board has custom hours."
+                  : "Using organization defaults."}
+            </CardDescription>
+          </div>
+
+          {!isDefaults && hasOverride && selectedBoard && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleReset(selectedBoard.id)}
+            >
+              <RotateCcwIcon className="h-3.5 w-3.5 mr-1.5" />
+              Reset to defaults
+            </Button>
+          )}
+        </CardHeader>
+
+        {children({
+          boardId: isDefaults ? null : (selectedBoard?.id ?? null),
+          effectiveHours,
+          orgHoursForBoard,
+        })}
+      </Card>
+    );
+  }
 
   return (
     <Card>

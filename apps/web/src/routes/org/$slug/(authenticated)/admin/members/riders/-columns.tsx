@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { cn } from "@/shared/lib/utils";
 import { formatDate } from "@/shared/lib/utils/format";
 
 interface GetRidersTableColumnsProps {
@@ -75,6 +76,17 @@ export function getRidersTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Email" />
       ),
+      cell: ({ row }) => {
+        const isPlaceholderEmail =
+          row.original.member?.authUser?.email.includes("placeholder");
+        return (
+          <div className={cn("text-xs", isPlaceholderEmail && "opacity-50")}>
+            {isPlaceholderEmail
+              ? "managed by guardian"
+              : row.original.member?.authUser?.email}
+          </div>
+        );
+      },
       enableColumnFilter: true,
     },
     {

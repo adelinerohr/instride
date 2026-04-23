@@ -3,10 +3,20 @@ import * as React from "react";
 
 import { cn } from "@/shared/lib/utils";
 
-function TagGroup({ className, ...props }: React.ComponentProps<"div">) {
+function TagGroup({
+  className,
+  direction = "horizontal",
+  ...props
+}: React.ComponentProps<"div"> & { direction?: "horizontal" | "vertical" }) {
   return (
     <div
-      className={cn("flex items-center gap-4", className)}
+      className={cn(
+        "flex",
+        direction === "horizontal"
+          ? "flex-row items-center gap-4"
+          : "flex-col items-start gap-2",
+        className
+      )}
       data-slot="tag-group"
       {...props}
     />

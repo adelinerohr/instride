@@ -278,8 +278,8 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="font-semibold">Upcoming this week</CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              {format(weekStart, "MMMM d")} – {format(weekEnd, "MMMM d")} ·{" "}
-              {weekLessons.length} lessons
+              {format(weekStart, "MMMM d")} - {format(weekEnd, "MMMM d")} ·{" "}
+              {weekLessons.length} lesson{weekLessons.length === 1 ? "" : "s"}
             </CardDescription>
             <CardAction>
               <Link
@@ -293,17 +293,32 @@ function RouteComponent() {
           </CardHeader>
           <CardContent className="space-y-4">
             {lessonsByDay.map(({ day, lessons }) => (
-              <div key={day.toISOString()} className="grid grid-cols-10 gap-4">
+              <div
+                key={day.toISOString()}
+                className="flex flex-col sm:grid sm:grid-cols-10 gap-2 sm:gap-4"
+              >
                 {/* Date chip as section header, col-span-1 */}
-                <div className="col-span-1 flex items-start justify-center">
+                <div className="col-span-1 hidden sm:flex items-start justify-center">
                   <DateChip day={day} />
                 </div>
+                <span className="block sm:hidden text-lg font-medium font-display">
+                  {format(day, "EEEE")}
+                </span>
                 {/* Lessons stacked, col-span-9 */}
-                <div className="col-span-9 flex flex-col gap-4">
+                <div className="hidden sm:col-span-9 sm:flex flex-col gap-4 w-full">
                   {lessons.map((lesson) => (
                     <LessonCard
                       key={lesson.id}
                       variant={LessonCardVariant.DATE_CHIP}
+                      lesson={lesson}
+                    />
+                  ))}
+                </div>
+                <div className="sm:hidden flex flex-col gap-4 w-full">
+                  {lessons.map((lesson) => (
+                    <LessonCard
+                      key={lesson.id}
+                      variant={LessonCardVariant.AGENDA}
                       lesson={lesson}
                     />
                   ))}

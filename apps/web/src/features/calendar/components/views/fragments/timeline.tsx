@@ -27,7 +27,7 @@ export function CalendarTimeline() {
       style={{ top: `${top}px` }}
     >
       <div className="absolute left-0 top-0 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
-      <div className="absolute -left-18 flex w-16 -translate-y-1/2 justify-end bg-background pr-1 text-xs font-medium text-primary">
+      <div className="absolute -left-18 flex w-16 -translate-y-1/2 justify-end bg-background pr-1 text-[9px] sm:text-xs font-medium text-primary">
         {format(currentTime, "h:mm a")}
       </div>
     </div>

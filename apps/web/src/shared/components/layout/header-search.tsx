@@ -1,11 +1,11 @@
 import { getUser, useBoards, useMembers, useServices } from "@instride/api";
-import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/shared";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
 import { getPortalNavItems } from "@/shared/lib/navigation/app";
 
+import { RoleList } from "../fragments/role-list";
 import { UserAvatar } from "../fragments/user-avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -125,14 +125,7 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
                     <ItemTitle>{user.name}</ItemTitle>
                   </ItemContent>
                   <ItemActions className="pr-0">
-                    {member.roles.map((role) => (
-                      <Badge
-                        key={`${member.id}-${role}`}
-                        variant={ROLE_VARIANTS[role]}
-                      >
-                        {ROLE_LABELS[role]}
-                      </Badge>
-                    ))}
+                    <RoleList roles={member.roles} memberId={member.id} />
                   </ItemActions>
                 </Item>
               </CommandItem>

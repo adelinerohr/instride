@@ -4,10 +4,7 @@ import { ChevronRightIcon, ClockIcon, UserIcon } from "lucide-react";
 import { LevelBadge } from "@/features/organization/components/levels/level-badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tag, TagGroup } from "@/shared/components/ui/tag";
-import {
-  categoryColorClasses,
-  type CategoryColor,
-} from "@/shared/lib/config/colors";
+import { categoryColorClasses } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
 import type { LessonCardVariantProps } from ".";
@@ -29,11 +26,7 @@ export function LessonCardDateChip({ data }: LessonCardVariantProps) {
       <div
         className={cn(
           "h-full w-1 bg-primary rounded-full",
-          lesson.level
-            ? categoryColorClasses(
-                (lesson.level.color as CategoryColor) ?? "clay"
-              )
-            : undefined
+          categoryColorClasses(lesson.level?.color).bg
         )}
       />
 
@@ -62,7 +55,7 @@ export function LessonCardDateChip({ data }: LessonCardVariantProps) {
         </div>
         <Button
           variant="ghost"
-          size={riderUser ? "sm" : "icon"}
+          size={riderUser ? "sm" : "icon-sm"}
           onClick={() => viewLessonModalHandler.openWithPayload({ lesson })}
         >
           {riderUser && "Details"}

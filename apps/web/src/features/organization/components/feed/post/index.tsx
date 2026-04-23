@@ -1,9 +1,4 @@
-import {
-  useCreateComment,
-  useLikePost,
-  useUnlikePost,
-  type types,
-} from "@instride/api";
+import { useLikePost, useUnlikePost, type types } from "@instride/api";
 import { useRouteContext } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
 import * as React from "react";
@@ -12,7 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
 import { PostComposer } from "../composer";
-import { CommentItem, CommentInput } from "./comments";
+import { CommentSheet, commentSheetHandler } from "./comment-sheet";
 import { PostHeader } from "./header";
 
 type PostProps = {
@@ -23,17 +18,13 @@ export function Post({ post }: PostProps) {
   const { member, user } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
-  const [expandedComments, setExpandedComments] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
-
-  if (!member) return null;
 
   const likePost = useLikePost({
     userMemberId: member.id,
     user,
   });
   const unlikePost = useUnlikePost();
-  const createComment = useCreateComment();
 
   const isLiked = post.likes?.some((like) => like.memberId === member.id);
   const userLike = post.likes?.find((like) => like.memberId === member.id);
@@ -41,9 +32,12 @@ export function Post({ post }: PostProps) {
 
   const commentCount =
     (post.comments?.length ?? 0) +
-    (post.comments
-      ?.flatMap((comment) => comment.replies?.length ?? 0)
-      .reduce((a, b) => a + b, 0) ?? 0);
+    (post.comments?.reduce(
+      (acc, comment) => acc + (comment.replies?.length ?? 0),
+      0
+    ) ?? 0);
+
+  const topComments = post.comments?.slice(0, 2) ?? [];
 
   const handleToggleLike = () => {
     if (isLiked && userLike) {
@@ -53,69 +47,91 @@ export function Post({ post }: PostProps) {
     }
   };
 
-  const handleAddComment = (text: string) => {
-    createComment.mutate({ postId: post.id, request: { text } });
-  };
-
   return (
-    <div className="w-full rounded-xl border bg-white">
-      <div className="space-y-3 p-4">
-        <PostHeader
-          post={post}
-          isUserPost={isUserPost}
-          onEdit={() => setIsEditing(true)}
-        />
+    <>
+      <div className="w-full rounded-xl border bg-card">
+        <div className="space-y-3 p-4">
+          <PostHeader
+            post={post}
+            isUserPost={isUserPost}
+            onEdit={() => setIsEditing(true)}
+          />
 
-        <div className="rounded-lg">
           {isEditing ? (
             <PostComposer post={post} onUpdate={() => setIsEditing(false)} />
           ) : (
             <p className="whitespace-pre-line text-sm">{post.text}</p>
           )}
-        </div>
 
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={handleToggleLike}
-          >
-            <HeartIcon
-              className={cn(isLiked && "fill-destructive text-destructive")}
-            />
-          </Button>
-          <span className="text-sm">
-            <span className="font-semibold">{post.likes?.length ?? 0}</span>{" "}
-            likes
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={() => setExpandedComments((v) => !v)}
-          >
-            <MessageCircleIcon />
-          </Button>
-          <span className="text-sm">
-            <span className="font-semibold">{commentCount}</span> comments
-          </span>
+          {/* Engagement row — flat icons, compact counts */}
+          <div className="flex items-center gap-2 -ml-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={handleToggleLike}
+              aria-label={isLiked ? "Unlike post" : "Like post"}
+            >
+              <HeartIcon
+                className={cn(
+                  "size-5",
+                  isLiked && "fill-destructive text-destructive"
+                )}
+              />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={() => commentSheetHandler.openWithPayload({ post })}
+              aria-label="View comments"
+            >
+              <MessageCircleIcon className="size-5" />
+            </Button>
+          </div>
+
+          {(post.likes?.length ?? 0) > 0 && (
+            <p className="text-sm font-semibold">
+              {post.likes!.length} {post.likes!.length === 1 ? "like" : "likes"}
+            </p>
+          )}
+
+          {/* Comment teaser — Instagram-style */}
+          {commentCount > 0 && (
+            <div className="space-y-1">
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:underline"
+                onClick={() => commentSheetHandler.openWithPayload({ post })}
+              >
+                View{" "}
+                {commentCount === 1
+                  ? "1 comment"
+                  : `all ${commentCount} comments`}
+              </button>
+              {topComments.map((comment) => (
+                <p key={comment.id} className="text-sm line-clamp-1">
+                  <span className="font-semibold">
+                    {comment.member?.authUser?.name}
+                  </span>{" "}
+                  {comment.text}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {commentCount === 0 && (
+            <button
+              type="button"
+              className="text-sm text-muted-foreground hover:underline"
+              onClick={() => commentSheetHandler.openWithPayload({ post })}
+            >
+              Add a comment...
+            </button>
+          )}
         </div>
       </div>
-
-      {expandedComments && post.comments && post.comments.length > 0 && (
-        <div className="flex flex-col border-t p-4 space-y-2">
-          {post.comments.map((comment) => (
-            <CommentItem key={comment.id} postId={post.id} comment={comment} />
-          ))}
-        </div>
-      )}
-
-      <CommentInput
-        user={user}
-        onSubmit={handleAddComment}
-        isSubmitting={createComment.isPending}
-      />
-    </div>
+      <CommentSheet />
+    </>
   );
 }

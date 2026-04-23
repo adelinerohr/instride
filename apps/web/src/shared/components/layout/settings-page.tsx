@@ -1,10 +1,13 @@
-import { useLocation, useRouteContext } from "@tanstack/react-router";
-import { ChevronRightIcon } from "lucide-react";
+import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
 
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { getDashboardLink } from "@/shared/lib/navigation/links";
 import { getSettingsNavItems } from "@/shared/lib/navigation/settings";
 import { cn } from "@/shared/lib/utils";
 
+import { buttonVariants } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 
 export function SettingsPage({
@@ -12,6 +15,7 @@ export function SettingsPage({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const isMobile = useIsMobile();
   const { isAdmin, isTrainer, organization } = useRouteContext({
     from: "/org/$slug/(authenticated)/settings",
   });
@@ -19,23 +23,65 @@ export function SettingsPage({
 
   const navItems = getSettingsNavItems(organization.slug, isAdmin, isTrainer);
 
-  let currentNavItem = null;
-
-  for (const section of navItems) {
-    for (const link of section.links) {
-      const resolvedPath = link.to.replace("$slug", organization.slug);
-      if (pathname.startsWith(resolvedPath)) {
-        currentNavItem = link;
-        break;
+  const findCurrentItem = () => {
+    for (const section of navItems) {
+      for (const link of section.links) {
+        const resolved = link.to.replace("$slug", organization.slug);
+        if (pathname.startsWith(resolved)) return link;
       }
     }
+    return null;
+  };
+
+  const currentNavItem = findCurrentItem();
+
+  // Are we at the index (settings root) or inside a detail?
+  const rootPath = `/org/${organization.slug}/settings`;
+  const isAtIndex = pathname === rootPath || pathname === `${rootPath}/`;
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-full bg-background">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background pl-2 pr-8">
+          {isAtIndex ? (
+            <div className="flex items-center justify-between gap-2 w-full">
+              <Link
+                {...getDashboardLink(organization.slug, isAdmin)}
+                className={buttonVariants({ variant: "ghost" })}
+              >
+                <ChevronLeftIcon />
+                Dashboard
+              </Link>
+              <h1 className="font-display font-semibold text-base">Settings</h1>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2 w-full">
+              <Link
+                to="/org/$slug/settings"
+                params={{ slug: organization.slug }}
+                className={buttonVariants({ variant: "ghost" })}
+              >
+                <ChevronLeftIcon />
+                Settings
+              </Link>
+              {currentNavItem && (
+                <h1 className="font-display font-semibold text-base">
+                  {currentNavItem.title}
+                </h1>
+              )}
+            </div>
+          )}
+        </header>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">{children}</ScrollArea>
+        </div>
+      </div>
+    );
   }
 
   if (!currentNavItem) {
     return null;
   }
-
-  const Icon = currentNavItem.icon;
 
   const navSegments = currentNavItem.to.split("/");
   const currentSegment = navSegments[navSegments.length - 1];
@@ -52,7 +98,7 @@ export function SettingsPage({
               </div>
               <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground" />
               <div className="flex items-center gap-1">
-                <Icon className="size-4" />
+                <currentNavItem.icon className="size-4" />
                 <div className="text-sm font-semibold leading-none capitalize">
                   {currentSegment}
                 </div>

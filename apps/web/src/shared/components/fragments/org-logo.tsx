@@ -1,5 +1,7 @@
 import type { types } from "@instride/api";
 
+import { cn } from "@/shared/lib/utils";
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 function OrganizationLogo({
@@ -8,7 +10,12 @@ function OrganizationLogo({
   ...props
 }: React.ComponentProps<typeof Avatar> & { organization: types.Organization }) {
   return (
-    <Avatar className={className} shape="square" size="default" {...props}>
+    <Avatar
+      className={cn(className, "border border-primary/50")}
+      shape="square"
+      size="default"
+      {...props}
+    >
       <AvatarImage
         src={organization.logoUrl ?? undefined}
         alt={organization.name}

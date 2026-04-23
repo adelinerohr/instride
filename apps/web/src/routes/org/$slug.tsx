@@ -24,14 +24,11 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
   beforeLoad: async ({ params, context, location }) => {
-    console.log("[parent beforeLoad] start for slug:", params.slug);
     const isPublicAuthRoute = location.pathname.includes("/auth/");
 
     const organization = await context.queryClient.ensureQueryData(
       organizationOptions.bySlug(params.slug)
     );
-
-    console.log("[parent beforeLoad] organization:", organization);
 
     if (!organization) {
       throw Route.redirect({ to: "/" });

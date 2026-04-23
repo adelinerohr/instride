@@ -22,9 +22,9 @@ export function LessonCardAgenda({ data }: LessonCardVariantProps) {
           levelClass.border
         )}
       >
-        <div className="flex flex-col items-start justify-between gap-4">
+        <div className="flex flex-col items-start justify-between gap-2 sm:gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-2xl font-display leading-none">
+            <span className="text-lg sm:text-2xl font-display leading-none">
               {lessonTitle}
             </span>
             <Tag icon={ClockIcon}>
