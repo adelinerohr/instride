@@ -1,12 +1,7 @@
-import {
-  useConfirmUploadAvatar,
-  useDeleteUploadAvatar,
-  useStartUploadAvatar,
-  useUpdateUser,
-} from "@instride/api";
+import { useUploadAvatar, useDeleteAvatar, useUpdateUser } from "@instride/api";
 import { FileUploadAction } from "@instride/shared";
 import { toast } from "sonner";
-import z from "zod";
+import { z } from "zod";
 
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { AvatarUpload } from "@/shared/components/ui/file-upload";
@@ -17,32 +12,8 @@ import { Route } from "./index";
 export function PersonalDetails() {
   const { user } = Route.useRouteContext();
   const updateUser = useUpdateUser();
-  const startUploadAvatar = useStartUploadAvatar();
-  const confirmUploadAvatar = useConfirmUploadAvatar();
-  const deleteUploadAvatar = useDeleteUploadAvatar();
-
-  const uploadAndConfirmUserAvatar = async (file: File) => {
-    const { uploadUrl, key } = await startUploadAvatar.mutateAsync({
-      contentType: file.type,
-      size: file.size,
-    });
-
-    const response = await fetch(uploadUrl, {
-      method: "PUT",
-      body: file,
-      headers: {
-        "Content-Type": file.type,
-      },
-    });
-
-    if (!response.ok) {
-      toast.error("Failed to upload avatar");
-      return;
-    }
-
-    const confirmed = await confirmUploadAvatar.mutateAsync({ key });
-    return confirmed.avatarUrl;
-  };
+  const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
 
   const form = useAppForm({
     defaultValues: {
@@ -76,11 +47,32 @@ export function PersonalDetails() {
             toast.error("No image file selected");
             return;
           }
-          imageUrl = await uploadAndConfirmUserAvatar(value.newImage);
+          const reader = new FileReader();
+          reader.readAsDataURL(value.newImage);
+          const dataUrl = await new Promise<string>(
+            (r) => (reader.onload = () => r(reader.result as string))
+          );
+          const data = dataUrl.split(",")[1];
+
+          await uploadAvatar.mutateAsync(
+            {
+              userId: user.id,
+              contentType: value.newImage.type,
+              data,
+            },
+            {
+              onSuccess: () => {
+                toast.success("Avatar uploaded successfully");
+              },
+              onError: (error) => {
+                toast.error(error.message);
+              },
+            }
+          );
           break;
         case FileUploadAction.DELETE:
           if (value.image) {
-            await deleteUploadAvatar.mutateAsync({});
+            await deleteAvatar.mutateAsync({ userId: user.id });
           }
           imageUrl = null;
           break;

@@ -13,10 +13,7 @@ import {
   trainerAvailability,
   trainerAvailabilitySlots,
 } from "../schema";
-import {
-  ListOrganizationBusinessHoursResponse,
-  ListTrainerBusinessHoursResponse,
-} from "../types/contracts";
+import { ListBusinessHoursResponse } from "../types/contracts";
 import { getBusinessHours } from "./repository";
 import {
   assertTrainerSlotsClampedToOrg,
@@ -58,7 +55,7 @@ export const updateOrganizationBusinessHours = api(
   },
   async (
     params: UpdateOrganizationBusinessHoursParams
-  ): Promise<ListOrganizationBusinessHoursResponse> => {
+  ): Promise<ListBusinessHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
     validateDayHours(params.days);
 
@@ -180,7 +177,7 @@ export const updateTrainerBusinessHours = api(
   },
   async (
     params: UpdateTrainerBusinessHoursParams
-  ): Promise<ListTrainerBusinessHoursResponse> => {
+  ): Promise<ListBusinessHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
     const trainer = await db.query.trainers.findFirst({

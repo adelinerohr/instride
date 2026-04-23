@@ -1,9 +1,13 @@
 import type { types } from "@instride/api";
-import { format, parseISO, startOfDay } from "date-fns";
+import { format, isBefore, parseISO, startOfDay } from "date-fns";
 import { CalendarX2Icon } from "lucide-react";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
+import {
+  LessonCard,
+  LessonCardVariant,
+} from "@/features/lessons/components/fragments/lesson-card";
 import {
   Empty,
   EmptyMedia,
@@ -12,8 +16,7 @@ import {
   EmptyDescription,
 } from "@/shared/components/ui/empty";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-
-import { AgendaLessonCard } from "./lesson-card";
+import { cn } from "@/shared/lib/utils";
 
 export function AgendaView() {
   const { lessons } = useCalendar();
@@ -42,6 +45,8 @@ export function AgendaView() {
 
   const hasAnyLessons = lessons.length > 0;
 
+  // TODO: Add auto-scroll to current day
+
   return (
     <ScrollArea className="h-full">
       <div className="space-y-6 p-4">
@@ -50,17 +55,32 @@ export function AgendaView() {
             (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
           );
 
+          const hasPassed = isBefore(dayGroup.date, new Date());
+
           return (
-            <div className="space-y-4">
-              <div className="sticky top-0 flex items-center gap-4 bg-background">
-                <p className="text-sm font-semibold">
-                  {format(dayGroup.date, "EEEE, MMMM d, yyyy")}
-                </p>
+            <div className={cn("space-y-4", hasPassed && "opacity-50")}>
+              <div className="sticky top-0 flex items-center gap-2 bg-background">
+                <span className="text-2xl font-display leading-none font-semibold">
+                  {format(dayGroup.date, "dd")}
+                </span>
+                <span className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {format(dayGroup.date, "EEEE")}
+                  </span>
+                </span>
+                <div className="w-full h-px bg-border" />
+                <span className="text-xs text-muted-foreground text-nowrap">
+                  {sortedLessons.length} lesson
+                  {sortedLessons.length > 1 ? "s" : ""}
+                </span>
               </div>
               <div className="space-y-2">
                 {sortedLessons.length > 0 &&
                   sortedLessons.map((lesson) => (
-                    <AgendaLessonCard key={lesson.id} lesson={lesson} />
+                    <LessonCard
+                      variant={LessonCardVariant.AGENDA}
+                      lesson={lesson}
+                    />
                   ))}
               </div>
             </div>

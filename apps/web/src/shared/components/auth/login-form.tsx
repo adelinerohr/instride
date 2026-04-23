@@ -1,6 +1,11 @@
 import { useSignInEmail, useSignInSocial } from "@instride/api";
 import { loginSchema } from "@instride/shared";
-import { Link, linkOptions, useParams } from "@tanstack/react-router";
+import {
+  Link,
+  linkOptions,
+  useParams,
+  useSearch,
+} from "@tanstack/react-router";
 import { APIError } from "better-auth";
 import { toast } from "sonner";
 
@@ -25,17 +30,24 @@ import {
 interface LoginFormProps {
   returnTo: string;
   onSuccess: () => void;
+  prefillEmail?: string;
 }
 
-export function LoginForm({ returnTo, onSuccess }: LoginFormProps) {
+export function LoginForm({
+  returnTo,
+  onSuccess,
+  prefillEmail,
+}: LoginFormProps) {
   const params = useParams({ strict: false });
+  const search = useSearch({ strict: false });
+
   const signInEmail = useSignInEmail();
   const signInSocial = useSignInSocial();
 
   const orgSlug = params.slug;
 
   const form = useAppForm({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: prefillEmail || "", password: "" },
     validators: { onSubmit: loginSchema },
     onSubmit: ({ value }) => {
       signInEmail.mutate(
@@ -61,9 +73,17 @@ export function LoginForm({ returnTo, onSuccess }: LoginFormProps) {
     ? linkOptions({
         to: "/org/$slug/auth/register",
         params: { slug: orgSlug },
+        search: {
+          redirect: search.redirect,
+          email: search.email,
+        },
       })
     : linkOptions({
         to: "/auth/register",
+        search: {
+          redirect: search.redirect,
+          email: search.email,
+        },
       });
 
   const handleGoogleSignIn = () => {

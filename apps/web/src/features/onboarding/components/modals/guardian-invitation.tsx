@@ -5,19 +5,21 @@ import { toast } from "sonner";
 import z from "zod";
 
 import {
-  DialogHandler,
-  Dialog,
-  DialogPortal,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-  DialogDescription,
-  DialogFooter,
-} from "@/shared/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHandler,
+  AlertDialogHeader,
+  AlertDialogPortal,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 
-export const guardianInvitationModalHandler = DialogHandler.createHandle();
+export const guardianInvitationModalHandler = AlertDialogHandler.createHandle();
 
 export function GuardianInvitationModal() {
   const { organization } = useRouteContext({ strict: false });
@@ -59,25 +61,26 @@ export function GuardianInvitationModal() {
   });
 
   return (
-    <Dialog handle={guardianInvitationModalHandler}>
-      <DialogPortal>
-        <DialogContent className="sm:max-w-md">
+    <AlertDialog handle={guardianInvitationModalHandler}>
+      <AlertDialogPortal>
+        <AlertDialogContent className="sm:max-w-md">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
               form.handleSubmit();
             }}
+            className="space-y-4"
           >
-            <DialogHeader>
-              <DialogTitle>Guardian Required</DialogTitle>
-              <DialogDescription>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Guardian Required</AlertDialogTitle>
+              <AlertDialogDescription>
                 You must be 18 or older to complete registration on your own.
                 Please provide your parent or guardian's email address to
                 continue. They will receive an invitation to complete your
                 registration.
-              </DialogDescription>
-            </DialogHeader>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
             <form.AppField
               name="guardianEmail"
               children={(field) => (
@@ -87,14 +90,17 @@ export function GuardianInvitationModal() {
                 />
               )}
             />
-            <DialogFooter>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
               <form.AppForm>
-                <form.SubmitButton label="Send Invitation" />
+                <AlertDialogAction
+                  render={<form.SubmitButton label="Send Invitation" />}
+                />
               </form.AppForm>
-            </DialogFooter>
+            </AlertDialogFooter>
           </form>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   );
 }

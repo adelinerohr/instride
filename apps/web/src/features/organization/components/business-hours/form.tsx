@@ -14,13 +14,14 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 
+import { CardContent, CardFooter } from "@/shared/components/ui/card";
 import { useAppForm } from "@/shared/hooks/use-form";
 
 import { DayRow } from "./day-row";
 
 interface OrgBusinessHoursFormProps {
   type: "organization";
-  existing: types.OrganizationBusinessHours[];
+  existing: types.BusinessHours[];
   boardId: string | null;
 }
 
@@ -28,9 +29,9 @@ interface TrainerBusinessHoursFormProps {
   type: "trainer";
   trainerId: string;
   /** Existing saved trainer rows for this scope (defaults or a specific board) */
-  existing: (types.TrainerBusinessHours | types.OrganizationBusinessHours)[];
+  existing: types.BusinessHours[];
   /** Effective org hours for this scope — used for inline hints and clamp context */
-  orgHours: types.OrganizationBusinessHours[];
+  orgHours: types.BusinessHours[];
   boardId: string | null;
 }
 
@@ -135,32 +136,34 @@ export function BusinessHoursForm(props: BusinessHoursFormProps) {
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="space-y-4"
+      className="space-y-4 pt-4"
     >
-      <form.Field name="days" mode="array">
-        {(field) => (
-          <div className="rounded-md border flex flex-col divide-y">
-            {([0, 1, 2, 3, 4, 5, 6] as const).map((i) => (
-              <DayRow
-                key={field.state.value[i].dayOfWeek}
-                form={form}
-                fields={`days[${i}]`}
-                orgHint={
-                  orgHintByDay
-                    ? orgHintByDay.get(field.state.value[i].dayOfWeek)
-                    : null
-                }
-              />
-            ))}
-          </div>
-        )}
-      </form.Field>
+      <CardContent>
+        <form.Field name="days" mode="array">
+          {(field) => (
+            <div className="rounded-md border flex flex-col divide-y">
+              {([0, 1, 2, 3, 4, 5, 6] as const).map((i) => (
+                <DayRow
+                  key={field.state.value[i].dayOfWeek}
+                  form={form}
+                  fields={`days[${i}]`}
+                  orgHint={
+                    orgHintByDay
+                      ? orgHintByDay.get(field.state.value[i].dayOfWeek)
+                      : null
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </form.Field>
+      </CardContent>
 
-      <div className="flex justify-end">
+      <CardFooter className="flex justify-end">
         <form.AppForm>
           <form.SubmitButton label="Save hours" loadingLabel="Saving…" />
         </form.AppForm>
-      </div>
+      </CardFooter>
     </form>
   );
 }

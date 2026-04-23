@@ -13,12 +13,15 @@ import {
 export const listWaivers = api(
   {
     method: "GET",
-    path: "/waivers",
+    path: "/organizations/:organizationId/waivers",
     expose: true,
     auth: true,
   },
-  async (): Promise<ListWaiversResponse> => {
-    const { organizationId } = requireOrganizationAuth();
+  async ({
+    organizationId,
+  }: {
+    organizationId: string;
+  }): Promise<ListWaiversResponse> => {
     const waivers = await db.query.waivers.findMany({
       where: { organizationId },
     });

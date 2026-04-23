@@ -1,8 +1,4 @@
-import {
-  useConfirmUploadLogo,
-  useDeleteLogo,
-  useStartUploadLogo,
-} from "@instride/api";
+import { useDeleteLogo, useUploadLogo } from "@instride/api";
 import { FileUploadAction } from "@instride/shared";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,8 +11,7 @@ import { Route } from "./index";
 
 export function OrganizationLogoCard() {
   const { organization } = Route.useRouteContext();
-  const startUploadLogo = useStartUploadLogo();
-  const confirmUploadLogo = useConfirmUploadLogo();
+  const uploadLogo = useUploadLogo();
   const deleteLogo = useDeleteLogo();
 
   const form = useAppForm({
@@ -42,29 +37,18 @@ export function OrganizationLogoCard() {
             return;
           }
 
-          const { uploadUrl, key } = await startUploadLogo.mutateAsync({
-            organizationId: organization.id,
-            contentType: value.newLogo.type,
-            size: value.newLogo.size,
-          });
+          const reader = new FileReader();
+          reader.readAsDataURL(value.newLogo);
+          const dataUrl = await new Promise<string>(
+            (r) => (reader.onload = () => r(reader.result as string))
+          );
+          const data = dataUrl.split(",")[1];
 
-          const response = await fetch(uploadUrl, {
-            method: "PUT",
-            body: value.newLogo,
-            headers: {
-              "Content-Type": value.newLogo.type,
-            },
-          });
-
-          if (!response.ok) {
-            toast.error("Failed to upload logo");
-            return;
-          }
-
-          await confirmUploadLogo.mutateAsync(
+          await uploadLogo.mutateAsync(
             {
               organizationId: organization.id,
-              key,
+              contentType: value.newLogo.type,
+              data,
             },
             {
               onSuccess: () => {

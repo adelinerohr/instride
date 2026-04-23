@@ -11,14 +11,21 @@ import {
   type KioskActingContext,
   type KioskPermissionSet,
 } from "../lib/types";
+import { useKioskExpiry, useKioskIdleTimeout } from "./use-kiosk-expiry";
 
 interface KioskContextValue {
-  sessionId: string | null;
+  sessionId: string;
   acting: KioskActingContext;
   permissions: KioskPermissionSet;
   startActing: (input: { memberId: string; pin: string }) => Promise<void>;
   stopActing: () => Promise<void>;
 }
+
+const DEFAULT_ACTING: KioskActingContext = {
+  actingMemberId: null,
+  scope: KioskScope.DEFAULT,
+  expiresAt: null,
+};
 
 const KioskContext = React.createContext<KioskContextValue | null>(null);
 
@@ -30,106 +37,51 @@ interface KioskProviderProps {
 export function KioskProvider({ sessionId, children }: KioskProviderProps) {
   const { data: session } = useKioskSession(sessionId);
 
-  const acting: KioskActingContext = session?.acting ?? {
-    actingMemberId: null,
-    scope: KioskScope.DEFAULT,
-    expiresAt: null,
-  };
+  const acting: KioskActingContext = session?.acting ?? DEFAULT_ACTING;
 
   const verifyKioskIdentity = useVerifyKioskIdentity();
   const clearKioskIdentity = useClearKioskIdentity();
 
-  // Auto-expire on timeout
-  React.useEffect(() => {
-    if (!acting.expiresAt || !sessionId) return;
+  const clearIdentity = React.useCallback(() => {
+    void clearKioskIdentity.mutateAsync({ sessionId });
+  }, [sessionId, clearKioskIdentity]);
 
-    const expiresAtMs = new Date(acting.expiresAt).getTime();
-    const msRemaining = expiresAtMs - Date.now();
-
-    if (msRemaining <= 0) {
-      void clearKioskIdentity.mutateAsync({ sessionId });
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      void clearKioskIdentity.mutateAsync({ sessionId });
-    }, msRemaining);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [acting.expiresAt, sessionId]);
-
-  // Idle timeout (3 minutes of inactivity)
-  React.useEffect(() => {
-    if (acting.scope === "default" || !sessionId) return;
-
-    let idleTimer: number | null = null;
-    const idleMs = 3 * 60 * 1000; // 3 minutes
-
-    const resetIdleTimer = () => {
-      if (idleTimer) {
-        window.clearTimeout(idleTimer);
-      }
-
-      idleTimer = window.setTimeout(() => {
-        void clearKioskIdentity.mutateAsync({ sessionId });
-      }, idleMs);
-    };
-
-    const events: Array<keyof WindowEventMap> = [
-      "mousemove",
-      "mousedown",
-      "keydown",
-      "touchstart",
-      "scroll",
-    ];
-
-    resetIdleTimer();
-
-    for (const event of events) {
-      window.addEventListener(event, resetIdleTimer, { passive: true });
-    }
-
-    return () => {
-      if (idleTimer) {
-        window.clearTimeout(idleTimer);
-      }
-
-      for (const event of events) {
-        window.removeEventListener(event, resetIdleTimer);
-      }
-    };
-  }, [acting.scope, sessionId]);
+  useKioskExpiry(acting.expiresAt, clearIdentity);
+  useKioskIdleTimeout(
+    acting.scope !== KioskScope.DEFAULT,
+    clearIdentity,
+    3 * 60 * 1000 // 3 minutes
+  );
 
   const permissions = React.useMemo(
     () => buildKioskPermissions(acting),
     [acting]
   );
 
-  return (
-    <KioskContext.Provider
-      value={{
-        sessionId,
-        acting,
-        permissions,
-        startActing: async ({ memberId, pin }) => {
-          if (!sessionId) {
-            throw new Error("No kiosk session selected");
-          }
+  const startActing = React.useCallback(
+    async (input: { memberId: string; pin: string }) => {
+      await verifyKioskIdentity.mutateAsync({ sessionId, ...input });
+    },
+    [sessionId, verifyKioskIdentity]
+  );
 
-          await verifyKioskIdentity.mutateAsync({
-            sessionId,
-            memberId,
-            pin,
-          });
-        },
-        stopActing: async () => {
-          if (!sessionId) return;
-          await clearKioskIdentity.mutateAsync({ sessionId });
-        },
-      }}
-    >
-      {children}
-    </KioskContext.Provider>
+  const stopActing = React.useCallback(async () => {
+    await clearKioskIdentity.mutateAsync({ sessionId });
+  }, [sessionId, clearKioskIdentity]);
+
+  const value = React.useMemo(
+    () => ({
+      sessionId,
+      acting,
+      permissions,
+      startActing,
+      stopActing,
+    }),
+    [sessionId, acting, permissions, startActing, stopActing]
+  );
+
+  return (
+    <KioskContext.Provider value={value}>{children}</KioskContext.Provider>
   );
 }
 

@@ -39,14 +39,19 @@ export const guardianOptions = {
       },
     }),
 
-  pending: () =>
+  pendingInvitation: () =>
     queryOptions({
-      queryKey: guardianKeys.pending(),
+      queryKey: guardianKeys.pendingInvitation(),
       queryFn: async () => {
-        const { relationships } =
-          await apiClient.guardians.listPendingGuardianRequests();
-        return relationships;
+        const { invitation } = await apiClient.guardians.getPendingInvitation();
+        return invitation;
       },
+    }),
+  invitationByToken: (token: string) =>
+    queryOptions({
+      queryKey: guardianKeys.invitationByToken(token),
+      queryFn: async () =>
+        await apiClient.guardians.getInvitationByToken(token),
     }),
 };
 
@@ -68,6 +73,10 @@ export const useMyDependents = () => {
   return useQuery(guardianOptions.myDependents());
 };
 
-export const usePending = () => {
-  return useQuery(guardianOptions.pending());
+export const usePendingInvitation = () => {
+  return useQuery(guardianOptions.pendingInvitation());
+};
+
+export const useInvitationByToken = (token: string) => {
+  return useQuery(guardianOptions.invitationByToken(token));
 };

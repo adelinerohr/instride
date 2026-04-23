@@ -5,10 +5,10 @@ import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { SLOT_HEIGHT } from "@/features/calendar/lib/constants";
-import { getTrainerColor } from "@/features/calendar/utils/lesson";
 import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
 import { Badge } from "@/shared/components/ui/badge";
 import { SheetTrigger } from "@/shared/components/ui/sheet";
+import { getTrainerColor } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
 const weekLessonBlockVariants = cva(

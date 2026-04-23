@@ -44,3 +44,20 @@ export function normalizeTimeSlot(
     ? snappedValue
     : fallback;
 }
+
+/**
+ * Format a time string as a 12-hour label (e.g. "09:00" → "9:00 AM").
+ * Normalizes the input first, so this accepts DB/API formats like
+ * `09:00:00+00` as well as the `HH:MM` values used in the UI.
+ * @param raw - The raw time string to format.
+ * @param fallback - The fallback time value (must be a valid HH:MM in TIME_OPTIONS).
+ * @returns The 12-hour formatted label.
+ */
+export function formatTimeSlot(
+  raw: string | null | undefined,
+  fallback: string
+): string {
+  const normalized = normalizeTimeSlot(raw, fallback);
+  const option = TIME_OPTIONS.find((t) => t.value === normalized);
+  return option?.label ?? fallback;
+}

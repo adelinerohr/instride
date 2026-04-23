@@ -1,6 +1,6 @@
 import type { types } from "@instride/api";
 import { isWorkingHour } from "@instride/shared";
-import { areIntervalsOverlapping, parseISO } from "date-fns";
+import { areIntervalsOverlapping, isSameDay, parseISO } from "date-fns";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { HOURS } from "@/features/calendar/lib/constants";
@@ -14,32 +14,36 @@ import { LessonBlock } from "../fragments/lesson-block";
 
 interface DayColumnProps {
   trainer: types.Trainer;
+  date: Date;
 }
 
-export function DayColumn({ trainer }: DayColumnProps) {
-  const { selectedDate, trainerBusinessHours, lessons } = useCalendar();
-
+export function DayColumn({ trainer, date }: DayColumnProps) {
+  const { trainerBusinessHours, lessons } = useCalendar();
   const currentTrainerBusinessHours = trainerBusinessHours[trainer.id];
 
+  // Filter lessons to this specific day AND this trainer
   const groupedLessons = groupLessons(
-    lessons.filter((lesson) => lesson.trainer?.id === trainer.id)
+    lessons.filter(
+      (lesson) =>
+        lesson.trainer?.id === trainer.id &&
+        isSameDay(parseISO(lesson.start), date)
+    )
   );
 
   return (
     <div className="relative flex-1">
       {HOURS.map((hour, index) => {
         const isDisabled = !isWorkingHour({
-          day: selectedDate,
+          day: date,
           hour,
           businessHours: currentTrainerBusinessHours,
         });
-
         return (
           <HourCell
             key={hour}
             isDisabled={isDisabled}
             index={index}
-            day={selectedDate}
+            day={date}
             hour={hour}
           />
         );
@@ -49,7 +53,7 @@ export function DayColumn({ trainer }: DayColumnProps) {
         group.map((lesson) => {
           let style = getLessonBlockStyle(
             lesson,
-            selectedDate,
+            date,
             groupIndex,
             groupedLessons.length
           );

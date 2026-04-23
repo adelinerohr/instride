@@ -1,6 +1,7 @@
 const getWaiverRootKey = ["waivers"] as const;
 
 export const waiverKeys = {
-  list: () => getWaiverRootKey,
+  list: (organizationId: string) =>
+    [...getWaiverRootKey, organizationId] as const,
   byId: (waiverId: string) => [...getWaiverRootKey, waiverId] as const,
 };

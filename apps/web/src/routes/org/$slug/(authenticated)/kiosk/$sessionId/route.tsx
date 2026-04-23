@@ -4,13 +4,26 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ActAsModal } from "@/features/kiosk/components/act-as-modal";
 import { ActingBanner } from "@/features/kiosk/components/acting-banner";
 import { KioskProvider } from "@/features/kiosk/hooks/use-kiosk";
+import { buildKioskPermissions } from "@/features/kiosk/lib/permissions";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/kiosk/$sessionId"
 )({
   component: RouteComponent,
-  loader: ({ context, params }) => {
-    context.queryClient.ensureQueryData(kioskOptions.session(params.sessionId));
+  beforeLoad: async ({ context, params }) => {
+    const session = await context.queryClient.ensureQueryData(
+      kioskOptions.session(params.sessionId)
+    );
+
+    if (!session) {
+      throw Route.redirect({ to: "/org/$slug/kiosk", replace: true });
+    }
+
+    const permissions = buildKioskPermissions(session.acting);
+
+    return {
+      kioskPermissions: permissions,
+    };
   },
   onError: () => {
     Route.redirect({ to: "/org/$slug/kiosk", replace: true });

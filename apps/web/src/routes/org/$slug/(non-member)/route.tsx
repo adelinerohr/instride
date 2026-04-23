@@ -1,27 +1,64 @@
-import { authOptions, type types } from "@instride/api";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { authClient, authOptions, type types } from "@instride/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Outlet, useRouter } from "@tanstack/react-router";
+
+import { Button } from "@/shared/components/ui/button";
 
 /**
  * Path: /org/[slug]/(non-member)
  * Description: Session required, membership optional. Houses routes for users
  * who are authenticated but haven't completed (or started) onboarding —
- * e.g. /onboarding and /invitation/:token. Fully onboarded members get
- * bounced back into the app.
+ * e.g. /onboarding and /invitation. Fully onboarded members get bounced
+ * back into the app. Users with a pending guardian invitation are forced
+ * to the invitation page.
  */
+
 export const Route = createFileRoute("/org/$slug/(non-member)")({
-  component: Outlet,
-  beforeLoad: async ({ context, params }) => {
+  component: RouteComponent,
+  beforeLoad: async ({ context, params, location }) => {
+    console.log(
+      "[(non-member) beforeLoad] context.organization:",
+      context.organization
+    );
     const session = await context.queryClient.ensureQueryData(
       authOptions.session()
     );
 
     if (!session?.user) {
-      throw Route.redirect({ to: "/org/$slug/auth/login", params });
+      throw Route.redirect({
+        to: "/org/$slug/auth/login",
+        params,
+        search: {
+          redirect: location.href,
+        },
+      });
     }
 
+    const isOnInvitationRoute = location.pathname.includes("/invitation/");
+
     // Fully onboarded members don't belong here — send them into the app.
-    if (context.member?.onboardingComplete) {
+    // Exception: allow onboarded users to view invitations (e.g., an existing
+    // org member receiving a new invitation).
+    if (context.member?.onboardingComplete && !isOnInvitationRoute) {
       throw Route.redirect({ to: "/org/$slug", params });
+    }
+
+    // Check for a pending guardian invitation. If one exists, the user MUST
+    // accept it to proceed — their placeholder member record blocks normal
+    // onboarding.
+    if (!isOnInvitationRoute) {
+      if (
+        context.pendingGuardianInvitation &&
+        context.pendingGuardianInvitation.organizationSlug === params.slug
+      ) {
+        throw Route.redirect({
+          to: "/org/$slug/invitation/$token",
+          params: { ...params, token: context.pendingGuardianInvitation.token },
+          search: {
+            type: "guardian",
+          },
+        });
+      }
     }
 
     const user: types.AuthUser = {
@@ -38,3 +75,33 @@ export const Route = createFileRoute("/org/$slug/(non-member)")({
     };
   },
 });
+
+function RouteComponent() {
+  const { organization } = Route.useRouteContext();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const navigate = Route.useNavigate();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+    await router.invalidate();
+    navigate({
+      to: "/org/$slug/auth/login",
+      params: { slug: organization.slug },
+    });
+  };
+
+  return (
+    <div className="min-h-svh overflow-y-auto bg-muted/40 relative">
+      <Button
+        variant="ghost"
+        className="absolute top-4 left-4"
+        onClick={handleSignOut}
+      >
+        Sign out
+      </Button>
+      <Outlet />
+    </div>
+  );
+}

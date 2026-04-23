@@ -164,7 +164,7 @@ export const createPlaceholderRelationship = api(
           roles: [MembershipRole.RIDER],
           authMemberId: authMember.id,
           isPlaceholder: true, // Placeholder members can't log in
-          onboardingComplete: true,
+          onboardingComplete: false, // Placeholder members are not onboarded until they accept an invitation
         })
         .returning();
 

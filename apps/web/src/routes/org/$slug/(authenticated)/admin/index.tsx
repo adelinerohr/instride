@@ -13,7 +13,11 @@ import {
 import * as React from "react";
 import z from "zod";
 
-import { LessonCard } from "@/features/lessons/components/fragments/lesson-card";
+import {
+  LessonCard,
+  LessonCardVariant,
+} from "@/features/lessons/components/fragments/lesson-card";
+import { DateChip } from "@/features/lessons/components/fragments/lesson-card/date-chip";
 import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
 import {
   findNearestLesson,
@@ -246,8 +250,7 @@ function RouteComponent() {
             <>
               {nearestLesson && (
                 <LessonCard
-                  variant="detail"
-                  type="trainer"
+                  variant={LessonCardVariant.DETAIL}
                   lesson={nearestLesson}
                 />
               )}
@@ -261,8 +264,7 @@ function RouteComponent() {
                     .map((lesson) => (
                       <LessonCard
                         key={lesson.id}
-                        variant="date-chip"
-                        type="trainer"
+                        variant={LessonCardVariant.DATE_CHIP}
                         lesson={lesson}
                       />
                     ))}
@@ -291,16 +293,21 @@ function RouteComponent() {
           </CardHeader>
           <CardContent className="space-y-4">
             {lessonsByDay.map(({ day, lessons }) => (
-              <div key={day.toISOString()} className="flex flex-col gap-4">
-                {lessons.map((lesson, index) => (
-                  <LessonCard
-                    key={lesson.id}
-                    variant="date-chip"
-                    type="trainer"
-                    lesson={lesson}
-                    showDate={index === 0}
-                  />
-                ))}
+              <div key={day.toISOString()} className="grid grid-cols-10 gap-4">
+                {/* Date chip as section header, col-span-1 */}
+                <div className="col-span-1 flex items-start justify-center">
+                  <DateChip day={day} />
+                </div>
+                {/* Lessons stacked, col-span-9 */}
+                <div className="col-span-9 flex flex-col gap-4">
+                  {lessons.map((lesson) => (
+                    <LessonCard
+                      key={lesson.id}
+                      variant={LessonCardVariant.DATE_CHIP}
+                      lesson={lesson}
+                    />
+                  ))}
+                </div>
               </div>
             ))}
           </CardContent>

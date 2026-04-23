@@ -4,12 +4,18 @@ import {
   areIntervalsOverlapping,
   format,
   isSameDay,
+  isSameWeek,
   parseISO,
   startOfWeek,
 } from "date-fns";
+import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
+import {
+  HOURS,
+  SLOT_HEIGHT,
+  START_HOUR,
+} from "@/features/calendar/lib/constants";
 import {
   getLessonBlockStyle,
   groupLessons,
@@ -27,6 +33,18 @@ export function WeekView() {
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const now = new Date();
+    const targetHour = isSameWeek(now, weekStart) ? now.getHours() : 9;
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
+
+    // Ensure layout is committed before scrolling the viewport.
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
+    });
+  }, [weekStart]);
 
   return (
     <div className="flex flex-col h-full">
@@ -57,7 +75,7 @@ export function WeekView() {
           </div>
         </div>
       </div>
-      <ScrollArea className="h-full">
+      <ScrollArea className="h-full" ref={scrollRef}>
         <div className="flex overflow-hidden">
           {/* Hours column */}
           <div className="relative w-18 shrink-0">

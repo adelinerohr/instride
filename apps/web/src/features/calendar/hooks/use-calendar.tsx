@@ -7,6 +7,7 @@ import {
 } from "@instride/shared";
 import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
+import { addDays, startOfWeek } from "date-fns";
 import * as React from "react";
 
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/features/lessons/components/modals/new-lesson";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
-import type { CalendarView } from "../lib/types";
+import { CalendarView } from "../lib/types";
 
 interface CalendarContext {
   selectedDate: Date;
@@ -36,6 +37,9 @@ interface CalendarContext {
   selectedBoardId: string | undefined;
   setSelectedBoardId: (boardId: string | undefined) => void;
   createLesson: (payload: LessonModalPayload) => void;
+  selectedMultiDayCount: number;
+  setSelectedMultiDayCount: (count: number) => void;
+  visibleDays: Date[];
 }
 
 const CalendarContext = React.createContext<CalendarContext | undefined>(
@@ -85,6 +89,7 @@ export function CalendarProvider({
     trainerIds: selectedTrainerIds,
     boardId: selectedBoardId,
     view: selectedView,
+    multiDayCount: selectedMultiDayCount,
   } = routeApi.useSearch();
 
   const navigate = routeApi.useNavigate();
@@ -102,6 +107,22 @@ export function CalendarProvider({
   }, [isMobile, selectedTrainerIds, navigate]);
 
   const date = React.useMemo(() => new Date(selectedDate), [selectedDate]);
+
+  const visibleDays = React.useMemo(() => {
+    switch (selectedView) {
+      case CalendarView.WEEK:
+        return Array.from({ length: 7 }, (_, i) =>
+          addDays(startOfWeek(date, { weekStartsOn: 1 }), i)
+        );
+      case CalendarView.MULTI_DAY:
+        return Array.from({ length: selectedMultiDayCount }, (_, i) =>
+          addDays(date, i)
+        );
+      case CalendarView.DAY:
+      default:
+        return [date];
+    }
+  }, [selectedView, date, selectedMultiDayCount]);
 
   const { data: organizationBusinessHours } = useSuspenseQuery(
     businessHoursOptions.organization()
@@ -238,6 +259,13 @@ export function CalendarProvider({
     [navigate]
   );
 
+  const setSelectedMultiDayCount = React.useCallback(
+    (count: number) => {
+      navigate({ search: (prev) => ({ ...prev, multiDayCount: count }) });
+    },
+    [navigate]
+  );
+
   const createLesson = React.useCallback(
     (payload: LessonModalPayload) => {
       if (type === "admin") {
@@ -272,6 +300,9 @@ export function CalendarProvider({
         lessons: filteredLessons,
         timeBlocks: filteredTimeBlocks,
         createLesson,
+        selectedMultiDayCount,
+        setSelectedMultiDayCount,
+        visibleDays,
       }}
     >
       {children}

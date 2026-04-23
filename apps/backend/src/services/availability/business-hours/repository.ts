@@ -1,63 +1,30 @@
 import { Database, Transaction } from "@/shared/utils/schema";
 
-import {
-  ListOrganizationBusinessHoursResponse,
-  ListTrainerBusinessHoursResponse,
-} from "../types/contracts";
-import {
-  TrainerBusinessHours,
-  OrganizationBusinessHours,
-} from "../types/models";
+import { ListBusinessHoursResponse } from "../types/contracts";
+import { BusinessHours } from "../types/models";
 
-interface GetOrganizationBusinessHoursInput {
+export async function getBusinessHours(params: {
   client: Database | Transaction;
-  type: "organization";
+  type: "organization" | "trainer";
   organizationId: string;
-}
+  trainerId?: string;
+}): Promise<ListBusinessHoursResponse> {
+  let rows: BusinessHours[];
 
-interface GetTrainerBusinessHoursInput {
-  client: Database | Transaction;
-  type: "trainer";
-  organizationId: string;
-  trainerId: string;
-}
-
-type GetBusinessHoursInput =
-  | GetOrganizationBusinessHoursInput
-  | GetTrainerBusinessHoursInput;
-
-/**
- * Two overloaded versions of getBusinessHours to support the two different
- * input types.
- */
-export async function getBusinessHours(
-  input: GetOrganizationBusinessHoursInput
-): Promise<ListOrganizationBusinessHoursResponse>;
-export async function getBusinessHours(
-  input: GetTrainerBusinessHoursInput
-): Promise<ListTrainerBusinessHoursResponse>;
-
-export async function getBusinessHours(
-  input: GetBusinessHoursInput
-): Promise<
-  ListOrganizationBusinessHoursResponse | ListTrainerBusinessHoursResponse
-> {
-  let rows: (OrganizationBusinessHours | TrainerBusinessHours)[];
-
-  if (input.type === "organization") {
-    rows = await input.client.query.organizationAvailability.findMany({
+  if (params.type === "organization") {
+    rows = await params.client.query.organizationAvailability.findMany({
       where: {
-        organizationId: input.organizationId,
+        organizationId: params.organizationId,
       },
       with: {
         slots: true,
       },
     });
   } else {
-    rows = await input.client.query.trainerAvailability.findMany({
+    rows = await params.client.query.trainerAvailability.findMany({
       where: {
-        organizationId: input.organizationId,
-        trainerId: input.trainerId,
+        organizationId: params.organizationId,
+        trainerId: params.trainerId,
       },
       with: {
         slots: true,

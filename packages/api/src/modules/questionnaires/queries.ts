@@ -5,12 +5,12 @@ import { apiClient } from "#client";
 import { questionnaireKeys } from "./keys";
 
 export const questionnaireOptions = {
-  list: () =>
+  list: (organizationId: string) =>
     queryOptions({
-      queryKey: questionnaireKeys.list(),
+      queryKey: questionnaireKeys.list(organizationId),
       queryFn: async () => {
         const { questionnaires } =
-          await apiClient.questionnaires.listQuestionnaires();
+          await apiClient.questionnaires.listQuestionnaires(organizationId);
         return questionnaires;
       },
     }),
@@ -25,8 +25,8 @@ export const questionnaireOptions = {
     }),
 };
 
-export function useQuestionnaires() {
-  return useQuery(questionnaireOptions.list());
+export function useQuestionnaires(organizationId: string) {
+  return useQuery(questionnaireOptions.list(organizationId));
 }
 
 export function useQuestionnaire(questionnaireId: string) {

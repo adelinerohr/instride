@@ -12,6 +12,7 @@ import * as React from "react";
 import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { SheetTrigger } from "@/shared/components/ui/sheet";
+import { getTrainerColor } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
 import { useCalendar } from "../../hooks/use-calendar";
@@ -21,11 +22,7 @@ import {
   SLOT_HEIGHT,
   START_HOUR,
 } from "../../lib/constants";
-import {
-  getLessonBlockStyle,
-  getTrainerColor,
-  groupLessons,
-} from "../../utils/lesson";
+import { getLessonBlockStyle, groupLessons } from "../../utils/lesson";
 import { HourCell } from "../views/fragments/hour-cell";
 import { LessonBlock } from "../views/fragments/lesson-block";
 import { CalendarTimeline } from "../views/fragments/timeline";

@@ -118,6 +118,17 @@ export function isWorkingHour(input: {
 }
 
 /**
+ * Check if a trainer is working on a given day
+ */
+export function isTrainerWorkingOnDay(params: {
+  day: Date;
+  businessHours: EffectiveBusinessHours;
+}): boolean {
+  const dayHours = params.businessHours[getDayOfWeek(params.day)];
+  return dayHours?.isOpen ?? false;
+}
+
+/**
  * Check if a time range falls within business hours
  * @param startTime - The start time to check in the format "HH:MM"
  * @param endTime - The end time to check in the format "HH:MM"

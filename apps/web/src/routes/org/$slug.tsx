@@ -1,6 +1,8 @@
 import {
   APIError,
+  authClient,
   ErrCode,
+  guardianOptions,
   membersOptions,
   organizationOptions,
   setOrganizationContext,
@@ -22,11 +24,14 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
   beforeLoad: async ({ params, context, location }) => {
+    console.log("[parent beforeLoad] start for slug:", params.slug);
     const isPublicAuthRoute = location.pathname.includes("/auth/");
 
     const organization = await context.queryClient.ensureQueryData(
       organizationOptions.bySlug(params.slug)
     );
+
+    console.log("[parent beforeLoad] organization:", organization);
 
     if (!organization) {
       throw Route.redirect({ to: "/" });
@@ -34,10 +39,6 @@ export const Route = createFileRoute("/org/$slug")({
 
     if (isPublicAuthRoute) {
       return { organization, isPortal: false, member: null };
-    }
-
-    if (!context.isAuthenticated) {
-      throw Route.redirect({ to: "/org/$slug/auth/login", params });
     }
 
     setOrganizationContext(organization.id);
@@ -51,8 +52,25 @@ export const Route = createFileRoute("/org/$slug")({
         throw error;
       });
 
+    const pendingGuardianInvitation = await context.queryClient.ensureQueryData(
+      guardianOptions.pendingInvitation()
+    );
+
+    const { data: pendingInvitations } =
+      await authClient.organization.listUserInvitations();
+    const pendingOrganizationInvitation = pendingInvitations?.find(
+      (invitation) =>
+        invitation.organizationId === organization.authOrganizationId
+    );
+
     const isPortal = location.pathname.includes("/portal");
 
-    return { organization, isPortal, member };
+    return {
+      organization,
+      isPortal,
+      member,
+      pendingGuardianInvitation,
+      pendingOrganizationInvitation,
+    };
   },
 });

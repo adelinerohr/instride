@@ -1,5 +1,12 @@
 import { registerSchema } from "@instride/shared";
-import { Link, linkOptions, useParams } from "@tanstack/react-router";
+import {
+  Link,
+  linkOptions,
+  useParams,
+  useSearch,
+} from "@tanstack/react-router";
+import { BetterAuthError } from "better-auth";
+import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
@@ -22,27 +29,46 @@ import {
 interface RegisterFormProps {
   returnTo: string;
   onSuccess: () => void;
+  prefillEmail?: string;
 }
 
-export function RegisterForm({ returnTo, onSuccess }: RegisterFormProps) {
+export function RegisterForm({
+  returnTo,
+  onSuccess,
+  prefillEmail,
+}: RegisterFormProps) {
   const params = useParams({ strict: false });
+  const search = useSearch({ strict: false });
   const orgSlug = params.slug;
 
   const form = useAppForm({
     defaultValues: {
       name: "",
-      email: "",
+      email: prefillEmail || "",
       password: "",
       confirmPassword: "",
     },
     validators: { onSubmit: registerSchema },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email({
-        name: value.name,
-        email: value.email,
-        password: value.password,
-      });
-      onSuccess();
+      await authClient.signUp.email(
+        {
+          name: value.name,
+          email: value.email,
+          password: value.password,
+        },
+        {
+          onSuccess: () => {
+            toast.warning("Please check your email for verification");
+          },
+          onError: (error) => {
+            toast.error(
+              error instanceof BetterAuthError
+                ? error.message
+                : "Failed to register"
+            );
+          },
+        }
+      );
     },
   });
 
@@ -50,9 +76,17 @@ export function RegisterForm({ returnTo, onSuccess }: RegisterFormProps) {
     ? linkOptions({
         to: "/org/$slug/auth/login",
         params: { slug: orgSlug },
+        search: {
+          redirect: search.redirect,
+          email: search.email,
+        },
       })
     : linkOptions({
         to: "/auth/login",
+        search: {
+          redirect: search.redirect,
+          email: search.email,
+        },
       });
 
   const handleGoogleSignIn = async () => {

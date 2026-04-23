@@ -1,7 +1,7 @@
 import { expo } from "@better-auth/expo";
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
+import { admin, openAPI, organization } from "better-auth/plugins";
 
 import { organizationConfig } from "./organization";
 import { userAdditionalFields } from "./schema";
@@ -37,13 +37,7 @@ export const betterAuthOptions = (opts: {
 
   database: drizzleAdapter(opts.db, { provider: "pg" }),
 
-  plugins: [
-    expo(),
-    admin(),
-    openAPI(),
-    testUtils(),
-    organization(organizationConfig),
-  ],
+  plugins: [expo(), admin(), openAPI(), organization(organizationConfig)],
 
   session: {
     modelName: "authSessions",

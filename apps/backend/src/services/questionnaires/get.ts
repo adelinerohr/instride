@@ -1,7 +1,5 @@
 import { api, APIError } from "encore.dev/api";
 
-import { requireOrganizationAuth } from "@/shared/auth";
-
 import { db } from "./db";
 import {
   GetQuestionnaireResponse,
@@ -13,11 +11,14 @@ export const listQuestionnaires = api(
   {
     expose: true,
     method: "GET",
-    path: "/questionnaires",
+    path: "/organizations/:organizationId/questionnaires",
     auth: true,
   },
-  async (): Promise<ListQuestionnairesResponse> => {
-    const { organizationId } = requireOrganizationAuth();
+  async ({
+    organizationId,
+  }: {
+    organizationId: string;
+  }): Promise<ListQuestionnairesResponse> => {
     const questionnaires = await db.query.questionnaires.findMany({
       where: { organizationId },
     });

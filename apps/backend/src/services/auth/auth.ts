@@ -1,7 +1,7 @@
 import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, openAPI, organization, testUtils } from "better-auth/plugins";
+import { admin, openAPI, organization } from "better-auth/plugins";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { appMeta } from "encore.dev";
 import { secret } from "encore.dev/config";
@@ -11,12 +11,12 @@ import { render } from "react-email";
 
 import { DB } from "@/database";
 import * as schema from "@/database/schema";
+import { getBaseUrl } from "@/shared/utils/url";
 
 import OrganizationInvitationEmail from "../email/templates/organization-invitation";
 import PasswordResetEmail from "../email/templates/password-reset";
 import VerifyEmailAddressEmail from "../email/templates/verify-email";
 import { sendEmailTopic } from "../email/topic";
-import { db } from "./db";
 import {
   ac,
   admin as adminRole,
@@ -38,7 +38,7 @@ const pool = new Pool({
   connectionString: DB.connectionString,
 });
 
-const authDb = drizzle({ client: pool, schema });
+export const authDb = drizzle({ client: pool, schema });
 
 export const auth = betterAuth({
   /** Configuration */
@@ -150,30 +150,19 @@ export const auth = betterAuth({
     admin(),
     organization({
       sendInvitationEmail: async ({ email, inviter, id, organization }) => {
-        const existingUser = await db.query.authUsers.findFirst({
-          where: { email },
+        const baseUrl = getBaseUrl({
+          type: "web",
+          organizationSlug: organization.slug,
         });
 
-        const baseUrl = isProd
-          ? "https://instrideapp.com"
-          : "http://localhost:3000";
-
-        const url = new URL(
-          existingUser
-            ? `/org/${organization.slug}/auth/login`
-            : `/org/${organization.slug}/auth/register`,
-          baseUrl
-        );
-
-        url.searchParams.set("invitationId", id);
-        url.searchParams.set("email", email);
+        const inviteLink = `${baseUrl}/invitation/${id}?type=organization&email=${encodeURIComponent(email)}`;
 
         const component = OrganizationInvitationEmail({
           appName: "Instride",
           invitedByName: inviter.user.name,
           invitedByEmail: inviter.user.email,
           organizationName: organization.name,
-          inviteLink: url.toString(),
+          inviteLink,
         });
 
         const [html, text] = await Promise.all([
@@ -213,7 +202,6 @@ export const auth = betterAuth({
       },
     }),
     openAPI(),
-    testUtils(),
   ],
 
   /** Models */

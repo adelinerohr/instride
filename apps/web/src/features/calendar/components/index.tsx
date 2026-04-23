@@ -6,6 +6,7 @@ import { CalendarHeader } from "./header";
 import { MobileCalendar } from "./mobile/calendar";
 import { AgendaView } from "./views/agenda";
 import { DayView } from "./views/day";
+import { MultiDayView } from "./views/multi-day";
 import { WeekView } from "./views/week";
 
 export function Calendar() {
@@ -21,6 +22,7 @@ export function Calendar() {
       <CalendarHeader />
       <div className="flex-1 min-h-0">
         {selectedView === CalendarView.WEEK && <WeekView />}
+        {selectedView === CalendarView.MULTI_DAY && <MultiDayView />}
         {selectedView === CalendarView.DAY && <DayView />}
         {selectedView === CalendarView.AGENDA && <AgendaView />}
       </div>

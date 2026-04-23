@@ -1,15 +1,107 @@
 import { GuardianRelationshipStatus, InvitationStatus } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
+import { render } from "react-email";
 
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
+import { APP_NAME } from "@/shared/constants";
 import { memberFragment } from "@/shared/utils/fragments";
+import { getBaseUrl } from "@/shared/utils/url";
 import { assertExists, assertMember } from "@/shared/utils/validation";
 
-import { auth } from "../auth/auth";
-import { members } from "../organizations/schema";
+import { authUsers } from "../auth/schema";
+import DependentInvitationEmail from "../email/templates/dependent-invitation";
+import { sendEmailTopic } from "../email/topic";
+import { authMembers, members } from "../organizations/schema";
 import { db } from "./db";
 import { guardianInvitations, guardianRelationships } from "./schema";
+import { GuardianInvitation } from "./types/models";
+
+interface GetPendingInvitationResponse {
+  invitation: { token: string; organizationSlug: string } | null;
+}
+
+export const getPendingInvitation = api(
+  {
+    method: "GET",
+    path: "/guardians/invitations/me/pending",
+    expose: true,
+    auth: true,
+  },
+  async (): Promise<GetPendingInvitationResponse> => {
+    const { userID } = requireAuth();
+
+    const user = await db.query.authUsers.findFirst({ where: { id: userID } });
+    if (!user) return { invitation: null };
+
+    const invitation = await db.query.guardianInvitations.findFirst({
+      where: {
+        email: user.email,
+        status: InvitationStatus.PENDING,
+      },
+      with: {
+        relationship: {
+          with: { organization: true },
+        },
+      },
+    });
+
+    if (!invitation || !invitation.relationship?.organization) {
+      return { invitation: null };
+    }
+
+    return {
+      invitation: {
+        token: invitation.token,
+        organizationSlug: invitation.relationship.organization.slug,
+      },
+    };
+  }
+);
+
+export const getInvitationByToken = api(
+  {
+    method: "GET",
+    path: "/guardians/invitations/:token",
+    expose: true,
+    auth: true,
+  },
+  async (params: { token: string }): Promise<GuardianInvitation> => {
+    const { token } = params;
+
+    const invitation = await db.query.guardianInvitations.findFirst({
+      where: { token },
+      with: {
+        relationship: {
+          with: {
+            organization: true,
+            dependent: memberFragment,
+            guardian: memberFragment,
+          },
+        },
+      },
+    });
+
+    assertExists(invitation, "Invitation not found");
+    assertExists(invitation.relationship, "Relationship not found");
+    assertExists(
+      invitation.relationship.organization,
+      "Organization not found"
+    );
+    assertMember(invitation.relationship.dependent, "Dependent not found");
+    assertMember(invitation.relationship.guardian, "Guardian not found");
+
+    return {
+      ...invitation,
+      expiresAt: invitation.expiresAt.toISOString(),
+      guardianName: invitation.relationship.guardian.authUser.name,
+      guardianEmail: invitation.relationship.guardian.authUser.email,
+      dependentName: invitation.relationship.dependent.authUser.name,
+      organizationName: invitation.relationship.organization.name,
+      organizationSlug: invitation.relationship.organization.slug,
+    };
+  }
+);
 
 interface SendInvitationParams {
   relationshipId: string;
@@ -32,31 +124,20 @@ export const sendInvitation = api(
         organizationId,
       },
       with: {
+        organization: true,
         dependent: memberFragment,
         guardian: memberFragment,
       },
     });
 
     assertExists(relationship, "Relationship not found");
+    assertExists(relationship.organization, "Organization not found");
     assertMember(relationship.dependent, "Dependent not found");
     assertMember(relationship.guardian, "Guardian not found");
 
-    // Update dependent's email if it's different from placeholder
-    const currentEmail = relationship.dependent.authUser.email;
-    const isPlaceholderEmail = currentEmail.endsWith(
-      "@placeholder.instride.local"
-    );
-
-    if (isPlaceholderEmail) {
-      await auth.api.changeEmail({
-        query: {
-          id: relationship.dependent.authUser.id,
-        },
-        body: {
-          newEmail: params.email,
-        },
-      });
-    }
+    // Note: the placeholder auth user's email is NOT changed here.
+    // The placeholder stays disposable — it gets deleted when the
+    // real dependent user accepts the invitation.
 
     const token = crypto.randomUUID();
     const expiresAt = new Date();
@@ -75,11 +156,37 @@ export const sendInvitation = api(
         set: {
           token,
           expiresAt,
+          status: InvitationStatus.PENDING,
         },
       })
       .returning();
 
-    // TODO: Send invitation email
+    const baseUrl = getBaseUrl({
+      type: "web",
+      organizationSlug: relationship.organization.slug,
+    });
+
+    const component = DependentInvitationEmail({
+      appName: APP_NAME,
+      guardianName: relationship.guardian.authUser.name,
+      guardianEmail: relationship.guardian.authUser.email,
+      dependentName: relationship.dependent.authUser.name,
+      organizationName: relationship.organization.name,
+      inviteLink: `${baseUrl}/invitation/${invitation.token}?type=guardian&email=${encodeURIComponent(params.email)}`,
+    });
+
+    const [html, text] = await Promise.all([
+      render(component),
+      render(component, { plainText: true }),
+    ]);
+
+    await sendEmailTopic.publish({
+      to: params.email,
+      subject: `${relationship.guardian.authUser.name} invited you to join ${relationship.organization.name} on ${APP_NAME}`,
+      html,
+      text,
+    });
+
     return invitation;
   }
 );
@@ -94,7 +201,6 @@ export const acceptInvitation = api(
   async (params: { token: string }) => {
     const { userID } = requireAuth();
 
-    // 1. Find the invitation by token
     const invitation = await db.query.guardianInvitations.findFirst({
       where: {
         token: params.token,
@@ -116,40 +222,63 @@ export const acceptInvitation = api(
       throw APIError.permissionDenied("Invitation expired");
     }
 
-    // 2. Verify email matches
-    const user = await db.query.authUsers.findFirst({
-      where: {
-        id: userID,
-      },
+    const currentUser = await db.query.authUsers.findFirst({
+      where: { id: userID },
     });
+    assertExists(currentUser, "User not found");
 
-    if (!user || user.email !== invitation.email) {
+    if (currentUser.email.toLowerCase() !== invitation.email.toLowerCase()) {
       throw APIError.permissionDenied("Email doesn't match invitation");
     }
 
-    // 3. Update member to link to this user
-    await db
-      .update(members)
-      .set({
-        userId: user.id,
-      })
-      .where(eq(members.id, invitation.relationship.dependentMemberId));
+    // The placeholder member currently points at a placeholder auth user.
+    // Relink it to the currently-authenticated user, then clean up the
+    // orphaned placeholder auth row.
+    const placeholderMember = await db.query.members.findFirst({
+      where: { id: invitation.relationship.dependentMemberId },
+    });
+    assertExists(placeholderMember, "Placeholder member not found");
 
-    // 4. Update invitation status
-    await db
-      .update(guardianInvitations)
-      .set({
-        status: InvitationStatus.ACCEPTED,
-        acceptedAt: new Date(),
-      })
-      .where(eq(guardianInvitations.id, invitation.id));
+    const placeholderAuthUserId = placeholderMember.userId;
 
-    // 5. Update relationship status
-    await db
-      .update(guardianRelationships)
-      .set({
-        status: GuardianRelationshipStatus.ACTIVE,
-      })
-      .where(eq(guardianRelationships.id, invitation.relationship?.id));
+    await db.transaction(async (tx) => {
+      // Relink member to the real user
+      await tx
+        .update(members)
+        .set({
+          userId: currentUser.id,
+          isPlaceholder: false,
+          onboardingComplete: true,
+        })
+        .where(eq(members.id, placeholderMember.id));
+
+      // Also relink the Better Auth membership row (authMembers) so the
+      // org plugin sees the current user as a member of this org
+      await tx
+        .update(authMembers)
+        .set({ userId: currentUser.id })
+        .where(eq(authMembers.id, placeholderMember.authMemberId));
+
+      await tx
+        .update(guardianInvitations)
+        .set({
+          status: InvitationStatus.ACCEPTED,
+          acceptedAt: new Date(),
+        })
+        .where(eq(guardianInvitations.id, invitation.id));
+
+      await tx
+        .update(guardianRelationships)
+        .set({ status: GuardianRelationshipStatus.ACTIVE })
+        .where(eq(guardianRelationships.id, invitation.relationship!.id));
+
+      // Delete the now-orphaned placeholder auth user.
+      // Only safe if the placeholder wasn't linked to anything else.
+      if (placeholderAuthUserId !== currentUser.id) {
+        await tx
+          .delete(authUsers)
+          .where(eq(authUsers.id, placeholderAuthUserId));
+      }
+    });
   }
 );

@@ -4,9 +4,8 @@ import { CalendarView } from "@/features/calendar/lib/types";
 
 export const calendarSearchSchema = z.object({
   date: z.string().default(() => new Date().toISOString()),
-  view: z
-    .enum([CalendarView.DAY, CalendarView.WEEK, CalendarView.AGENDA])
-    .default(CalendarView.WEEK),
+  view: z.enum(CalendarView).default(CalendarView.WEEK),
+  multiDayCount: z.number().default(3),
   boardId: z.string().default(""),
   trainerIds: z.array(z.string()).default([]),
   lessonId: z.string().optional(),

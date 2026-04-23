@@ -2,11 +2,7 @@ import { DayHours, DayOfWeek, TimeSlot, timeToMinutes } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
 import { db } from "../db";
-import {
-  BusinessHoursDay,
-  OrganizationBusinessHours,
-  TrainerBusinessHours,
-} from "../types/models";
+import { BusinessHoursDay, BusinessHours } from "../types/models";
 
 /**
  * Validate a set of day-hour inputs:
@@ -176,8 +172,8 @@ export async function resolveEffectiveWeekHours(input: {
 
 function resolveDay(input: {
   day: DayOfWeek;
-  orgByDay: Map<DayOfWeek, OrganizationBusinessHours>;
-  trainerByDay: Map<DayOfWeek, TrainerBusinessHours>;
+  orgByDay: Map<DayOfWeek, BusinessHours>;
+  trainerByDay: Map<DayOfWeek, BusinessHours>;
   trainerId?: string;
 }): BusinessHoursDay | null {
   const trainerRow = input.trainerId

@@ -1,4 +1,7 @@
-import { InvitationStatus } from "@instride/shared/models/enums";
+import {
+  GuardianRelationshipStatus,
+  InvitationStatus,
+} from "@instride/shared/models/enums";
 
 import { Member, MemberWithRider } from "@/services/organizations/types/models";
 
@@ -9,6 +12,7 @@ export interface GuardianRelationship {
   organizationId: string;
   guardianMemberId: string;
   dependentMemberId: string;
+  status: GuardianRelationshipStatus;
   permissions: GuardianPermissions | null;
   coppaConsentGiven: boolean;
   coppaConsentGivenAt: Date | string | null;
@@ -52,19 +56,15 @@ export const defaultPermissions: GuardianPermissions = {
 
 export interface GuardianInvitation {
   id: string;
-  email: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  expiresAt: Date | string;
   token: string;
+  email: string;
   status: InvitationStatus;
-  relationshipId: string;
-  lastSentAt: Date | string | null;
-  acceptedAt: Date | string | null;
-}
-
-export interface GuardianInvitationWithRelationship extends GuardianInvitation {
-  relationship: GuardianRelationship;
+  expiresAt: string;
+  guardianName: string;
+  guardianEmail: string;
+  dependentName: string;
+  organizationName: string;
+  organizationSlug: string;
 }
 
 export interface GuardianRelationshipWithDependent extends GuardianRelationship {

@@ -1,8 +1,14 @@
+import { isTrainerWorkingOnDay } from "@instride/shared";
 import { format, isSameDay, parseISO } from "date-fns";
 import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react";
+import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import { HOURS, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
+import {
+  HOURS,
+  SLOT_HEIGHT,
+  START_HOUR,
+} from "@/features/calendar/lib/constants";
 import { getCurrentLessons } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
@@ -12,17 +18,41 @@ import { CalendarTimeline } from "../fragments/timeline";
 import { DayColumn } from "./column";
 
 export function DayView() {
-  const { selectedTrainerIds, trainers, lessons, selectedDate } = useCalendar();
+  const {
+    selectedTrainerIds,
+    trainers,
+    lessons,
+    selectedDate,
+    trainerBusinessHours,
+  } = useCalendar();
 
   const selectedTrainers = trainers.filter((trainer) =>
     selectedTrainerIds.includes(trainer.id)
   );
+
+  const availableTrainers = trainers.filter((trainer) => {
+    const hours = trainerBusinessHours[trainer.id];
+    if (!hours) return true; // still loading -> show by default, don't flicker
+    return isTrainerWorkingOnDay({ day: selectedDate, businessHours: hours });
+  });
 
   const currentLessons = getCurrentLessons(
     lessons.filter((lesson) =>
       selectedTrainers.some((trainer) => trainer.id === lesson.trainer?.id)
     )
   );
+
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const now = new Date();
+    const targetHour = isSameDay(now, selectedDate) ? now.getHours() : 9;
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
+
+    // Ensure layout is committed before scrolling the viewport.
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
+    });
+  }, [selectedDate]);
 
   return (
     <div className="flex h-full">
@@ -43,7 +73,7 @@ export function DayView() {
           </div>
         </div>
 
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full" ref={scrollRef}>
           <div className="flex relative">
             {/* Hours column */}
             <div className="relative w-18 shrink-0">
@@ -65,11 +95,21 @@ export function DayView() {
             </div>
             {/* Day grid */}
             <div className="relative flex-1 flex">
-              {selectedTrainers.map((trainer) => (
-                <div className="relative flex-1 border-l" key={trainer.id}>
-                  <DayColumn key={trainer.id} trainer={trainer} />
+              {availableTrainers.length > 0 ? (
+                availableTrainers.map((trainer) => (
+                  <div className="relative flex-1 border-l" key={trainer.id}>
+                    <DayColumn
+                      key={trainer.id}
+                      trainer={trainer}
+                      date={selectedDate}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+                  No trainers available on {format(selectedDate, "EEEE, MMM d")}
                 </div>
-              ))}
+              )}
 
               {isSameDay(selectedDate, new Date()) && <CalendarTimeline />}
             </div>

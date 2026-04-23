@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
 import { apiClient, guardians } from "#client";
+import { memberKeys } from "#modules/members/keys";
 
 import { guardianKeys } from "./keys";
 
@@ -30,8 +31,8 @@ export const guardianMutations = {
     );
   },
 
-  acceptRelationship: async (relationshipId: string) => {
-    return await apiClient.guardians.acceptRelationship(relationshipId);
+  acceptInvitation: async (token: string) => {
+    return await apiClient.guardians.acceptInvitation(token);
   },
 
   revokeRelationship: async (relationshipId: string) => {
@@ -86,25 +87,25 @@ export function useCreatePlaceholderRelationship({
   });
 }
 
-export function useConfirmRelationship({
+export function useAcceptGuardianInvitation({
   mutationConfig,
-}: MutationHookOptions<typeof guardianMutations.acceptRelationship> = {}) {
+}: MutationHookOptions<typeof guardianMutations.acceptInvitation> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(guardianMutations.acceptRelationship, {
+  return useWrappedMutation(guardianMutations.acceptInvitation, {
     ...config,
-    onSuccess: (result, ...args) => {
+    onSuccess: (result, token, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.relationship(result.id),
+        queryKey: guardianKeys.invitationByToken(token),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.myGuardian(),
+        queryKey: memberKeys.all(),
       });
       queryClient.invalidateQueries({
-        queryKey: guardianKeys.pending(),
+        queryKey: guardianKeys.pendingInvitation(),
       });
-      onSuccess?.(result, ...args);
+      onSuccess?.(result, token, ...args);
     },
   });
 }

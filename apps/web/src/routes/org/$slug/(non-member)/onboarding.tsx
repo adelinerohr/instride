@@ -1,12 +1,11 @@
 import {
-  authClient,
   questionnaireOptions,
   useOnboardMember,
   waiverOptions,
 } from "@instride/api";
 import { MembershipRole, WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import * as React from "react";
 
@@ -33,21 +32,52 @@ import { useAppForm } from "@/shared/hooks/use-form";
 
 export const Route = createFileRoute("/org/$slug/(non-member)/onboarding")({
   component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    if (context.pendingGuardianInvitation) {
+      throw Route.redirect({
+        to: "/org/$slug/invitation/$token",
+        params: {
+          slug: context.organization.slug,
+          token: context.pendingGuardianInvitation.token,
+        },
+        search: {
+          type: "guardian",
+        },
+      });
+    }
+    if (context.pendingOrganizationInvitation) {
+      throw Route.redirect({
+        to: "/org/$slug/invitation/$token",
+        params: {
+          slug: context.organization.slug,
+          token: context.pendingOrganizationInvitation.id,
+        },
+        search: { type: "organization" },
+      });
+    }
+  },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(waiverOptions.list());
+    console.log("context.organization.id", context.organization.id);
+    await context.queryClient.ensureQueryData(
+      waiverOptions.list(context.organization.id)
+    );
+    await context.queryClient.ensureQueryData(
+      questionnaireOptions.list(context.organization.id)
+    );
   },
 });
 
 function RouteComponent() {
   const { user, organization } = Route.useRouteContext();
-  const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
 
-  const { data: waivers } = useSuspenseQuery(waiverOptions.list());
+  const { data: waivers } = useSuspenseQuery(
+    waiverOptions.list(organization.id)
+  );
   const { data: questionnaires } = useSuspenseQuery(
-    questionnaireOptions.list()
+    questionnaireOptions.list(organization.id)
   );
 
   const onboardMember = useOnboardMember();
@@ -225,94 +255,75 @@ function RouteComponent() {
     }
   };
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    queryClient.clear();
-    await router.invalidate();
-    navigate({
-      to: "/org/$slug/auth/login",
-      params: { slug: organization.slug },
-    });
-  };
-
   return (
-    <div className="min-h-svh overflow-y-auto bg-muted/40 relative">
-      <Button
-        variant="ghost"
-        className="absolute top-4 left-4"
-        onClick={handleSignOut}
+    <OnboardingWizard
+      steps={visibleSteps}
+      currentStepIndex={currentStepIndex}
+      onGoToStep={goToStep}
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+        className="space-y-5"
       >
-        Sign out
-      </Button>
-      <OnboardingWizard
-        steps={visibleSteps}
-        currentStepIndex={currentStepIndex}
-        onGoToStep={goToStep}
-      >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="space-y-5"
-        >
-          {section === MemberOnboardingStep.PersonalDetails && (
-            <PersonalDetailsStep
+        {section === MemberOnboardingStep.PersonalDetails && (
+          <PersonalDetailsStep
+            form={form}
+            fields="personalDetails"
+            isDependent={false}
+          />
+        )}
+
+        {section === MemberOnboardingStep.AccountType && (
+          <AccountTypeStep form={form} fields="accountType" />
+        )}
+
+        {section === MemberOnboardingStep.Questionnaire &&
+          activeQuestionnaire && (
+            <QuestionnaireStep
               form={form}
-              fields="personalDetails"
+              fields="questionnaire"
               isDependent={false}
+              questionnaire={activeQuestionnaire}
             />
           )}
 
-          {section === MemberOnboardingStep.AccountType && (
-            <AccountTypeStep form={form} fields="accountType" />
+        {section === MemberOnboardingStep.Waiver && activeWaiver && (
+          <WaiverStep
+            form={form}
+            fields="waiver"
+            waiverContent={activeWaiver.content}
+            name={name}
+          />
+        )}
+
+        {error && (
+          <Alert
+            variant="destructive"
+            className="bg-destructive/10 border-destructive"
+          >
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex justify-end gap-2">
+          {canGoBack && (
+            <Button type="button" variant="outline" onClick={goBack}>
+              Back
+            </Button>
           )}
 
-          {section === MemberOnboardingStep.Questionnaire &&
-            activeQuestionnaire && (
-              <QuestionnaireStep
-                form={form}
-                fields="questionnaire"
-                isDependent={false}
-                questionnaire={activeQuestionnaire}
-              />
-            )}
-
-          {section === MemberOnboardingStep.Waiver && activeWaiver && (
-            <WaiverStep
-              form={form}
-              fields="waiver"
-              waiverContent={activeWaiver.content}
-              name={name}
+          <form.AppForm>
+            <form.SubmitButton
+              label={isLastStep ? "Complete Onboarding" : "Next"}
+              loadingLabel={isLastStep ? "Submitting..." : "Validating..."}
             />
-          )}
-
-          {error && (
-            <Alert
-              variant="destructive"
-              className="bg-destructive/10 border-destructive"
-            >
-              <AlertTitle>Something went wrong</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end gap-2">
-            {canGoBack && (
-              <Button type="button" variant="outline" onClick={goBack}>
-                Back
-              </Button>
-            )}
-
-            <form.AppForm>
-              <form.SubmitButton
-                label={isLastStep ? "Complete Onboarding" : "Next"}
-                loadingLabel={isLastStep ? "Submitting..." : "Validating..."}
-              />
-            </form.AppForm>
-          </div>
-        </form>
-      </OnboardingWizard>
-    </div>
+          </form.AppForm>
+        </div>
+      </form>
+    </OnboardingWizard>
   );
 }

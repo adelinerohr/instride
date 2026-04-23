@@ -1,5 +1,6 @@
 export enum CalendarView {
   DAY = "day",
+  MULTI_DAY = "multi-day",
   WEEK = "week",
   AGENDA = "agenda",
 }

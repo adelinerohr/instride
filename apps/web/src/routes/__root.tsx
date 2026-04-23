@@ -53,25 +53,25 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     }
 
     if (!isAuthenticated && !isPublicPath && !isOrgAuthPage) {
-      const currentPath = location.pathname;
-      const orgMatch = currentPath.match(/^\/org\/([^/]+)/);
+      const currentPath = location.pathname + location.searchStr; // ← include search
+      const orgMatch = location.pathname.match(/^\/org\/([^/]+)/); // match against pathname only
 
       if (orgMatch) {
+        const redirectPath =
+          currentPath.replace(`/org/${orgMatch[1]}`, "") || "/dashboard";
+
         throw redirect({
           to: "/org/$slug/auth/login",
           params: { slug: orgMatch[1] },
           search: {
-            redirect:
-              currentPath.replace(`/org/${orgMatch[1]}`, "") || "/dashboard",
+            redirect: redirectPath,
           },
         });
       }
 
       throw redirect({
         to: "/auth/login",
-        search: {
-          redirect: currentPath,
-        },
+        search: { redirect: currentPath },
       });
     }
 

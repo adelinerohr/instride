@@ -5,6 +5,7 @@ import { LoginForm } from "@/shared/components/auth/login-form";
 
 const loginSearchSchema = z.object({
   redirect: z.string().optional(),
+  email: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth/login")({
@@ -21,5 +22,11 @@ function RouteComponent() {
     navigate({ to: returnTo });
   };
 
-  return <LoginForm returnTo={returnTo} onSuccess={handleSuccess} />;
+  return (
+    <LoginForm
+      returnTo={returnTo}
+      onSuccess={handleSuccess}
+      prefillEmail={search.email}
+    />
+  );
 }

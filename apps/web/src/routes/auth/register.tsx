@@ -5,6 +5,7 @@ import { RegisterForm } from "@/shared/components/auth/register-form";
 
 const registerSearchSchema = z.object({
   redirect: z.string().optional(),
+  email: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth/register")({
@@ -21,5 +22,11 @@ function RouteComponent() {
     navigate({ to: returnTo });
   };
 
-  return <RegisterForm returnTo={returnTo} onSuccess={handleSuccess} />;
+  return (
+    <RegisterForm
+      returnTo={returnTo}
+      onSuccess={handleSuccess}
+      prefillEmail={search.email}
+    />
+  );
 }

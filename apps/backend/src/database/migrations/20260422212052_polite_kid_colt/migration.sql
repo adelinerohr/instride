@@ -1,0 +1,1 @@
+ALTER TABLE "trainer_availability" DROP CONSTRAINT IF EXISTS "trainer_avail_organization_board_day_unique";

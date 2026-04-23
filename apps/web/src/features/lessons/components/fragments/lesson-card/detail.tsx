@@ -1,4 +1,3 @@
-import { getUser, type types } from "@instride/api";
 import { isAfter, isBefore } from "date-fns";
 import {
   ArrowRightIcon,
@@ -22,33 +21,25 @@ import { Tag, TagGroup } from "@/shared/components/ui/tag";
 import type { LessonCardVariantProps } from ".";
 import { viewLessonModalHandler } from "../../modals/view-lesson";
 
-export function LessonCardDetail(props: LessonCardVariantProps) {
+export function LessonCardDetail({ data }: LessonCardVariantProps) {
+  const {
+    lesson,
+    startTime,
+    endTime,
+    duration,
+    lessonTitle,
+    isPrivate,
+    trainerUser,
+    riderUser,
+    openSlots,
+    rosterStatus,
+  } = data;
+
   const isLessonOngoing =
-    isAfter(new Date(), props.lesson.start) &&
-    isBefore(new Date(), props.lesson.end);
+    isAfter(new Date(), lesson.start) && isBefore(new Date(), lesson.end);
 
-  const getRosterStatus = (lesson: types.LessonInstance) => {
-    if (!lesson.enrollments || lesson.enrollments.length === 0) {
-      return { checkedIn: [], notCheckedIn: [] };
-    }
-
-    const checkedIn = [];
-    const notCheckedIn = [];
-
-    for (const enrollment of lesson.enrollments) {
-      if (!enrollment.rider) continue;
-      if (enrollment.attended) {
-        checkedIn.push(getUser({ rider: enrollment.rider }));
-      } else {
-        notCheckedIn.push(getUser({ rider: enrollment.rider }));
-      }
-    }
-
-    return { checkedIn, notCheckedIn };
-  };
-
-  const openSlots =
-    props.lesson.maxRiders - (props.lesson.enrollments?.length ?? 0);
+  const showRiderPanel = riderUser != null;
+  const showRosterPanel = !showRiderPanel;
 
   return (
     <div className="flex flex-col p-4 gap-4 border rounded-lg bg-card">
@@ -62,60 +53,70 @@ export function LessonCardDetail(props: LessonCardVariantProps) {
           {isLessonOngoing ? "Happening now" : "Up next"}
         </Badge>
         <span className="text-xs text-primary">
-          {props.startTime} &middot; {props.duration}
+          {startTime} &middot; {duration}
         </span>
       </div>
+
       <div className="flex flex-col gap-2">
         <div className="font-display text-2xl">
-          {props.isPrivate ? "Private" : "Group"} &mdash; {props.lessonTitle}
+          {isPrivate ? "Private" : "Group"} &mdash; {lessonTitle}
         </div>
         <div className="flex items-center gap-1">
-          <LevelBadge level={props.lesson.level} />
+          <LevelBadge level={lesson.level} />
           <Badge variant="secondary">
-            {props.isPrivate ? <UserIcon /> : <UsersIcon />}
-            {props.isPrivate ? "Private" : "Group"}
+            {isPrivate ? <UserIcon /> : <UsersIcon />}
+            {isPrivate ? "Private" : "Group"}
           </Badge>
         </div>
       </div>
+
       <TagGroup className="grid grid-cols-3 gap-2">
-        <Tag icon={UserIcon}>{props.trainerUser.name}</Tag>
+        <Tag icon={UserIcon}>{trainerUser.name}</Tag>
         <Tag icon={ClockIcon}>
-          {props.startTime} - {props.endTime}
+          {startTime} - {endTime}
         </Tag>
-        <Tag icon={MapPinIcon}>{props.lesson.board?.name}</Tag>
+        <Tag icon={MapPinIcon}>{lesson.board?.name}</Tag>
       </TagGroup>
-      {props.type === "portal" ? (
+
+      {showRiderPanel && (
         <div className="flex items-center gap-2 w-full border rounded-md p-2">
-          <UserAvatar user={props.riderUser} />
+          <UserAvatar user={riderUser} />
           <div className="flex flex-col">
-            <span className="font-medium text-lg">{props.riderUser.name}</span>
+            <span className="font-medium text-lg">{riderUser.name}</span>
             <span className="text-sm text-muted-foreground">
-              {props.riderUser.email}
+              {riderUser.email}
             </span>
           </div>
         </div>
-      ) : (
+      )}
+
+      {showRosterPanel && (
         <div className="space-y-2">
           <div className="flex items-center gap-2 justify-between">
             <span className="text-xs text-primary font-medium">
-              Roster &middot; {props.lesson.enrollments?.length}/
-              {props.lesson.maxRiders}
+              Roster &middot; {lesson.enrollments?.length ?? 0}/
+              {lesson.maxRiders}
             </span>
             <span className="text-muted-foreground font-medium text-xs">
-              {getRosterStatus(props.lesson).checkedIn.length} of{" "}
-              {props.lesson.maxRiders} checked in
+              {rosterStatus.checkedIn.length} of {lesson.maxRiders} checked in
             </span>
           </div>
           <div className="flex gap-2">
-            {getRosterStatus(props.lesson).checkedIn.map((user) => (
-              <div className="rounded-full border p-1 pr-2 flex items-center gap-2">
+            {rosterStatus.checkedIn.map((user) => (
+              <div
+                key={user.id}
+                className="rounded-full border p-1 pr-2 flex items-center gap-2"
+              >
                 <UserAvatar user={user} size="xs" />
                 <span className="text-xs font-medium">{user.name}</span>
                 <CheckIcon className="size-3 text-muted-foreground" />
               </div>
             ))}
-            {getRosterStatus(props.lesson).notCheckedIn.map((user) => (
-              <div className="rounded-full border p-1 pr-2 flex items-center gap-2">
+            {rosterStatus.notCheckedIn.map((user) => (
+              <div
+                key={user.id}
+                className="rounded-full border p-1 pr-2 flex items-center gap-2"
+              >
                 <UserAvatar user={user} size="xs" />
                 <span className="text-xs font-medium">{user.name}</span>
               </div>
@@ -129,24 +130,24 @@ export function LessonCardDetail(props: LessonCardVariantProps) {
           </div>
         </div>
       )}
+
       <Separator />
+
       <div className="flex items-center justify-between gap-2">
         <Button>
           <CircleCheckIcon />
-          Check in {props.type !== "portal" && "riders"}
+          Check in{!showRiderPanel && " riders"}
         </Button>
-        {props.type !== "portal" ? (
+        {showRiderPanel ? (
+          <Button variant="ghost">Unenroll</Button>
+        ) : (
           <Button
             variant="ghost"
-            onClick={() =>
-              viewLessonModalHandler.openWithPayload({ lesson: props.lesson })
-            }
+            onClick={() => viewLessonModalHandler.openWithPayload({ lesson })}
           >
             <EditIcon />
             Edit
           </Button>
-        ) : (
-          <Button variant="ghost">Unenroll</Button>
         )}
       </div>
     </div>

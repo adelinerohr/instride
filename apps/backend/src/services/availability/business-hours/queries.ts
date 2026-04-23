@@ -5,10 +5,7 @@ import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
-import {
-  ListOrganizationBusinessHoursResponse,
-  ListTrainerBusinessHoursResponse,
-} from "../types/contracts";
+import { ListBusinessHoursResponse } from "../types/contracts";
 import { getBusinessHours } from "./repository";
 
 export const listOrganizationBusinessHours = api(
@@ -18,7 +15,7 @@ export const listOrganizationBusinessHours = api(
     expose: true,
     auth: true,
   },
-  async (): Promise<ListOrganizationBusinessHoursResponse> => {
+  async (): Promise<ListBusinessHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
     return await getBusinessHours({
       type: "organization",
@@ -35,9 +32,7 @@ export const listTrainerBusinessHours = api(
     expose: true,
     auth: true,
   },
-  async (params: {
-    trainerId: string;
-  }): Promise<ListTrainerBusinessHoursResponse> => {
+  async (params: { trainerId: string }): Promise<ListBusinessHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
     const trainer = await db.query.trainers.findFirst({

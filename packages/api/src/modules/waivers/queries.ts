@@ -5,11 +5,11 @@ import { apiClient } from "#client";
 import { waiverKeys } from "./keys";
 
 export const waiverOptions = {
-  list: () =>
+  list: (organizationId: string) =>
     queryOptions({
-      queryKey: waiverKeys.list(),
+      queryKey: waiverKeys.list(organizationId),
       queryFn: async () => {
-        const { waivers } = await apiClient.waivers.listWaivers();
+        const { waivers } = await apiClient.waivers.listWaivers(organizationId);
         return waivers;
       },
     }),
@@ -23,8 +23,8 @@ export const waiverOptions = {
     }),
 };
 
-export function useWaivers() {
-  return useQuery(waiverOptions.list());
+export function useWaivers(organizationId: string) {
+  return useQuery(waiverOptions.list(organizationId));
 }
 
 export function useWaiver(waiverId: string) {

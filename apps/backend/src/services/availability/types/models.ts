@@ -1,6 +1,6 @@
 import { DayOfWeek, TimeSlot } from "@instride/shared";
 
-export interface OrganizationAvailabilitySlot {
+export interface AvailabilitySlot {
   id: string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -9,16 +9,7 @@ export interface OrganizationAvailabilitySlot {
   closeTime: string;
 }
 
-export interface TrainerAvailabilitySlot {
-  id: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  availabilityId: string;
-  openTime: string;
-  closeTime: string;
-}
-
-export interface OrganizationBusinessHours {
+export interface BusinessHours {
   id: string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -26,26 +17,11 @@ export interface OrganizationBusinessHours {
   boardId: string | null;
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  slots: OrganizationAvailabilitySlot[];
+  slots: AvailabilitySlot[];
+  trainerId?: string; // present for trainer hours, absent for org hours
 }
 
-export interface OrganizationBoardBusinessHours extends OrganizationBusinessHours {
-  boardId: string;
-}
-
-export interface TrainerBusinessHours {
-  id: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  organizationId: string;
-  trainerId: string;
-  boardId: string | null;
-  dayOfWeek: DayOfWeek;
-  isOpen: boolean;
-  slots: TrainerAvailabilitySlot[];
-}
-
-export interface TrainerBoardBusinessHours extends TrainerBusinessHours {
+export interface BoardBusinessHours extends BusinessHours {
   boardId: string;
 }
 

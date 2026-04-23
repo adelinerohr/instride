@@ -1,3 +1,5 @@
+import { useRouteContext } from "@tanstack/react-router";
+
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { QUARTER_HEIGHT, SLOT_HEIGHT } from "@/features/calendar/lib/constants";
 import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
@@ -12,6 +14,7 @@ interface HourCellProps {
 
 export function HourCell({ isDisabled, index, day, hour }: HourCellProps) {
   const { createLesson, selectedBoardId, selectedTrainerIds } = useCalendar();
+  const { kioskPermissions } = useRouteContext({ strict: false });
 
   const getStart = (quarter: 0 | 1 | 2 | 3) => {
     const start = new Date(day);
@@ -20,6 +23,10 @@ export function HourCell({ isDisabled, index, day, hour }: HourCellProps) {
   };
 
   const handleClick = (quarter: 0 | 1 | 2 | 3) => {
+    if (kioskPermissions && !kioskPermissions.canCreateLesson) {
+      return;
+    }
+
     if (isDisabled) {
       confirmationModalHandler.openWithPayload({
         title: "This hour is out of business hours",

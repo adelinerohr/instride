@@ -1,4 +1,9 @@
-import { CalendarRangeIcon, Columns2Icon, ListIcon } from "lucide-react";
+import {
+  CalendarRangeIcon,
+  Columns2Icon,
+  Columns3Icon,
+  ListIcon,
+} from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
@@ -9,17 +14,22 @@ import { CalendarView } from "../../lib/types";
 const calendarModes = [
   {
     view: CalendarView.AGENDA,
-    icon: CalendarRangeIcon,
+    icon: ListIcon,
     label: "Agenda",
   },
   {
     view: CalendarView.DAY,
-    icon: ListIcon,
+    icon: Columns2Icon,
     label: "Day",
   },
   {
+    view: CalendarView.MULTI_DAY,
+    icon: Columns3Icon,
+    label: "Multi-day",
+  },
+  {
     view: CalendarView.WEEK,
-    icon: Columns2Icon,
+    icon: CalendarRangeIcon,
     label: "Week",
   },
 ];

@@ -9,8 +9,7 @@ import { useCalendar } from "../../hooks/use-calendar";
 import { navigateDate, rangeText } from "../../utils/date";
 
 export function DateNavigator() {
-  const { selectedDate, setSelectedDate, lessons, selectedView } =
-    useCalendar();
+  const { selectedDate, setSelectedDate, lessons } = useCalendar();
 
   const month = formatDate(selectedDate, "MMMM");
   const year = selectedDate.getFullYear();
@@ -18,13 +17,13 @@ export function DateNavigator() {
   const lessonCount = React.useMemo(() => lessons.length, [lessons]);
 
   const handlePrevious = React.useCallback(
-    () => setSelectedDate(navigateDate(selectedDate, selectedView, "previous")),
-    [selectedDate, setSelectedDate, selectedView]
+    () => setSelectedDate(navigateDate("previous")),
+    [setSelectedDate]
   );
 
   const handleNext = React.useCallback(
-    () => setSelectedDate(navigateDate(selectedDate, selectedView, "next")),
-    [selectedDate, setSelectedDate, selectedView]
+    () => setSelectedDate(navigateDate("next")),
+    [setSelectedDate]
   );
 
   return (
@@ -58,9 +57,7 @@ export function DateNavigator() {
           >
             <ChevronLeftIcon />
           </Button>
-          <span className="text-sm text-muted-foreground">
-            {rangeText(selectedView, selectedDate)}
-          </span>
+          <span className="text-sm text-muted-foreground">{rangeText()}</span>
           <Button
             variant="outline"
             size="icon"

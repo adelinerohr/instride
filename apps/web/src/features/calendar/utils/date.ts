@@ -2,25 +2,31 @@ import type { types } from "@instride/api";
 import * as dateFns from "date-fns";
 import { parseISO } from "date-fns";
 
+import { useCalendar } from "../hooks/use-calendar";
 import { END_HOUR, START_HOUR } from "../lib/constants";
 import { CalendarView } from "../lib/types";
 
-export function rangeText(view: CalendarView, date: Date) {
+export function rangeText() {
+  const { selectedView, selectedMultiDayCount, selectedDate } = useCalendar();
   const formatString = "MMM d, yyyy";
   let start: Date;
   let end: Date;
 
-  switch (view) {
-    case "agenda":
-      start = dateFns.startOfMonth(date);
-      end = dateFns.endOfMonth(date);
+  switch (selectedView) {
+    case CalendarView.AGENDA:
+      start = dateFns.startOfMonth(selectedDate);
+      end = dateFns.endOfMonth(selectedDate);
       break;
-    case "week":
-      start = dateFns.startOfWeek(date, { weekStartsOn: 1 });
-      end = dateFns.endOfWeek(date);
+    case CalendarView.WEEK:
+      start = dateFns.startOfWeek(selectedDate, { weekStartsOn: 1 });
+      end = dateFns.endOfWeek(selectedDate);
       break;
-    case "day":
-      return dateFns.format(date, formatString);
+    case CalendarView.MULTI_DAY:
+      start = dateFns.startOfDay(selectedDate);
+      end = dateFns.addDays(selectedDate, selectedMultiDayCount);
+      break;
+    case CalendarView.DAY:
+      return dateFns.format(selectedDate, formatString);
     default:
       return "Error while formatting ";
   }
@@ -28,20 +34,24 @@ export function rangeText(view: CalendarView, date: Date) {
   return `${dateFns.format(start, formatString)} - ${dateFns.format(end, formatString)}`;
 }
 
-export function navigateDate(
-  date: Date,
-  view: CalendarView,
-  direction: "previous" | "next"
-): Date {
-  const operations = {
-    agenda: direction === "next" ? dateFns.addMonths : dateFns.subMonths,
-    year: direction === "next" ? dateFns.addYears : dateFns.subYears,
-    month: direction === "next" ? dateFns.addMonths : dateFns.subMonths,
-    week: direction === "next" ? dateFns.addWeeks : dateFns.subWeeks,
-    day: direction === "next" ? dateFns.addDays : dateFns.subDays,
-  };
+export function navigateDate(direction: "previous" | "next"): Date {
+  const { selectedView, selectedDate, selectedMultiDayCount } = useCalendar();
 
-  return operations[view](date, 1);
+  switch (selectedView) {
+    case CalendarView.AGENDA:
+      return dateFns.addMonths(selectedDate, direction === "next" ? 1 : -1);
+    case CalendarView.WEEK:
+      return dateFns.addWeeks(selectedDate, direction === "next" ? 1 : -1);
+    case CalendarView.MULTI_DAY:
+      return dateFns.addDays(
+        selectedDate,
+        selectedMultiDayCount * (direction === "next" ? 1 : -1)
+      );
+    case CalendarView.DAY:
+      return dateFns.addDays(selectedDate, direction === "next" ? 1 : -1);
+    default:
+      return selectedDate;
+  }
 }
 
 export function getVisibleHours(lessons: types.LessonInstance[]) {

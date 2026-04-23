@@ -20,8 +20,8 @@ export function buildKioskPermissions(
     return {
       canViewCalendar: true,
       canCheckIn: true,
-      canCreateLesson: false,
-      canEditLesson: false,
+      canCreateLesson: true,
+      canEditLesson: true,
       canCreateTimeBlock: false,
       canEditTimeBlock: false,
       canEnroll: true,

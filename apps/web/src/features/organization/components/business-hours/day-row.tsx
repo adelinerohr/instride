@@ -1,12 +1,13 @@
 import {
   DayOfWeek,
+  formatTimeSlot,
   normalizeTimeSlot,
   TIME_OPTIONS,
   type TimeSlot,
 } from "@instride/shared";
 import { DAY_LABEL_MAP } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
-import { PlusIcon, XIcon } from "lucide-react";
+import { AlertCircleIcon, PlusIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -54,9 +55,9 @@ export const DayRow = withFieldGroup({
     const slots = useStore(group.store, (s) => s.values.slots);
 
     return (
-      <div className="grid min-h-10 w-full grid-cols-5 px-6 items-start py-2">
-        {/* Day label + open toggle */}
-        <div className="col-span-5 max-h-10 sm:col-span-1 items-start">
+      <div className="grid w-full grid-cols-5 px-4 py-2 gap-y-2">
+        {/* Day label + open toggle — always on the first row */}
+        <div className="col-span-5 sm:col-span-1 flex items-center h-9">
           <group.Subscribe
             selector={(state) => ({
               dayOfWeek: state.values.dayOfWeek,
@@ -75,7 +76,7 @@ export const DayRow = withFieldGroup({
                 }}
                 children={(field) => (
                   <field.CheckboxField
-                    fieldClassName="flex h-8 items-center! gap-3"
+                    fieldClassName="flex items-center gap-3"
                     label={DAY_LABEL_MAP[dayOfWeek].slice(0, 3)}
                     labelClassName={cn(
                       "text-sm font-medium w-10",
@@ -88,7 +89,8 @@ export const DayRow = withFieldGroup({
           </group.Subscribe>
         </div>
 
-        <div className="col-span-5 sm:col-span-4 items-start">
+        {/* Slots area + trailing controls */}
+        <div className="col-span-5 sm:col-span-4">
           <group.Subscribe selector={(state) => state.values.isOpen}>
             {(isOpen) =>
               isOpen ? (
@@ -96,28 +98,34 @@ export const DayRow = withFieldGroup({
                   name="slots"
                   mode="array"
                   children={(field) => (
-                    <div className="flex flex-row justify-between items-start">
-                      <div className="flex flex-col gap-4">
-                        {field.state.value.map((_, slotIndex) => (
-                          <SlotRow
-                            key={`${field.state.value[slotIndex].openTime}-${field.state.value[slotIndex].closeTime}`}
-                            form={group}
-                            fields={`slots[${slotIndex}]`}
-                            canRemove={field.state.value.length > 1}
-                            onRemove={() => field.removeValue(slotIndex)}
-                          />
+                    <div className="flex items-start justify-between gap-2">
+                      {/* Left: stacked slots */}
+                      <div className="flex flex-col gap-2">
+                        {field.state.value.map((slot, slotIndex) => (
+                          <div
+                            key={`${slot.openTime}-${slot.closeTime}-${slotIndex}`}
+                            className="flex h-9 items-center"
+                          >
+                            <SlotRow
+                              form={group}
+                              fields={`slots[${slotIndex}]`}
+                              canRemove={field.state.value.length > 1}
+                              onRemove={() => field.removeValue(slotIndex)}
+                            />
+                          </div>
                         ))}
                       </div>
 
-                      <div className="flex h-9 flex-row items-center">
+                      {/* Right: + and hint, aligned to the first slot row */}
+                      <div className="flex h-9 items-center gap-1 shrink-0">
                         <Tooltip>
                           <TooltipTrigger
                             render={
                               <Button
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                className="h-7 px-2 text-xs"
+                                size="icon"
+                                className="h-7 w-7"
                                 onClick={() => {
                                   const last = field.state.value.at(-1);
                                   const nextStart = last?.closeTime ?? "09:00";
@@ -133,35 +141,56 @@ export const DayRow = withFieldGroup({
                           </TooltipTrigger>
                           <TooltipContent>New time slot</TooltipContent>
                         </Tooltip>
+
+                        {props.orgHint && <OrgHint hint={props.orgHint} />}
                       </div>
                     </div>
                   )}
                 />
               ) : (
-                <span className="flex h-9 items-center pl-2 text-sm text-muted-foreground">
-                  Closed
-                </span>
+                <div className="flex h-9 items-center justify-between gap-2">
+                  <span className="pl-2 text-sm text-muted-foreground">
+                    Closed
+                  </span>
+                  {props.orgHint && <OrgHint hint={props.orgHint} />}
+                </div>
               )
             }
           </group.Subscribe>
-
-          {props.orgHint && (
-            <p className="text-xs text-muted-foreground">
-              {props.orgHint.isOpen && props.orgHint.slots.length > 0
-                ? `Org hours: ${props.orgHint.slots
-                    .map(
-                      (s) =>
-                        `${s.openTime.slice(0, 5)}–${s.closeTime.slice(0, 5)}`
-                    )
-                    .join(", ")}`
-                : "Org closed this day"}
-            </p>
-          )}
         </div>
       </div>
     );
   },
 });
+
+function OrgHint({ hint }: { hint: { isOpen: boolean; slots: TimeSlot[] } }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-6 ml-auto"
+          />
+        }
+      >
+        <AlertCircleIcon className="size-4" />
+      </TooltipTrigger>
+      <TooltipContent>
+        {hint.isOpen && hint.slots.length > 0
+          ? `Org hours: ${hint.slots
+              .map(
+                (s) =>
+                  `${formatTimeSlot(s.openTime, "9:00 AM")} - ${formatTimeSlot(s.closeTime, "5:00 PM")}`
+              )
+              .join(", ")}`
+          : "Org closed this day"}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 const SlotRow = withFieldGroup({
   defaultValues: {
@@ -174,7 +203,7 @@ const SlotRow = withFieldGroup({
   },
   render: ({ group, ...props }) => {
     return (
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2">
         <group.AppField
           name={`openTime`}
           children={(field) => (
@@ -212,7 +241,7 @@ const SlotRow = withFieldGroup({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="h-7 w-7 shrink-0"
             onClick={props.onRemove}
             aria-label="Remove slot"
           >

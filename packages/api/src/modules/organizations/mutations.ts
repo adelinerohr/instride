@@ -21,11 +21,9 @@ export const organizationMutations = {
     );
     return organization;
   },
-  startUploadLogo: async (input: upload.StartUploadLogoParams) =>
-    await apiClient.upload.startUploadLogo(input),
-  confirmUploadLogo: async (input: upload.ConfirmLogoUploadParams) =>
-    await apiClient.upload.confirmLogoUpload(input),
-  deleteUploadLogo: async (input: upload.DeleteLogoParams) =>
+  uploadLogo: async (input: upload.UploadLogoParams) =>
+    await apiClient.upload.uploadLogo(input),
+  deleteLogo: async (input: upload.DeleteLogoParams) =>
     await apiClient.upload.deleteLogo(input),
 };
 
@@ -84,21 +82,13 @@ export function useUpdateOrganization({
   });
 }
 
-export function useStartUploadLogo({
+export function useUploadLogo({
   mutationConfig,
-}: MutationHookOptions<typeof organizationMutations.startUploadLogo> = {}) {
-  const config = mutationConfig || {};
-
-  return useWrappedMutation(organizationMutations.startUploadLogo, config);
-}
-
-export function useConfirmUploadLogo({
-  mutationConfig,
-}: MutationHookOptions<typeof organizationMutations.confirmUploadLogo> = {}) {
+}: MutationHookOptions<typeof organizationMutations.uploadLogo> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(organizationMutations.confirmUploadLogo, {
+  return useWrappedMutation(organizationMutations.uploadLogo, {
     ...config,
     onSuccess: (response, variables, ...args) => {
       queryClient.invalidateQueries({
@@ -111,17 +101,17 @@ export function useConfirmUploadLogo({
 
 export function useDeleteLogo({
   mutationConfig,
-}: MutationHookOptions<typeof organizationMutations.deleteUploadLogo> = {}) {
+}: MutationHookOptions<typeof organizationMutations.deleteLogo> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(organizationMutations.deleteUploadLogo, {
+  return useWrappedMutation(organizationMutations.deleteLogo, {
     ...config,
-    onSuccess: (response, variables, ...args) => {
+    onSuccess: (result, variables, ...args) => {
       queryClient.invalidateQueries({
         queryKey: organizationKeys.byId(variables.organizationId),
       });
-      onSuccess?.(response, variables, ...args);
+      onSuccess?.(result, variables, ...args);
     },
   });
 }

@@ -3,24 +3,6 @@ import { differenceInMinutes, isWithinInterval, parseISO } from "date-fns";
 
 import { SLOT_HEIGHT, START_HOUR } from "@/features/calendar/lib/constants";
 
-const COLORS = [
-  "amber",
-  "sage",
-  "slate",
-  "terracotta",
-  "plum",
-  "clay",
-] as const;
-export type TrainerColor = (typeof COLORS)[number];
-
-export function getTrainerColor(trainerId: string): TrainerColor {
-  let hash = 0;
-  for (let i = 0; i < trainerId.length; i++) {
-    hash = trainerId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return COLORS[Math.abs(hash) % COLORS.length];
-}
-
 export function groupLessons(dayLessons: types.LessonInstance[]) {
   const sortedLessons = dayLessons.sort(
     (a, b) => parseISO(a.start).getTime() - parseISO(b.start).getTime()

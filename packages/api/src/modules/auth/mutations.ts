@@ -3,18 +3,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
 import { apiClient, auth, authClient, upload } from "#client";
 
+import { authKeys } from "./keys";
 import {
   useWrappedAuthMutation,
   type AuthMutationHookOptionsFor,
 } from "./utils";
 
 export const authMutations = {
-  startUploadAvatar: async (params: upload.UploadAvatarParams) =>
+  uploadAvatar: async (params: upload.UploadAvatarParams) =>
     await apiClient.upload.uploadAvatar(params),
-  confirmUploadAvatar: async (params: upload.ConfirmAvatarUploadParams) =>
-    await apiClient.upload.confirmAvatarUpload(params),
-  deleteUploadAvatar: async (params: upload.DeleteUserAvatarParams) =>
-    await apiClient.upload.deleteUserAvatar(params),
+  deleteAvatar: async (params: upload.DeleteAvatarParams) =>
+    await apiClient.upload.deleteAvatar(params),
 };
 
 export const adminMutations = {
@@ -22,28 +21,38 @@ export const adminMutations = {
     await apiClient.auth.exportUsers(params),
 };
 
-export function useStartUploadAvatar({
+export function useUploadAvatar({
   mutationConfig,
-}: MutationHookOptions<typeof authMutations.startUploadAvatar> = {}) {
-  const config = mutationConfig || {};
+}: MutationHookOptions<typeof authMutations.uploadAvatar> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(authMutations.startUploadAvatar, config);
+  return useWrappedMutation(authMutations.uploadAvatar, {
+    ...config,
+    onSuccess: (response, variables, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.user(variables.userId),
+      });
+      onSuccess?.(response, variables, ...args);
+    },
+  });
 }
 
-export function useConfirmUploadAvatar({
+export function useDeleteAvatar({
   mutationConfig,
-}: MutationHookOptions<typeof authMutations.confirmUploadAvatar> = {}) {
-  const config = mutationConfig || {};
+}: MutationHookOptions<typeof authMutations.deleteAvatar> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(authMutations.confirmUploadAvatar, config);
-}
-
-export function useDeleteUploadAvatar({
-  mutationConfig,
-}: MutationHookOptions<typeof authMutations.deleteUploadAvatar> = {}) {
-  const config = mutationConfig || {};
-
-  return useWrappedMutation(authMutations.deleteUploadAvatar, config);
+  return useWrappedMutation(authMutations.deleteAvatar, {
+    ...config,
+    onSuccess: (response, variables, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: authKeys.user(variables.userId),
+      });
+      onSuccess?.(response, variables, ...args);
+    },
+  });
 }
 
 export function useExportUsers({

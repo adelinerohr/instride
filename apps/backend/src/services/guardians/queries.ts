@@ -1,4 +1,3 @@
-import { GuardianRelationshipStatus } from "@instride/shared";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
@@ -13,7 +12,6 @@ import {
 import { db } from "./db";
 import {
   GuardianPermissions,
-  GuardianRelationship,
   GuardianRelationshipWithGuardian,
   GuardianRelationshipWithMembers,
 } from "./types/models";
@@ -198,26 +196,5 @@ export const getMyGuardians = api(
       ...relationships,
       guardian: relationships.guardian,
     };
-  }
-);
-
-export const listPendingGuardianRequests = api(
-  {
-    method: "GET",
-    path: "/guardians/pending",
-    expose: true,
-    auth: true,
-  },
-  async (): Promise<{ relationships: GuardianRelationship[] }> => {
-    const { organizationId } = requireOrganizationAuth();
-
-    const relationships = await db.query.guardianRelationships.findMany({
-      where: {
-        organizationId,
-        status: GuardianRelationshipStatus.PENDING,
-      },
-    });
-
-    return { relationships };
   }
 );
