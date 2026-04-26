@@ -7,7 +7,7 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { questionnaireService } from "./service";
+import { questionnaireService } from "./questionnaire.service";
 
 export const listQuestionnaires = api(
   {

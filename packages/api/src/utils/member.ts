@@ -5,7 +5,7 @@ import {
   MemberSummary,
   Rider,
   Trainer,
-  TrainerWithMember,
+  TrainerSummary,
 } from "#contracts";
 
 export function hasAnyRole(member: Member, roles: MembershipRole[]): boolean {
@@ -21,7 +21,7 @@ export function hasOnlyRole(member: Member, role: MembershipRole): boolean {
 }
 
 export function getMember(input: {
-  trainer?: Trainer | TrainerWithMember;
+  trainer?: Trainer | TrainerSummary;
   rider?: Rider;
 }): MemberSummary {
   if (input.trainer) {
@@ -40,7 +40,7 @@ export function getMember(input: {
 }
 
 export function getUser(input: {
-  trainer?: Trainer | TrainerWithMember;
+  trainer?: Trainer | TrainerSummary;
   rider?: Rider;
   member?: Member | MemberSummary;
 }) {

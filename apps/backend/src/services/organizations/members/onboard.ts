@@ -2,31 +2,32 @@ import type {
   GetMemberResponse,
   Questionnaire,
   QuestionnaireQuestionResponse,
-  RiderProfile,
   Waiver,
 } from "@instride/api/contracts";
-import { MembershipRole, WaiverStatus } from "@instride/shared";
+import { MembershipRole } from "@instride/shared";
 import { generateId } from "better-auth";
-import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 
+import { authService, createAuthService } from "@/services/auth/auth.service";
+import { createBoardService } from "@/services/boards/board.service";
 import {
-  authMembers,
-  authUsers,
-  boardAssignments,
-  members,
-  questionnaireResponses,
-  riders,
-  waiverSignatures,
-} from "@/database/schema";
+  createQuestionnaireService,
+  questionnaireService,
+} from "@/services/questionnaires/questionnaire.service";
 import {
   evaluateBoardAssignmentRules,
   validateResponses,
 } from "@/services/questionnaires/submit";
+import { createWaiverService, waiverService } from "@/services/waivers/service";
 import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
+import { invitationService } from "../invitations/invitation.service";
+import { toMember } from "../mappers";
+import { organizationService } from "../organization.service";
+import { RiderRow, TrainerRow } from "../schema";
+import { createMemberService } from "./member.service";
 
 interface OnboardMemberParams {
   organizationId: string;
@@ -56,12 +57,22 @@ export const onboardMember = api(
   async (params: OnboardMemberParams): Promise<GetMemberResponse> => {
     const { userID } = requireAuth();
 
-    const organization = await db.query.organizations.findFirst({
-      where: { id: params.organizationId },
-    });
-    assertExists(organization, "Organization not found");
+    const user = await authService.findOneUser(userID);
+    const organization = await organizationService.findOne(
+      params.organizationId
+    );
 
-    if (!organization.allowPublicJoin) {
+    const acceptedInvitation = await invitationService.findAcceptedForOrgEmail({
+      organizationId: organization.authOrganizationId,
+      email: user.email,
+    });
+    const invitedRoles = acceptedInvitation?.roles ?? [];
+
+    const effectiveRoles = [
+      ...new Set<MembershipRole>([...invitedRoles, ...params.user.roles]),
+    ];
+
+    if (!organization.allowPublicJoin && !acceptedInvitation) {
       throw APIError.permissionDenied(
         "This organization does not allow public join"
       );
@@ -69,75 +80,59 @@ export const onboardMember = api(
 
     let questionnaire: Questionnaire | undefined;
     if (params.questionnaire) {
-      questionnaire = await db.query.questionnaires.findFirst({
-        where: {
-          id: params.questionnaire.questionnaireId,
-          organizationId: organization.id,
-        },
-      });
-      assertExists(questionnaire, "Questionnaire not found");
+      questionnaire = await questionnaireService.findOne(
+        params.questionnaire.questionnaireId,
+        organization.id
+      );
       validateResponses(params.questionnaire.responses, questionnaire);
     }
 
     let waiver: Waiver | undefined;
     if (params.waiver) {
-      waiver = await db.query.waivers.findFirst({
-        where: {
-          id: params.waiver.waiverId,
-          organizationId: organization.id,
-          status: WaiverStatus.ACTIVE,
-        },
-      });
-      assertExists(waiver, "Active waiver not found");
+      waiver = await waiverService.findOne(
+        params.waiver.waiverId,
+        organization.id
+      );
     }
 
     const result = await db.transaction(async (tx) => {
+      const txMemberService = createMemberService(tx);
+      const txAuthService = createAuthService(tx);
+
       // 1. Update user profile
-      const [authUser] = await tx
-        .update(authUsers)
-        .set({
-          name: params.user.name,
-          phone: params.user.phone,
-          dateOfBirth: params.user.dateOfBirth,
-          image: params.user.image,
-        })
-        .where(eq(authUsers.id, userID))
-        .returning();
+      const authUser = await txAuthService.updateUser(userID, {
+        name: params.user.name,
+        phone: params.user.phone,
+        dateOfBirth: params.user.dateOfBirth,
+        image: params.user.image,
+      });
 
       // 2. Create Better Auth member
-      const [authMember] = await tx
-        .insert(authMembers)
-        .values({
-          id: generateId(),
-          userId: userID,
-          organizationId: organization.authOrganizationId,
-          role: params.user.roles.join(","),
-        })
-        .returning();
+      const authMember = await txAuthService.createMember({
+        id: generateId(),
+        userId: userID,
+        organizationId: organization.authOrganizationId,
+        role: effectiveRoles.join(","),
+      });
 
       // 3. Create member profile
-      const [member] = await tx
-        .insert(members)
-        .values({
-          userId: userID,
+      const member = await txMemberService.create({
+        userId: userID,
+        organizationId: organization.id,
+        authMemberId: authMember.id,
+        roles: effectiveRoles,
+        onboardingComplete: true,
+      });
+
+      let riderProfile: RiderRow | null = null;
+      let trainerProfile: TrainerRow | null = null;
+
+      if (effectiveRoles.includes(MembershipRole.RIDER)) {
+        const rider = await txMemberService.createRider({
+          memberId: member.id,
           organizationId: organization.id,
-          authMemberId: authMember.id,
-          roles: params.user.roles,
-          onboardingComplete: true,
-        })
-        .returning();
-
-      let riderProfile: RiderProfile | null = null;
-
-      if (params.user.roles.includes(MembershipRole.RIDER)) {
-        const [rider] = await tx
-          .insert(riders)
-          .values({
-            memberId: member.id,
-            organizationId: organization.id,
-            isRestricted: false,
-          })
-          .returning();
+          isRestricted: false,
+        });
         riderProfile = rider;
 
         if (questionnaire && params.questionnaire) {
@@ -146,7 +141,7 @@ export const onboardMember = api(
             params.questionnaire.responses
           );
 
-          await tx.insert(questionnaireResponses).values({
+          await createQuestionnaireService(tx).createResponse({
             questionnaireId: questionnaire.id,
             questionnaireVersion: questionnaire.version,
             organizationId: organization.id,
@@ -158,7 +153,7 @@ export const onboardMember = api(
           });
 
           if (assignedBoardIds.length > 0) {
-            await tx.insert(boardAssignments).values(
+            await createBoardService(tx).bulkCreateAssignments(
               assignedBoardIds.map((boardId) => ({
                 organizationId: organization.id,
                 boardId,
@@ -166,31 +161,39 @@ export const onboardMember = api(
               }))
             );
           }
-
-          if (waiver && params.waiver) {
-            await tx.insert(waiverSignatures).values({
-              organizationId: organization.id,
-              waiverId: waiver.id,
-              signerMemberId: member.id,
-              onBehalfOfMemberId: member.id,
-              waiverVersion: waiver.version,
-            });
-          }
         }
       }
 
-      return { member, authUser, riderProfile };
+      if (effectiveRoles.includes(MembershipRole.TRAINER)) {
+        const trainer = await txMemberService.createTrainer({
+          memberId: member.id,
+          organizationId: organization.id,
+        });
+        trainerProfile = trainer;
+      }
+
+      if (waiver && params.waiver) {
+        await createWaiverService(tx).createSignature({
+          organizationId: organization.id,
+          waiverId: waiver.id,
+          signerMemberId: member.id,
+          onBehalfOfMemberId: member.id,
+          waiverVersion: waiver.version,
+        });
+      }
+
+      return { member, authUser, riderProfile, trainerProfile };
     });
 
     assertExists(result.authUser, "Member has no auth user");
 
     return {
-      member: {
+      member: toMember({
         ...result.member,
         authUser: result.authUser,
         rider: result.riderProfile,
-        trainer: null,
-      },
+        trainer: result.trainerProfile,
+      }),
     };
   }
 );

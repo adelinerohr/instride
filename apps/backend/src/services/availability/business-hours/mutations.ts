@@ -6,7 +6,11 @@ import type {
 import { DayOfWeek } from "@instride/shared";
 import { api } from "encore.dev/api";
 
-import { assertAdmin, assertAdminOrSelf } from "@/services/auth/gates";
+import {
+  assertAdmin,
+  assertAdminOrSelf,
+  requireOrganizationAdmin,
+} from "@/services/auth/gates";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
@@ -51,6 +55,8 @@ export const updateOrganizationBusinessHours = api(
     params: UpdateOrganizationBusinessHoursRequest
   ): Promise<ListBusinessHoursResponse> => {
     const { organizationId } = requireOrganizationAuth();
+    await requireOrganizationAdmin(organizationId);
+
     validateDayHours(params.days);
 
     return await db.transaction(async (tx) => {

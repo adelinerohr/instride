@@ -87,10 +87,10 @@ export const listUsers = api(
       const bannedConditions = params.banned
         .map((status) => {
           if (status === "active") {
-            return eq(authUsers.banned, true);
+            return eq(authUsers.banned, false);
           }
           if (status === "banned") {
-            return eq(authUsers.banned, false);
+            return eq(authUsers.banned, true);
           }
         })
         .filter((v): v is NonNullable<typeof v> => v !== null);

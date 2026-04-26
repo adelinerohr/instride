@@ -1,51 +1,44 @@
-import { invitationOptions } from "@instride/api";
+import { useSendInvitation } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
-import { useQueryClient } from "@tanstack/react-query";
-import { isAPIError } from "better-auth/api";
 import { toast } from "sonner";
 import z from "zod";
 
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useAppForm } from "@/shared/hooks/use-form";
-import { authClient } from "@/shared/lib/auth/client";
 
 import { Route } from "./index";
 
 export function InviteMember() {
   const { organization } = Route.useRouteContext();
-  const queryClient = useQueryClient();
+  const sendInvitation = useSendInvitation();
 
   const form = useAppForm({
     defaultValues: {
       email: "",
-      role: [] as MembershipRole[],
+      roles: [] as MembershipRole[],
     },
     validators: {
       onSubmit: z.object({
         email: z.email(),
-        role: z.array(z.enum(MembershipRole)),
+        roles: z
+          .array(z.enum(MembershipRole))
+          .min(1, "Select at least one role"),
       }),
     },
     onSubmit: async ({ value }) => {
-      await authClient.organization.inviteMember(
+      sendInvitation.mutate(
         {
-          ...value,
-          organizationId: organization.authOrganizationId,
+          organizationId: organization.id,
+          email: value.email,
+          roles: value.roles,
         },
         {
           onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: invitationOptions.list().queryKey,
-            });
             toast.success("Invitation sent successfully");
             form.reset();
           },
           onError: (error) => {
-            if (isAPIError(error)) {
-              toast.error(error.message);
-            } else {
-              toast.error("Failed to send invitation");
-            }
+            toast.error(error.message ?? "Failed to send invitation");
           },
         }
       );
@@ -70,7 +63,7 @@ export function InviteMember() {
             )}
           />
           <form.AppField
-            name="role"
+            name="roles"
             children={(field) => (
               <field.MultiSelectField
                 label="Role"

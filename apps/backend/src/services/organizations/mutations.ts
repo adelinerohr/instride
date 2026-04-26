@@ -11,6 +11,7 @@ import { assertAdmin } from "@/services/auth/gates";
 import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { toOrganization } from "./mappers";
 import { memberService } from "./members/member.service";
 import { organizationService } from "./organization.service";
 
@@ -41,7 +42,12 @@ export const createOrganization = api(
       authOrganizationId: authOrg.id,
     });
 
-    const authMemberRow = authOrg.members?.[0];
+    assertExists(
+      authOrg.members,
+      "Better Auth did not return owner membership"
+    );
+
+    const authMemberRow = authOrg.members[0];
     if (authMemberRow) {
       await memberService.create({
         userId: userID,
@@ -52,7 +58,7 @@ export const createOrganization = api(
       });
     }
 
-    return { organization };
+    return { organization: toOrganization(organization) };
   }
 );
 
@@ -72,6 +78,6 @@ export const updateOrganization = api(
     await assertAdmin(organizationId, userID);
 
     const updated = await organizationService.update(organizationId, data);
-    return { organization: updated };
+    return { organization: toOrganization(updated) };
   }
 );

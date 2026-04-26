@@ -5,6 +5,7 @@ import { apiClient, upload } from "#client";
 import {
   CreateLevelRequest,
   CreateOrganizationRequest,
+  SendInvitationRequest,
   UpdateLevelRequest,
   UpdateOrganizationRequest,
 } from "#contracts";
@@ -43,6 +44,29 @@ export const levelMutations = {
     await apiClient.organizations.deleteLevel(levelId);
   },
 };
+
+export const invitationMutations = {
+  send: async ({ organizationId, ...request }: SendInvitationRequest) => {
+    await apiClient.organizations.sendInvitation(organizationId, request);
+  },
+};
+
+export function useSendInvitation({
+  mutationConfig,
+}: MutationHookOptions<typeof invitationMutations.send> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(invitationMutations.send, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({
+        queryKey: organizationKeys.listInvitations(),
+      });
+      onSuccess?.(...args);
+    },
+  });
+}
 
 export function useCreateOrganization({
   mutationConfig,

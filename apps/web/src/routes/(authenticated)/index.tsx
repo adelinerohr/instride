@@ -1,6 +1,6 @@
-import { authClient, organizationOptions } from "@instride/api";
+import { organizationOptions, useSignOut } from "@instride/api";
 import { ROLE_VARIANTS } from "@instride/shared";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   BuildingIcon,
@@ -42,21 +42,22 @@ export const Route = createFileRoute("/(authenticated)/")({
 function HomeComponent() {
   const { user } = Route.useRouteContext();
   const navigate = Route.useNavigate();
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   const { data: organizations } = useSuspenseQuery(
     organizationOptions.listByUser(user.id)
   );
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    queryClient.clear();
-    await router.invalidate();
-    navigate({
-      to: "/auth/login",
-    });
-  };
+  const signOut = useSignOut({
+    mutationConfig: {
+      onSuccess: async () => {
+        await router.invalidate();
+        navigate({
+          to: "/auth/login",
+        });
+      },
+    },
+  });
 
   const isSuperAdmin = user.role?.includes("admin") || false;
 
@@ -65,7 +66,7 @@ function HomeComponent() {
       <Button
         variant="ghost"
         className="absolute top-4 left-4"
-        onClick={handleSignOut}
+        onClick={() => signOut.mutate({})}
       >
         Sign out
       </Button>

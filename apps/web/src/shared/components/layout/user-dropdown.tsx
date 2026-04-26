@@ -1,5 +1,5 @@
+import { useSignOut } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Link,
   useNavigate,
@@ -16,7 +16,6 @@ import {
   UserIcon,
 } from "lucide-react";
 
-import { authClient } from "@/shared/lib/auth/client";
 import { hasAnyRole, hasRole } from "@/shared/lib/auth/roles";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -25,7 +24,6 @@ import { DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
 export function UserDropdown() {
   const navigate = useNavigate();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { user, organization, member, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
@@ -38,15 +36,17 @@ export function UserDropdown() {
 
   const isSuperAdmin = user.role?.includes("admin") || false;
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    queryClient.clear();
-    await router.invalidate();
-    navigate({
-      to: "/org/$slug/auth/login",
-      params: { slug: organization.slug },
-    });
-  };
+  const signOut = useSignOut({
+    mutationConfig: {
+      onSuccess: async () => {
+        await router.invalidate();
+        navigate({
+          to: "/org/$slug/auth/login",
+          params: { slug: organization.slug },
+        });
+      },
+    },
+  });
 
   return (
     <>
@@ -134,7 +134,7 @@ export function UserDropdown() {
       )}
 
       <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={handleSignOut}>
+      <DropdownMenuItem onClick={() => signOut.mutate({})}>
         <LogOutIcon />
         Sign Out
       </DropdownMenuItem>

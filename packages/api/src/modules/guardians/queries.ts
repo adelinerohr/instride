@@ -27,14 +27,14 @@ export const guardianOptions = {
   myGuardian: () =>
     queryOptions({
       queryKey: guardianKeys.myGuardian(),
-      queryFn: async () => await apiClient.guardians.getMyGuardians(),
+      queryFn: async () => await apiClient.guardians.listMyGuardians(),
     }),
 
   myDependents: () =>
     queryOptions({
       queryKey: guardianKeys.myDependents(),
       queryFn: async () => {
-        const { relationships } = await apiClient.guardians.getMyDependents();
+        const { relationships } = await apiClient.guardians.listMyDependents();
         return relationships;
       },
     }),

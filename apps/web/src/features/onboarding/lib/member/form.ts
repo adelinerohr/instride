@@ -1,4 +1,8 @@
-import { signWaiverSchema, updateUserSchema } from "@instride/shared";
+import {
+  MembershipRole,
+  signWaiverSchema,
+  updateUserSchema,
+} from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import z from "zod";
 
@@ -94,12 +98,18 @@ export const memberOnboardingFormOpts = formOptions({
   defaultValues: defaultMemberOnboardingValues,
 });
 
-export function buildMemberOnboardingDefaultValues(user: {
-  name: string;
-  email: string;
-  image?: string | null;
-  phone?: string | null;
-}): MemberOnboardingFormValues {
+export function buildMemberOnboardingDefaultValues(
+  user: {
+    name: string;
+    email: string;
+    image?: string | null;
+    phone?: string | null;
+  },
+  invitedRoles: MembershipRole[] = []
+): MemberOnboardingFormValues {
+  const wasInvitedAsGuardian = invitedRoles.includes(MembershipRole.GUARDIAN);
+  const wasInvitedAsRider = invitedRoles.includes(MembershipRole.RIDER);
+
   return {
     section: MemberOnboardingStep.PersonalDetails,
     personalDetails: {
@@ -112,8 +122,9 @@ export function buildMemberOnboardingDefaultValues(user: {
       removeImage: false,
     },
     accountType: {
-      isGuardian: false,
-      isRider: null,
+      isGuardian: wasInvitedAsGuardian,
+      // If already invited as rider, default true. If guardian, ask. Else null.
+      isRider: wasInvitedAsRider ? true : wasInvitedAsGuardian ? null : false,
     },
     questionnaire: {
       questionnaireId: "",

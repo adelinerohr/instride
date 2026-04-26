@@ -14,6 +14,11 @@ import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
+import {
+  toService,
+  toServiceBoardAssignment,
+  toServiceTrainerAssignment,
+} from "../mappers";
 import { services } from "../schema";
 import { createServiceService, serviceService } from "./service.service";
 
@@ -51,7 +56,7 @@ export const createService = api(
     });
 
     const service = await serviceService.findOne(serviceId, organizationId);
-    return { service };
+    return { service: toService(service) };
   }
 );
 
@@ -68,7 +73,8 @@ export const updateService = api(
       }
 
       if (boardIds !== undefined) {
-        await serviceTx.deleteBoardAssignment(id, organizationId);
+        // FIX: Delete all board assignments for the service
+        await serviceTx.deleteBoardAssignmentByType(organizationId, "service");
         if (boardIds.length > 0) {
           await serviceTx.bulkCreateBoardAssignments(
             boardIds.map((boardId) => ({
@@ -81,7 +87,11 @@ export const updateService = api(
       }
 
       if (trainerIds !== undefined) {
-        await serviceTx.deleteTrainerAssignment(id, organizationId);
+        // FIX: Delete all trainer assignments for the service
+        await serviceTx.deleteTrainerAssignmentByType(
+          organizationId,
+          "service"
+        );
         if (trainerIds.length > 0) {
           await serviceTx.bulkCreateTrainerAssignments(
             trainerIds.map((trainerId) => ({
@@ -96,7 +106,7 @@ export const updateService = api(
 
     const service = await serviceService.findOne(id, organizationId);
     assertExists(service, "Service not found");
-    return { service };
+    return { service: toService(service) };
   }
 );
 
@@ -131,7 +141,7 @@ export const assignTrainerToService = api(
       organizationId,
     });
 
-    return { assignment };
+    return { assignment: toServiceTrainerAssignment(assignment) };
   }
 );
 
@@ -153,7 +163,7 @@ export const assignBoardToService = api(
       organizationId,
     });
 
-    return { assignment };
+    return { assignment: toServiceBoardAssignment(assignment) };
   }
 );
 
@@ -166,7 +176,10 @@ export const unassignTrainerFromService = api(
   },
   async ({ assignmentId }: { assignmentId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-    await serviceService.deleteTrainerAssignment(assignmentId, organizationId);
+    await serviceService.deleteTrainerAssignmentById(
+      assignmentId,
+      organizationId
+    );
   }
 );
 
@@ -179,6 +192,9 @@ export const unassignBoardFromService = api(
   },
   async ({ assignmentId }: { assignmentId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-    await serviceService.deleteBoardAssignment(assignmentId, organizationId);
+    await serviceService.deleteBoardAssignmentById(
+      assignmentId,
+      organizationId
+    );
   }
 );

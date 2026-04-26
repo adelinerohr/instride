@@ -3,16 +3,14 @@ import type {
   GetBoardResponse,
   UpdateBoardRequest,
 } from "@instride/api/contracts";
-import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
 
+import { boardService, createBoardService } from "./board.service";
 import { db } from "./db";
-import { boardExpansion } from "./fragments";
 import { toBoard } from "./mappers";
-import { boardAssignments, boards, serviceBoardAssignments } from "./schema";
+import { createServiceService } from "./services/service.service";
 
 export const createBoard = api(
   { method: "POST", path: "/boards", expose: true, auth: true },
@@ -20,17 +18,17 @@ export const createBoard = api(
     const { organizationId } = requireOrganizationAuth();
 
     const boardId = await db.transaction(async (tx) => {
-      const [board] = await tx
-        .insert(boards)
-        .values({
-          name: request.name,
-          canRiderAdd: request.canRiderAdd ?? false,
-          organizationId,
-        })
-        .returning();
+      const txBoardService = createBoardService(tx);
+      const txServiceService = createServiceService(tx);
+
+      const board = await txBoardService.create({
+        name: request.name,
+        canRiderAdd: request.canRiderAdd ?? false,
+        organizationId,
+      });
 
       if (request.trainerIds?.length) {
-        await tx.insert(boardAssignments).values(
+        await txBoardService.bulkCreateAssignments(
           request.trainerIds.map((trainerId) => ({
             boardId: board.id,
             organizationId,
@@ -40,7 +38,7 @@ export const createBoard = api(
       }
 
       if (request.riderIds?.length) {
-        await tx.insert(boardAssignments).values(
+        await txBoardService.bulkCreateAssignments(
           request.riderIds.map((riderId) => ({
             boardId: board.id,
             organizationId,
@@ -50,7 +48,7 @@ export const createBoard = api(
       }
 
       if (request.serviceIds?.length) {
-        await tx.insert(serviceBoardAssignments).values(
+        await txServiceService.bulkCreateBoardAssignments(
           request.serviceIds.map((serviceId) => ({
             boardId: board.id,
             serviceId,
@@ -62,11 +60,7 @@ export const createBoard = api(
       return board.id;
     });
 
-    const board = await db.query.boards.findFirst({
-      where: { id: boardId, organizationId },
-      with: boardExpansion,
-    });
-    assertExists(board, "Failed to load board after create");
+    const board = await boardService.findOne(boardId, organizationId);
     return { board: toBoard(board) };
   }
 );
@@ -78,33 +72,22 @@ export const updateBoard = api(
     const { boardId, trainerIds, riderIds, serviceIds, ...scalars } = request;
 
     await db.transaction(async (tx) => {
+      const txBoardService = createBoardService(tx);
+      const txServiceService = createServiceService(tx);
+
       if (Object.keys(scalars).length > 0) {
-        await tx
-          .update(boards)
-          .set(scalars)
-          .where(
-            and(
-              eq(boards.id, boardId),
-              eq(boards.organizationId, organizationId)
-            )
-          );
+        await txBoardService.update(boardId, organizationId, scalars);
       }
 
       // Delete-then-insert for trainer assignments if provided
       if (trainerIds !== undefined) {
-        await tx.delete(boardAssignments).where(
-          and(
-            eq(boardAssignments.boardId, boardId),
-            eq(boardAssignments.organizationId, organizationId)
-            // Only delete trainer assignments; preserve rider assignments
-            // (trainerId IS NOT NULL means this is a trainer assignment)
-            // Drizzle syntax for "is not null" depends on your setup:
-            // sql`${boardAssignments.trainerId} IS NOT NULL`
-          )
+        await txBoardService.deleteAssignmentByBoard(
+          boardId,
+          organizationId,
+          "trainer"
         );
-        // NOTE: the delete above needs "trainerId IS NOT NULL" — see inline note
         if (trainerIds.length > 0) {
-          await tx.insert(boardAssignments).values(
+          await txBoardService.bulkCreateAssignments(
             trainerIds.map((trainerId) => ({
               boardId,
               organizationId,
@@ -115,10 +98,13 @@ export const updateBoard = api(
       }
 
       if (riderIds !== undefined) {
-        // Same pattern: delete existing rider assignments, then insert new
-        // Need "riderId IS NOT NULL" filter
+        await txBoardService.deleteAssignmentByBoard(
+          boardId,
+          organizationId,
+          "rider"
+        );
         if (riderIds.length > 0) {
-          await tx.insert(boardAssignments).values(
+          await txBoardService.bulkCreateAssignments(
             riderIds.map((riderId) => ({
               boardId,
               organizationId,
@@ -129,16 +115,13 @@ export const updateBoard = api(
       }
 
       if (serviceIds !== undefined) {
-        await tx
-          .delete(serviceBoardAssignments)
-          .where(
-            and(
-              eq(serviceBoardAssignments.boardId, boardId),
-              eq(serviceBoardAssignments.organizationId, organizationId)
-            )
-          );
+        // FIX: Delete all board assignments for the board
+        await txServiceService.deleteBoardAssignmentByType(
+          organizationId,
+          "board"
+        );
         if (serviceIds.length > 0) {
-          await tx.insert(serviceBoardAssignments).values(
+          await txServiceService.bulkCreateBoardAssignments(
             serviceIds.map((serviceId) => ({
               boardId,
               organizationId,
@@ -149,11 +132,7 @@ export const updateBoard = api(
       }
     });
 
-    const board = await db.query.boards.findFirst({
-      where: { id: boardId, organizationId },
-      with: boardExpansion,
-    });
-    assertExists(board, "Board not found");
+    const board = await boardService.findOne(boardId, organizationId);
     return { board: toBoard(board) };
   }
 );
@@ -162,11 +141,6 @@ export const deleteBoard = api(
   { method: "DELETE", path: "/boards/:boardId", expose: true, auth: true },
   async ({ boardId }: { boardId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-
-    await db
-      .delete(boards)
-      .where(
-        and(eq(boards.id, boardId), eq(boards.organizationId, organizationId))
-      );
+    await boardService.delete(boardId, organizationId);
   }
 );

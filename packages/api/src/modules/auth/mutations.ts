@@ -1,7 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, auth, authClient, upload } from "#client";
+import {
+  apiClient,
+  auth,
+  authClient,
+  clearOrganizationContext,
+  upload,
+} from "#client";
 
 import { authKeys } from "./keys";
 import {
@@ -118,6 +124,7 @@ export function useSignOut({
   return useWrappedAuthMutation(authClient.signOut, {
     ...config,
     onSuccess: (result, ...args) => {
+      clearOrganizationContext();
       queryClient.clear();
       onSuccess?.(result, ...args);
     },
@@ -127,17 +134,47 @@ export function useSignOut({
 export function useSignUpEmail({
   mutationConfig,
 }: AuthMutationHookOptionsFor<typeof authClient.signUp.email> = {}) {
-  return useWrappedAuthMutation(authClient.signUp.email, mutationConfig);
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedAuthMutation(authClient.signUp.email, {
+    ...config,
+    onSuccess: (result, ...args) => {
+      clearOrganizationContext();
+      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      onSuccess?.(result, ...args);
+    },
+  });
 }
 
 export function useSignInEmail({
   mutationConfig,
 }: AuthMutationHookOptionsFor<typeof authClient.signIn.email> = {}) {
-  return useWrappedAuthMutation(authClient.signIn.email, mutationConfig);
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedAuthMutation(authClient.signIn.email, {
+    ...config,
+    onSuccess: (result, ...args) => {
+      clearOrganizationContext();
+      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      onSuccess?.(result, ...args);
+    },
+  });
 }
 
 export function useSignInSocial({
   mutationConfig,
 }: AuthMutationHookOptionsFor<typeof authClient.signIn.social> = {}) {
-  return useWrappedAuthMutation(authClient.signIn.social, mutationConfig);
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedAuthMutation(authClient.signIn.social, {
+    ...config,
+    onSuccess: (result, ...args) => {
+      clearOrganizationContext();
+      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      onSuccess?.(result, ...args);
+    },
+  });
 }

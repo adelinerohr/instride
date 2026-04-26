@@ -1,8 +1,4 @@
-import {
-  useCreateOrganization,
-  useUpdateUser,
-  useUpdateOrganization,
-} from "@instride/api";
+import { useCreateOrganization, useUpdateUser } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeftIcon } from "lucide-react";
@@ -38,7 +34,6 @@ export const Route = createFileRoute("/(authenticated)/create-organization")({
 function RouteComponent() {
   const { user } = Route.useRouteContext();
   const createOrganization = useCreateOrganization();
-  const updateOrganization = useUpdateOrganization();
   const updateUser = useUpdateUser();
   const navigate = useNavigate();
 
@@ -74,31 +69,25 @@ function RouteComponent() {
 
       let logoUrl = null;
 
-      const organization = await createOrganization.mutateAsync({
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("file", logoFile);
+        const response = await fetch("/upload/avatar/organization", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+        const { url } = await response.json();
+        logoUrl = url;
+      }
+
+      await createOrganization.mutateAsync({
+        logoUrl,
         ...organizationDetails,
         ...value.organizationSetup,
       });
 
-      if (logoFile) {
-        const formData = new FormData();
-        formData.append("file", logoFile);
-        await fetch(
-          `/upload/avatar/organization?organizationId=${organization.id}`,
-          {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          }
-        );
-      }
-
-      // 3. Update organization
-      await updateOrganization.mutateAsync({
-        organizationId: organization.id,
-        logoUrl,
-      });
-
-      // 4. Redirect to organization dashboard
+      // 3. Redirect to organization dashboard
       navigate({
         to: "/org/$slug/admin",
         params: {

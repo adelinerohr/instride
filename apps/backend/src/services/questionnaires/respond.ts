@@ -8,7 +8,7 @@ import { requireOrganizationAuth } from "@/shared/auth";
 
 import { boardService } from "../boards/board.service";
 import { memberService } from "../organizations/members/member.service";
-import { questionnaireService } from "./service";
+import { questionnaireService } from "./questionnaire.service";
 import {
   assertMaySubmitForMember,
   evaluateBoardAssignmentRules,

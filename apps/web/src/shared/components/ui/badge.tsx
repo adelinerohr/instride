@@ -12,14 +12,14 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         accent: "bg-accent text-accent-foreground [a]:hover:bg-accent/80",
         amber:
-          "bg-category-amber-bg text-category-amber-fg [a]:hover:bg-category-amber-bg/80",
-        sage: "bg-category-sage-bg text-category-sage-fg [a]:hover:bg-category-sage-bg/80",
+          "bg-category-amber-bg text-category-amber-fg [a]:hover:bg-category-amber-bg/80 border-category-amber-border",
+        sage: "bg-category-sage-bg text-category-sage-fg [a]:hover:bg-category-sage-bg/80 border-category-sage-border",
         terracotta:
-          "bg-category-terracotta-bg text-category-terracotta-fg [a]:hover:bg-category-terracotta-bg/80",
-        plum: "bg-category-plum-bg text-category-plum-fg [a]:hover:bg-category-plum-bg/80",
-        clay: "bg-category-clay-bg text-category-clay-fg [a]:hover:bg-category-clay-bg/80",
+          "bg-category-terracotta-bg text-category-terracotta-fg [a]:hover:bg-category-terracotta-bg/80 border-category-terracotta-border",
+        plum: "bg-category-plum-bg text-category-plum-fg [a]:hover:bg-category-plum-bg/80 border-category-plum-border",
+        clay: "bg-category-clay-bg text-category-clay-fg [a]:hover:bg-category-clay-bg/80 border-category-clay-border",
         slate:
-          "bg-category-slate-bg text-category-slate-fg [a]:hover:bg-category-slate-bg/80",
+          "bg-category-slate-bg text-category-slate-fg [a]:hover:bg-category-slate-bg/80 border-category-slate-border",
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
         destructive:

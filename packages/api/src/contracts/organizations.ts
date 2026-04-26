@@ -11,7 +11,7 @@ export interface Invitation {
   id: string;
   organizationId: string;
   email: string;
-  role: MembershipRole[];
+  roles: MembershipRole[];
   status: InvitationStatus;
   inviterId: string;
   expiresAt: string;
@@ -120,7 +120,8 @@ export interface Rider extends RiderProfile {
   member: MemberSummary;
 }
 
-export interface RiderWithMember extends RiderProfile {
+// A rider summary — rider scalars plus member context.
+export interface RiderSummary extends RiderProfile {
   member: MemberSummary;
 }
 
@@ -130,7 +131,8 @@ export interface Trainer extends TrainerProfile {
   member: MemberSummary;
 }
 
-export interface TrainerWithMember extends TrainerProfile {
+// A trainer summary — trainer scalars plus member context.
+export interface TrainerSummary extends TrainerProfile {
   member: MemberSummary;
 }
 
@@ -215,8 +217,7 @@ export interface UpdateLevelRequest extends Partial<CreateLevelRequest> {
 export interface SendInvitationRequest {
   organizationId: string;
   email: string;
-  role: MembershipRole[];
-  resend?: boolean;
+  roles: MembershipRole[];
 }
 
 export interface JoinOrganizationRequest {
@@ -227,6 +228,14 @@ export interface JoinOrganizationRequest {
 export interface ChangeRoleRequest {
   memberId: string;
   roles: MembershipRole[];
+}
+
+export interface AcceptInvitationRequest {
+  id: string;
+}
+
+export interface RejectInvitationRequest {
+  id: string;
 }
 
 // ============================================================================
@@ -286,4 +295,12 @@ export interface GetLevelResponse {
 
 export interface ListInvitationsResponse {
   invitations: Invitation[];
+}
+
+export interface ListMyInvitedRolesResponse {
+  roles: MembershipRole[];
+}
+
+export interface GetInvitationResponse {
+  invitation: Invitation;
 }

@@ -19,15 +19,15 @@ export const Route = createFileRoute("/org/$slug/auth")({
     }
 
     try {
-      const org = await context.queryClient.ensureQueryData(
+      const organization = await context.queryClient.ensureQueryData(
         organizationOptions.bySlug(params.slug)
       );
 
-      if (!org) {
+      if (!organization) {
         throw notFound();
       }
 
-      return { org };
+      return { organization };
     } catch {
       throw notFound();
     }

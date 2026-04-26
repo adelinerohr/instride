@@ -10,6 +10,7 @@ import { api, APIError } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { memberService } from "../organizations/members/member.service";
+import { db } from "./db";
 import { waiverService } from "./service";
 
 export const createWaiver = api(
@@ -75,25 +76,27 @@ export const signWaiver = api(
     const waiver = await waiverService.findOne(request.id, organizationId);
     const member = await memberService.findOneByUser(userID, organizationId);
 
-    try {
-      await waiverService.findOneSignature({
-        organizationId,
+    const existing = await db.query.waiverSignatures.findFirst({
+      where: {
         waiverId: request.id,
+        organizationId,
         signerMemberId: member.id,
         onBehalfOfMemberId: request.onBehalfOfMemberId ?? undefined,
-      });
+      },
+    });
 
-      const signature = await waiverService.createSignature({
-        organizationId,
-        waiverId: request.id,
-        signerMemberId: member.id,
-        onBehalfOfMemberId: request.onBehalfOfMemberId ?? undefined,
-        waiverVersion: waiver.version,
-      });
-
-      return { signature };
-    } catch {
+    if (existing) {
       throw APIError.alreadyExists("Signature already exists");
     }
+
+    const signature = await waiverService.createSignature({
+      organizationId,
+      waiverId: request.id,
+      signerMemberId: member.id,
+      onBehalfOfMemberId: request.onBehalfOfMemberId ?? undefined,
+      waiverVersion: waiver.version,
+    });
+
+    return { signature };
   }
 );

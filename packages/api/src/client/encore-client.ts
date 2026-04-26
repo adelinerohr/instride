@@ -784,11 +784,11 @@ export namespace guardians {
             this.createGuardianRelationship = this.createGuardianRelationship.bind(this)
             this.createPlaceholderRelationship = this.createPlaceholderRelationship.bind(this)
             this.getInvitationByToken = this.getInvitationByToken.bind(this)
-            this.getMyDependents = this.getMyDependents.bind(this)
-            this.getMyGuardians = this.getMyGuardians.bind(this)
             this.getPendingInvitation = this.getPendingInvitation.bind(this)
             this.getRelationshipById = this.getRelationshipById.bind(this)
             this.listAllRelationships = this.listAllRelationships.bind(this)
+            this.listMyDependents = this.listMyDependents.bind(this)
+            this.listMyGuardians = this.listMyGuardians.bind(this)
             this.revokeRelationship = this.revokeRelationship.bind(this)
             this.sendInvitation = this.sendInvitation.bind(this)
             this.updateGuardianRelationship = this.updateGuardianRelationship.bind(this)
@@ -832,18 +832,6 @@ export namespace guardians {
             return await resp.json() as contracts.GetGuardianInvitationResponse
         }
 
-        public async getMyDependents(): Promise<contracts.ListMyDependentsResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-dependents`)
-            return await resp.json() as contracts.ListMyDependentsResponse
-        }
-
-        public async getMyGuardians(): Promise<contracts.ListMyGuardiansResponse> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-guardians`)
-            return await resp.json() as contracts.ListMyGuardiansResponse
-        }
-
         public async getPendingInvitation(): Promise<contracts.GetPendingInvitationResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians/invitations/me/pending`)
@@ -860,6 +848,18 @@ export namespace guardians {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/guardians`)
             return await resp.json() as contracts.ListGuardianRelationshipsResponse
+        }
+
+        public async listMyDependents(): Promise<contracts.ListMyDependentsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-dependents`)
+            return await resp.json() as contracts.ListMyDependentsResponse
+        }
+
+        public async listMyGuardians(): Promise<contracts.ListMyGuardiansResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/guardians/my-guardians`)
+            return await resp.json() as contracts.ListMyGuardiansResponse
         }
 
         public async revokeRelationship(relationshipId: string): Promise<contracts.MutateGuardianRelationshipResponse> {
@@ -1188,6 +1188,8 @@ export namespace organizations {
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
+            this.acceptInvitation = this.acceptInvitation.bind(this)
+            this.cancelInvitation = this.cancelInvitation.bind(this)
             this.changeRole = this.changeRole.bind(this)
             this.checkSlug = this.checkSlug.bind(this)
             this.completeOnboarding = this.completeOnboarding.bind(this)
@@ -1198,6 +1200,7 @@ export namespace organizations {
             this.deleteLevel = this.deleteLevel.bind(this)
             this.getById = this.getById.bind(this)
             this.getBySlug = this.getBySlug.bind(this)
+            this.getInvitation = this.getInvitation.bind(this)
             this.getLevel = this.getLevel.bind(this)
             this.getMember = this.getMember.bind(this)
             this.getMemberById = this.getMemberById.bind(this)
@@ -1208,18 +1211,28 @@ export namespace organizations {
             this.listInvitations = this.listInvitations.bind(this)
             this.listLevels = this.listLevels.bind(this)
             this.listMembers = this.listMembers.bind(this)
+            this.listMyInvitedRoles = this.listMyInvitedRoles.bind(this)
             this.listMyOrganizations = this.listMyOrganizations.bind(this)
             this.listOrganizations = this.listOrganizations.bind(this)
             this.listRiders = this.listRiders.bind(this)
             this.listTrainers = this.listTrainers.bind(this)
             this.listUserInvitations = this.listUserInvitations.bind(this)
             this.onboardMember = this.onboardMember.bind(this)
+            this.rejectInvitation = this.rejectInvitation.bind(this)
             this.sendInvitation = this.sendInvitation.bind(this)
             this.setKioskPin = this.setKioskPin.bind(this)
             this.updateLevel = this.updateLevel.bind(this)
             this.updateOrganization = this.updateOrganization.bind(this)
             this.updateRider = this.updateRider.bind(this)
             this.updateTrainer = this.updateTrainer.bind(this)
+        }
+
+        public async acceptInvitation(id: string): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/invitations/${encodeURIComponent(id)}/accept`)
+        }
+
+        public async cancelInvitation(id: string): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/invitations/${encodeURIComponent(id)}/cancel`)
         }
 
         public async changeRole(memberId: string, params: contracts.ChangeRoleRequest): Promise<void> {
@@ -1274,6 +1287,12 @@ export namespace organizations {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/organizations/by-slug/${encodeURIComponent(slug)}`)
             return await resp.json() as contracts.GetOrganizationResponse
+        }
+
+        public async getInvitation(id: string): Promise<contracts.GetInvitationResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/invitations/${encodeURIComponent(id)}`)
+            return await resp.json() as contracts.GetInvitationResponse
         }
 
         public async getLevel(levelId: string): Promise<contracts.GetLevelResponse> {
@@ -1336,6 +1355,16 @@ export namespace organizations {
             return await resp.json() as contracts.ListMembersResponse
         }
 
+        public async listMyInvitedRoles(): Promise<{
+    roles: models.MembershipRole[]
+}> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/members/me/invited-roles`)
+            return await resp.json() as {
+    roles: models.MembershipRole[]
+}
+        }
+
         public async listMyOrganizations(): Promise<contracts.ListMyOrganizationsResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/organizations/my`)
@@ -1370,6 +1399,10 @@ export namespace organizations {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/organizations/members/onboard`, JSON.stringify(params))
             return await resp.json() as contracts.GetMemberResponse
+        }
+
+        public async rejectInvitation(id: string): Promise<void> {
+            await this.baseClient.callTypedAPI("POST", `/invitations/${encodeURIComponent(id)}/reject`)
         }
 
         public async sendInvitation(organizationId: string, params: contracts.SendInvitationRequest): Promise<void> {
@@ -1828,20 +1861,21 @@ export namespace contracts {
     }
 
     export interface AuthUser {
+        name: string
         id: string
-        createdAt: string
-        updatedAt: string
         email: string
         emailVerified: boolean
-        name: string
-        image?: string | null
-        phone?: string | null
-        profilePictureUrl?: string | null
-        banned?: boolean | null
-        role?: string | null
-        banReason?: string | null
-        banExpires?: string | null
-        dateOfBirth?: string | null
+        image: string | null
+        imageKey: string | null
+        phone: string | null
+        profilePictureUrl: string | null
+        role: string | null
+        banned: boolean | null
+        banReason: string | null
+        banExpires: string | null
+        dateOfBirth: string | null
+        createdAt: string
+        updatedAt: string
     }
 
     export interface AvailabilitySlot {
@@ -1871,8 +1905,8 @@ export namespace contracts {
         trainerId: string | null
         riderId: string | null
         createdAt: string
-        trainer: TrainerWithMember | null
-        rider: RiderWithMember | null
+        trainer: TrainerSummary | null
+        rider: RiderSummary | null
     }
 
     export interface BoardAssignmentSummary {
@@ -2310,6 +2344,10 @@ export namespace contracts {
         enrollment: LessonInstanceEnrollment
     }
 
+    export interface GetInvitationResponse {
+        invitation: Invitation
+    }
+
     export interface GetKioskSessionResponse {
         session: KioskSession
         acting: KioskActingState
@@ -2481,7 +2519,7 @@ export namespace contracts {
         id: string
         organizationId: string
         email: string
-        role: models.MembershipRole[]
+        roles: models.MembershipRole[]
         status: models.InvitationStatus
         inviterId: string
         expiresAt: string
@@ -3079,7 +3117,7 @@ export namespace contracts {
         updatedAt: string
     }
 
-    export interface RiderWithMember {
+    export interface RiderSummary {
         member: MemberSummary
         id: string
         organizationId: string
@@ -3103,8 +3141,7 @@ export namespace contracts {
 
     export interface SendInvitationRequest {
         email: string
-        role: models.MembershipRole[]
-        resend?: boolean
+        roles: models.MembershipRole[]
     }
 
     export interface SeriesEnrollmentFailure {
@@ -3214,7 +3251,7 @@ export namespace contracts {
         updatedAt: string
     }
 
-    export interface TrainerWithMember {
+    export interface TrainerSummary {
         member: MemberSummary
         id: string
         organizationId: string
@@ -3542,9 +3579,6 @@ export namespace members {
 export namespace models {
     export type ActivitySubjectType = "lesson" | "post" | "payment" | "rider" | "trainer" | "other"
 
-    /**
-     * Activity type
-     */
     export type ActivityType = "enrollment_created" | "lesson_completed_as_rider" | "waiver_signed" | "questionnaire_submitted" | "level_updated" | "lesson_taught" | "student_assigned" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
 
     export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
@@ -3555,9 +3589,6 @@ export namespace models {
 
     export type InvitationStatus = "pending" | "accepted" | "rejected" | "cancelled"
 
-    /**
-     * Kiosk scopes
-     */
     export type KioskScope = "default" | "staff" | "self"
 
     export type LessonInstanceEnrollmentStatus = "enrolled" | "waitlisted" | "cancelled" | "attended" | "no_show"
@@ -3572,11 +3603,8 @@ export namespace models {
 
     export type MembershipRole = "admin" | "rider" | "trainer" | "guardian"
 
-    export type NotificationChannel = "email" | "sms" | "push" | "in_app"
+    export type NotificationChannel = string
 
-    /**
-     * Notifications
-     */
     export type NotificationType = "enrollment_created" | "lesson_enrolled" | "lesson_cancelled" | "lesson_reminder" | "post_created" | "comment_added" | "profile_updated" | "credit_package_purchased" | "invoice_paid" | "user_updated"
 
     export type QuestionnaireQuestionOperator = "equals" | "not_equals"

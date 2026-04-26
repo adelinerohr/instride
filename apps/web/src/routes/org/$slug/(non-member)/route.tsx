@@ -1,5 +1,4 @@
-import { authClient, authOptions, type types } from "@instride/api";
-import { useQueryClient } from "@tanstack/react-query";
+import { authOptions, useSignOut, type AuthUser } from "@instride/api";
 import { createFileRoute, Outlet, useRouter } from "@tanstack/react-router";
 
 import { Button } from "@/shared/components/ui/button";
@@ -25,7 +24,7 @@ export const Route = createFileRoute("/org/$slug/(non-member)")({
         to: "/org/$slug/auth/login",
         params,
         search: {
-          redirect: location.href,
+          redirect: location.pathname,
         },
       });
     }
@@ -57,11 +56,19 @@ export const Route = createFileRoute("/org/$slug/(non-member)")({
       }
     }
 
-    const user: types.AuthUser = {
+    const user: AuthUser = {
       ...session.user,
+      image: session.user.image ?? null,
+      imageKey: session.user.imageKey ?? null,
+      phone: session.user.phone ?? null,
+      profilePictureUrl: session.user.profilePictureUrl ?? null,
+      role: session.user.role ?? null,
+      banned: session.user.banned ?? null,
+      banReason: session.user.banReason ?? null,
+      banExpires: session.user.banExpires?.toISOString() ?? null,
+      dateOfBirth: session.user.dateOfBirth ?? null,
       createdAt: session.user.createdAt.toISOString(),
       updatedAt: session.user.updatedAt.toISOString(),
-      banExpires: session.user.banExpires?.toISOString() ?? null,
     };
 
     return {
@@ -74,26 +81,27 @@ export const Route = createFileRoute("/org/$slug/(non-member)")({
 
 function RouteComponent() {
   const { organization } = Route.useRouteContext();
-  const queryClient = useQueryClient();
   const router = useRouter();
   const navigate = Route.useNavigate();
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    queryClient.clear();
-    await router.invalidate();
-    navigate({
-      to: "/org/$slug/auth/login",
-      params: { slug: organization.slug },
-    });
-  };
+  const signOut = useSignOut({
+    mutationConfig: {
+      onSuccess: async () => {
+        await router.invalidate();
+        navigate({
+          to: "/org/$slug/auth/login",
+          params: { slug: organization.slug },
+        });
+      },
+    },
+  });
 
   return (
     <div className="min-h-svh overflow-y-auto bg-muted/40 relative">
       <Button
         variant="ghost"
         className="absolute top-4 left-4"
-        onClick={handleSignOut}
+        onClick={() => signOut.mutate({})}
       >
         Sign out
       </Button>

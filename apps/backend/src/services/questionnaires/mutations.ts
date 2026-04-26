@@ -7,9 +7,8 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { assertAdmin } from "../auth/gates";
-import { memberService } from "../organizations/members/member.service";
-import { questionnaireService } from "./service";
+import { requireOrganizationAdmin } from "../auth/gates";
+import { questionnaireService } from "./questionnaire.service";
 import { validateQuestions, validateRules } from "./validators";
 
 export const createQuestionnaire = api(
@@ -22,10 +21,8 @@ export const createQuestionnaire = api(
   async (
     request: CreateQuestionnaireRequest
   ): Promise<GetQuestionnaireResponse> => {
-    const { organizationId, userID } = requireOrganizationAuth();
-
-    const caller = await memberService.findOneByUser(userID, organizationId);
-    assertAdmin(organizationId, userID);
+    const { organizationId } = requireOrganizationAuth();
+    const caller = await requireOrganizationAdmin(organizationId);
 
     validateQuestions(request.questions);
     validateRules(request.boardAssignmentRules, request.questions);

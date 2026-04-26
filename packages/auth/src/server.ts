@@ -10,6 +10,7 @@ interface DB {
   [key: string]: any;
 }
 
+// TODO: Link to backend app
 export const betterAuthOptions = (opts: {
   db: DB;
   secret: string;
@@ -20,11 +21,29 @@ export const betterAuthOptions = (opts: {
   secret: opts.secret,
   baseURL: opts.baseURL,
 
+  ...(opts.isProd && {
+    advanced: {
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: ".instrideapp.com",
+      },
+      defaultCookieAttributes: {
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+      },
+    },
+  }),
+
   trustedOrigins: opts.isProd
     ? [
+        // Custom domain (when ready)
         "https://app.instrideapp.com",
+        "https://api.instrideapp.com",
         "https://instrideapp.com",
         "https://*.instrideapp.com",
+
+        // Vercel domain (for testing)
         "https://instride.vercel.app",
         "https://*.instride.vercel.app",
       ]
@@ -44,14 +63,6 @@ export const betterAuthOptions = (opts: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
     cookieCache: { enabled: true, maxAge: 5 * 60 },
-    ...(opts.isProd && {
-      cookieAttributes: {
-        domain: ".instride.vercel.app",
-        sameSite: "lax" as const,
-        secure: true,
-        httpOnly: true,
-      },
-    }),
   },
   user: {
     modelName: "authUsers",
@@ -65,7 +76,7 @@ export const betterAuthOptions = (opts: {
     modelName: "authAccounts",
     accountLinking: {
       enabled: true,
-      trustedProviders: ["google", "email-password"],
+      trustedProviders: ["google", "credential"],
     },
   },
   verification: {

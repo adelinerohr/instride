@@ -114,6 +114,9 @@ export function useAcceptGuardianInvitation({
       queryClient.invalidateQueries({
         queryKey: guardianKeys.pendingInvitation(),
       });
+      queryClient.invalidateQueries({
+        queryKey: memberKeys.me(),
+      });
       onSuccess?.(result, token, ...args);
     },
   });

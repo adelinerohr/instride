@@ -1,4 +1,4 @@
-import { authOptions, useSession } from "@instride/api";
+import { authOptions } from "@instride/api";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 
@@ -12,7 +12,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "sonner";
 
-import Loader from "@/shared/components/loader";
 import { Modals } from "@/shared/components/modals";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
@@ -110,13 +109,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-  const { isPending } = useSession();
-
-  // Show loader while checking session
-  if (isPending) {
-    return <Loader />;
-  }
-
   return (
     <TooltipProvider>
       <HeadContent />

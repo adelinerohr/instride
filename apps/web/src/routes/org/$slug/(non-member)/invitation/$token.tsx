@@ -1,5 +1,4 @@
-import { guardianOptions } from "@instride/api";
-import { useQueryClient } from "@tanstack/react-query";
+import { guardianOptions, useSignOut } from "@instride/api";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -29,7 +28,7 @@ export const Route = createFileRoute(
       return { type: "organization" as const, invitation: data };
     }
 
-    const invitation = await context.queryClient.ensureQueryData(
+    const { invitation } = await context.queryClient.ensureQueryData(
       guardianOptions.invitationByToken(params.token)
     );
 
@@ -40,26 +39,27 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { type, invitation } = Route.useLoaderData();
   const { user, organization } = Route.useRouteContext();
-  const queryClient = useQueryClient();
   const router = useRouter();
   const navigate = Route.useNavigate();
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    queryClient.clear();
-    await router.invalidate();
-    navigate({
-      to: "/org/$slug/auth/login",
-      params: { slug: organization.slug },
-    });
-  };
+  const signOut = useSignOut({
+    mutationConfig: {
+      onSuccess: async () => {
+        await router.invalidate();
+        navigate({
+          to: "/org/$slug/auth/login",
+          params: { slug: organization.slug },
+        });
+      },
+    },
+  });
 
   return (
     <div className="min-h-svh overflow-y-auto bg-muted/40 relative">
       <Button
         variant="ghost"
         className="absolute top-4 left-4"
-        onClick={handleSignOut}
+        onClick={() => signOut.mutate({})}
       >
         Sign out
       </Button>

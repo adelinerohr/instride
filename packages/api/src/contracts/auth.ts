@@ -1,20 +1,29 @@
 export interface AuthUser {
+  name: string;
   id: string;
-  createdAt: string;
-  updatedAt: string;
   email: string;
   emailVerified: boolean;
-  name: string;
-  image?: string | null;
-  phone?: string | null;
-  profilePictureUrl?: string | null;
-  banned?: boolean | null;
-  role?: string | null;
-  banReason?: string | null;
-  banExpires?: string | null;
-  dateOfBirth?: string | null;
+  image: string | null;
+  imageKey: string | null;
+  phone: string | null;
+  profilePictureUrl: string | null;
+  role: string | null;
+  banned: boolean | null;
+  banReason: string | null;
+  banExpires: string | null;
+  dateOfBirth: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface WithAuthUser {
   authUser: AuthUser;
+}
+
+export interface AuthMember {
+  id: string;
+  role: string;
+  createdAt: string;
+  userId: string;
+  organizationId: string;
 }

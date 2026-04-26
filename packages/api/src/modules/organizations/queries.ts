@@ -73,6 +73,22 @@ export const invitationOptions = {
         return invitations;
       },
     }),
+  byId: (id: string) =>
+    queryOptions({
+      queryKey: organizationKeys.invitationById(id),
+      queryFn: async () => {
+        const { invitation } = await apiClient.organizations.getInvitation(id);
+        return invitation;
+      },
+    }),
+  roles: () =>
+    queryOptions({
+      queryKey: organizationKeys.invitationRoles(),
+      queryFn: async () => {
+        const { roles } = await apiClient.organizations.listMyInvitedRoles();
+        return roles;
+      },
+    }),
 };
 
 export const levelOptions = {

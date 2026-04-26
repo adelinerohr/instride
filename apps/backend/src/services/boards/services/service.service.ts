@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
 import { Database, Transaction } from "@/shared/utils/schema";
 import { assertExists } from "@/shared/utils/validation";
@@ -134,13 +134,36 @@ export const createServiceService = (client: Database | Transaction = db) => ({
     return assignment;
   },
 
-  deleteTrainerAssignment: async (id: string, organizationId: string) => {
+  deleteTrainerAssignmentById: async (
+    assignmentId: string,
+    organizationId: string
+  ) => {
     const result = await client
       .delete(serviceTrainerAssignments)
       .where(
         and(
-          eq(serviceTrainerAssignments.id, id),
+          eq(serviceTrainerAssignments.id, assignmentId),
           eq(serviceTrainerAssignments.organizationId, organizationId)
+        )
+      );
+    assertExists(result, "Failed to delete trainer assignment");
+    return result;
+  },
+
+  deleteTrainerAssignmentByType: async (
+    organizationId: string,
+    type: "trainer" | "service"
+  ) => {
+    const result = await client
+      .delete(serviceTrainerAssignments)
+      .where(
+        and(
+          eq(serviceTrainerAssignments.organizationId, organizationId),
+          isNotNull(
+            type === "trainer"
+              ? serviceTrainerAssignments.trainerId
+              : serviceTrainerAssignments.serviceId
+          )
         )
       );
     assertExists(result, "Failed to delete trainer assignment");
@@ -206,13 +229,36 @@ export const createServiceService = (client: Database | Transaction = db) => ({
     return assignment;
   },
 
-  deleteBoardAssignment: async (id: string, organizationId: string) => {
+  deleteBoardAssignmentById: async (
+    assignmentId: string,
+    organizationId: string
+  ) => {
     const result = await client
       .delete(serviceBoardAssignments)
       .where(
         and(
-          eq(serviceBoardAssignments.id, id),
+          eq(serviceBoardAssignments.id, assignmentId),
           eq(serviceBoardAssignments.organizationId, organizationId)
+        )
+      );
+    assertExists(result, "Failed to delete board assignment");
+    return result;
+  },
+
+  deleteBoardAssignmentByType: async (
+    organizationId: string,
+    type: "board" | "service"
+  ) => {
+    const result = await client
+      .delete(serviceBoardAssignments)
+      .where(
+        and(
+          eq(serviceBoardAssignments.organizationId, organizationId),
+          isNotNull(
+            type === "board"
+              ? serviceBoardAssignments.boardId
+              : serviceBoardAssignments.serviceId
+          )
         )
       );
     assertExists(result, "Failed to delete board assignment");

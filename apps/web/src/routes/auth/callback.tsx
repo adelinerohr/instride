@@ -1,3 +1,5 @@
+import { authOptions } from "@instride/api";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -17,11 +19,16 @@ export const Route = createFileRoute("/auth/callback")({
 function AuthCallback() {
   const navigate = useNavigate();
   const search = Route.useSearch();
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function handleCallback() {
       try {
+        await queryClient.refetchQueries({
+          queryKey: authOptions.session().queryKey,
+        });
+
         const currentHost = window.location.host;
         const { orgSlug, returnTo } = search;
 
@@ -36,7 +43,6 @@ function AuthCallback() {
         if (isDev && orgSlug) {
           // In dev, use path-based routing
           const targetPath = `/org/${orgSlug}${returnTo || "/"}`;
-          console.log("Navigating to org path:", targetPath);
           navigate({ to: targetPath as any });
           return;
         }
@@ -48,7 +54,6 @@ function AuthCallback() {
           const targetPath = returnTo || "/";
           const targetUrl = `${protocol}//${targetDomain}${targetPath}`;
 
-          console.log("Redirecting to org subdomain:", targetUrl);
           window.location.href = targetUrl;
           return;
         }
@@ -62,7 +67,6 @@ function AuthCallback() {
 
           const targetPath = returnTo || "/";
           const targetUrl = `https://instrideapp.com${targetPath}`;
-          console.log("Redirecting to root domain:", targetUrl);
           window.location.href = targetUrl;
           return;
         }

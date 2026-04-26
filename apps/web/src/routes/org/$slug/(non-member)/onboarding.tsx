@@ -1,4 +1,5 @@
 import {
+  invitationOptions,
   questionnaireOptions,
   useOnboardMember,
   waiverOptions,
@@ -57,13 +58,15 @@ export const Route = createFileRoute("/org/$slug/(non-member)/onboarding")({
     }
   },
   loader: async ({ context }) => {
-    console.log("context.organization.id", context.organization.id);
-    await context.queryClient.ensureQueryData(
-      waiverOptions.list(context.organization.id)
-    );
-    await context.queryClient.ensureQueryData(
-      questionnaireOptions.list(context.organization.id)
-    );
+    await Promise.all([
+      context.queryClient.ensureQueryData(invitationOptions.roles()),
+      context.queryClient.ensureQueryData(
+        waiverOptions.list(context.organization.id)
+      ),
+      context.queryClient.ensureQueryData(
+        questionnaireOptions.list(context.organization.id)
+      ),
+    ]);
   },
 });
 
@@ -79,6 +82,7 @@ function RouteComponent() {
   const { data: questionnaires } = useSuspenseQuery(
     questionnaireOptions.list(organization.id)
   );
+  const { data: invitedRoles } = useSuspenseQuery(invitationOptions.roles());
 
   const onboardMember = useOnboardMember();
 
@@ -155,7 +159,7 @@ function RouteComponent() {
 
   const form = useAppForm({
     ...memberOnboardingFormOpts,
-    defaultValues: buildMemberOnboardingDefaultValues(user),
+    defaultValues: buildMemberOnboardingDefaultValues(user, invitedRoles),
     onSubmit: async ({ value, formApi }) => {
       const { section } = value;
 
@@ -277,7 +281,11 @@ function RouteComponent() {
         )}
 
         {section === MemberOnboardingStep.AccountType && (
-          <AccountTypeStep form={form} fields="accountType" />
+          <AccountTypeStep
+            form={form}
+            fields="accountType"
+            invitedRoles={invitedRoles}
+          />
         )}
 
         {section === MemberOnboardingStep.Questionnaire &&

@@ -78,48 +78,6 @@ export function validateRules(
   }
 }
 
-export function validateResponses(
-  responses: QuestionnaireQuestionResponse[],
-  questions: QuestionnaireQuestion[]
-): void {
-  // Check all required questions are answered
-  const answeredIds = new Set(responses.map((r) => r.questionId));
-
-  for (const question of questions) {
-    if (question.required && !answeredIds.has(question.id)) {
-      // Check if question should be shown (conditional logic)
-      const shouldShow = shouldShowQuestion(question, responses);
-      if (shouldShow) {
-        throw new Error(`Required question ${question.id} not answered`);
-      }
-    }
-  }
-
-  // Validate response values match question types
-  for (const response of responses) {
-    const question = questions.find((q) => q.id === response.questionId);
-    if (!question) continue;
-
-    if (
-      question.type === QuestionnaireQuestionType.BOOLEAN &&
-      typeof response.responseValue !== "boolean"
-    ) {
-      throw new Error(`Question ${question.id} expects boolean answer`);
-    }
-
-    if (question.type === QuestionnaireQuestionType.MULTIPLE_CHOICE) {
-      if (typeof response.responseValue !== "string") {
-        throw new Error(
-          `Question ${question.id} expects string answer for MultipleChoice`
-        );
-      }
-      if (!question.options?.includes(response.responseValue)) {
-        throw new Error(`Question ${question.id} answer not in valid options`);
-      }
-    }
-  }
-}
-
 export function shouldShowQuestion(
   question: QuestionnaireQuestion,
   responses: QuestionnaireQuestionResponse[]

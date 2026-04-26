@@ -1,6 +1,6 @@
+import { useSendInvitation } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
-import { APIError } from "better-auth";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -17,12 +17,12 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { useAppForm } from "@/shared/hooks/use-form";
-import { authClient } from "@/shared/lib/auth/client";
 
 export const guardianInvitationModalHandler = AlertDialogHandler.createHandle();
 
 export function GuardianInvitationModal() {
   const { organization } = useRouteContext({ strict: false });
+  const sendInvitation = useSendInvitation();
 
   const form = useAppForm({
     defaultValues: {
@@ -39,24 +39,22 @@ export function GuardianInvitationModal() {
     onSubmit: async ({ value }) => {
       if (!organization) return;
 
-      try {
-        const { error } = await authClient.organization.inviteMember({
+      sendInvitation.mutate(
+        {
+          organizationId: organization.id,
           email: value.guardianEmail,
-          role: [MembershipRole.GUARDIAN],
-          organizationId: organization.authOrganizationId,
-        });
-
-        if (error) throw error;
-
-        toast.success("Invitation sent successfully");
-        guardianInvitationModalHandler.close();
-      } catch (error) {
-        const message =
-          error instanceof APIError
-            ? error.message
-            : "An unknown error occurred";
-        toast.error(message);
-      }
+          roles: [MembershipRole.GUARDIAN],
+        },
+        {
+          onSuccess: () => {
+            toast.success("Invitation sent successfully");
+            guardianInvitationModalHandler.close();
+          },
+          onError: (error) => {
+            toast.error(error.message ?? "Failed to send invitation");
+          },
+        }
+      );
     },
   });
 

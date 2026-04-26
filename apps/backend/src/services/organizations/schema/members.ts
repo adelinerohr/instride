@@ -172,6 +172,9 @@ export const riders = p.pgTable(
   ]
 );
 
+export type AuthMemberRow = typeof authMembers.$inferSelect;
+export type NewAuthMemberRow = typeof authMembers.$inferInsert;
+
 export type MemberRow = typeof members.$inferSelect;
 export type NewMemberRow = typeof members.$inferInsert;
 

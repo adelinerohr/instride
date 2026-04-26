@@ -11,6 +11,9 @@ export const organizationKeys = {
 
   listInvitations: () => [...ROOT, "invitations"] as const,
   listUserInvitations: () => [...ROOT, "invitations", "user"] as const,
+  invitationById: (id: string) =>
+    [...ROOT, "invitations", "by-id", id] as const,
+  invitationRoles: () => [...ROOT, "invitations", "user", "roles"] as const,
 
   listLevels: () => [...ROOT, "levels"] as const,
   levelById: (id: string) => [...ROOT, "levels", id] as const,

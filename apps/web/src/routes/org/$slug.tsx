@@ -2,6 +2,7 @@ import {
   APIError,
   authClient,
   ErrCode,
+  getOrganizationContext,
   guardianOptions,
   membersOptions,
   organizationOptions,
@@ -20,6 +21,12 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
  *   5. `member` on context is `Member | null`. Children decide how to react:
  *      - (non-member) accepts both.
  *      - (authenticated) requires non-null and onboardingComplete.
+ *
+ * RACE SAFETY (org switch):
+ *   When the active org changes, in-flight queries scoped to the previous
+ *   org could land *after* we've switched context. Their responses would
+ *   then populate the TanStack cache under the new org's keys — leaking
+ *   data across boundaries. We cancel those queries before the switch.
  */
 export const Route = createFileRoute("/org/$slug")({
   component: Outlet,
@@ -36,6 +43,20 @@ export const Route = createFileRoute("/org/$slug")({
 
     if (isPublicAuthRoute) {
       return { organization, isPortal: false, member: null };
+    }
+
+    // If the org context is changing, cancel any in-flight queries and drop org-
+    // scoped cache entries before publishing the new context.
+    const previousOrganizationId = getOrganizationContext();
+    if (previousOrganizationId !== organization.id) {
+      await context.queryClient.cancelQueries();
+
+      // Drop everything except auth queries
+      if (previousOrganizationId !== null) {
+        context.queryClient.removeQueries({
+          predicate: (query) => query.queryKey[0] !== "auth",
+        });
+      }
     }
 
     setOrganizationContext(organization.id);

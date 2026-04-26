@@ -1,7 +1,7 @@
 import { MembershipRole } from "@instride/shared";
 import { and, eq } from "drizzle-orm";
 
-import { Database } from "@/shared/utils/schema";
+import { Database, Transaction } from "@/shared/utils/schema";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
@@ -23,7 +23,11 @@ import {
   trainers,
 } from "../schema";
 
-export const createMemberService = (client: Database = db) => ({
+export const createMemberService = (client: Database | Transaction = db) => ({
+  // ================================================================================
+  // Members
+  // ================================================================================
+
   create: async (data: NewMemberRow) => {
     const [created] = await client.insert(members).values(data).returning();
     assertExists(created, "Member not created");
@@ -89,6 +93,10 @@ export const createMemberService = (client: Database = db) => ({
     return updated;
   },
 
+  // ================================================================================
+  // Riders
+  // ================================================================================
+
   createRider: async (data: NewRiderRow) => {
     const [created] = await client.insert(riders).values(data).returning();
     assertExists(created, "Rider not created");
@@ -144,6 +152,10 @@ export const createMemberService = (client: Database = db) => ({
         .where(eq(riders.memberId, memberId));
     }
   },
+
+  // ================================================================================
+  // Trainers
+  // ================================================================================
 
   createTrainer: async (data: NewTrainerRow) => {
     const [created] = await client.insert(trainers).values(data).returning();

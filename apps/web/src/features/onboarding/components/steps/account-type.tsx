@@ -1,3 +1,4 @@
+import { MembershipRole } from "@instride/shared";
 import { UserIcon, UsersIcon } from "lucide-react";
 
 import { FieldGroup } from "@/shared/components/ui/field";
@@ -7,20 +8,31 @@ import { defaultMemberOnboardingValues } from "../../lib/member/form";
 
 export const AccountTypeStep = withFieldGroup({
   defaultValues: defaultMemberOnboardingValues.accountType,
-  render: function Render({ group }) {
+  props: {
+    invitedRoles: [] as MembershipRole[],
+  },
+  render: function Render({ group, invitedRoles }) {
+    const guardianLocked = invitedRoles.includes(MembershipRole.GUARDIAN);
+    const riderLocked = invitedRoles.includes(MembershipRole.RIDER);
+
     return (
       <FieldGroup>
         <group.AppField
           name="isGuardian"
           listeners={{
             onChange: () => {
-              group.setFieldValue("isRider", null);
+              if (!riderLocked) {
+                group.setFieldValue("isRider", null);
+              }
             },
           }}
           children={(field) => (
             <field.ChoiceCardField
               label="Are you a parent or guardian?"
               isBoolean
+              hint={
+                guardianLocked ? "You were invited as a guardian" : undefined
+              }
               options={[
                 {
                   label: "Just Me",
@@ -48,6 +60,9 @@ export const AccountTypeStep = withFieldGroup({
                   <field.ChoiceCardField
                     label="Will you also be riding?"
                     isBoolean
+                    hint={
+                      riderLocked ? "You were invited as a rider" : undefined
+                    }
                     options={[
                       {
                         label: "Yes",

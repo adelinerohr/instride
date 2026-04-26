@@ -1,8 +1,4 @@
-import type {
-  Level,
-  RiderWithMember,
-  TrainerWithMember,
-} from "./organizations";
+import type { Level, RiderSummary, TrainerSummary } from "./organizations";
 
 // ============================================================================
 // Entities
@@ -13,8 +9,8 @@ export interface BoardSummary {
   organizationId: string;
   name: string;
   canRiderAdd: boolean;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Board extends BoardSummary {
@@ -28,9 +24,9 @@ export interface BoardAssignment {
   boardId: string;
   trainerId: string | null;
   riderId: string | null;
-  createdAt: Date | string;
-  trainer: TrainerWithMember | null;
-  rider: RiderWithMember | null;
+  createdAt: string;
+  trainer: TrainerSummary | null;
+  rider: RiderSummary | null;
 }
 
 export interface BoardAssignmentSummary {
@@ -39,7 +35,7 @@ export interface BoardAssignmentSummary {
   boardId: string;
   trainerId: string | null;
   riderId: string | null;
-  createdAt: Date | string;
+  createdAt: string;
   board: BoardSummary;
 }
 
@@ -60,8 +56,8 @@ export interface Service {
   isAllTrainers: boolean;
   isActive: boolean;
   restrictedToLevelId: string | null;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
   restrictedToLevel: Level | null;
   boardAssignments: ServiceBoardAssignment[];
   trainerAssignments: ServiceTrainerAssignment[];
@@ -73,7 +69,7 @@ export interface ServiceBoardAssignment {
   serviceId: string;
   boardId: string;
   isActive: boolean;
-  createdAt: Date | string;
+  createdAt: string;
 }
 
 export interface ServiceTrainerAssignment {
@@ -82,8 +78,8 @@ export interface ServiceTrainerAssignment {
   serviceId: string;
   trainerId: string;
   isActive: boolean;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ============================================================================
