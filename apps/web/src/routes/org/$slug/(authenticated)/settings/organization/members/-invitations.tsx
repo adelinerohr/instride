@@ -140,7 +140,7 @@ function MemberRow(props: MemberRowProps) {
   const queryClient = useQueryClient();
 
   const roles =
-    props.type === "active" ? props.member.roles : props.invitation.role;
+    props.type === "active" ? props.member.roles : props.invitation.roles;
 
   const getInvitationStatusIcon = (status: InvitationStatus) => {
     return {
