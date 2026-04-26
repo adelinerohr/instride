@@ -59,7 +59,9 @@ export const Route = createFileRoute("/org/$slug/(non-member)/onboarding")({
   },
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(invitationOptions.roles()),
+      context.queryClient.ensureQueryData(
+        invitationOptions.roles(context.organization.id)
+      ),
       context.queryClient.ensureQueryData(
         waiverOptions.list(context.organization.id)
       ),
@@ -82,7 +84,9 @@ function RouteComponent() {
   const { data: questionnaires } = useSuspenseQuery(
     questionnaireOptions.list(organization.id)
   );
-  const { data: invitedRoles } = useSuspenseQuery(invitationOptions.roles());
+  const { data: invitedRoles } = useSuspenseQuery(
+    invitationOptions.roles(organization.id)
+  );
 
   const onboardMember = useOnboardMember();
 

@@ -38,12 +38,16 @@ export const listUserInvitations = api(
 export const listMyInvitedRoles = api(
   {
     method: "GET",
-    path: "/members/me/invited-roles",
+    path: "/organization/:organizationId/members/me/invited-roles",
     expose: true,
     auth: true,
   },
-  async (): Promise<{ roles: MembershipRole[] }> => {
-    const { userID, organizationId } = requireOrganizationAuth();
+  async ({
+    organizationId,
+  }: {
+    organizationId: string;
+  }): Promise<{ roles: MembershipRole[] }> => {
+    const { userID } = requireOrganizationAuth();
 
     const user = await authService.findOneUser(userID);
 

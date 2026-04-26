@@ -81,11 +81,12 @@ export const invitationOptions = {
         return invitation;
       },
     }),
-  roles: () =>
+  roles: (organizationId: string) =>
     queryOptions({
       queryKey: organizationKeys.invitationRoles(),
       queryFn: async () => {
-        const { roles } = await apiClient.organizations.listMyInvitedRoles();
+        const { roles } =
+          await apiClient.organizations.listMyInvitedRoles(organizationId);
         return roles;
       },
     }),
