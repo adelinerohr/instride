@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Board } from "@instride/api";
 import { createBoardInputSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import { z } from "zod";
@@ -22,9 +22,7 @@ export const boardFormOpts = formOptions({
   validators: { onSubmit: boardSchema },
 });
 
-export function buildBoardDefaultValues(
-  board?: types.GetBoardResponse["board"]
-): BoardFormValues {
+export function buildBoardDefaultValues(board?: Board): BoardFormValues {
   if (!board) return boardDefaultValues;
 
   return {

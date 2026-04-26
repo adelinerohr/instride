@@ -1,7 +1,8 @@
 import {
   APIError,
   useAcceptGuardianInvitation,
-  type types,
+  type AuthUser,
+  type GuardianInvitationWithContext,
 } from "@instride/api";
 import { useNavigate } from "@tanstack/react-router";
 import * as React from "react";
@@ -13,8 +14,8 @@ import {
 } from "@/shared/components/auth/invitation-cards";
 
 interface GuardianInvitationCardProps {
-  invitation: types.GuardianInvitation;
-  user: types.AuthUser;
+  invitation: GuardianInvitationWithContext;
+  user: AuthUser;
 }
 
 export function GuardianInvitationCard({

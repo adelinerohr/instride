@@ -1,18 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type instances } from "#client";
+import { apiClient } from "#client";
+import {
+  CancelLessonInstanceRequest,
+  UpdateLessonInstanceRequest,
+} from "#contracts";
 
 import { lessonKeys } from "../keys";
 
 export const instanceMutations = {
-  cancel: async ({
-    instanceId,
-    request,
-  }: {
-    instanceId: string;
-    request: instances.CancelLessonInstanceRequest;
-  }) => {
+  cancel: async ({ instanceId, ...request }: CancelLessonInstanceRequest) => {
     const response = await apiClient.lessons.cancelLessonInstance(
       instanceId,
       request
@@ -20,13 +18,7 @@ export const instanceMutations = {
     return response.instance;
   },
 
-  update: async ({
-    instanceId,
-    request,
-  }: {
-    instanceId: string;
-    request: instances.UpdateLessonInstanceRequest;
-  }) => {
+  update: async ({ instanceId, ...request }: UpdateLessonInstanceRequest) => {
     const response = await apiClient.lessons.updateLessonInstance(
       instanceId,
       request

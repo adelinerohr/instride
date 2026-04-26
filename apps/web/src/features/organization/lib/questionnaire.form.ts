@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Questionnaire } from "@instride/api";
 import {
   questionnaireInputSchema,
   type QuestionnaireInputSchema,
@@ -18,7 +18,7 @@ export const questionnaireFormOpts = formOptions({
 });
 
 export function buildQuestionnaireDefaultValues(
-  questionnaire?: types.Questionnaire
+  questionnaire?: Questionnaire
 ): QuestionnaireInputSchema {
   if (!questionnaire) return questionnaireDefaultValues;
 

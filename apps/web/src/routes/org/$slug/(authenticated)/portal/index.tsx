@@ -2,13 +2,13 @@ import { enrollmentOptions } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  endOfDay,
   endOfWeek,
   format,
   isBefore,
-  isSameDay,
   isSameMonth,
-  isWithinInterval,
   setHours,
+  startOfDay,
   startOfWeek,
 } from "date-fns";
 import {
@@ -18,9 +18,17 @@ import {
   ClipboardIcon,
   PlusIcon,
 } from "lucide-react";
+import * as React from "react";
 
 import { CalendarView } from "@/features/calendar/lib/types";
-import { LessonCard } from "@/features/lessons/components/fragments/lesson-card";
+import {
+  LessonCard,
+  LessonCardVariant,
+} from "@/features/lessons/components/fragments/lesson-card";
+import {
+  findNearestEnrollment,
+  groupEnrollmentsByDay,
+} from "@/features/lessons/lib/utils";
 import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import {
   Alert,
@@ -51,8 +59,18 @@ import { cn } from "@/shared/lib/utils";
 export const Route = createFileRoute("/org/$slug/(authenticated)/portal/")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      enrollmentOptions.myEnrollments()
+    const now = startOfDay(new Date());
+    context.queryClient.prefetchQuery(
+      enrollmentOptions.myEnrollments(
+        startOfDay(now).toISOString(),
+        endOfDay(now).toISOString()
+      )
+    );
+    context.queryClient.prefetchQuery(
+      enrollmentOptions.myEnrollments(
+        startOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+        endOfWeek(now, { weekStartsOn: 1 }).toISOString()
+      )
     );
   },
 });
@@ -66,9 +84,18 @@ function RouteComponent() {
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
 
-  const {
-    data: { instanceEnrollments },
-  } = useSuspenseQuery(enrollmentOptions.myEnrollments());
+  const { data: enrollmentsToday } = useSuspenseQuery(
+    enrollmentOptions.myEnrollments(
+      startOfDay(now).toISOString(),
+      endOfDay(now).toISOString()
+    )
+  );
+  const { data: enrollmentsThisWeek } = useSuspenseQuery(
+    enrollmentOptions.myEnrollments(
+      startOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+      endOfWeek(now, { weekStartsOn: 1 }).toISOString()
+    )
+  );
 
   const showDependentAlert = isGuardian && dependents?.length === 0;
 
@@ -76,7 +103,9 @@ function RouteComponent() {
     if (!isGuardian) {
       return "Here's what's on the schedule for you.";
     } else {
-      const dependentNames = dependents?.map(({ dependent }) => dependent.name);
+      const dependentNames = dependents?.map(
+        (dependent) => dependent.rider.member.authUser.name
+      );
 
       if (!dependentNames) {
         return "Here's what's on the schedule for you.";
@@ -97,19 +126,15 @@ function RouteComponent() {
     }
   };
 
-  const lessonsThisWeek = instanceEnrollments?.filter((enrollment) => {
-    return (
-      enrollment.instance &&
-      isWithinInterval(enrollment.instance.start, {
-        start: weekStart,
-        end: weekEnd,
-      })
-    );
-  });
+  const nearestEnrollment = React.useMemo(
+    () => findNearestEnrollment(enrollmentsToday, now),
+    [enrollmentsToday, now]
+  );
 
-  const lessonsToday = instanceEnrollments?.filter((enrollment) => {
-    return enrollment.instance && isSameDay(enrollment.instance.start, now);
-  });
+  const enrollmentsByDay = React.useMemo(
+    () => groupEnrollmentsByDay(enrollmentsThisWeek),
+    [enrollmentsThisWeek]
+  );
 
   const hasPin = member.kioskPin !== null;
 
@@ -201,7 +226,7 @@ function RouteComponent() {
               <ArrowRightIcon />
             </Link>
           </div>
-          {lessonsToday.length === 0 ? (
+          {enrollmentsToday.length === 0 ? (
             <Empty className="border border-dashed w-full">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -214,11 +239,15 @@ function RouteComponent() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <LessonCard
-              variant="detail"
-              type="portal"
-              lessonEnrollment={lessonsToday[0]}
-            />
+            <>
+              {nearestEnrollment && (
+                <LessonCard
+                  variant={LessonCardVariant.DETAIL}
+                  lesson={nearestEnrollment.instance!}
+                  rider={nearestEnrollment.rider ?? undefined}
+                />
+              )}
+            </>
           )}
         </div>
         <Card>
@@ -228,7 +257,7 @@ function RouteComponent() {
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
               {format(weekStart, "MMMM d")} - {format(weekEnd, endFormat)}{" "}
-              &middot; {lessonsThisWeek.length} lesson
+              &middot; {enrollmentsThisWeek.length} lesson
             </CardDescription>
             <CardAction>
               <Link
@@ -244,7 +273,7 @@ function RouteComponent() {
             </CardAction>
           </CardHeader>
           <CardContent>
-            {lessonsThisWeek.length === 0 ? (
+            {enrollmentsThisWeek.length === 0 ? (
               <Empty className="border border-dashed w-full">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
@@ -258,14 +287,14 @@ function RouteComponent() {
               </Empty>
             ) : (
               <ItemGroup>
-                {lessonsThisWeek.map(
+                {enrollmentsThisWeek.map(
                   (enrollment) =>
                     enrollment.instance && (
                       <LessonCard
                         key={enrollment.id}
-                        variant="date-chip"
-                        type="portal"
-                        lessonEnrollment={enrollment}
+                        variant={LessonCardVariant.DATE_CHIP}
+                        lesson={enrollment.instance}
+                        rider={enrollment.rider ?? undefined}
                       />
                     )
                 )}

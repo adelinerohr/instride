@@ -4,7 +4,7 @@ import {
   useEnrollInSeries,
   useUnenrollFromInstance,
   useUnenrollFromSeries,
-  type types,
+  type LessonInstance,
 } from "@instride/api";
 import { LessonSeriesEnrollmentStatus } from "@instride/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ import { useRouteContext } from "@tanstack/react-router";
 import { Button } from "@/shared/components/ui/button";
 
 type PortalActionsProps = {
-  instance: types.LessonInstance;
+  instance: LessonInstance;
   onClose: () => void;
 };
 
@@ -97,7 +97,7 @@ export function PortalActions({ instance, onClose }: PortalActionsProps) {
           onClick={() =>
             enrollInInstance.mutate({
               instanceId: instance.id,
-              request: { riderIds: [rider.id] },
+              riderIds: [rider.id],
             })
           }
           disabled={isLoading}
@@ -109,11 +109,9 @@ export function PortalActions({ instance, onClose }: PortalActionsProps) {
             onClick={() =>
               enrollInSeries.mutate({
                 seriesId,
-                request: {
-                  riderIds: [rider.id],
-                  startDate: instance.start,
-                  endDate: instance.end,
-                },
+                riderIds: [rider.id],
+                startDate: instance.start,
+                endDate: instance.end,
               })
             }
             disabled={isLoading}
@@ -143,7 +141,12 @@ export function PortalActions({ instance, onClose }: PortalActionsProps) {
       </Button>
       {isRecurring && isEnrolledInSeries && seriesId && (
         <Button
-          onClick={() => unenrollFromSeries.mutate(userSeriesEnrollment.id)}
+          onClick={() =>
+            unenrollFromSeries.mutate({
+              seriesId: userSeriesEnrollment.id,
+              riderId: rider.id,
+            })
+          }
           disabled={isLoading}
           variant="outline"
         >

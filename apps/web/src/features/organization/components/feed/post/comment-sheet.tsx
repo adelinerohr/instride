@@ -1,4 +1,4 @@
-import { useCreateComment, type types } from "@instride/api";
+import { useCreateComment, type FeedPost } from "@instride/api";
 import { useRouteContext } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 import * as React from "react";
@@ -18,7 +18,7 @@ import {
 import { CommentItem } from "./comment-item";
 
 interface CommentSheetPayload {
-  post: types.FeedPost;
+  post: FeedPost;
 }
 
 export const commentSheetHandler =
@@ -56,10 +56,8 @@ function PostComments({ post }: CommentSheetPayload) {
     createComment.mutate(
       {
         postId: post.id,
-        request: {
-          text: trimmed,
-          parentCommentId: replyTarget?.commentId,
-        },
+        text: trimmed,
+        parentCommentId: replyTarget?.commentId,
       },
       {
         onSuccess: () => {

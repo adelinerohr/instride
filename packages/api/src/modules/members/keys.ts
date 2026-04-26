@@ -1,5 +1,3 @@
-import type { members } from "#client";
-
 const ROOT = ["members"] as const;
 
 export const memberKeys = {
@@ -10,9 +8,7 @@ export const memberKeys = {
   byId: (id: string) => [...ROOT, "detail", id] as const,
   me: () => [...ROOT, "me"] as const,
 
-  trainers: (params?: members.ListTrainersRequest) =>
-    [...ROOT, "trainers", "list", params ?? null] as const,
-  trainersRoot: () => [...ROOT, "trainers"] as const,
+  trainers: () => [...ROOT, "trainers"] as const,
   trainerById: (id: string) => [...ROOT, "trainers", "detail", id] as const,
 
   riders: () => [...ROOT, "riders", "list"] as const,

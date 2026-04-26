@@ -2,7 +2,7 @@ import {
   boardsOptions,
   levelOptions,
   membersOptions,
-  type types,
+  type Rider,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -68,7 +68,7 @@ function RouteComponent() {
   );
 }
 
-function RidersActionBar({ table }: { table: Table<types.Rider> }) {
+function RidersActionBar({ table }: { table: Table<Rider> }) {
   return (
     <DataTableActionBar table={table}>
       {({ rows }) => (

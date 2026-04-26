@@ -4,7 +4,7 @@ import {
   useCreatePlaceholderRelationship,
   waiverOptions,
 } from "@instride/api";
-import type { types } from "@instride/api";
+import type { Questionnaire } from "@instride/api";
 import { WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -231,7 +231,7 @@ export function AddDependentModal() {
                 form={form}
                 fields="questionnaire"
                 isDependent
-                questionnaire={activeQuestionnaire as types.Questionnaire}
+                questionnaire={activeQuestionnaire as Questionnaire}
               />
             )}
 

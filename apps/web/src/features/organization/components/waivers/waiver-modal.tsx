@@ -1,4 +1,4 @@
-import { useCreateWaiver, useUpdateWaiver, useWaiver } from "@instride/api";
+import { useCreateWaiver, useUpdateWaiver, type Waiver } from "@instride/api";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -16,33 +16,31 @@ import {
 import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const waiverModalHandler = DialogHandler.createHandle<{
-  waiver: Awaited<ReturnType<typeof useWaiver>["data"]>;
-}>();
+interface WaiverModalPayload {
+  waiver?: Waiver;
+}
+
+export const waiverModalHandler =
+  DialogHandler.createHandle<WaiverModalPayload | null>();
 
 export function WaiverModal() {
   return (
     <Dialog handle={waiverModalHandler}>
       {({ payload }) => (
         <DialogPortal>
-          <WaiverModalForm
-            waiver={payload?.waiver ?? undefined}
-            onSuccess={() => waiverModalHandler.close()}
-          />
+          <WaiverModalForm {...payload} />
         </DialogPortal>
       )}
     </Dialog>
   );
 }
 
-interface WaiverModalFormProps {
-  waiver: Awaited<ReturnType<typeof useWaiver>["data"]> | undefined;
-  onSuccess: () => void;
-}
-
-export function WaiverModalForm({ waiver, onSuccess }: WaiverModalFormProps) {
+export function WaiverModalForm(props: WaiverModalPayload | null) {
+  const waiver = props?.waiver;
   const createWaiver = useCreateWaiver();
   const updateWaiver = useUpdateWaiver();
+
+  const onSuccess = () => waiverModalHandler.close();
 
   const form = useAppForm({
     defaultValues: {
@@ -58,14 +56,13 @@ export function WaiverModalForm({ waiver, onSuccess }: WaiverModalFormProps) {
     onSubmit: async ({ value }) => {
       if (waiver) {
         await updateWaiver.mutateAsync({
-          waiverId: waiver.id,
-          request: value,
+          id: waiver.id,
+          ...value,
         });
       } else {
         await createWaiver.mutateAsync(
           {
-            title: value.title,
-            content: value.content,
+            ...value,
           },
           {
             onSuccess: () => {

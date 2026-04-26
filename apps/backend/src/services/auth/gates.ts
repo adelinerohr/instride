@@ -1,8 +1,8 @@
+import { Member } from "@instride/api/contracts";
 import { MembershipRole } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { Member } from "../organizations/types/models";
 import { db } from "./db";
 
 export async function assertAdmin(

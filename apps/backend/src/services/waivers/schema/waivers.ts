@@ -33,5 +33,5 @@ export const waivers = p.pgTable(
   (table) => [p.index("waivers_organization_idx").on(table.organizationId)]
 );
 
-export type Waiver = typeof waivers.$inferSelect;
-export type NewWaiver = typeof waivers.$inferInsert;
+export type WaiverRow = typeof waivers.$inferSelect;
+export type NewWaiverRow = typeof waivers.$inferInsert;

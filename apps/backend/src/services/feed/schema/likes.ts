@@ -28,5 +28,5 @@ export const feedLikes = p.pgTable(
   ]
 );
 
-export type FeedLike = typeof feedLikes.$inferSelect;
-export type NewFeedLike = typeof feedLikes.$inferInsert;
+export type FeedLikeRow = typeof feedLikes.$inferSelect;
+export type NewFeedLikeRow = typeof feedLikes.$inferInsert;

@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Member } from "@instride/api";
 import { formatDistanceToNow } from "date-fns";
 import { Clock2Icon } from "lucide-react";
 
@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/timeline";
 
 interface RiderActivityTabProps {
-  member: types.Member;
+  member: Member;
 }
 
 export function RiderActivityTab({ member }: RiderActivityTabProps) {

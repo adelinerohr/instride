@@ -1,8 +1,10 @@
 import { isAfter, isBefore, startOfMonth, subMonths } from "date-fns";
 import { api } from "encore.dev/api";
 
-import { listLevels } from "../levels/get";
-import { listRiders } from "./get";
+import { requireOrganizationAuth } from "@/shared/auth";
+
+import { levelService } from "../levels/level.service";
+import { memberService } from "./member.service";
 
 interface GetRiderStatsResponse {
   totalRiders: number;
@@ -24,23 +26,24 @@ export const getRiderStats = api(
     auth: true,
   },
   async (): Promise<GetRiderStatsResponse> => {
-    const { riders } = await listRiders();
-    const totalRiders = riders.length;
+    const { organizationId } = requireOrganizationAuth();
+    const riders = await memberService.findManyRiders(organizationId);
+    const levels = await levelService.findMany(organizationId);
 
-    // Calculate new riders this month
+    const totalRiders = riders.length;
     const thisMonthStart = startOfMonth(new Date());
     const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
 
-    const newRidersThisMonth = riders.filter((rider) =>
-      isAfter(rider.createdAt, thisMonthStart)
-    ).length;
-    const newRidersLastMonth = riders.filter(
-      (rider) =>
-        isAfter(rider.createdAt, lastMonthStart) &&
-        isBefore(rider.createdAt, thisMonthStart)
+    const newRidersThisMonth = riders.filter((r) =>
+      isAfter(r.createdAt, thisMonthStart)
     ).length;
 
-    // Calculate percentage change
+    const newRidersLastMonth = riders.filter(
+      (r) =>
+        isAfter(r.createdAt, lastMonthStart) &&
+        isBefore(r.createdAt, thisMonthStart)
+    ).length;
+
     const percentageChange =
       newRidersLastMonth > 0
         ? ((newRidersThisMonth - newRidersLastMonth) / newRidersLastMonth) * 100
@@ -48,46 +51,33 @@ export const getRiderStats = api(
           ? 100
           : 0;
 
-    // Get riders by level
-    const levelIds = riders
-      .map((rider) => rider.ridingLevelId)
-      .filter((id) => id !== null);
+    const levelsById = new Map(levels.map((l) => [l.id, l]));
+    const levelCounts = new Map<string, { count: number; color: string }>();
 
-    const { levels } = await listLevels();
-    const filteredLevels = levels.filter((level) =>
-      levelIds.includes(level.id)
-    );
-
-    const levelCounts: Record<string, { count: number; color: string }> = {};
-
-    riders.forEach((rider) => {
-      if (rider.ridingLevelId) {
-        const level = filteredLevels.find(
-          (level) => level.id === rider.ridingLevelId
-        );
-        if (level) {
-          if (!levelCounts[level.name]) {
-            levelCounts[level.name] = { count: 0, color: level.color };
-          }
-          levelCounts[level.name].count++;
-        }
+    for (const rider of riders) {
+      if (!rider.ridingLevelId) continue;
+      const level = levelsById.get(rider.ridingLevelId);
+      if (!level) continue;
+      const existing = levelCounts.get(level.name);
+      if (existing) {
+        existing.count++;
+      } else {
+        levelCounts.set(level.name, { count: 1, color: level.color });
       }
-    });
-
-    const ridersByLevel = Object.entries(levelCounts).map(
-      ([levelName, data]) => ({
-        levelName,
-        count: data.count,
-        color: data.color,
-      })
-    );
+    }
 
     return {
       totalRiders,
       newRidersThisMonth,
       newRidersLastMonth,
       percentageChange,
-      ridersByLevel,
+      ridersByLevel: Array.from(levelCounts.entries()).map(
+        ([levelName, data]) => ({
+          levelName,
+          count: data.count,
+          color: data.color,
+        })
+      ),
     };
   }
 );

@@ -4,11 +4,7 @@ import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import {
-  HOURS,
-  SLOT_HEIGHT,
-  START_HOUR,
-} from "@/features/calendar/lib/constants";
+import { HOURS, START_HOUR } from "@/features/calendar/lib/constants";
 import { getCurrentLessons } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
@@ -24,6 +20,7 @@ export function DayView() {
     lessons,
     selectedDate,
     trainerBusinessHours,
+    slotHeight,
   } = useCalendar();
 
   const selectedTrainers = trainers.filter((trainer) =>
@@ -46,13 +43,13 @@ export function DayView() {
   React.useLayoutEffect(() => {
     const now = new Date();
     const targetHour = isSameDay(now, selectedDate) ? now.getHours() : 9;
-    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * slotHeight);
 
     // Ensure layout is committed before scrolling the viewport.
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
     });
-  }, [selectedDate]);
+  }, [selectedDate, slotHeight]);
 
   return (
     <div className="flex h-full">
@@ -81,7 +78,7 @@ export function DayView() {
                 <div
                   key={hour}
                   className="relative"
-                  style={{ height: `${SLOT_HEIGHT}px` }}
+                  style={{ height: `${slotHeight}px` }}
                 >
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
                     {index !== 0 && (

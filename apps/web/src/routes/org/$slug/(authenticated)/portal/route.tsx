@@ -1,4 +1,9 @@
-import { guardianOptions, type types } from "@instride/api";
+import {
+  guardianOptions,
+  type GuardianPermissions,
+  type MyDependent,
+  type Rider,
+} from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
@@ -7,30 +12,30 @@ import { AppLayout } from "@/shared/components/layout/app-layout";
 type OnlyGuardianContext = {
   isGuardian: true;
   isOnlyGuardian: true;
-  dependents: types.MyDependent[];
+  dependents: MyDependent[];
   effectiveRiderIds: string[];
 };
 
 type GuardianContext = {
   isGuardian: true;
   isOnlyGuardian: false;
-  rider: types.Rider;
-  dependents: types.MyDependent[];
+  rider: Rider;
+  dependents: MyDependent[];
   effectiveRiderIds: string[];
 };
 
 type RiderContext = {
   isGuardian: false;
   isDependent: false;
-  rider: types.Rider;
+  rider: Rider;
   effectiveRiderIds: string[];
 };
 
 type DependentContext = {
   isGuardian: false;
   isDependent: true;
-  rider: types.Rider;
-  permissions: types.GuardianPermissions;
+  rider: Rider;
+  permissions: GuardianPermissions;
   effectiveRiderIds: string[];
 };
 
@@ -75,7 +80,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
           isOnlyGuardian: true,
           dependents: dependentRelationships,
           effectiveRiderIds: dependentRelationships.map(
-            ({ dependent }) => dependent.riderId
+            (dependent) => dependent.rider.id
           ),
         };
       }
@@ -88,7 +93,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
           dependents: dependentRelationships,
           effectiveRiderIds: [
             rider.id,
-            ...dependentRelationships.map(({ dependent }) => dependent.riderId),
+            ...dependentRelationships.map((dependent) => dependent.rider.id),
           ],
         };
       }
@@ -101,12 +106,16 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
     }
 
     // Dependent: restricted rider whose guardian relationship is loaded
-    if (rider.isRestricted && guardianRelationship) {
+    if (
+      rider.isRestricted &&
+      guardianRelationship &&
+      guardianRelationship.relationships?.length > 0
+    ) {
       return {
         isGuardian: false,
         isDependent: true,
         rider,
-        permissions: guardianRelationship.permissions,
+        permissions: guardianRelationship.relationships[0].permissions,
         effectiveRiderIds: [rider.id],
       };
     }

@@ -103,5 +103,5 @@ export const lessonInstances = p.pgTable(
   ]
 );
 
-export type LessonInstance = typeof lessonInstances.$inferSelect;
-export type NewLessonInstance = typeof lessonInstances.$inferInsert;
+export type LessonInstanceRow = typeof lessonInstances.$inferSelect;
+export type NewLessonInstanceRow = typeof lessonInstances.$inferInsert;

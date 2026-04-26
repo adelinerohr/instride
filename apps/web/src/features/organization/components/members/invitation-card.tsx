@@ -1,4 +1,8 @@
-import { membersOptions, type types } from "@instride/api";
+import {
+  membersOptions,
+  type AuthUser,
+  type Organization,
+} from "@instride/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { APIError } from "better-auth";
@@ -15,8 +19,8 @@ import { authClient } from "@/shared/lib/auth/client";
 interface OrganizationInvitationCardProps {
   invitationId: string;
   invitationEmail: string;
-  user: types.AuthUser;
-  organization: types.Organization;
+  user: AuthUser;
+  organization: Organization;
 }
 
 export function OrganizationInvitationCard({

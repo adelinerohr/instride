@@ -26,3 +26,6 @@ export const authInvitations = p.pgTable(
     p.index("authInvitations_email_idx").on(table.email),
   ]
 );
+
+export type AuthInvitationRow = typeof authInvitations.$inferSelect;
+export type NewAuthInvitationRow = typeof authInvitations.$inferInsert;

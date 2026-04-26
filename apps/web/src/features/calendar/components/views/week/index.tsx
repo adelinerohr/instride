@@ -11,11 +11,7 @@ import {
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import {
-  HOURS,
-  SLOT_HEIGHT,
-  START_HOUR,
-} from "@/features/calendar/lib/constants";
+import { HOURS, START_HOUR } from "@/features/calendar/lib/constants";
 import {
   getLessonBlockStyle,
   groupLessons,
@@ -29,7 +25,8 @@ import { MultiDayRow } from "../fragments/multi-day-row";
 import { CalendarTimeline } from "../fragments/timeline";
 
 export function WeekView() {
-  const { selectedDate, organizationBusinessHours, lessons } = useCalendar();
+  const { selectedDate, organizationBusinessHours, lessons, slotHeight } =
+    useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -38,13 +35,13 @@ export function WeekView() {
   React.useLayoutEffect(() => {
     const now = new Date();
     const targetHour = isSameWeek(now, weekStart) ? now.getHours() : 9;
-    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * slotHeight);
 
     // Ensure layout is committed before scrolling the viewport.
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
     });
-  }, [weekStart]);
+  }, [weekStart, slotHeight]);
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -83,7 +80,7 @@ export function WeekView() {
               <div
                 key={hour}
                 className="relative"
-                style={{ height: `${SLOT_HEIGHT}px` }}
+                style={{ height: `${slotHeight}px` }}
               >
                 <div className="absolute -top-3 right-2 flex h-6 items-center">
                   {index !== 0 && (
@@ -131,7 +128,8 @@ export function WeekView() {
                           lesson,
                           day,
                           groupIndex,
-                          groupedLessons.length
+                          groupedLessons.length,
+                          slotHeight
                         );
 
                         const hasOverlap = groupedLessons.some(

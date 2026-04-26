@@ -1,32 +1,29 @@
-import type { types } from "#client";
+import type { MembershipRole } from "@instride/shared";
 
-type MembershipRoles = types.Member["roles"];
+import {
+  Member,
+  MemberSummary,
+  Rider,
+  Trainer,
+  TrainerWithMember,
+} from "#contracts";
 
-export function hasAnyRole(
-  member: types.Member,
-  roles: MembershipRoles
-): boolean {
+export function hasAnyRole(member: Member, roles: MembershipRole[]): boolean {
   return roles.some((role) => member.roles.includes(role));
 }
 
-export function hasRole(
-  member: types.Member,
-  role: MembershipRoles[number]
-): boolean {
+export function hasRole(member: Member, role: MembershipRole): boolean {
   return member.roles.includes(role);
 }
 
-export function hasOnlyRole(
-  member: types.Member,
-  role: MembershipRoles[number]
-): boolean {
+export function hasOnlyRole(member: Member, role: MembershipRole): boolean {
   return member.roles.length === 1 && hasRole(member, role);
 }
 
 export function getMember(input: {
-  trainer?: types.Trainer;
-  rider?: types.Rider;
-}): types.Member {
+  trainer?: Trainer | TrainerWithMember;
+  rider?: Rider;
+}): MemberSummary {
   if (input.trainer) {
     if (input.trainer.member) {
       return input.trainer.member;
@@ -43,9 +40,9 @@ export function getMember(input: {
 }
 
 export function getUser(input: {
-  trainer?: types.Trainer;
-  rider?: types.Rider;
-  member?: types.Member;
+  trainer?: Trainer | TrainerWithMember;
+  rider?: Rider;
+  member?: Member | MemberSummary;
 }) {
   if (input.trainer) {
     const member = getMember({ trainer: input.trainer });

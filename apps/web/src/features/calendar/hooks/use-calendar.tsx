@@ -1,4 +1,11 @@
-import { businessHoursOptions, type types } from "@instride/api";
+import {
+  businessHoursOptions,
+  type Board,
+  type Event,
+  type LessonInstance,
+  type TimeBlock,
+  type Trainer,
+} from "@instride/api";
 import {
   EventScope,
   resolveEffectiveBusinessHours,
@@ -17,6 +24,7 @@ import {
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 import { CalendarView } from "../lib/types";
+import { useSlotHeight } from "./use-slot-height";
 
 interface CalendarContext {
   selectedDate: Date;
@@ -24,14 +32,14 @@ interface CalendarContext {
   setSelectedDate: (date: Date | undefined) => void;
   selectedTrainerIds: string[];
   setSelectedTrainerIds: (trainerIds: string[]) => void;
-  trainers: types.Trainer[];
-  boards: types.Board[];
+  trainers: Trainer[];
+  boards: Board[];
   organizationBusinessHours: EffectiveBusinessHours;
   trainerBusinessHours: TrainerEffectiveBusinessHours;
-  lessons: types.LessonInstance[];
-  timeBlocks: types.TimeBlock[];
-  organizationEvents: types.GetEventResponse[];
-  events: types.GetEventResponse[];
+  lessons: LessonInstance[];
+  timeBlocks: TimeBlock[];
+  organizationEvents: Event[];
+  events: Event[];
   selectedView: CalendarView;
   setSelectedView: (view: CalendarView) => void;
   selectedBoardId: string | undefined;
@@ -40,6 +48,9 @@ interface CalendarContext {
   selectedMultiDayCount: number;
   setSelectedMultiDayCount: (count: number) => void;
   visibleDays: Date[];
+  slotHeight: number;
+  quarterHeight: number;
+  totalHeight: number;
 }
 
 const CalendarContext = React.createContext<CalendarContext | undefined>(
@@ -48,11 +59,11 @@ const CalendarContext = React.createContext<CalendarContext | undefined>(
 
 interface CalendarProviderProps {
   type: "portal" | "admin" | "kiosk";
-  trainers: types.Trainer[];
-  boards: types.Board[];
-  lessons: types.LessonInstance[];
-  timeBlocks: types.TimeBlock[];
-  events: types.GetEventResponse[];
+  trainers: Trainer[];
+  boards: Board[];
+  lessons: LessonInstance[];
+  timeBlocks: TimeBlock[];
+  events: Event[];
   children: React.ReactNode;
 }
 
@@ -93,6 +104,8 @@ export function CalendarProvider({
   } = routeApi.useSearch();
 
   const navigate = routeApi.useNavigate();
+
+  const { slotHeight, quarterHeight, totalHeight } = useSlotHeight();
 
   // Enforce single-trainer selection on mobile
   React.useEffect(() => {
@@ -303,6 +316,9 @@ export function CalendarProvider({
         selectedMultiDayCount,
         setSelectedMultiDayCount,
         visibleDays,
+        slotHeight,
+        quarterHeight,
+        totalHeight,
       }}
     >
       {children}

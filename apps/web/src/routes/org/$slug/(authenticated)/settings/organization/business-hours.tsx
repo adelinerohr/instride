@@ -101,9 +101,7 @@ function RouteComponent() {
                   updateOrganization.mutateAsync(
                     {
                       organizationId: organization.id,
-                      request: {
-                        allowSameDayBookings: value,
-                      },
+                      allowSameDayBookings: value,
                     },
                     {
                       onSuccess: () => {

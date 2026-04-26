@@ -1,24 +1,23 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, boards } from "#client";
+import { apiClient } from "#client";
+import {
+  AssignToBoardRequest,
+  CreateBoardRequest,
+  UpdateBoardRequest,
+} from "#contracts";
 
 import { boardAssignmentKeys, boardKeys } from "./keys";
 
 // ---- Standalone functions ----------------------------------------------
 
 export const boardsMutations = {
-  createBoard: async (request: boards.CreateBoardRequest) => {
+  createBoard: async (request: CreateBoardRequest) => {
     const { board } = await apiClient.boards.createBoard(request);
     return board;
   },
-  updateBoard: async ({
-    boardId,
-    request,
-  }: {
-    boardId: string;
-    request: boards.UpdateBoardRequest;
-  }) => {
+  updateBoard: async ({ boardId, ...request }: UpdateBoardRequest) => {
     const { board } = await apiClient.boards.updateBoard(boardId, request);
     return board;
   },
@@ -28,7 +27,7 @@ export const boardsMutations = {
 };
 
 export const boardAssignmentsMutations = {
-  assignToBoard: async (request: boards.AssignToBoardRequest) => {
+  assignToBoard: async (request: AssignToBoardRequest) => {
     const { assignment } = await apiClient.boards.assignToBoard(request);
     return assignment;
   },

@@ -2,7 +2,7 @@ import {
   getUser,
   useGetLessonInstance,
   useMember,
-  type types,
+  type Activity,
 } from "@instride/api";
 import { useLoaderData } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -23,7 +23,7 @@ import {
 } from "@/shared/components/ui/timeline";
 
 interface EnrollmentActivityProps {
-  activity: types.Activity;
+  activity: Activity;
 }
 
 interface ActivityMetadata {

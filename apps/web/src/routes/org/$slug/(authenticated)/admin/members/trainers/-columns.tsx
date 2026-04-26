@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Trainer } from "@instride/api";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -20,7 +20,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { formatDate } from "@/shared/lib/utils/format";
 
-export function getTrainersTableColumns(): ColumnDef<types.Trainer>[] {
+export function getTrainersTableColumns(): ColumnDef<Trainer>[] {
   return [
     {
       id: "select",

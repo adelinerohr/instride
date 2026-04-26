@@ -2,7 +2,7 @@ import {
   getUser,
   useDeleteBoard,
   boardsOptions,
-  type types,
+  type TrainerWithMember,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -72,7 +72,7 @@ function RouteComponent() {
               const assignedTrainers =
                 board.assignments
                   ?.map((assignment) => assignment.trainer)
-                  .filter((t): t is types.Trainer => t != null) ?? [];
+                  .filter((t): t is TrainerWithMember => t != null) ?? [];
               const assignedRiders = board.assignments?.filter(
                 (assignment) => assignment.riderId !== null
               );

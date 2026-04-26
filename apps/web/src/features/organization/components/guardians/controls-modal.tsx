@@ -1,4 +1,7 @@
-import { useUpdateGuardianRelationship, type types } from "@instride/api";
+import {
+  useUpdateGuardianRelationship,
+  type GuardianRelationshipWithMembers,
+} from "@instride/api";
 import { toast } from "sonner";
 
 import { GuardianControlsStep } from "@/features/onboarding/components/steps/guardian-controls";
@@ -15,9 +18,12 @@ import {
 } from "@/shared/components/ui/dialog";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const guardianControlsModalHandler = DialogHandler.createHandle<{
-  relationship: types.GuardianRelationshipWithDependent;
-}>();
+interface GuardianControlsModalPayload {
+  relationship: GuardianRelationshipWithMembers;
+}
+
+export const guardianControlsModalHandler =
+  DialogHandler.createHandle<GuardianControlsModalPayload>();
 
 export function GuardianControlsModal() {
   return (
@@ -33,13 +39,9 @@ export function GuardianControlsModal() {
   );
 }
 
-interface GuardianControlsModalFormProps {
-  relationship: types.GuardianRelationshipWithDependent;
-}
-
 export function GuardianControlsModalForm({
   relationship,
-}: GuardianControlsModalFormProps) {
+}: GuardianControlsModalPayload) {
   const updateGuardianRelationship = useUpdateGuardianRelationship();
   if (!relationship.dependent) return null;
 
@@ -75,7 +77,7 @@ export function GuardianControlsModalForm({
       await updateGuardianRelationship.mutateAsync(
         {
           relationshipId: relationship.id,
-          params: value,
+          ...value,
         },
         {
           onSuccess: () => {

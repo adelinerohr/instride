@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { apiClient, type members } from "#client";
+import { apiClient } from "#client";
 
 import { memberKeys } from "./keys";
 
@@ -32,13 +32,11 @@ export const membersOptions = {
         return member;
       },
     }),
-  trainers: (params?: members.ListTrainersRequest) =>
+  trainers: () =>
     queryOptions({
-      queryKey: memberKeys.trainers(params),
+      queryKey: memberKeys.trainers(),
       queryFn: async () => {
-        const { trainers } = await apiClient.organizations.listTrainers(
-          params ?? {}
-        );
+        const { trainers } = await apiClient.organizations.listTrainers();
         return trainers;
       },
     }),

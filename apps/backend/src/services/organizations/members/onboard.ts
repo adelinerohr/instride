@@ -1,3 +1,10 @@
+import type {
+  GetMemberResponse,
+  Questionnaire,
+  QuestionnaireQuestionResponse,
+  RiderProfile,
+  Waiver,
+} from "@instride/api/contracts";
 import { MembershipRole, WaiverStatus } from "@instride/shared";
 import { generateId } from "better-auth";
 import { eq } from "drizzle-orm";
@@ -16,16 +23,10 @@ import {
   evaluateBoardAssignmentRules,
   validateResponses,
 } from "@/services/questionnaires/submit";
-import {
-  Questionnaire,
-  QuestionnaireQuestionResponse,
-} from "@/services/questionnaires/types/models";
-import { Waiver } from "@/services/waivers/types/models";
 import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
-import { BaseMember } from "../types/models";
 
 interface OnboardMemberParams {
   organizationId: string;
@@ -52,15 +53,12 @@ export const onboardMember = api(
     expose: true,
     auth: true,
   },
-  async (params: OnboardMemberParams): Promise<BaseMember> => {
+  async (params: OnboardMemberParams): Promise<GetMemberResponse> => {
     const { userID } = requireAuth();
 
     const organization = await db.query.organizations.findFirst({
-      where: {
-        id: params.organizationId,
-      },
+      where: { id: params.organizationId },
     });
-
     assertExists(organization, "Organization not found");
 
     if (!organization.allowPublicJoin) {
@@ -69,7 +67,6 @@ export const onboardMember = api(
       );
     }
 
-    // Validate questionnaire if provided
     let questionnaire: Questionnaire | undefined;
     if (params.questionnaire) {
       questionnaire = await db.query.questionnaires.findFirst({
@@ -82,7 +79,6 @@ export const onboardMember = api(
       validateResponses(params.questionnaire.responses, questionnaire);
     }
 
-    // Validate waiver if provided
     let waiver: Waiver | undefined;
     if (params.waiver) {
       waiver = await db.query.waivers.findFirst({
@@ -97,7 +93,7 @@ export const onboardMember = api(
 
     const result = await db.transaction(async (tx) => {
       // 1. Update user profile
-      await tx
+      const [authUser] = await tx
         .update(authUsers)
         .set({
           name: params.user.name,
@@ -105,9 +101,10 @@ export const onboardMember = api(
           dateOfBirth: params.user.dateOfBirth,
           image: params.user.image,
         })
-        .where(eq(authUsers.id, userID));
+        .where(eq(authUsers.id, userID))
+        .returning();
 
-      // 2. Create better auth member
+      // 2. Create Better Auth member
       const [authMember] = await tx
         .insert(authMembers)
         .values({
@@ -130,9 +127,9 @@ export const onboardMember = api(
         })
         .returning();
 
-      // 4. Handle rider onboarding
+      let riderProfile: RiderProfile | null = null;
+
       if (params.user.roles.includes(MembershipRole.RIDER)) {
-        // 4.1. Create rider profile
         const [rider] = await tx
           .insert(riders)
           .values({
@@ -141,8 +138,8 @@ export const onboardMember = api(
             isRestricted: false,
           })
           .returning();
+        riderProfile = rider;
 
-        // 4.2. Handle questionnaire submission
         if (questionnaire && params.questionnaire) {
           const assignedBoardIds = evaluateBoardAssignmentRules(
             questionnaire,
@@ -160,18 +157,16 @@ export const onboardMember = api(
             assignedBoardIds,
           });
 
-          // 4.3. Handle board assignments
-          const boardAssignmentsInput = assignedBoardIds.map((boardId) => ({
-            organizationId: organization.id,
-            boardId,
-            riderId: rider.id,
-          }));
-
-          if (boardAssignmentsInput.length > 0) {
-            await tx.insert(boardAssignments).values(boardAssignmentsInput);
+          if (assignedBoardIds.length > 0) {
+            await tx.insert(boardAssignments).values(
+              assignedBoardIds.map((boardId) => ({
+                organizationId: organization.id,
+                boardId,
+                riderId: rider.id,
+              }))
+            );
           }
 
-          // 4.4. Handle waiver signature
           if (waiver && params.waiver) {
             await tx.insert(waiverSignatures).values({
               organizationId: organization.id,
@@ -184,9 +179,18 @@ export const onboardMember = api(
         }
       }
 
-      return member;
+      return { member, authUser, riderProfile };
     });
 
-    return result;
+    assertExists(result.authUser, "Member has no auth user");
+
+    return {
+      member: {
+        ...result.member,
+        authUser: result.authUser,
+        rider: result.riderProfile,
+        trainer: null,
+      },
+    };
   }
 );

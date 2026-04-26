@@ -6,7 +6,8 @@ import {
 } from "@tanstack/react-query";
 
 import { STALE } from "#_internal/constants";
-import { apiClient, type feed } from "#client";
+import { apiClient } from "#client";
+import { ListFeedRequest } from "#contracts";
 
 import { feedKeys } from "./keys";
 
@@ -16,7 +17,7 @@ interface FeedPageParam {
 }
 
 export const feedOptions = {
-  posts: (filters: feed.ListFeedRequest = {}) =>
+  posts: (filters: ListFeedRequest = {}) =>
     infiniteQueryOptions({
       queryKey: feedKeys.postsList(filters),
       queryFn: async ({ pageParam }) => {
@@ -48,7 +49,7 @@ export const feedOptions = {
     }),
 };
 
-export function useFeedPosts(filters: feed.ListFeedRequest = {}) {
+export function useFeedPosts(filters: ListFeedRequest = {}) {
   return useInfiniteQuery(feedOptions.posts(filters));
 }
 

@@ -1,83 +1,35 @@
-import { api, APIError } from "encore.dev/api";
+import type {
+  GetTimeBlockResponse,
+  ListTimeBlocksParams,
+  ListTimeBlocksResponse,
+} from "@instride/api/contracts";
+import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { db } from "../db";
-import { ListTimeBlocksResponse } from "../types/contracts";
-import { TimeBlock } from "../types/models";
-
-interface ListTimeBlocksParams {
-  trainerId?: string;
-  from?: string;
-  to?: string;
-}
+import { toTimeBlock } from "../mappers";
+import { timeBlockService } from "./service";
 
 export const listTimeBlocks = api(
-  {
-    method: "GET",
-    path: "/time-blocks",
-    expose: true,
-    auth: true,
-  },
+  { method: "GET", path: "/time-blocks", expose: true, auth: true },
   async (params: ListTimeBlocksParams): Promise<ListTimeBlocksResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    let timeBlocks: TimeBlock[] = [];
+    const timeBlocks = await timeBlockService.findMany(organizationId, {
+      trainerId: params.trainerId,
+      from: params.from ? new Date(params.from) : undefined,
+      to: params.to ? new Date(params.to) : undefined,
+    });
 
-    if (params.trainerId && !params.from && !params.to) {
-      timeBlocks = await db.query.timeBlocks.findMany({
-        where: {
-          organizationId,
-          trainerId: params.trainerId,
-        },
-      });
-    }
-
-    if (!params.trainerId && params.from && params.to) {
-      timeBlocks = await db.query.timeBlocks.findMany({
-        where: {
-          organizationId,
-          start: { gte: new Date(params.from) },
-          end: { lte: new Date(params.to) },
-        },
-        orderBy: {
-          start: "asc",
-        },
-      });
-    }
-
-    if (params.trainerId && params.from && params.to) {
-      timeBlocks = await db.query.timeBlocks.findMany({
-        where: {
-          organizationId,
-          trainerId: params.trainerId,
-          start: { gte: new Date(params.from) },
-          end: { lte: new Date(params.to) },
-        },
-        orderBy: {
-          start: "asc",
-        },
-      });
-    }
-
-    return { timeBlocks };
+    return { timeBlocks: timeBlocks.map(toTimeBlock) };
   }
 );
 
 export const getTimeBlock = api(
-  {
-    method: "GET",
-    path: "/time-blocks/:id",
-    expose: true,
-    auth: true,
-  },
-  async (params: { id: string }): Promise<TimeBlock> => {
-    const timeBlock = await db.query.timeBlocks.findFirst({
-      where: { id: params.id },
-    });
-    if (!timeBlock) {
-      throw APIError.notFound("Time block not found");
-    }
-    return timeBlock;
+  { method: "GET", path: "/time-blocks/:id", expose: true, auth: true },
+  async ({ id }: { id: string }): Promise<GetTimeBlockResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    const timeBlock = await timeBlockService.findOne(id, organizationId);
+    return { timeBlock: toTimeBlock(timeBlock) };
   }
 );

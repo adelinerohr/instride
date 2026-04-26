@@ -40,5 +40,5 @@ export const boardAssignments = p.pgTable(
   ]
 );
 
-export type BoardAssignment = typeof boardAssignments.$inferSelect;
-export type NewBoardAssignment = typeof boardAssignments.$inferInsert;
+export type BoardAssignmentRow = typeof boardAssignments.$inferSelect;
+export type NewBoardAssignmentRow = typeof boardAssignments.$inferInsert;

@@ -1,11 +1,12 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { apiClient, events } from "#client";
+import { apiClient } from "#client";
+import { ListEventsRequest } from "#contracts";
 
 import { eventKeys } from "./keys";
 
 export const eventOptions = {
-  list: (params: events.ListEventsRequest) =>
+  list: (params: ListEventsRequest) =>
     queryOptions({
       queryKey: eventKeys.list(params),
       queryFn: async () => await apiClient.events.listEvents(params),
@@ -18,7 +19,7 @@ export const eventOptions = {
     }),
 };
 
-export const useListEvents = (params: events.ListEventsRequest) => {
+export const useListEvents = (params: ListEventsRequest) => {
   return useQuery(eventOptions.list(params));
 };
 

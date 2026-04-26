@@ -1,20 +1,23 @@
+import type {
+  CanAccessOrganizationResponse,
+  GetGuardianRelationshipResponse,
+  ListGuardianRelationshipsResponse,
+  ListMyDependentsResponse,
+  ListMyGuardiansResponse,
+} from "@instride/api/contracts";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { requireOrganizationAuth } from "@/shared/auth";
-import { memberFragment } from "@/shared/utils/fragments";
-import {
-  assertExists,
-  assertMember,
-  assertMemberWithRider,
-} from "@/shared/utils/validation";
+import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "./db";
-import { MyDependent } from "./types/contracts";
+import { guardianService } from "./guardian.service";
 import {
-  GuardianRelationshipWithGuardian,
-  GuardianRelationshipWithMembers,
-} from "./types/models";
+  toGuardianRelationshipWithGuardian,
+  toGuardianRelationshipWithMembers,
+  toMyDependent,
+} from "./mappers";
 
 export const getRelationshipById = api(
   {
@@ -23,158 +26,123 @@ export const getRelationshipById = api(
     expose: true,
     auth: true,
   },
-  async (params: {
+  async ({
+    relationshipId,
+  }: {
     relationshipId: string;
-  }): Promise<GuardianRelationshipWithMembers> => {
+  }): Promise<GetGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const relationship = await db.query.guardianRelationships.findFirst({
-      where: {
-        id: params.relationshipId,
-        organizationId,
-      },
-      with: {
-        dependent: memberFragment,
-        guardian: memberFragment,
-      },
-    });
+    const row = await guardianService.findRelationshipWithMembers(
+      relationshipId,
+      organizationId
+    );
 
-    assertExists(relationship, "Guardian relationship not found");
-    assertMember(relationship.dependent, "Dependent");
-    assertMember(relationship.guardian, "Guardian");
-
-    return {
-      ...relationship,
-      dependent: relationship.dependent,
-      guardian: relationship.guardian,
-    };
+    return { relationship: toGuardianRelationshipWithMembers(row) };
   }
 );
 
 export const listAllRelationships = api(
-  {
-    method: "GET",
-    path: "/guardians",
-    expose: true,
-    auth: true,
-  },
-  async (): Promise<{ relationships: GuardianRelationshipWithMembers[] }> => {
+  { method: "GET", path: "/guardians", expose: true, auth: true },
+  async (): Promise<ListGuardianRelationshipsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const relationships = await db.query.guardianRelationships.findMany({
-      where: {
-        organizationId,
-      },
-      with: {
-        dependent: memberFragment,
-        guardian: memberFragment,
-      },
-    });
+    const rows =
+      await guardianService.listRelationshipsWithMembers(organizationId);
 
     return {
-      relationships: relationships.map((relationship) => {
-        assertMember(relationship.dependent);
-        assertMember(relationship.guardian);
-
-        return {
-          ...relationship,
-          dependent: relationship.dependent,
-          guardian: relationship.guardian,
-        };
-      }),
+      relationships: rows.map(toGuardianRelationshipWithMembers),
     };
   }
 );
 
-export const getMyDependents = api(
+export const listMyDependents = api(
   {
     method: "GET",
     path: "/guardians/my-dependents",
     expose: true,
     auth: true,
   },
-  async (): Promise<{ relationships: MyDependent[] }> => {
+  async (): Promise<ListMyDependentsResponse> => {
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const relationships = await db.query.guardianRelationships.findMany({
-      where: {
-        guardianMemberId: member.id,
-        organizationId,
-      },
-      with: {
-        dependent: {
-          with: {
-            authUser: true,
-            rider: {
-              with: {
-                boardAssignments: true,
-                level: true,
-              },
-            },
-          },
-        },
-      },
+    const rows = await guardianService.listMyDependents({
+      guardianMemberId: member.id,
+      organizationId,
     });
 
-    return {
-      relationships: relationships.map((relationship) => {
-        assertMember(relationship.dependent);
-        assertMemberWithRider(relationship.dependent);
-
-        return {
-          id: relationship.id,
-          dependentMemberId: relationship.dependentMemberId,
-          permissions: relationship.permissions,
-          createdAt: relationship.createdAt,
-          dependent: {
-            id: relationship.dependent.id,
-            name: relationship.dependent.authUser.name,
-            phone: relationship.dependent.authUser.phone,
-            email: relationship.dependent.authUser.email,
-            dateOfBirth: relationship.dependent.authUser.dateOfBirth,
-            image: relationship.dependent.authUser.image,
-            riderId: relationship.dependent.rider.id,
-            isRestricted: relationship.dependent.rider.isRestricted,
-            ridingLevelId: relationship.dependent.rider.ridingLevelId,
-            level: relationship.dependent.rider.level,
-            boardAssignments: relationship.dependent.rider.boardAssignments.map(
-              (assignment) => assignment.id
-            ),
-          },
-        };
-      }),
-    };
+    return { relationships: rows.map(toMyDependent) };
   }
 );
 
-export const getMyGuardians = api(
+export const listMyGuardians = api(
   {
     method: "GET",
     path: "/guardians/my-guardians",
     expose: true,
     auth: true,
   },
-  async (): Promise<GuardianRelationshipWithGuardian> => {
+  async (): Promise<ListMyGuardiansResponse> => {
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const relationships = await db.query.guardianRelationships.findFirst({
-      where: {
-        dependentMemberId: member.id,
-        organizationId,
-      },
-      with: {
-        guardian: memberFragment,
-      },
+    const rows = await guardianService.listMyGuardians({
+      dependentMemberId: member.id,
+      organizationId,
     });
 
-    assertExists(relationships, "Guardian relationship not found");
-    assertMember(relationships.guardian);
-
     return {
-      ...relationships,
-      guardian: relationships.guardian,
+      relationships: rows.map(toGuardianRelationshipWithGuardian),
     };
+  }
+);
+
+/**
+ * Whether the current user can access a given organization.
+ * Restricted-rider members need an active guardian relationship.
+ */
+export const canAccessOrganization = api(
+  {
+    method: "GET",
+    path: "/organizations/:organizationId/can-access",
+    expose: true,
+    auth: true,
+  },
+  async ({
+    organizationId,
+  }: {
+    organizationId: string;
+  }): Promise<CanAccessOrganizationResponse> => {
+    const { userID } = requireAuth();
+
+    const member = await db.query.members.findFirst({
+      where: { userId: userID, organizationId },
+      with: { rider: true },
+    });
+    assertExists(member, "Member not found");
+    assertExists(member.rider, "Rider not found");
+
+    if (member.isPlaceholder) {
+      return {
+        canAccess: false,
+        reason: "Please accept your guardian invitation first",
+      };
+    }
+
+    if (member.rider.isRestricted) {
+      const relationship = await guardianService.findActiveForDependent({
+        dependentMemberId: member.id,
+      });
+
+      if (!relationship) {
+        return {
+          canAccess: false,
+          reason: "No active guardian relationship found",
+        };
+      }
+    }
+
+    return { canAccess: true };
   }
 );

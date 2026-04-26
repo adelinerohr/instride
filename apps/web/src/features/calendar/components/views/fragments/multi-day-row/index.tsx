@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Event } from "@instride/api";
 import { isTrainerWorkingOnDay } from "@instride/shared";
 import {
   parseISO,
@@ -72,8 +72,7 @@ export function MultiDayRow() {
 
   const multiDayEvents = React.useMemo(() => {
     return eventsToProcess
-      .filter((orgEvent) => {
-        const event = orgEvent.event;
+      .filter((event) => {
         // All-day events (no time specified)
         if (event.startTime === null && event.endTime === null) return true;
         // Multi-day events (different dates)
@@ -81,8 +80,7 @@ export function MultiDayRow() {
         const endDate = parseISO(event.endDate);
         return !isSameDay(startDate, endDate);
       })
-      .map((orgEvent) => {
-        const event = orgEvent.event;
+      .map((event) => {
         const isAllDay = event.startTime === null && event.endTime === null;
         return {
           ...event,
@@ -155,8 +153,8 @@ export function MultiDayRow() {
 
   if (!hasEventsInRange) return null;
 
-  const onEventClick = (event: types.Event) => {
-    const fullEvent = events.find((e) => e.event.id === event.id);
+  const onEventClick = (event: Event) => {
+    const fullEvent = events.find((e) => e.id === event.id);
     if (fullEvent) {
       eventModalHandler.openWithPayload(fullEvent);
     }

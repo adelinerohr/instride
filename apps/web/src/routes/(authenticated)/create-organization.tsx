@@ -95,9 +95,7 @@ function RouteComponent() {
       // 3. Update organization
       await updateOrganization.mutateAsync({
         organizationId: organization.id,
-        request: {
-          logoUrl,
-        },
+        logoUrl,
       });
 
       // 4. Redirect to organization dashboard

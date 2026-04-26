@@ -1,7 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type services } from "#client";
+import { apiClient } from "#client";
+import {
+  AssignBoardToServiceRequest,
+  AssignTrainerToServiceRequest,
+  CreateServiceRequest,
+  UpdateServiceRequest,
+} from "#contracts";
 
 import {
   serviceBoardAssignmentKeys,
@@ -12,40 +18,32 @@ import {
 // ---- Standalone functions ----------------------------------------------
 
 export const servicesMutations = {
-  createService: async ({
-    request,
-  }: {
-    request: services.CreateServiceRequest;
-  }) => {
+  createService: async (request: CreateServiceRequest) => {
     return await apiClient.boards.createService(request);
   },
 
-  updateService: async ({
-    serviceId,
-    request,
-  }: {
-    serviceId: string;
-    request: services.UpdateServiceRequest;
-  }) => {
-    return await apiClient.boards.updateService(serviceId, request);
+  updateService: async ({ id, ...request }: UpdateServiceRequest) => {
+    return await apiClient.boards.updateService(id, request);
   },
 
   deleteService: async (serviceId: string) => {
     return await apiClient.boards.deleteService(serviceId);
   },
 
-  assignToService: async (request: services.AssignToServiceRequest) => {
-    return await apiClient.boards.assignToService(request);
+  assignBoardToService: async (request: AssignBoardToServiceRequest) => {
+    return await apiClient.boards.assignBoardToService(request);
   },
 
-  unassignFromService: async ({
-    assignmentId,
-    request,
-  }: {
-    assignmentId: string;
-    request: services.UnassignFromServiceRequest;
-  }) => {
-    return await apiClient.boards.unassignFromService(assignmentId, request);
+  assignTrainerToService: async (request: AssignTrainerToServiceRequest) => {
+    return await apiClient.boards.assignTrainerToService(request);
+  },
+
+  unassignBoardFromService: async (assignmentId: string) => {
+    return await apiClient.boards.unassignBoardFromService(assignmentId);
+  },
+
+  unassignTrainerFromService: async (assignmentId: string) => {
+    return await apiClient.boards.unassignTrainerFromService(assignmentId);
   },
 };
 
@@ -108,13 +106,13 @@ export function useDeleteService({
 
 // ---- Service Assignments ------------------------------------------------------------
 
-export function useAssignToService({
+export function useAssignBoardToService({
   mutationConfig,
-}: MutationHookOptions<typeof servicesMutations.assignToService> = {}) {
+}: MutationHookOptions<typeof servicesMutations.assignBoardToService> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(servicesMutations.assignToService, {
+  return useWrappedMutation(servicesMutations.assignBoardToService, {
     ...config,
     onSuccess: (assignment, ...args) => {
       queryClient.invalidateQueries({
@@ -131,13 +129,57 @@ export function useAssignToService({
   });
 }
 
-export function useUnassignFromService({
+export function useAssignTrainerToService({
   mutationConfig,
-}: MutationHookOptions<typeof servicesMutations.unassignFromService> = {}) {
+}: MutationHookOptions<typeof servicesMutations.assignTrainerToService> = {}) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
 
-  return useWrappedMutation(servicesMutations.unassignFromService, {
+  return useWrappedMutation(servicesMutations.assignTrainerToService, {
+    ...config,
+    onSuccess: (assignment, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: serviceKeys.byId(assignment.assignment.serviceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: serviceTrainerAssignmentKeys.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: serviceBoardAssignmentKeys.all(),
+      });
+      onSuccess?.(assignment, ...args);
+    },
+  });
+}
+
+export function useUnassignBoardFromService({
+  mutationConfig,
+}: MutationHookOptions<
+  typeof servicesMutations.unassignBoardFromService
+> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(servicesMutations.unassignBoardFromService, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({
+        queryKey: serviceKeys.all(),
+      });
+      onSuccess?.(...args);
+    },
+  });
+}
+
+export function useUnassignTrainerFromService({
+  mutationConfig,
+}: MutationHookOptions<
+  typeof servicesMutations.unassignTrainerFromService
+> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(servicesMutations.unassignTrainerFromService, {
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({

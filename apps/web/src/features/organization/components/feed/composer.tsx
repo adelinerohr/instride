@@ -2,7 +2,7 @@ import {
   boardsOptions,
   useCreatePost,
   useUpdatePost,
-  type types,
+  type FeedPost,
 } from "@instride/api";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -24,8 +24,8 @@ import {
 } from "@/shared/components/ui/input-group";
 
 interface PostComposerProps {
-  post?: types.FeedPost;
-  onUpdate?: (post: types.FeedPost) => void;
+  post?: FeedPost;
+  onUpdate?: (post: FeedPost) => void;
 }
 
 export function PostComposer({ post, onUpdate }: PostComposerProps) {
@@ -43,7 +43,7 @@ export function PostComposer({ post, onUpdate }: PostComposerProps) {
     onSubmit: ({ value }) => {
       if (isEditing) {
         updatePost.mutate(
-          { postId: post.id, request: value },
+          { postId: post.id, text: value.text },
           {
             onSuccess: (updated) => {
               form.reset();

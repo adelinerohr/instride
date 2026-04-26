@@ -17,15 +17,21 @@ export const enrollmentOptions = {
       queryFn: async () =>
         await apiClient.lessons.listInstanceEnrollments(instanceId),
     }),
-  myEnrollments: () =>
+  myEnrollments: (from: string, to: string) =>
     queryOptions({
-      queryKey: lessonKeys.myEnrollments(),
-      queryFn: async () => await apiClient.lessons.listMyEnrollments(),
+      queryKey: lessonKeys.myEnrollmentsInRange(from, to),
+      queryFn: async () => {
+        const { enrollments } = await apiClient.lessons.listMyEnrollments({
+          from,
+          to,
+        });
+        return enrollments;
+      },
     }),
 };
 
-export function useMyEnrollments() {
-  return useQuery(enrollmentOptions.myEnrollments());
+export function useMyEnrollments(from: string, to: string) {
+  return useQuery(enrollmentOptions.myEnrollments(from, to));
 }
 
 export function useSeriesEnrollments(seriesId: string) {

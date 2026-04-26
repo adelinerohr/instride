@@ -71,9 +71,7 @@ export const Route = createFileRoute(
     await Promise.all([
       context.queryClient.ensureQueryData(instanceOptions.inRange(from, to)),
       context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to)),
-      context.queryClient.ensureQueryData(
-        membersOptions.trainers({ boardId: deps.boardId })
-      ),
+      context.queryClient.ensureQueryData(membersOptions.trainers()),
       context.queryClient.ensureQueryData(
         boardsOptions.list({ riderIds: context.effectiveRiderIds })
       ),
@@ -94,9 +92,7 @@ function RouteComponent() {
   const { effectiveRiderIds } = Route.useRouteContext();
   const { date, view, boardId } = Route.useSearch();
 
-  const { data: trainers } = useSuspenseQuery(
-    membersOptions.trainers({ boardId })
-  );
+  const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
   const { data: boards } = useSuspenseQuery(
     boardsOptions.list({ riderIds: effectiveRiderIds })
   );
@@ -108,6 +104,10 @@ function RouteComponent() {
   );
   const { data: allEvents } = useSuspenseQuery(
     eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+  );
+
+  const effectiveTrainers = trainers.filter((t) =>
+    t.boardAssignments.some((b) => b.boardId === boardId)
   );
 
   // Calculate visible range based on current view
@@ -140,7 +140,7 @@ function RouteComponent() {
   return (
     <CalendarProvider
       events={allEvents}
-      trainers={trainers}
+      trainers={effectiveTrainers}
       boards={boards}
       lessons={lessons}
       timeBlocks={timeBlocks}

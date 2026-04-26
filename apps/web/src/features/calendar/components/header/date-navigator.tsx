@@ -4,12 +4,13 @@ import * as React from "react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { ButtonGroup } from "@/shared/components/ui/button-group";
 
 import { useCalendar } from "../../hooks/use-calendar";
 import { navigateDate, rangeText } from "../../utils/date";
 
 export function DateNavigator() {
-  const { selectedDate, setSelectedDate, lessons } = useCalendar();
+  const { selectedDate, setSelectedDate, lessons, type } = useCalendar();
 
   const month = formatDate(selectedDate, "MMMM");
   const year = selectedDate.getFullYear();
@@ -25,6 +26,26 @@ export function DateNavigator() {
     () => setSelectedDate(navigateDate("next")),
     [setSelectedDate]
   );
+
+  if (type === "kiosk") {
+    return (
+      <ButtonGroup>
+        <Button variant="outline" size="icon-sm" onClick={handlePrevious}>
+          <ChevronLeftIcon />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectedDate(new Date())}
+        >
+          Today
+        </Button>
+        <Button variant="outline" size="icon-sm" onClick={handleNext}>
+          <ChevronRightIcon />
+        </Button>
+      </ButtonGroup>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3">

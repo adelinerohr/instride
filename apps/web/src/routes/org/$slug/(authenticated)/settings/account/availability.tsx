@@ -113,9 +113,7 @@ function RouteComponent() {
                 onCheckedChange={(value) =>
                   updateTrainer.mutateAsync({
                     trainerId: trainer.id,
-                    request: {
-                      allowSameDayBookings: value,
-                    },
+                    allowSameDayBookings: value,
                   })
                 }
               />

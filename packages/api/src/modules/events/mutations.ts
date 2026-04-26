@@ -2,14 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import type { MutationHookOptions } from "#_internal";
 import { useWrappedMutation } from "#_internal";
-import { apiClient, type events } from "#client";
+import { apiClient } from "#client";
+import { UpsertEventRequest } from "#contracts";
 
 import { eventKeys } from "./keys";
 
 export const eventMutations = {
-  create: async (request: events.UpsertEventRequest) =>
+  create: async (request: UpsertEventRequest) =>
     await apiClient.events.createEvent(request),
-  update: async (input: { id: string; request: events.UpsertEventRequest }) =>
+  update: async (input: { id: string; request: UpsertEventRequest }) =>
     await apiClient.events.updateEvent(input.id, input.request),
   delete: async (id: string) => await apiClient.events.deleteEvent(id),
 };

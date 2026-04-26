@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { LessonInstance, Rider } from "@instride/api";
 
 import {
   useLessonCardData,
@@ -17,8 +17,8 @@ export enum LessonCardVariant {
 
 interface LessonCardProps {
   variant: LessonCardVariant;
-  lesson: types.LessonInstance;
-  rider?: types.Rider;
+  lesson: LessonInstance;
+  rider?: Rider;
 }
 
 export interface LessonCardVariantProps {

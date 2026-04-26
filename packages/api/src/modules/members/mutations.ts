@@ -3,17 +3,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { MutationHookOptions } from "#_internal/types";
 import { useWrappedMutation } from "#_internal/types";
 import { apiClient, type members } from "#client";
+import {
+  ChangeRoleRequest,
+  JoinOrganizationRequest,
+  UpdateRiderRequest,
+  UpdateTrainerRequest,
+} from "#contracts";
 
 import { memberKeys } from "./keys";
 
 export const membersMutations = {
-  joinOrganization: async (input: {
-    organizationId: string;
-    request: members.JoinOrganizationRequest;
-  }) => {
+  joinOrganization: async ({
+    organizationId,
+    ...request
+  }: JoinOrganizationRequest) => {
     const { member } = await apiClient.organizations.joinOrganization(
-      input.organizationId,
-      input.request
+      organizationId,
+      request
     );
     return member;
   },
@@ -21,13 +27,7 @@ export const membersMutations = {
   setPin: async (pin: string) =>
     await apiClient.organizations.setKioskPin({ pin }),
 
-  updateRider: async ({
-    riderId,
-    request,
-  }: {
-    riderId: string;
-    request: members.UpdateRiderRequest;
-  }) => {
+  updateRider: async ({ riderId, ...request }: UpdateRiderRequest) => {
     const { rider } = await apiClient.organizations.updateRider(
       riderId,
       request
@@ -35,13 +35,7 @@ export const membersMutations = {
     return rider;
   },
 
-  updateTrainer: async ({
-    trainerId,
-    request,
-  }: {
-    trainerId: string;
-    request: members.UpdateTrainerRequest;
-  }) => {
+  updateTrainer: async ({ trainerId, ...request }: UpdateTrainerRequest) => {
     const { trainer } = await apiClient.organizations.updateTrainer(
       trainerId,
       request
@@ -52,13 +46,7 @@ export const membersMutations = {
   onboardMember: async (params: members.OnboardMemberParams) =>
     await apiClient.organizations.onboardMember(params),
 
-  changeRole: async ({
-    memberId,
-    request,
-  }: {
-    memberId: string;
-    request: members.ChangeRoleRequest;
-  }) => {
+  changeRole: async ({ memberId, ...request }: ChangeRoleRequest) => {
     await apiClient.organizations.changeRole(memberId, request);
   },
 
@@ -143,7 +131,7 @@ export function useUpdateTrainer({
     ...config,
     onSuccess: (trainer, ...args) => {
       queryClient.setQueryData(memberKeys.trainerById(trainer.id), trainer);
-      queryClient.invalidateQueries({ queryKey: memberKeys.trainersRoot() });
+      queryClient.invalidateQueries({ queryKey: memberKeys.trainers() });
       onSuccess?.(trainer, ...args);
     },
   });

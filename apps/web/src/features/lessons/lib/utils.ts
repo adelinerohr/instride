@@ -1,4 +1,7 @@
-import type { types } from "@instride/api";
+import type {
+  LessonInstance,
+  LessonInstanceEnrollmentWithInstance,
+} from "@instride/api";
 import { isBefore, setHours, startOfDay } from "date-fns";
 
 export function getPhaseOfDay(now: Date) {
@@ -7,12 +10,27 @@ export function getPhaseOfDay(now: Date) {
   return "evening";
 }
 
-export function groupByDay(lessons: types.LessonInstance[]) {
+export function groupEnrollmentsByDay(
+  enrollments: LessonInstanceEnrollmentWithInstance[]
+) {
+  const lessons = enrollments
+    .map((enrollment) => enrollment.instance)
+    .filter((lesson): lesson is LessonInstance => lesson !== undefined);
+  const grouped = groupByDay(lessons);
+  return grouped.map((group) => ({
+    day: group.day,
+    enrollments: group.lessons.map((lesson) =>
+      enrollments.find((enrollment) => enrollment.instance?.id === lesson.id)
+    ),
+  }));
+}
+
+export function groupByDay(lessons: LessonInstance[]) {
   const sorted = [...lessons].sort(
     (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
   );
 
-  const groups = new Map<string, types.LessonInstance[]>();
+  const groups = new Map<string, LessonInstance[]>();
   for (const lesson of sorted) {
     const key = startOfDay(new Date(lesson.start)).toISOString();
     const existing = groups.get(key) ?? [];
@@ -26,8 +44,22 @@ export function groupByDay(lessons: types.LessonInstance[]) {
   }));
 }
 
-export function findNearestLesson(lessons: types.LessonInstance[], now: Date) {
-  let nearest: types.LessonInstance | undefined;
+export function findNearestEnrollment(
+  enrollments: LessonInstanceEnrollmentWithInstance[],
+  now: Date
+) {
+  const lessons = enrollments
+    .map((enrollment) => enrollment.instance)
+    .filter((lesson): lesson is LessonInstance => lesson !== undefined);
+  const nearest = findNearestLesson(lessons, now);
+  if (!nearest) return undefined;
+  return enrollments.find(
+    (enrollment) => enrollment.instance?.id === nearest.id
+  );
+}
+
+export function findNearestLesson(lessons: LessonInstance[], now: Date) {
+  let nearest: LessonInstance | undefined;
   let nearestStart = Infinity;
 
   for (const lesson of lessons) {

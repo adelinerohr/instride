@@ -6,12 +6,7 @@ import { useStore } from "@tanstack/react-store";
 import { PlusIcon, TrashIcon } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import {
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/shared/components/ui/field";
+import { FieldGroup, FieldLabel } from "@/shared/components/ui/field";
 import { withForm } from "@/shared/hooks/use-form";
 
 import { questionnaireFormOpts } from "../../lib/questionnaire.form";
@@ -147,18 +142,16 @@ export const ConditionsBuilder = withForm({
 
                   {selectedQuestion?.type ===
                   QuestionnaireQuestionType.BOOLEAN ? (
-                    <FieldSet>
-                      <FieldLegend>Value</FieldLegend>
-                      <form.AppField
-                        name={`boardAssignmentRules[${ruleIndex}].conditions[${conditionIndex}].responseValue`}
-                        children={(field) => (
-                          <field.BooleanRadioField
-                            trueLabel="Yes"
-                            falseLabel="No"
-                          />
-                        )}
-                      />
-                    </FieldSet>
+                    <form.AppField
+                      name={`boardAssignmentRules[${ruleIndex}].conditions[${conditionIndex}].responseValue`}
+                      children={(field) => (
+                        <field.BooleanRadioField
+                          label="Value"
+                          trueConfig={{ label: "Yes" }}
+                          falseConfig={{ label: "No" }}
+                        />
+                      )}
+                    />
                   ) : null}
 
                   {selectedQuestion?.type ===

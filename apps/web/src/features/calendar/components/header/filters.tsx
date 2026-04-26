@@ -1,4 +1,5 @@
 import { getUser } from "@instride/api";
+import { useRouteContext } from "@tanstack/react-router";
 import * as React from "react";
 
 import {
@@ -34,6 +35,7 @@ export function CalendarFilters({
     boards,
   } = useCalendar();
   const isMobile = useIsMobile();
+  const { kioskSession } = useRouteContext({ strict: false });
 
   React.useEffect(() => {
     if (!trainers || trainers.length === 0) return;
@@ -50,31 +52,35 @@ export function CalendarFilters({
 
   if (!trainers) return null;
 
+  const hideBoardFilter = kioskSession && kioskSession.boardId !== null;
+
   return (
     <div className={cn("flex items-center gap-2", className)} {...props}>
-      <Select
-        value={selectedBoardId}
-        onValueChange={(value) => setSelectedBoardId(value ?? undefined)}
-      >
-        <SelectTrigger className={cn(fullWidth && "w-full!")}>
-          <SelectValue>
-            {(value) => {
-              if (value) {
-                return boards.find((board) => board.id === value)?.name;
-              }
-              return "Select board";
-            }}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
-          <SelectItem value={null}>Select board</SelectItem>
-          {boards.map((board) => (
-            <SelectItem key={board.id} value={board.id}>
-              {board.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {!hideBoardFilter && (
+        <Select
+          value={selectedBoardId}
+          onValueChange={(value) => setSelectedBoardId(value ?? undefined)}
+        >
+          <SelectTrigger className={cn(fullWidth && "w-full!")}>
+            <SelectValue>
+              {(value) => {
+                if (value) {
+                  return boards.find((board) => board.id === value)?.name;
+                }
+                return "Select board";
+              }}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}>
+            <SelectItem value={null}>Select board</SelectItem>
+            {boards.map((board) => (
+              <SelectItem key={board.id} value={board.id}>
+                {board.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       {isMobile ? (
         <Select
           value={selectedTrainerIds[0] ?? ""}

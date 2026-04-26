@@ -2,8 +2,8 @@ import {
   boardsOptions,
   useDeleteService,
   servicesOptions,
-  type types,
   getUser,
+  membersOptions,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -55,6 +55,7 @@ export const Route = createFileRoute(
   loader: async ({ context }) => {
     const [services, boards] = await Promise.all([
       context.queryClient.ensureQueryData(servicesOptions.all()),
+      context.queryClient.ensureQueryData(membersOptions.trainers()),
       context.queryClient.ensureQueryData(boardsOptions.list()),
     ]);
     return { services, boards };
@@ -63,12 +64,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { organization } = Route.useRouteContext();
-  const { data: services, isLoading: isServicesLoading } = useSuspenseQuery(
-    servicesOptions.all()
-  );
-  const { data: boards, isLoading: isBoardsLoading } = useSuspenseQuery(
-    boardsOptions.list()
-  );
+  const { data: services } = useSuspenseQuery(servicesOptions.all());
+  const { data: boards } = useSuspenseQuery(boardsOptions.list());
+  const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
 
   const deleteService = useDeleteService();
 
@@ -98,10 +96,6 @@ function RouteComponent() {
   ): void => {
     setSearchQuery(e.target?.value || "");
   };
-
-  if (isServicesLoading || isBoardsLoading || !services || !boards) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Page>
@@ -153,10 +147,17 @@ function RouteComponent() {
         {filteredServices.length > 0 ? (
           <div className="flex flex-col gap-4">
             {filteredServices.map((service) => {
-              const assignedTrainers =
-                service.trainerAssignments
-                  ?.map((assignment) => assignment.trainer)
-                  .filter((t): t is types.Trainer => t != null) ?? [];
+              const filteredTrainers = trainers.filter((trainer) =>
+                service.trainerAssignments?.some(
+                  (assignment) => assignment.trainerId === trainer.id
+                )
+              );
+
+              const filteredBoards = boards.filter((board) =>
+                service.boardAssignments?.some(
+                  (assignment) => assignment.boardId === board.id
+                )
+              );
 
               return (
                 <Link
@@ -185,7 +186,9 @@ function RouteComponent() {
                         )}
                         {service.boardAssignments?.map((assignment) => (
                           <Badge variant="outline" key={assignment.boardId}>
-                            {assignment.board?.name ?? ""}
+                            {filteredBoards.find(
+                              (b) => b.id === assignment.boardId
+                            )?.name ?? ""}
                           </Badge>
                         ))}
                       </div>
@@ -201,7 +204,7 @@ function RouteComponent() {
                     </div>
                     <div className="flex items-center gap-2">
                       <AvatarGroup>
-                        {assignedTrainers.map((trainer) => (
+                        {filteredTrainers.map((trainer) => (
                           <UserAvatar
                             key={trainer.id}
                             size="sm"
@@ -210,8 +213,8 @@ function RouteComponent() {
                         ))}
                       </AvatarGroup>
                       <span className="text-muted-foreground text-sm">
-                        {assignedTrainers.length} trainer
-                        {assignedTrainers.length > 1 ? "s" : ""} assigned
+                        {filteredTrainers.length} trainer
+                        {filteredTrainers.length > 1 ? "s" : ""} assigned
                       </span>
                       &middot;
                       <p className="text-muted-foreground text-sm">

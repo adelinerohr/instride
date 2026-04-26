@@ -1,4 +1,9 @@
-import { invitationOptions, membersOptions, type types } from "@instride/api";
+import {
+  invitationOptions,
+  membersOptions,
+  type Invitation,
+  type Member,
+} from "@instride/api";
 import { InvitationStatus, MembershipRole } from "@instride/shared";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -120,12 +125,12 @@ export function TeamMembersCard() {
 
 interface ActiveMemberRowProps {
   type: "active";
-  member: types.Member;
+  member: Member;
 }
 
 interface PendingInvitationRowProps {
   type: "pending";
-  invitation: types.Invitation;
+  invitation: Invitation;
 }
 
 type MemberRowProps = ActiveMemberRowProps | PendingInvitationRowProps;

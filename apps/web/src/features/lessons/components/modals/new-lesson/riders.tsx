@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Rider } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
 import { ChevronDownIcon, UsersIcon } from "lucide-react";
 
@@ -15,7 +15,7 @@ import { cn } from "@/shared/lib/utils";
 export const RidersSection = withForm({
   ...lessonFormOpts,
   props: {
-    riders: [] as types.Rider[],
+    riders: [] as Rider[],
     isOpen: true as boolean,
     onOpenChange: (_open: boolean) => {},
   },

@@ -1,4 +1,9 @@
-import { useDeleteComment, useUpdateComment, type types } from "@instride/api";
+import {
+  useDeleteComment,
+  useUpdateComment,
+  type FeedComment,
+  type Member,
+} from "@instride/api";
 import { useRouteContext } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
 import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
@@ -27,7 +32,7 @@ interface ReplyTarget {
 }
 
 interface CommentItemProps {
-  comment: types.FeedComment;
+  comment: FeedComment;
   onReply: (target: ReplyTarget) => void;
 }
 
@@ -104,8 +109,8 @@ export function CommentItem({ comment, onReply }: CommentItemProps) {
 }
 
 interface ReplyItemProps {
-  reply: types.FeedComment;
-  member: types.Member;
+  reply: FeedComment;
+  member: Member;
   onReplyClick: () => void;
 }
 
@@ -129,8 +134,8 @@ function ReplyItem({ reply, member, onReplyClick }: ReplyItemProps) {
 // ---- Shared sub-components --------------------------------------------------
 
 interface CommentBodyProps {
-  comment: types.FeedComment;
-  member: types.Member;
+  comment: FeedComment;
+  member: Member;
 }
 
 function CommentBody({ comment, member }: CommentBodyProps) {
@@ -144,7 +149,7 @@ function CommentBody({ comment, member }: CommentBodyProps) {
   const handleEdit = () => {
     if (!editedText.trim()) return;
     updateComment.mutate(
-      { commentId: comment.id, request: { text: editedText.trim() } },
+      { commentId: comment.id, text: editedText.trim() },
       {
         onSuccess: () => {
           setIsEditing(false);
@@ -253,7 +258,7 @@ function CommentBody({ comment, member }: CommentBodyProps) {
 }
 
 interface CommentActionsProps {
-  comment: types.FeedComment;
+  comment: FeedComment;
   onReplyClick: () => void;
 }
 

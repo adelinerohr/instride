@@ -1,12 +1,13 @@
+import type {
+  GetAffectedInstancesRequest,
+  UpsertEventRequest,
+} from "@instride/api/contracts";
 import { EventScope, LessonInstanceStatus } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
-import { Transaction } from "@/shared/utils/schema";
+import { Database, Transaction } from "@/shared/utils/schema";
 
-import { LessonInstance } from "../lessons/types/models";
-import { db } from "./db";
-import { GetEventResponse } from "./types/contracts";
-import { Event } from "./types/models";
+import type { NewEventSchedulingBlockRow } from "./schema";
 
 export function validateEventScope(input: {
   scope: EventScope;
@@ -14,136 +15,83 @@ export function validateEventScope(input: {
   trainerIds?: string[] | null;
 }): void {
   if (input.scope === EventScope.BOARD && input.trainerIds?.length) {
-    throw APIError.invalidArgument(
-      "Board and trainer IDs cannot be used together"
-    );
+    throw APIError.invalidArgument("Board scope cannot include trainerIds");
   }
   if (input.scope === EventScope.TRAINER && input.boardIds?.length) {
-    throw APIError.invalidArgument(
-      "Trainer and board IDs cannot be used together"
-    );
+    throw APIError.invalidArgument("Trainer scope cannot include boardIds");
+  }
+  if (input.scope === EventScope.ORGANIZATION) {
+    if (input.boardIds?.length || input.trainerIds?.length) {
+      throw APIError.invalidArgument(
+        "Organization scope cannot include boardIds or trainerIds"
+      );
+    }
   }
 }
 
-export function buildSchedulingBlocks(input: {
-  scope: EventScope;
-  eventId: string;
-  blockScheduling: boolean;
-  boardIds?: string[] | null;
-  trainerIds?: string[] | null;
-}) {
-  return input.scope === EventScope.ORGANIZATION
-    ? [
-        {
-          eventId: input.eventId,
-          scope: EventScope.ORGANIZATION,
-          blockScheduling: input.blockScheduling,
-        },
-      ]
-    : (input.boardIds ?? input.trainerIds ?? []).map((id) => ({
+export function buildSchedulingBlocks(
+  input: Pick<UpsertEventRequest, "scope" | "boardIds" | "trainerIds"> & {
+    eventId: string;
+  }
+): NewEventSchedulingBlockRow[] {
+  if (input.scope === EventScope.ORGANIZATION) {
+    return [
+      {
         eventId: input.eventId,
-        scope: input.scope,
-        boardId: input.scope === EventScope.BOARD ? id : null,
-        trainerId: input.scope === EventScope.TRAINER ? id : null,
-        blockScheduling: input.blockScheduling,
-      }));
+        scope: EventScope.ORGANIZATION,
+        boardId: null,
+        trainerId: null,
+      },
+    ];
+  }
+
+  const ids = input.boardIds ?? input.trainerIds ?? [];
+  return ids.map((id) => ({
+    eventId: input.eventId,
+    scope: input.scope,
+    boardId: input.scope === EventScope.BOARD ? id : null,
+    trainerId: input.scope === EventScope.TRAINER ? id : null,
+  }));
 }
 
-export async function findAffectedInstances(input: {
-  DB: typeof db | Transaction;
-  organizationId: string;
-  window: {
-    startDate: string;
-    endDate: string;
-    startTime?: string;
-    endTime?: string;
+export async function findAffectedInstances(
+  client: Database | Transaction,
+  params: {
+    organizationId: string;
+    window: GetAffectedInstancesRequest;
+  }
+) {
+  const { organizationId, window } = params;
+  const startDate = new Date(window.startDate);
+  const endDate = new Date(window.endDate);
+
+  const baseWhere = {
+    organizationId,
+    status: LessonInstanceStatus.SCHEDULED,
+    start: { gte: startDate, lte: endDate },
   };
-  block: {
-    scope: EventScope;
-    boardIds?: string[];
-    trainerIds?: string[];
-  };
-}): Promise<LessonInstance[]> {
-  const { DB, ...request } = input;
 
-  if (input.block.scope === EventScope.ORGANIZATION) {
-    const instances = await DB.query.lessonInstances.findMany({
-      where: {
-        organizationId: request.organizationId,
-        status: LessonInstanceStatus.SCHEDULED,
-        start: {
-          gte: new Date(request.window.startDate),
-          lte: new Date(request.window.endDate),
+  switch (window.scope) {
+    case EventScope.ORGANIZATION:
+      return await client.query.lessonInstances.findMany({ where: baseWhere });
+
+    case EventScope.BOARD:
+      return await client.query.lessonInstances.findMany({
+        where: {
+          ...baseWhere,
+          boardId: { in: window.boardIds ?? [] },
         },
-      },
-    });
+      });
 
-    return instances;
+    case EventScope.TRAINER:
+      return await client.query.lessonInstances.findMany({
+        where: {
+          ...baseWhere,
+          trainerId: { in: window.trainerIds ?? [] },
+        },
+      });
+
+    default:
+      throw APIError.invalidArgument("Invalid scope");
   }
-
-  if (input.block.scope === EventScope.BOARD) {
-    const instances = await DB.query.lessonInstances.findMany({
-      where: {
-        organizationId: request.organizationId,
-        status: LessonInstanceStatus.SCHEDULED,
-        start: {
-          gte: new Date(request.window.startDate),
-          lte: new Date(request.window.endDate),
-        },
-        boardId: {
-          in: request.block.boardIds,
-        },
-      },
-    });
-
-    return instances;
-  }
-
-  if (input.block.scope === EventScope.TRAINER) {
-    const instances = await DB.query.lessonInstances.findMany({
-      where: {
-        organizationId: request.organizationId,
-        status: LessonInstanceStatus.SCHEDULED,
-        start: {
-          gte: new Date(request.window.startDate),
-          lte: new Date(request.window.endDate),
-        },
-        trainerId: {
-          in: request.block.trainerIds,
-        },
-      },
-    });
-
-    return instances;
-  }
-
-  throw APIError.invalidArgument("Invalid scope");
-}
-
-export function getEventResponse(event: Event): GetEventResponse {
-  if (
-    event.blockScheduling &&
-    event.schedulingBlocks &&
-    event.schedulingBlocks.length > 0
-  ) {
-    const boardBlocks =
-      event.schedulingBlocks.filter((block) => block.boardId !== null) ?? [];
-    const trainerBlocks =
-      event.schedulingBlocks.filter((block) => block.trainerId !== null) ?? [];
-
-    return {
-      event,
-      scope: event.schedulingBlocks[0].scope,
-      boardIds: boardBlocks
-        .map((block) => block.boardId)
-        .filter((id) => id !== null),
-      trainerIds: trainerBlocks
-        .map((block) => block.trainerId)
-        .filter((id) => id !== null),
-    };
-  }
-
-  return {
-    event,
-  };
 }

@@ -18,28 +18,24 @@ export const getPortalNavItems = (slug: string) =>
       to: "/org/$slug/portal",
       params: { slug },
       activeOptions: { exact: true },
-      primary: true,
     },
     {
       title: "Feed",
       icon: MessageCircle,
       to: "/org/$slug/portal/feed",
       params: { slug },
-      primary: true,
     },
     {
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/portal/calendar",
       params: { slug },
-      primary: true,
     },
     {
       title: "Settings",
       icon: Settings,
       to: "/org/$slug/settings",
       params: { slug },
-      primary: true,
     },
   ]);
 
@@ -51,28 +47,24 @@ export const getAdminNavItems = (slug: string) => ({
       to: "/org/$slug/admin",
       params: { slug },
       activeOptions: { exact: true },
-      primary: true,
     },
     {
       title: "Feed",
       icon: MessageCircle,
       to: "/org/$slug/admin/feed",
       params: { slug },
-      primary: true,
     },
     {
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/admin/calendar",
       params: { slug },
-      primary: true,
     },
     {
       title: "Settings",
       icon: Settings,
       to: "/org/$slug/settings",
       params: { slug },
-      primary: true,
     },
   ]),
   groups: [

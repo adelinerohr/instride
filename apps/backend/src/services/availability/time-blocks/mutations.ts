@@ -1,78 +1,51 @@
-import { eq } from "drizzle-orm";
+import type {
+  CreateTimeBlockRequest,
+  GetTimeBlockResponse,
+  UpdateTimeBlockRequest,
+} from "@instride/api/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { db } from "../db";
-import { timeBlocks } from "../schema";
-import { TimeBlock } from "../types/models";
-
-interface CreateTimeBlockParams {
-  trainerId: string;
-  start: string;
-  end: string;
-  boardId?: string | null;
-  reason?: string | null;
-}
+import { toTimeBlock } from "../mappers";
+import { timeBlockService } from "./service";
 
 export const createTimeBlock = api(
-  {
-    method: "POST",
-    path: "/time-blocks",
-    expose: true,
-    auth: true,
-  },
-  async (params: CreateTimeBlockParams): Promise<TimeBlock> => {
+  { method: "POST", path: "/time-blocks", expose: true, auth: true },
+  async (params: CreateTimeBlockRequest): Promise<GetTimeBlockResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const [timeBlock] = await db
-      .insert(timeBlocks)
-      .values({
-        ...params,
-        organizationId,
-        start: new Date(params.start),
-        end: new Date(params.end),
-      })
-      .returning();
+    const timeBlock = await timeBlockService.create({
+      ...params,
+      organizationId,
+      start: new Date(params.start),
+      end: new Date(params.end),
+    });
 
-    return timeBlock;
+    return { timeBlock: toTimeBlock(timeBlock) };
   }
 );
 
-interface UpdateTimeBlockParams extends CreateTimeBlockParams {
-  id: string;
-}
-
 export const updateTimeBlock = api(
-  {
-    method: "PUT",
-    path: "/time-blocks/:id",
-    expose: true,
-    auth: true,
-  },
-  async (params: UpdateTimeBlockParams): Promise<TimeBlock> => {
+  { method: "PUT", path: "/time-blocks/:id", expose: true, auth: true },
+  async (params: UpdateTimeBlockRequest): Promise<GetTimeBlockResponse> => {
+    const { organizationId } = requireOrganizationAuth();
     const { id, ...rest } = params;
-    const [timeBlock] = await db
-      .update(timeBlocks)
-      .set({
-        ...rest,
-        start: new Date(rest.start),
-        end: new Date(rest.end),
-      })
-      .where(eq(timeBlocks.id, id))
-      .returning();
-    return timeBlock;
+
+    const timeBlock = await timeBlockService.update(id, organizationId, {
+      ...rest,
+      start: new Date(rest.start),
+      end: new Date(rest.end),
+    });
+
+    return { timeBlock: toTimeBlock(timeBlock) };
   }
 );
 
 export const deleteTimeBlock = api(
-  {
-    method: "DELETE",
-    path: "/time-blocks/:id",
-    expose: true,
-    auth: true,
-  },
+  { method: "DELETE", path: "/time-blocks/:id", expose: true, auth: true },
   async (params: { id: string }): Promise<void> => {
-    await db.delete(timeBlocks).where(eq(timeBlocks.id, params.id));
+    const { organizationId } = requireOrganizationAuth();
+    await timeBlockService.delete(params.id, organizationId);
   }
 );

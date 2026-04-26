@@ -1,54 +1,63 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, kiosk, lessons } from "#client";
+import { apiClient } from "#client";
+import {
+  ClearKioskIdentityRequest,
+  CreateKioskSessionRequest,
+  KioskEnrollInInstanceRequest,
+  KioskMarkAttendanceRequest,
+  KioskUnenrollFromInstanceRequest,
+  UpdateKioskSessionRequest,
+  VerifyKioskIdentityRequest,
+} from "#contracts";
 import { lessonKeys } from "#modules/lessons/keys";
 
 import { kioskKeys } from "./keys";
 
 export const kioskMutations = {
   /** Sessions */
-  createSession: async (request: kiosk.CreateKioskSessionRequest) =>
-    await apiClient.kiosk.createKioskSession(request),
-  updateSession: async (input: {
-    sessionId: string;
-    request: kiosk.UpdateKioskSessionRequest;
-  }) =>
-    await apiClient.kiosk.updateKioskSession(input.sessionId, input.request),
+  createSession: async (request: CreateKioskSessionRequest) => {
+    const { session } = await apiClient.kiosk.createKioskSession(request);
+    return session;
+  },
+  updateSession: async ({
+    sessionId,
+    ...request
+  }: UpdateKioskSessionRequest) => {
+    const { session } = await apiClient.kiosk.updateKioskSession(
+      sessionId,
+      request
+    );
+    return session;
+  },
   deleteSession: async (sessionId: string) =>
     await apiClient.kiosk.deleteKioskSession(sessionId),
 
   /** Acting state identity */
-  verifyIdentity: async (request: kiosk.VerifyKioskIdentityRequest) =>
-    await apiClient.kiosk.verifyKioskIdentity(request),
-  clearIdentity: async (request: kiosk.ClearKioskIdentityRequest) =>
+  verifyIdentity: async (request: VerifyKioskIdentityRequest) => {
+    return await apiClient.kiosk.verifyKioskIdentity(request);
+  },
+  clearIdentity: async (request: ClearKioskIdentityRequest) =>
     await apiClient.kiosk.clearKioskIdentity(request),
 
   /** Actions */
-  markAttendance: async (input: {
-    enrollmentId: string;
-    request: lessons.KioskMarkAttendanceRequest;
-  }) =>
-    await apiClient.kiosk.kioskMarkAttendance(
-      input.enrollmentId,
-      input.request
-    ),
-  enrollInInstance: async (input: {
-    instanceId: string;
-    request: lessons.KioskEnrollInInstanceRequest;
-  }) =>
-    await apiClient.kiosk.kioskEnrollInInstance(
-      input.instanceId,
-      input.request
-    ),
-  unenrollFromInstance: async (input: {
-    enrollmentId: string;
-    request: lessons.KioskUnenrollFromInstanceRequest;
-  }) =>
-    await apiClient.kiosk.kioskUnenrollFromInstance(
-      input.enrollmentId,
-      input.request
-    ),
+  markAttendance: async ({
+    enrollmentId,
+    ...request
+  }: KioskMarkAttendanceRequest) => {
+    return await apiClient.kiosk.kioskMarkAttendance(enrollmentId, request);
+  },
+  enrollInInstance: async ({
+    instanceId,
+    ...request
+  }: KioskEnrollInInstanceRequest) =>
+    await apiClient.kiosk.kioskEnrollInInstance(instanceId, request),
+  unenrollFromInstance: async ({
+    enrollmentId,
+    ...request
+  }: KioskUnenrollFromInstanceRequest) =>
+    await apiClient.kiosk.kioskUnenrollFromInstance(enrollmentId, request),
 };
 
 export function useCreateKioskSession({

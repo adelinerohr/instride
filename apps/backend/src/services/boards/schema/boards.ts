@@ -29,5 +29,5 @@ export const boards = p.pgTable(
   (table) => [p.index("boards_organizationId_idx").on(table.organizationId)]
 );
 
-export type Board = typeof boards.$inferSelect;
-export type NewBoard = typeof boards.$inferInsert;
+export type BoardRow = typeof boards.$inferSelect;
+export type NewBoardRow = typeof boards.$inferInsert;

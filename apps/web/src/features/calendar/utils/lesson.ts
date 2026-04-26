@@ -1,13 +1,13 @@
-import type { types } from "@instride/api";
+import type { LessonInstance } from "@instride/api";
 import { differenceInMinutes, isWithinInterval, parseISO } from "date-fns";
 
-import { SLOT_HEIGHT, START_HOUR } from "@/features/calendar/lib/constants";
+import { START_HOUR } from "@/features/calendar/lib/constants";
 
-export function groupLessons(dayLessons: types.LessonInstance[]) {
+export function groupLessons(dayLessons: LessonInstance[]) {
   const sortedLessons = dayLessons.sort(
     (a, b) => parseISO(a.start).getTime() - parseISO(b.start).getTime()
   );
-  const groups: types.LessonInstance[][] = [];
+  const groups: LessonInstance[][] = [];
 
   for (const lesson of sortedLessons) {
     const lessonStart = parseISO(lesson.start);
@@ -31,10 +31,11 @@ export function groupLessons(dayLessons: types.LessonInstance[]) {
 }
 
 export function getLessonBlockStyle(
-  lesson: types.LessonInstance,
+  lesson: LessonInstance,
   day: Date,
   groupIndex: number,
-  groupSize: number
+  groupSize: number,
+  slotHeight: number
 ) {
   const startDate = parseISO(lesson.start);
   const dayStart = new Date(day);
@@ -43,7 +44,7 @@ export function getLessonBlockStyle(
   const startMinutes = differenceInMinutes(lessonStart, dayStart);
 
   const visibleStartMinutes = START_HOUR * 60;
-  const top = ((startMinutes - visibleStartMinutes) / 60) * SLOT_HEIGHT;
+  const top = ((startMinutes - visibleStartMinutes) / 60) * slotHeight;
 
   const width = 100 / groupSize;
   const left = groupIndex * width;
@@ -51,7 +52,7 @@ export function getLessonBlockStyle(
   return { top: `${top}px`, width: `${width}%`, left: `${left}%` };
 }
 
-export function getCurrentLessons(lessons: types.LessonInstance[]) {
+export function getCurrentLessons(lessons: LessonInstance[]) {
   const now = new Date();
   return (
     lessons.filter((lesson) =>

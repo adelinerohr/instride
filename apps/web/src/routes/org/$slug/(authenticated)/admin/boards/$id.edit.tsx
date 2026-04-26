@@ -47,12 +47,7 @@ function RouteComponent() {
       updateBoard.mutateAsync(
         {
           boardId: board.id,
-          request: {
-            name: value.name,
-            canRiderAdd: false,
-            trainerIds: value.trainerIds,
-            serviceIds: value.serviceIds,
-          },
+          ...value,
         },
         {
           onSuccess: () => {

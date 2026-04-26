@@ -1,15 +1,15 @@
+import type { Member } from "@instride/api/contracts";
 import {
   canDependentPerform,
   DependentAction,
   requiresApproval,
 } from "@instride/shared";
 import { APIError } from "encore.dev/api";
-import { organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { Member } from "../organizations/types/models";
-import { db } from "./db";
+import { memberService } from "../organizations/members/member.service";
+import { guardianService } from "./guardian.service";
 
 export async function requireGuardianPermissions(input: {
   targetMemberId: string;
@@ -19,32 +19,29 @@ export async function requireGuardianPermissions(input: {
   targetMember: Member;
   requiresApproval: boolean;
 }> {
-  const { organizationId } = requireOrganizationAuth();
+  const { organizationId, userID } = requireOrganizationAuth();
 
-  const { member: actingMember } = await organizations.getMember();
-  const { member: targetMember } = await organizations.getMemberById({
-    memberId: input.targetMemberId,
-  });
+  const actingMember = await memberService.findOneByUser(
+    userID,
+    organizationId
+  );
+  const targetMember = await memberService.findOne(
+    input.targetMemberId,
+    organizationId
+  );
 
-  // Acting on self - not a dependent (restricted account), always allowed
+  // Acting on self (and not a restricted account) is always allowed
   if (
     actingMember.id === targetMember.id &&
     !actingMember.rider?.isRestricted
   ) {
-    return {
-      actingMember,
-      targetMember,
-      requiresApproval: false,
-    };
+    return { actingMember, targetMember, requiresApproval: false };
   }
 
-  // Acting on another user - check guardianship
-  const relationship = await db.query.guardianRelationships.findFirst({
-    where: {
-      organizationId,
-      dependentMemberId: targetMember.id,
-      guardianMemberId: actingMember.id,
-    },
+  const relationship = await guardianService.findRelationshipBetween({
+    guardianMemberId: actingMember.id,
+    dependentMemberId: targetMember.id,
+    organizationId,
   });
 
   if (!relationship) {

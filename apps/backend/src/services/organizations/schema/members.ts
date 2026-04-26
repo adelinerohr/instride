@@ -172,11 +172,11 @@ export const riders = p.pgTable(
   ]
 );
 
-export type Member = typeof members.$inferSelect;
-export type NewMember = typeof members.$inferInsert;
+export type MemberRow = typeof members.$inferSelect;
+export type NewMemberRow = typeof members.$inferInsert;
 
-export type Trainer = typeof trainers.$inferSelect;
-export type NewTrainer = typeof trainers.$inferInsert;
+export type TrainerRow = typeof trainers.$inferSelect;
+export type NewTrainerRow = typeof trainers.$inferInsert;
 
-export type Rider = typeof riders.$inferSelect;
-export type NewRider = typeof riders.$inferInsert;
+export type RiderRow = typeof riders.$inferSelect;
+export type NewRiderRow = typeof riders.$inferInsert;

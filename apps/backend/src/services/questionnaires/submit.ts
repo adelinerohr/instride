@@ -1,17 +1,16 @@
 import {
+  Questionnaire,
+  QuestionnaireQuestion,
+  QuestionnaireQuestionResponse,
+} from "@instride/api/contracts";
+import {
   GuardianRelationshipStatus,
   MembershipRole,
   QuestionnaireQuestionOperator,
 } from "@instride/shared";
 import { APIError } from "encore.dev/api";
-import { boards } from "~encore/clients";
 
 import { db } from "./db";
-import {
-  Questionnaire,
-  QuestionnaireQuestion,
-  QuestionnaireQuestionResponse,
-} from "./types/models";
 
 export async function assertMaySubmitForMember(input: {
   organizationId: string;
@@ -143,31 +142,4 @@ export function evaluateBoardAssignmentRules(
   }
 
   return [...assigned];
-}
-
-export async function syncRiderBoardAssignments({
-  riderId,
-  boardIds,
-}: {
-  riderId: string;
-  boardIds: string[];
-}): Promise<void> {
-  for (const boardId of boardIds) {
-    try {
-      await boards.assignToBoard({
-        boardId,
-        riderId,
-      });
-    } catch (err: unknown) {
-      if (
-        err &&
-        typeof err === "object" &&
-        "code" in err &&
-        (err as { code?: string }).code === "already_exists"
-      ) {
-        continue;
-      }
-      throw err;
-    }
-  }
 }

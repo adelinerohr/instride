@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type LessonInstance } from "@instride/api";
 import { differenceInMinutes, format } from "date-fns";
 import { CircleIcon } from "lucide-react";
 
@@ -12,7 +12,7 @@ import {
 } from "@/shared/components/ui/item";
 
 type LessonDetailsProps = {
-  instance: types.LessonInstance;
+  instance: LessonInstance;
 };
 
 export function LessonDetails({ instance }: LessonDetailsProps) {

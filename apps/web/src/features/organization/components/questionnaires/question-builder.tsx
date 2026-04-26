@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { QuestionnaireQuestion } from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { useStore } from "@tanstack/react-store";
 import { TrashIcon } from "lucide-react";
@@ -25,7 +25,7 @@ export const QuestionBuilder = withForm({
   ...questionnaireFormOpts,
   props: {
     index: 0,
-    question: {} as types.QuestionnaireQuestion,
+    question: {} as QuestionnaireQuestion,
   },
   render: ({ form, index, question }) => {
     const questions = useStore(form.store, (state) => state.values.questions);
@@ -235,10 +235,11 @@ export const QuestionBuilder = withForm({
             <form.AppField
               name={`questions[${index}].showIf.responseValue`}
               children={(field) => (
-                <FieldSet>
-                  <FieldLegend>Answer that triggers this question</FieldLegend>
-                  <field.BooleanRadioField trueLabel="Yes" falseLabel="No" />
-                </FieldSet>
+                <field.BooleanRadioField
+                  label="Answer that triggers this question"
+                  trueConfig={{ label: "Yes" }}
+                  falseConfig={{ label: "No" }}
+                />
               )}
             />
           ) : null}

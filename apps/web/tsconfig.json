@@ -15,5 +15,8 @@
       "@/*": ["./src/*"]
     }
   },
-  "references": [{ "path": "../../packages/shared" }]
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/api" }
+  ]
 }

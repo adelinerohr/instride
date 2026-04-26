@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Member } from "@instride/api";
 import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/shared";
 import { Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -11,7 +11,7 @@ import { buttonVariants } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
 interface MemberCardProps {
-  member: types.Member;
+  member: Member;
   expanded: boolean;
   onToggle: () => void;
 }

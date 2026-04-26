@@ -1,4 +1,4 @@
-import { membersOptions, type types } from "@instride/api";
+import { membersOptions, type Member } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Table } from "@tanstack/react-table";
@@ -66,7 +66,7 @@ function RouteComponent() {
   );
 }
 
-function MembersActionBar({ table }: { table: Table<types.Member> }) {
+function MembersActionBar({ table }: { table: Table<Member> }) {
   return (
     <DataTableActionBar table={table}>
       {({ rows }) => (

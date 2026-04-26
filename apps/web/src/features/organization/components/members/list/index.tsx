@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Member } from "@instride/api";
 import { MembershipRole, ROLE_LABELS } from "@instride/shared";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
@@ -15,7 +15,7 @@ import {
 import { MemberCard } from "./card";
 
 interface MemberListProps {
-  members: types.Member[];
+  members: Member[];
 }
 
 export function MemberList({ members }: MemberListProps) {

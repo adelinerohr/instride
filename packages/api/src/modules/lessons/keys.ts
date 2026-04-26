@@ -37,4 +37,6 @@ export const lessonKeys = {
   instanceEnrollments: (instanceId: string) =>
     [...lessonKeys.enrollments(), "instances", instanceId] as const,
   myEnrollments: () => [...lessonKeys.enrollments(), "my"] as const,
+  myEnrollmentsInRange: (from: string, to: string) =>
+    [...lessonKeys.enrollments(), "my", "range", { from, to }] as const,
 };

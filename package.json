@@ -10,9 +10,10 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
-    "dev:web": "turbo dev --filter=web --filter=backend --filter=@instride/shared --filter=@instride/auth",
+    "dev:web": "turbo dev --filter=web --filter=backend --filter=@instride/shared --filter=@instride/auth --filter=@instride/api",
     "check": "ultracite check",
     "gen:client": "encore gen client instride-zeai --output=./packages/api/src/client/encore-client.ts --env=local",
+    "postgen:client": "node -e \"const fs=require('fs');const p='./packages/api/src/client/encore-client.ts';const c=fs.readFileSync(p,'utf8');if(!c.startsWith('// @ts-nocheck')){fs.writeFileSync(p,'// @ts-nocheck\\n'+c)}\"",
     "fix": "ultracite fix"
   },
   "dependencies": {
@@ -30,5 +31,19 @@
     "typescript": "^5",
     "ultracite": "7.4.0"
   },
-  "packageManager": "pnpm@10.12.1"
+  "packageManager": "pnpm@10.12.1",
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowAny": [
+        "react",
+        "react-dom",
+        "react-native",
+        "pg",
+        "drizzle-orm",
+        "drizzle-kit",
+        "solid-js",
+        "@opentelemetry/api"
+      ]
+    }
+  }
 }

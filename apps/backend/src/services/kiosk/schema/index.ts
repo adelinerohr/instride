@@ -1,8 +1,7 @@
+import { KioskScope } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { boards, members, organizations } from "@/database/schema";
-
-import { KioskScope } from "../types/models";
 
 export const kioskScopeEnum = p.pgEnum("kiosk_scope", KioskScope);
 
@@ -44,3 +43,6 @@ export const kioskSessions = p.pgTable(
     p.index("kioskActingTokens_actingMemberId_idx").on(table.actingMemberId),
   ]
 );
+
+export type KioskSessionRow = typeof kioskSessions.$inferSelect;
+export type NewKioskSessionRow = typeof kioskSessions.$inferInsert;

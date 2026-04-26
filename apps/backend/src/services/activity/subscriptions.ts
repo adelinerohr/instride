@@ -1,24 +1,22 @@
-// apps/backend/src/services/activity-feed/subscriptions.ts
+import { ActivitySubjectType, ActivityType } from "@instride/shared";
 import { Subscription } from "encore.dev/pubsub";
-
-import { activity } from "@/database/schema";
 
 import { postCreated } from "../feed/topics";
 import { lessonEnrolled } from "../lessons/topics";
+import { activityService } from "./activity.service";
 import { db } from "./db";
-import { ActivitySubjectType, ActivityType } from "./types/models";
 
 export const onRiderEnrolledInInstance = new Subscription(
   lessonEnrolled,
   "activity-rider-enrolled",
   {
     handler: async (event) => {
-      const activities = [];
+      const rows = [];
 
-      // Create activity for rider's profile
-      activities.push({
+      // Activity for the rider's profile
+      rows.push({
         organizationId: event.organizationId,
-        actorMemberId: event.enrolledByMemberId, // Who enrolled them
+        actorMemberId: event.enrolledByMemberId,
         ownerMemberId: event.riderMemberId,
         riderId: event.riderId,
         subjectType: ActivitySubjectType.LESSON,
@@ -33,12 +31,11 @@ export const onRiderEnrolledInInstance = new Subscription(
           endTime: event.endTime,
           lessonName: event.lessonName ?? "",
         },
-        createdAt: new Date(),
       });
 
-      // If trainer enrolled them (not self-enrollment), add to trainer's feed too
+      // If the trainer enrolled them, also surface on the trainer's feed
       if (event.enrolledByMemberId === event.trainerMemberId) {
-        activities.push({
+        rows.push({
           organizationId: event.organizationId,
           actorMemberId: event.trainerMemberId,
           ownerMemberId: event.trainerMemberId,
@@ -55,95 +52,69 @@ export const onRiderEnrolledInInstance = new Subscription(
             endTime: event.endTime,
             lessonName: event.lessonName ?? "",
           },
-          createdAt: new Date(),
         });
       }
 
-      await db.insert(activity).values(activities);
+      await activityService.createMany(rows);
     },
   }
 );
 
-// Role-neutral activity (e.g., post created)
 export const onPostCreated = new Subscription(
   postCreated,
   "activity-post-created",
   {
     handler: async (event) => {
-      // This shows on BOTH profiles (if member has both)
-      // OR just on the member's general feed
-
-      // Get member's profiles
       const member = await db.query.members.findFirst({
-        where: {
-          id: event.authorMemberId,
-        },
-        with: {
-          rider: true,
-          trainer: true,
-        },
+        where: { id: event.authorMemberId },
+        with: { rider: true, trainer: true },
       });
 
       if (!member) return;
 
-      const activities = [];
+      const rows = [];
+      const baseMetadata = { postId: event.postId, content: event.content };
 
-      // Add to rider profile if they have one
       if (member.rider) {
-        activities.push({
+        rows.push({
           organizationId: event.organizationId,
           actorMemberId: event.authorMemberId,
+          ownerMemberId: event.authorMemberId,
           riderId: member.rider.id,
-          ownerMemberId: event.authorMemberId,
           subjectType: ActivitySubjectType.POST,
           subjectId: event.postId,
           type: ActivityType.POST_CREATED,
-          metadata: {
-            postId: event.postId,
-            content: event.content,
-          },
-          createdAt: new Date(),
+          metadata: baseMetadata,
         });
       }
 
-      // Add to trainer profile if they have one
       if (member.trainer) {
-        activities.push({
+        rows.push({
           organizationId: event.organizationId,
           actorMemberId: event.authorMemberId,
+          ownerMemberId: event.authorMemberId,
           trainerId: member.trainer.id,
-          ownerMemberId: event.authorMemberId,
           subjectType: ActivitySubjectType.POST,
           subjectId: event.postId,
           type: ActivityType.POST_CREATED,
-          metadata: {
-            postId: event.postId,
-            content: event.content,
-          },
-          createdAt: new Date(),
+          metadata: baseMetadata,
         });
       }
 
-      // If they have neither profile, create a role-neutral entry
+      // Neither role: role-neutral entry
       if (!member.rider && !member.trainer) {
-        activities.push({
+        rows.push({
           organizationId: event.organizationId,
           actorMemberId: event.authorMemberId,
           ownerMemberId: event.authorMemberId,
           subjectType: ActivitySubjectType.POST,
           subjectId: event.postId,
           type: ActivityType.POST_CREATED,
-          metadata: {
-            postId: event.postId,
-            content: event.content,
-          },
-          createdAt: new Date(),
+          metadata: baseMetadata,
         });
       }
 
-      if (activities.length > 0) {
-        await db.insert(activity).values(activities);
-      }
+      await activityService.createMany(rows);
     },
   }
 );

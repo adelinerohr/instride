@@ -25,3 +25,6 @@ export const authUsers = p.pgTable(
   },
   (table) => [p.index("authUsers_email_idx").on(table.email)]
 );
+
+export type AuthUserRow = typeof authUsers.$inferSelect;
+export type NewAuthUserRow = typeof authUsers.$inferInsert;

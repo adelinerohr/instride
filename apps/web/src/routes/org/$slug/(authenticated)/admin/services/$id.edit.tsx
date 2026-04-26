@@ -54,8 +54,8 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       updateService.mutateAsync(
         {
-          serviceId: id,
-          request: value,
+          id,
+          ...value,
         },
         {
           onSuccess: () => {

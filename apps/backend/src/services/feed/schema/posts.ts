@@ -47,5 +47,5 @@ export const feedPosts = p.pgTable(
   ]
 );
 
-export type FeedPost = typeof feedPosts.$inferSelect;
-export type NewFeedPost = typeof feedPosts.$inferInsert;
+export type FeedPostRow = typeof feedPosts.$inferSelect;
+export type NewFeedPostRow = typeof feedPosts.$inferInsert;

@@ -1,45 +1,29 @@
-import { MembershipRole } from "@instride/shared";
-import { and, eq } from "drizzle-orm";
+import type {
+  ClearKioskIdentityRequest,
+  KioskSessionResponse,
+  VerifyKioskIdentityRequest,
+} from "@instride/api/contracts";
+import { KioskScope, MembershipRole } from "@instride/shared";
+import { addHours } from "date-fns";
 import { api, APIError } from "encore.dev/api";
 
+import { verifyKioskPin } from "@/services/organizations/members/pin";
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { verifyKioskPin } from "../organizations/members/pin";
-import { db } from "./db";
-import { kioskSessions } from "./schema";
-import { KioskSessionResponse } from "./types/contracts";
-import { KioskScope } from "./types/models";
+import { kioskService } from "./kiosk.service";
 
-interface VerifyKioskIdentityRequest {
-  sessionId: string;
-  memberId: string;
-  pin: string;
-}
+const KIOSK_SESSION_DURATION_HOURS = 1;
 
 export const verifyKioskIdentity = api(
-  {
-    method: "POST",
-    path: "/kiosk/verify",
-    expose: true,
-    auth: true,
-  },
+  { method: "POST", path: "/kiosk/verify", expose: true, auth: true },
   async (
     request: VerifyKioskIdentityRequest
   ): Promise<KioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await db.query.kioskSessions.findFirst({
-      where: {
-        id: request.sessionId,
-        organizationId,
-      },
-    });
+    // Confirm session exists and belongs to this org
+    await kioskService.findOneScalar(request.sessionId, organizationId);
 
-    if (!session) {
-      throw APIError.notFound("Session not found");
-    }
-
-    // Verify the PIN
     const verification = await verifyKioskPin({
       pin: request.pin,
       organizationId,
@@ -49,34 +33,28 @@ export const verifyKioskIdentity = api(
     if (!verification.member.kioskPin) {
       throw APIError.failedPrecondition("Member has not set a PIN");
     }
-
     if (!verification.ok) {
       throw APIError.permissionDenied("Invalid PIN");
     }
 
     const member = verification.member;
 
-    // Determine the scope of the session
     const isStaff =
       member.roles.includes(MembershipRole.ADMIN) ||
       member.roles.includes(MembershipRole.TRAINER);
-
     const scope = isStaff ? KioskScope.STAFF : KioskScope.SELF;
 
-    // Update the session
-    const [updated] = await db
-      .update(kioskSessions)
-      .set({
-        actingMemberId: member.id,
-        scope,
-      })
-      .where(
-        and(
-          eq(kioskSessions.id, session.id),
-          eq(kioskSessions.organizationId, organizationId)
-        )
-      )
-      .returning();
+    // Set expiry so subsequent operations (like markAttendance) can enforce it.
+    // Without this, sessions silently never expire and expiry checks always fail.
+    const expiresAt = addHours(new Date(), KIOSK_SESSION_DURATION_HOURS);
+
+    const updated = await kioskService.setActing({
+      id: request.sessionId,
+      organizationId,
+      actingMemberId: member.id,
+      scope,
+      expiresAt,
+    });
 
     return {
       acting: {
@@ -88,32 +66,10 @@ export const verifyKioskIdentity = api(
   }
 );
 
-interface ClearKioskIdentityRequest {
-  sessionId: string;
-}
-
 export const clearKioskIdentity = api(
-  {
-    method: "POST",
-    path: "/kiosk/clear",
-    expose: true,
-    auth: true,
-  },
+  { method: "POST", path: "/kiosk/clear", expose: true, auth: true },
   async (request: ClearKioskIdentityRequest): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-
-    await db
-      .update(kioskSessions)
-      .set({
-        actingMemberId: null,
-        scope: KioskScope.DEFAULT,
-        expiresAt: null,
-      })
-      .where(
-        and(
-          eq(kioskSessions.id, request.sessionId),
-          eq(kioskSessions.organizationId, organizationId)
-        )
-      );
+    await kioskService.clearActing(request.sessionId, organizationId);
   }
 );

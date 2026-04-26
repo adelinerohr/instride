@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { LessonInstance } from "@instride/api";
 import * as dateFns from "date-fns";
 import { parseISO } from "date-fns";
 
@@ -54,7 +54,7 @@ export function navigateDate(direction: "previous" | "next"): Date {
   }
 }
 
-export function getVisibleHours(lessons: types.LessonInstance[]) {
+export function getVisibleHours(lessons: LessonInstance[]) {
   let earliestEventHour = START_HOUR;
   let latestEventHour = END_HOUR;
 

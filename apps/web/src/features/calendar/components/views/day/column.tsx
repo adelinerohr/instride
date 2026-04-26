@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Trainer } from "@instride/api";
 import { isWorkingHour } from "@instride/shared";
 import { areIntervalsOverlapping, isSameDay, parseISO } from "date-fns";
 
@@ -13,12 +13,12 @@ import { HourCell } from "../fragments/hour-cell";
 import { LessonBlock } from "../fragments/lesson-block";
 
 interface DayColumnProps {
-  trainer: types.Trainer;
+  trainer: Trainer;
   date: Date;
 }
 
 export function DayColumn({ trainer, date }: DayColumnProps) {
-  const { trainerBusinessHours, lessons } = useCalendar();
+  const { trainerBusinessHours, lessons, slotHeight } = useCalendar();
   const currentTrainerBusinessHours = trainerBusinessHours[trainer.id];
 
   // Filter lessons to this specific day AND this trainer
@@ -55,7 +55,8 @@ export function DayColumn({ trainer, date }: DayColumnProps) {
             lesson,
             date,
             groupIndex,
-            groupedLessons.length
+            groupedLessons.length,
+            slotHeight
           );
           const hasOverlap = groupedLessons.some(
             (otherGroup, otherIndex) =>

@@ -1,6 +1,6 @@
 import { enrollmentOptions } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, startOfDay, subDays } from "date-fns";
 import { Clock2Icon } from "lucide-react";
 
 import { Empty, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
@@ -12,9 +12,15 @@ import {
 } from "@/shared/components/ui/timeline";
 
 export function RiderLessonsTab() {
-  const {
-    data: { instanceEnrollments },
-  } = useSuspenseQuery(enrollmentOptions.myEnrollments());
+  const now = new Date();
+  const thirtyDaysAgo = startOfDay(subDays(now, 30));
+
+  const { data: instanceEnrollments } = useSuspenseQuery(
+    enrollmentOptions.myEnrollments(
+      thirtyDaysAgo.toISOString(),
+      now.toISOString()
+    )
+  );
 
   if (!instanceEnrollments) return null;
 

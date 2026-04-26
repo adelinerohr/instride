@@ -153,10 +153,20 @@ export const trainerAvailabilitySlots = p.pgTable(
   ]
 );
 
-export type OrganizationAvailability =
+export type OrganizationAvailabilityRow =
   typeof organizationAvailability.$inferSelect;
-export type NewOrganizationAvailability =
+export type NewOrganizationAvailabilityRow =
   typeof organizationAvailability.$inferInsert;
 
-export type TrainerAvailability = typeof trainerAvailability.$inferSelect;
-export type NewTrainerAvailability = typeof trainerAvailability.$inferInsert;
+export type TrainerAvailabilityRow = typeof trainerAvailability.$inferSelect;
+export type NewTrainerAvailabilityRow = typeof trainerAvailability.$inferInsert;
+
+export type OrganizationAvailabilitySlotRow =
+  typeof organizationAvailabilitySlots.$inferSelect;
+export type NewOrganizationAvailabilitySlotRow =
+  typeof organizationAvailabilitySlots.$inferInsert;
+
+export type TrainerAvailabilitySlotRow =
+  typeof trainerAvailabilitySlots.$inferSelect;
+export type NewTrainerAvailabilitySlotRow =
+  typeof trainerAvailabilitySlots.$inferInsert;

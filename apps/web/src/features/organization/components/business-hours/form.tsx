@@ -1,7 +1,7 @@
 import {
   useUpsertOrganizationBusinessHours,
   useUpsertTrainerBusinessHours,
-  type types,
+  type BusinessHours,
 } from "@instride/api";
 import {
   availabilityDaysFormSchema,
@@ -21,7 +21,7 @@ import { DayRow } from "./day-row";
 
 interface OrgBusinessHoursFormProps {
   type: "organization";
-  existing: types.BusinessHours[];
+  existing: BusinessHours[];
   boardId: string | null;
 }
 
@@ -29,9 +29,9 @@ interface TrainerBusinessHoursFormProps {
   type: "trainer";
   trainerId: string;
   /** Existing saved trainer rows for this scope (defaults or a specific board) */
-  existing: types.BusinessHours[];
+  existing: BusinessHours[];
   /** Effective org hours for this scope — used for inline hints and clamp context */
-  orgHours: types.BusinessHours[];
+  orgHours: BusinessHours[];
   boardId: string | null;
 }
 
@@ -96,10 +96,8 @@ export function BusinessHoursForm(props: BusinessHoursFormProps) {
         await updateTrainerBusinessHours.mutateAsync(
           {
             trainerId: props.trainerId,
-            params: {
-              boardId: props.boardId,
-              days: value.days,
-            },
+            boardId: props.boardId,
+            days: value.days,
           },
           {
             onSuccess: () => {

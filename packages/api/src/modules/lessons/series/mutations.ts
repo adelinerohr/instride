@@ -1,40 +1,31 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type series, type types } from "#client";
+import { apiClient } from "#client";
+import {
+  CancelLessonSeriesRequest,
+  CreateLessonSeriesRequest,
+  LessonSeries,
+  UpdateLessonSeriesRequest,
+} from "#contracts";
 
 import { lessonKeys } from "../keys";
 
 // ---- Standalone functions ------------------------------------------------------------
 
 export const lessonsMutations = {
-  createLessonSeries: async (request: series.CreateLessonSeriesRequest) => {
+  createLessonSeries: async (request: CreateLessonSeriesRequest) => {
     const { series } = await apiClient.lessons.createLessonSeries(request);
     return series;
   },
 
-  updateLessonSeries: async ({
-    seriesId,
-    request,
-  }: {
-    seriesId: string;
-    request: series.UpdateLessonSeriesRequest;
-  }) => {
-    const { series } = await apiClient.lessons.updateLessonSeries(
-      seriesId,
-      request
-    );
+  updateLessonSeries: async ({ id, ...request }: UpdateLessonSeriesRequest) => {
+    const { series } = await apiClient.lessons.updateLessonSeries(id, request);
     return series;
   },
 
-  cancelLessonSeries: async ({
-    seriesId,
-    request,
-  }: {
-    seriesId: string;
-    request: series.CancelLessonSeriesRequest;
-  }) => {
-    await apiClient.lessons.cancelLessonSeries(seriesId, request);
+  cancelLessonSeries: async ({ id, ...request }: CancelLessonSeriesRequest) => {
+    await apiClient.lessons.cancelLessonSeries(id, request);
   },
 };
 
@@ -49,7 +40,7 @@ export function useCreateLessonSeries({
     onSuccess: (series, ...args) => {
       queryClient.setQueryData(
         lessonKeys.series(),
-        (old: types.LessonSeries[] | undefined) => [...(old ?? []), series]
+        (old: LessonSeries[] | undefined) => [...(old ?? []), series]
       );
 
       queryClient.invalidateQueries({ queryKey: lessonKeys.series() });

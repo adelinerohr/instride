@@ -8,7 +8,7 @@ import {
   useCreateLessonSeries,
   useUpdateLessonInstance,
   useUpdateLessonSeries,
-  type types,
+  type LessonInstance,
 } from "@instride/api";
 import { lessonSeriesInputSchema, RecurrenceFrequency } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
@@ -50,7 +50,7 @@ import { RidersSection } from "./riders";
 import { SchedulingSection } from "./scheduling";
 
 export interface LessonModalPayload {
-  lesson?: types.LessonInstance;
+  lesson?: LessonInstance;
   start?: string;
   boardId?: string;
   trainerId?: string;
@@ -159,11 +159,9 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
         if (saveFuture && value.isRecurring) {
           updateLessonSeries.mutateAsync(
             {
-              seriesId: initialValues.lesson.seriesId,
-              request: {
-                ...value,
-                effectiveFrom: new Date().toISOString(),
-              },
+              ...value,
+              id: initialValues.lesson.seriesId,
+              effectiveFrom: new Date().toISOString(),
             },
             {
               onSuccess,
@@ -176,11 +174,9 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
           updateLessonInstance.mutateAsync(
             {
               instanceId: initialValues.lesson.id,
-              request: {
-                ...value,
-                end: new Date(end).toISOString(),
-                riderIds: value.riderIds,
-              },
+              ...value,
+              end: new Date(end).toISOString(),
+              riderIds: value.riderIds,
             },
             {
               onSuccess,
@@ -195,7 +191,6 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
             recurrenceFrequency: value.isRecurring
               ? (value.recurrenceFrequency ?? RecurrenceFrequency.WEEKLY)
               : null,
-            effectiveFrom: new Date().toISOString(),
             overrideAvailability: initialValues.overrideBusinessHours,
           },
           {
@@ -221,9 +216,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
         cancelLessonInstance.mutateAsync(
           {
             instanceId: lesson.id,
-            request: {
-              reason: "User cancelled",
-            },
+            reason: "User cancelled",
           },
           {
             onSuccess: () => {
@@ -252,10 +245,8 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
       onConfirm: () => {
         cancelLessonSeries.mutateAsync(
           {
-            seriesId: lesson.seriesId,
-            request: {
-              reason: "User cancelled",
-            },
+            id: lesson.seriesId,
+            reason: "User cancelled",
           },
           {
             onSuccess: () => {

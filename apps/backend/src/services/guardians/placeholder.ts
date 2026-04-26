@@ -1,4 +1,11 @@
 import {
+  defaultPermissions,
+  Waiver,
+  type CreatePlaceholderRelationshipRequest,
+  type MutateGuardianRelationshipResponse,
+  type Questionnaire,
+} from "@instride/api/contracts";
+import {
   GuardianRelationshipStatus,
   MembershipRole,
   WaiverStatus,
@@ -6,48 +13,21 @@ import {
 import { generateId } from "better-auth";
 import { api, APIError } from "encore.dev/api";
 
-import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
-
-import { authUsers } from "../auth/schema";
-import { boardAssignments } from "../boards/schema";
-import { authMembers, members, riders } from "../organizations/schema";
-import { questionnaireResponses } from "../questionnaires/schema";
+import { authUsers } from "@/services/auth/schema";
+import { boardAssignments } from "@/services/boards/schema";
+import { authMembers, members, riders } from "@/services/organizations/schema";
+import { questionnaireResponses } from "@/services/questionnaires/schema";
 import {
   evaluateBoardAssignmentRules,
   validateResponses,
-} from "../questionnaires/submit";
-import {
-  Questionnaire,
-  QuestionnaireQuestionResponse,
-} from "../questionnaires/types/models";
-import { waiverSignatures } from "../waivers/schema";
-import { Waiver } from "../waivers/types/models";
-import { db } from "./db";
-import { guardianRelationships } from "./schema";
-import {
-  defaultPermissions,
-  type GuardianPermissions,
-  type GuardianRelationship,
-} from "./types/models";
+} from "@/services/questionnaires/submit";
+import { waiverSignatures } from "@/services/waivers/schema";
+import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
-interface CreatePlaceholderRelationshipParams {
-  placeholderProfile: {
-    name: string;
-    email?: string;
-    phone?: string | null;
-    image?: string | null;
-    dateOfBirth: string;
-  };
-  permissions: Partial<GuardianPermissions>;
-  questionnaire?: {
-    questionnaireId: string;
-    responses: QuestionnaireQuestionResponse[];
-  };
-  waiver?: {
-    waiverId: string;
-  };
-}
+import { db } from "./db";
+import { toGuardianRelationship } from "./mappers";
+import { guardianRelationships } from "./schema";
 
 export const createPlaceholderRelationship = api(
   {
@@ -57,24 +37,18 @@ export const createPlaceholderRelationship = api(
     auth: true,
   },
   async (
-    params: CreatePlaceholderRelationshipParams
-  ): Promise<GuardianRelationship> => {
+    params: CreatePlaceholderRelationshipRequest
+  ): Promise<MutateGuardianRelationshipResponse> => {
     const { organizationId, userID: guardianUserId } =
       requireOrganizationAuth();
 
     const organization = await db.query.organizations.findFirst({
-      where: {
-        id: organizationId,
-      },
+      where: { id: organizationId },
     });
     assertExists(organization, "Organization not found");
 
-    // Look up guardian's member record in this org
     const guardianMember = await db.query.members.findFirst({
-      where: {
-        userId: guardianUserId,
-        organizationId,
-      },
+      where: { userId: guardianUserId, organizationId },
     });
     assertExists(guardianMember, "Guardian member not found");
 
@@ -82,7 +56,6 @@ export const createPlaceholderRelationship = api(
       throw APIError.permissionDenied("Only guardians can create dependents");
     }
 
-    // Email collision check (before entering transaction)
     if (params.placeholderProfile.email) {
       const existing = await db.query.authUsers.findFirst({
         where: { email: params.placeholderProfile.email },
@@ -94,17 +67,15 @@ export const createPlaceholderRelationship = api(
       }
     }
 
-    // Validate questionnaire if provided
     let questionnaire: Questionnaire | undefined;
     if (params.questionnaire) {
       questionnaire = await db.query.questionnaires.findFirst({
         where: { id: params.questionnaire.questionnaireId, organizationId },
       });
       assertExists(questionnaire, "Questionnaire not found");
-      validateResponses(params.questionnaire.responses, questionnaire);
+      validateResponses(params.questionnaire.responses as never, questionnaire);
     }
 
-    // Validate waiver if provided
     let waiver: Waiver | undefined;
     if (params.waiver) {
       waiver = await db.query.waivers.findFirst({
@@ -128,25 +99,21 @@ export const createPlaceholderRelationship = api(
       `dependent+${crypto.randomUUID()}@placeholder.instride.local`;
 
     const relationship = await db.transaction(async (tx) => {
-      // 1. Create auth user row directly (Better Auth's createUser requires
-      // admin, which the guardian isn't; this is a trusted domain operation)
       const [authUser] = await tx
         .insert(authUsers)
         .values({
-          id: generateId(), // matches Better Auth's default generation
+          id: generateId(),
           email: placeholderEmail,
           name: params.placeholderProfile.name,
           emailVerified: false,
           image: params.placeholderProfile.image ?? null,
           createdAt: now,
           updatedAt: now,
-          // Better Auth additional fields from your config
           dateOfBirth: params.placeholderProfile.dateOfBirth,
           phone: params.placeholderProfile.phone ?? null,
         })
         .returning();
 
-      // 2. Create member profiles
       const [authMember] = await tx
         .insert(authMembers)
         .values({
@@ -163,12 +130,11 @@ export const createPlaceholderRelationship = api(
           organizationId,
           roles: [MembershipRole.RIDER],
           authMemberId: authMember.id,
-          isPlaceholder: true, // Placeholder members can't log in
-          onboardingComplete: false, // Placeholder members are not onboarded until they accept an invitation
+          isPlaceholder: true,
+          onboardingComplete: false,
         })
         .returning();
 
-      // 3. Create rider profile
       const [rider] = await tx
         .insert(riders)
         .values({
@@ -178,8 +144,7 @@ export const createPlaceholderRelationship = api(
         })
         .returning();
 
-      // 4. Create guardian relationship
-      const [relationship] = await tx
+      const [created] = await tx
         .insert(guardianRelationships)
         .values({
           organizationId,
@@ -192,11 +157,10 @@ export const createPlaceholderRelationship = api(
         })
         .returning();
 
-      // 5. Submit questionnaire responses (if one was provided)
       if (questionnaire && params.questionnaire) {
         const assignedBoardIds = evaluateBoardAssignmentRules(
           questionnaire,
-          params.questionnaire.responses
+          params.questionnaire.responses as never
         );
 
         await tx.insert(questionnaireResponses).values({
@@ -206,7 +170,7 @@ export const createPlaceholderRelationship = api(
           memberId: member.id,
           submittedByMemberId: guardianMember.id,
           completedAt: now,
-          responses: params.questionnaire.responses,
+          responses: params.questionnaire.responses as never,
           assignedBoardIds,
         });
 
@@ -221,7 +185,6 @@ export const createPlaceholderRelationship = api(
         }
       }
 
-      // 6. Sign waiver (if one was provided)
       if (waiver && params.waiver) {
         await tx.insert(waiverSignatures).values({
           organizationId,
@@ -232,9 +195,9 @@ export const createPlaceholderRelationship = api(
         });
       }
 
-      return relationship;
+      return created;
     });
 
-    return relationship;
+    return { relationship: toGuardianRelationship(relationship) };
   }
 );

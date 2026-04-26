@@ -1,14 +1,32 @@
 {
   "extends": "@instride/config/tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "bundler",
-    "module": "ES2022",
+    // Encore requires CommonJS-resolvable output
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "verbatimModuleSyntax": false,
     "target": "ES2022",
+    "lib": ["ES2022", "DOM"], // DOM needed if frontend code uses browser types
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
     "strict": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "composite": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+
+    // Subpath imports — these still work with CJS resolution
     "paths": {
       "#client": ["./src/client/index.ts"],
+      "#contracts": ["./src/contracts/index.ts"],
+      "#contracts/*": ["./src/contracts/*.ts"],
       "#_internal": ["./src/_internal/index.ts"],
       "#_internal/*": ["./src/_internal/*.ts"],
       "#modules/*": ["./src/modules/*.ts"]
@@ -16,5 +34,5 @@
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../auth" }]
+  "references": [{ "path": "../auth" }, { "path": "../shared" }]
 }

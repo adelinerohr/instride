@@ -1,4 +1,8 @@
-import { boardsOptions, type types } from "@instride/api";
+import {
+  boardsOptions,
+  type BoardBusinessHours,
+  type BusinessHours,
+} from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { RotateCcwIcon } from "lucide-react";
 import * as React from "react";
@@ -33,18 +37,18 @@ interface BusinessHoursTabsProps {
   defaultsLabel: string;
   defaultsDescription: string;
   availability: {
-    defaults: types.BusinessHours[];
-    boardOverrides: Record<string, types.BoardBusinessHours[]>;
+    defaults: BusinessHours[];
+    boardOverrides: Record<string, BoardBusinessHours[]>;
   };
   orgAvailability?: {
-    defaults: types.BusinessHours[];
-    boardOverrides: Record<string, types.BoardBusinessHours[]>;
+    defaults: BusinessHours[];
+    boardOverrides: Record<string, BoardBusinessHours[]>;
   };
   onResetBoard: (boardId: string) => Promise<void>;
   children: (props: {
     boardId: string | null;
-    effectiveHours: types.BusinessHours[];
-    orgHoursForBoard: types.BusinessHours[] | undefined;
+    effectiveHours: BusinessHours[];
+    orgHoursForBoard: BusinessHours[] | undefined;
   }) => React.ReactNode;
 }
 

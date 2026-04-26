@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Member } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -32,7 +32,7 @@ import {
   ROLE_VARIANTS,
 } from "@/shared/lib/utils/format";
 
-export function getMembersTableColumns(): ColumnDef<types.Member>[] {
+export function getMembersTableColumns(): ColumnDef<Member>[] {
   return [
     {
       id: "select",

@@ -125,15 +125,15 @@ export const serviceBoardAssignments = p.pgTable(
   ]
 );
 
-export type Service = typeof services.$inferSelect;
-export type NewService = typeof services.$inferInsert;
+export type ServiceRow = typeof services.$inferSelect;
+export type NewServiceRow = typeof services.$inferInsert;
 
-export type ServiceTrainerAssignment =
+export type ServiceTrainerAssignmentRow =
   typeof serviceTrainerAssignments.$inferSelect;
-export type NewServiceTrainerAssignment =
+export type NewServiceTrainerAssignmentRow =
   typeof serviceTrainerAssignments.$inferInsert;
 
-export type ServiceBoardAssignment =
+export type ServiceBoardAssignmentRow =
   typeof serviceBoardAssignments.$inferSelect;
-export type NewServiceBoardAssignment =
+export type NewServiceBoardAssignmentRow =
   typeof serviceBoardAssignments.$inferInsert;

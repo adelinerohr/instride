@@ -1,7 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, guardians } from "#client";
+import { apiClient } from "#client";
+import {
+  CreateGuardianRelationshipRequest,
+  CreatePlaceholderRelationshipRequest,
+  UpdateGuardianRelationshipRequest,
+} from "#contracts";
 import { memberKeys } from "#modules/members/keys";
 
 import { guardianKeys } from "./keys";
@@ -9,26 +14,30 @@ import { guardianKeys } from "./keys";
 // ---- Standalone functions ----------------------------------------------
 
 export const guardianMutations = {
-  createRelationship: async (
-    params: guardians.CreateGuardianRelationshipParams
-  ) => {
-    return await apiClient.guardians.createGuardianRelationship(params);
+  createRelationship: async (params: CreateGuardianRelationshipRequest) => {
+    const { relationship } =
+      await apiClient.guardians.createGuardianRelationship(params);
+    return relationship;
   },
 
   createPlaceholderRelationship: async (
-    params: guardians.CreatePlaceholderRelationshipParams
+    params: CreatePlaceholderRelationshipRequest
   ) => {
-    return await apiClient.guardians.createPlaceholderRelationship(params);
+    const { relationship } =
+      await apiClient.guardians.createPlaceholderRelationship(params);
+    return relationship;
   },
 
-  updateRelationship: async (input: {
-    relationshipId: string;
-    params: guardians.UpdateGuardianRelationshipRequest;
-  }) => {
-    return await apiClient.guardians.updateGuardianRelationship(
-      input.relationshipId,
-      input.params
-    );
+  updateRelationship: async ({
+    relationshipId,
+    ...request
+  }: UpdateGuardianRelationshipRequest) => {
+    const { relationship } =
+      await apiClient.guardians.updateGuardianRelationship(
+        relationshipId,
+        request
+      );
+    return relationship;
   },
 
   acceptInvitation: async (token: string) => {

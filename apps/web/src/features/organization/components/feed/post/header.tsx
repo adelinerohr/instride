@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { FeedPost } from "@instride/api";
 import { formatDistanceToNow } from "date-fns";
 import {
   MoreHorizontalIcon,
@@ -25,7 +25,7 @@ import {
 import { getInitials } from "@/shared/lib/utils/format";
 
 interface PostHeaderProps {
-  post: types.FeedPost;
+  post: FeedPost;
   isUserPost: boolean;
   onEdit: () => void;
 }

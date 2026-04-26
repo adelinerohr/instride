@@ -6,17 +6,23 @@ import {
 
 import { useWrappedMutation } from "#_internal";
 import type { MutationHookOptions } from "#_internal/types";
-import { apiClient, feed, type types } from "#client";
+import { apiClient } from "#client";
+import {
+  AuthUser,
+  CreateCommentRequest,
+  CreatePostRequest,
+  FeedPost,
+  ListFeedResponse,
+  UpdateCommentRequest,
+  UpdatePostRequest,
+} from "#contracts";
 
 import { feedKeys } from "./keys";
 
 /** Detail query + infinite feed lists both use keys under `["feed","posts", …]`. */
-function replaceFeedPostInCaches(
-  queryClient: QueryClient,
-  post: types.FeedPost
-) {
+function replaceFeedPostInCaches(queryClient: QueryClient, post: FeedPost) {
   queryClient.setQueryData(feedKeys.postById(post.id), post);
-  queryClient.setQueriesData<InfiniteData<feed.ListFeedResponse>>(
+  queryClient.setQueriesData<InfiniteData<ListFeedResponse>>(
     { queryKey: feedKeys.postsLists() },
     (old) =>
       old && {
@@ -32,18 +38,12 @@ function replaceFeedPostInCaches(
 // ---- Standalone functions -----------------------------------------------------
 
 export const feedMutations = {
-  createPost: async (request: feed.CreatePostRequest) => {
+  createPost: async (request: CreatePostRequest) => {
     const { post } = await apiClient.feed.createPost(request);
     return post;
   },
 
-  updatePost: async ({
-    postId,
-    request,
-  }: {
-    postId: string;
-    request: feed.UpdatePostRequest;
-  }) => {
+  updatePost: async ({ postId, ...request }: UpdatePostRequest) => {
     const { post } = await apiClient.feed.updatePost(postId, request);
     return post;
   },
@@ -64,24 +64,12 @@ export const feedMutations = {
     return postId;
   },
 
-  createComment: async ({
-    postId,
-    request,
-  }: {
-    postId: string;
-    request: feed.CreateCommentRequest;
-  }) => {
+  createComment: async ({ postId, ...request }: CreateCommentRequest) => {
     const { comment } = await apiClient.feed.createComment(postId, request);
     return comment;
   },
 
-  updateComment: async ({
-    commentId,
-    request,
-  }: {
-    commentId: string;
-    request: feed.UpdateCommentRequest;
-  }) => {
+  updateComment: async ({ commentId, ...request }: UpdateCommentRequest) => {
     const { comment } = await apiClient.feed.updateComment(commentId, request);
     return comment;
   },
@@ -178,7 +166,7 @@ export function useDeleteComment({
     onSuccess: (commentId, ...args) => {
       queryClient.setQueryData(
         feedKeys.postById(commentId),
-        (old: types.FeedPost) => {
+        (old: FeedPost) => {
           return {
             ...old,
             comments: old.comments?.filter((c) => c.id !== commentId),
@@ -199,7 +187,7 @@ export function useLikePost({
   mutationConfig,
 }: {
   userMemberId: string;
-  user: types.AuthUser;
+  user: AuthUser;
 } & MutationHookOptions<typeof feedMutations.likePost>) {
   const queryClient = useQueryClient();
   const { ...config } = mutationConfig || {};
@@ -207,7 +195,7 @@ export function useLikePost({
   return useWrappedMutation(feedMutations.likePost, {
     ...config,
     onMutate: async (postId) => {
-      const updater = (post: types.FeedPost) => ({
+      const updater = (post: FeedPost) => ({
         ...post,
         likes: [
           ...(post.likes || []),
@@ -220,9 +208,9 @@ export function useLikePost({
           if (!old || typeof old !== "object") return old;
           if (
             "pages" in old &&
-            Array.isArray((old as InfiniteData<feed.ListFeedResponse>).pages)
+            Array.isArray((old as InfiniteData<ListFeedResponse>).pages)
           ) {
-            const data = old as InfiniteData<feed.ListFeedResponse>;
+            const data = old as InfiniteData<ListFeedResponse>;
             return {
               ...data,
               pages: data.pages.map((page) => ({
@@ -233,7 +221,7 @@ export function useLikePost({
               })),
             };
           }
-          const post = old as types.FeedPost;
+          const post = old as FeedPost;
           if ("id" in post && post.id === postId) return updater(post);
           return old;
         }
@@ -254,7 +242,7 @@ export function useUnlikePost({
   return useWrappedMutation(feedMutations.unlikePost, {
     ...config,
     onMutate: async ({ likeId, postId }) => {
-      const updater = (post: types.FeedPost) => ({
+      const updater = (post: FeedPost) => ({
         ...post,
         likes: post.likes?.filter((l) => l.id !== likeId) ?? [],
       });
@@ -264,9 +252,9 @@ export function useUnlikePost({
           if (!old || typeof old !== "object") return old;
           if (
             "pages" in old &&
-            Array.isArray((old as InfiniteData<feed.ListFeedResponse>).pages)
+            Array.isArray((old as InfiniteData<ListFeedResponse>).pages)
           ) {
-            const data = old as InfiniteData<feed.ListFeedResponse>;
+            const data = old as InfiniteData<ListFeedResponse>;
             return {
               ...data,
               pages: data.pages.map((page) => ({
@@ -277,7 +265,7 @@ export function useUnlikePost({
               })),
             };
           }
-          const post = old as types.FeedPost;
+          const post = old as FeedPost;
           if ("id" in post && post.id === postId) return updater(post);
           return old;
         }
@@ -298,7 +286,7 @@ export function useCreateComment({
   return useWrappedMutation(feedMutations.createComment, {
     ...config,
     onSuccess: (comment, ...args) => {
-      queryClient.setQueryData<types.FeedPost>(
+      queryClient.setQueryData<FeedPost>(
         feedKeys.postById(comment.postId),
         (old) =>
           old ? { ...old, comments: [...(old.comments ?? []), comment] } : old

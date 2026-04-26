@@ -1,11 +1,10 @@
-import { QuestionnaireQuestionType } from "@instride/shared";
-import { APIError } from "encore.dev/api";
-
 import {
   QuestionnaireBoardAssignmentRule,
   QuestionnaireQuestion,
   QuestionnaireQuestionResponse,
-} from "./types/models";
+} from "@instride/api/contracts";
+import { QuestionnaireQuestionType } from "@instride/shared";
+import { APIError } from "encore.dev/api";
 
 export function validateQuestions(questions: QuestionnaireQuestion[]) {
   // Check unique IDs

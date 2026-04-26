@@ -1,4 +1,8 @@
-import type { types } from "@instride/api";
+import type {
+  Board,
+  QuestionnaireBoardAssignmentRule,
+  QuestionnaireQuestion,
+} from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 
 export function getErrorMessages(errors: unknown[]): { message: string }[] {
@@ -13,9 +17,7 @@ export function getErrorMessages(errors: unknown[]): { message: string }[] {
   });
 }
 
-export function createEmptyQuestion(
-  order: number
-): types.QuestionnaireQuestion {
+export function createEmptyQuestion(order: number): QuestionnaireQuestion {
   return {
     id: crypto.randomUUID(),
     type: QuestionnaireQuestionType.BOOLEAN,
@@ -29,8 +31,8 @@ export function createEmptyQuestion(
 
 export function createEmptyRule(
   index: number,
-  boards: types.Board[]
-): types.QuestionnaireBoardAssignmentRule {
+  boards: Board[]
+): QuestionnaireBoardAssignmentRule {
   return {
     id: crypto.randomUUID(),
     name: `Rule ${index + 1}`,
@@ -41,8 +43,8 @@ export function createEmptyRule(
 }
 
 export function normalizeQuestions(
-  questions: types.QuestionnaireQuestion[]
-): types.QuestionnaireQuestion[] {
+  questions: QuestionnaireQuestion[]
+): QuestionnaireQuestion[] {
   return questions.map((question, index) => ({
     ...question,
     order: index,
@@ -50,9 +52,9 @@ export function normalizeQuestions(
 }
 
 export function removeDeletedQuestionReferences(
-  questions: types.QuestionnaireQuestion[],
+  questions: QuestionnaireQuestion[],
   deletedQuestionId: string
-): types.QuestionnaireQuestion[] {
+): QuestionnaireQuestion[] {
   return questions.map((question, index) => ({
     ...question,
     order: index,
@@ -64,9 +66,9 @@ export function removeDeletedQuestionReferences(
 }
 
 export function removeDeletedQuestionFromRules(
-  rules: types.QuestionnaireBoardAssignmentRule[],
+  rules: QuestionnaireBoardAssignmentRule[],
   deletedQuestionId: string
-): types.QuestionnaireBoardAssignmentRule[] {
+): QuestionnaireBoardAssignmentRule[] {
   return rules.map((rule) => ({
     ...rule,
     conditions: rule.conditions.filter(

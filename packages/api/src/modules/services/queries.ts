@@ -57,7 +57,7 @@ export const servicesOptions = {
       queryKey: serviceTrainerAssignmentKeys.byTrainer(trainerId),
       queryFn: async () => {
         const { assignments } =
-          await apiClient.boards.listTrainerServiceAssignments({ trainerId });
+          await apiClient.boards.listServiceTrainerAssignments({ trainerId });
         return assignments;
       },
     }),
@@ -68,7 +68,7 @@ export const servicesOptions = {
       queryKey: serviceBoardAssignmentKeys.byBoard(boardId),
       queryFn: async () => {
         const { assignments } =
-          await apiClient.boards.listBoardServiceAssignments({ boardId });
+          await apiClient.boards.listServiceBoardAssignments({ boardId });
         return assignments;
       },
     }),
@@ -79,7 +79,7 @@ export const servicesOptions = {
       queryKey: serviceTrainerAssignmentKeys.byService(serviceId),
       queryFn: async () => {
         const { assignments } =
-          await apiClient.boards.listTrainerServiceAssignments({ serviceId });
+          await apiClient.boards.listServiceTrainerAssignments({ serviceId });
         return assignments;
       },
     }),
@@ -90,7 +90,7 @@ export const servicesOptions = {
       queryKey: serviceBoardAssignmentKeys.byService(serviceId),
       queryFn: async () => {
         const { assignments } =
-          await apiClient.boards.listBoardServiceAssignments({ serviceId });
+          await apiClient.boards.listServiceBoardAssignments({ serviceId });
         return assignments;
       },
     }),

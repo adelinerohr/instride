@@ -1,7 +1,6 @@
+import { Organization } from "@instride/api/contracts";
 import { MembershipRole } from "@instride/shared";
 import type { InvitationStatus } from "@instride/shared";
-
-import { Organization } from "@/services/organizations/types/models";
 
 export interface AuthUser {
   id: string;

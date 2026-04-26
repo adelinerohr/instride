@@ -1,19 +1,18 @@
-import { api, APIError } from "encore.dev/api";
-import { lessons } from "~encore/clients";
+import type {
+  GetInstanceEnrollmentResponse,
+  KioskMarkAttendanceRequest,
+} from "@instride/api/contracts";
+import { KioskAction } from "@instride/shared";
+import { api } from "encore.dev/api";
 
-import { GetInstanceEnrollmentResponse } from "@/services/lessons/types/contracts";
+import { instanceEnrollmentService } from "@/services/lessons/enrollments/enrollment.service";
+import { toInstanceEnrollment } from "@/services/lessons/mappers";
 import { requireOrganizationAuth } from "@/shared/auth";
+import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
-import { assertKioskActionAllowed } from "../permissions";
-import { getKioskSession } from "../sessions";
-import { KioskAction } from "../types/models";
-
-interface KioskMarkAttendanceRequest {
-  sessionId: string;
-  enrollmentId: string;
-  attended: boolean;
-}
+import { kioskService } from "../kiosk.service";
+import { assertActiveActing, assertKioskActionAllowed } from "../permissions";
 
 export const kioskMarkAttendance = api(
   {
@@ -27,36 +26,23 @@ export const kioskMarkAttendance = api(
   ): Promise<GetInstanceEnrollmentResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const { acting } = await getKioskSession({ sessionId: request.sessionId });
-
-    if (!acting.actingMemberId) {
-      throw APIError.permissionDenied("No active kiosk session");
-    }
-
-    if (
-      !acting.expiresAt ||
-      new Date(acting.expiresAt).getTime() < Date.now()
-    ) {
-      throw APIError.permissionDenied("Kiosk session expired");
-    }
+    const session = await kioskService.findOne(
+      request.sessionId,
+      organizationId
+    );
+    const acting = {
+      actingMemberId: session.actingMemberId,
+      scope: session.scope,
+      expiresAt: session.expiresAt,
+    };
+    assertActiveActing(acting);
 
     const enrollment = await db.query.lessonInstanceEnrollments.findFirst({
-      where: {
-        id: request.enrollmentId,
-        organizationId,
-      },
-      with: {
-        rider: true,
-      },
+      where: { id: request.enrollmentId, organizationId },
+      with: { rider: true },
     });
-
-    if (!enrollment || enrollment.organizationId !== organizationId) {
-      throw APIError.notFound("Enrollment not found");
-    }
-
-    if (!enrollment.rider) {
-      throw APIError.notFound("Rider not found");
-    }
+    assertExists(enrollment, "Enrollment not found");
+    assertExists(enrollment.rider, "Enrollment has no rider");
 
     assertKioskActionAllowed({
       action: KioskAction.MARK_ATTENDANCE,
@@ -65,9 +51,17 @@ export const kioskMarkAttendance = api(
       targetMemberId: enrollment.rider.memberId,
     });
 
-    return await lessons.markAttendance({
-      enrollmentId: enrollment.id,
-      attended: request.attended,
-    });
+    await instanceEnrollmentService.markAttendance(
+      request.enrollmentId,
+      organizationId,
+      { attended: request.attended, markedByMemberId: acting.actingMemberId }
+    );
+
+    // Re-fetch with rider for the contract response
+    const full = await instanceEnrollmentService.findOne(
+      request.enrollmentId,
+      organizationId
+    );
+    return { enrollment: toInstanceEnrollment(full) };
   }
 );

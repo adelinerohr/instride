@@ -160,12 +160,12 @@ export const lessonInstanceEnrollments = p.pgTable(
   ]
 );
 
-export type LessonSeriesEnrollment =
+export type LessonSeriesEnrollmentRow =
   typeof lessonSeriesEnrollments.$inferSelect;
-export type NewLessonSeriesEnrollment =
+export type NewLessonSeriesEnrollmentRow =
   typeof lessonSeriesEnrollments.$inferInsert;
 
-export type LessonInstanceEnrollment =
+export type LessonInstanceEnrollmentRow =
   typeof lessonInstanceEnrollments.$inferSelect;
-export type NewLessonInstanceEnrollment =
+export type NewLessonInstanceEnrollmentRow =
   typeof lessonInstanceEnrollments.$inferInsert;

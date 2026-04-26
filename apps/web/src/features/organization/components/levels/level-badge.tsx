@@ -1,11 +1,11 @@
-import type { types } from "@instride/api";
+import type { Level } from "@instride/api";
 
 import { CategoryDot } from "@/shared/components/fragments/category-dot";
 import { Badge } from "@/shared/components/ui/badge";
 import { categoryBadgeClasses } from "@/shared/lib/config/colors";
 
 export interface LevelBadgeProps {
-  level?: types.Level | null;
+  level?: Level | null;
 }
 
 export function LevelBadge({ level }: LevelBadgeProps) {

@@ -1,9 +1,8 @@
+import { NotificationType } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { members } from "@/services/organizations/schema/members";
 import { organizations } from "@/services/organizations/schema/organizations";
-
-import { NotificationType } from "../types/models";
 
 export const notificationTypeEnum = p.pgEnum(
   "notification_type",
@@ -50,3 +49,6 @@ export const notifications = p.pgTable(
       .on(table.recipientId, table.isRead, table.createdAt),
   ]
 );
+
+export type NotificationRow = typeof notifications.$inferSelect;
+export type NewNotificationRow = typeof notifications.$inferInsert;

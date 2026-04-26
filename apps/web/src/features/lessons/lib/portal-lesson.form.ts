@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Board, Trainer } from "@instride/api";
 import {
   portalLessonInputSchema,
   type PortalLessonInputSchema,
@@ -27,8 +27,8 @@ interface PortalLessonInitalValues {
 
 export function buildPortalLessonDefaultValues(input: {
   initialValues: PortalLessonInitalValues;
-  boards: types.Board[];
-  trainers: types.Trainer[];
+  boards: Board[];
+  trainers: Trainer[];
   riderId?: string;
 }): PortalLessonInputSchema {
   // Validate that the trainer is assigned to the board

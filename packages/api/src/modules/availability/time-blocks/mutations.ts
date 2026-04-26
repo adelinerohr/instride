@@ -1,25 +1,27 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type time_blocks, type types } from "#client";
+import { apiClient } from "#client";
+import {
+  CreateTimeBlockRequest,
+  TimeBlock,
+  UpdateTimeBlockRequest,
+} from "#contracts";
 
 import { availabilityKeys } from "../keys";
 
 // ---- Standalone functions ----------------------------------------------
 
 export const timeBlockMutations = {
-  create: async (request: time_blocks.CreateTimeBlockParams) => {
-    const timeBlock = await apiClient.availability.createTimeBlock(request);
+  create: async (request: CreateTimeBlockRequest) => {
+    const { timeBlock } = await apiClient.availability.createTimeBlock(request);
     return timeBlock;
   },
-  update: async ({
-    id,
-    request,
-  }: {
-    id: string;
-    request: time_blocks.UpdateTimeBlockParams;
-  }) => {
-    const timeBlock = await apiClient.availability.updateTimeBlock(id, request);
+  update: async ({ id, ...request }: UpdateTimeBlockRequest) => {
+    const { timeBlock } = await apiClient.availability.updateTimeBlock(
+      id,
+      request
+    );
     return timeBlock;
   },
 
@@ -53,7 +55,7 @@ export function useCreateTimeBlock({
 export function useUpdateTimeBlock({
   mutationConfig,
 }: MutationHookOptions<typeof timeBlockMutations.update> & {
-  timeBlock?: types.TimeBlock;
+  timeBlock?: TimeBlock;
 }) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
@@ -76,7 +78,7 @@ export function useDeleteTimeBlock({
   timeBlock,
   mutationConfig,
 }: MutationHookOptions<typeof timeBlockMutations.delete> & {
-  timeBlock?: types.TimeBlock;
+  timeBlock?: TimeBlock;
 }) {
   const queryClient = useQueryClient();
   const { onSuccess, ...config } = mutationConfig || {};
@@ -91,7 +93,7 @@ export function useDeleteTimeBlock({
       });
       queryClient.setQueryData(
         availabilityKeys.listTimeBlocks(),
-        (oldData: types.TimeBlock[]) => {
+        (oldData: TimeBlock[]) => {
           if (!oldData) return oldData;
           return oldData.filter(
             (oldTimeBlock) => oldTimeBlock.id !== timeBlock.id
@@ -100,7 +102,7 @@ export function useDeleteTimeBlock({
       );
       queryClient.setQueryData(
         availabilityKeys.timeBlocksForTrainer(timeBlock.trainerId),
-        (oldData: types.TimeBlock[]) => {
+        (oldData: TimeBlock[]) => {
           if (!oldData) return oldData;
           return oldData.filter(
             (oldTimeBlock) => oldTimeBlock.id !== timeBlock.id

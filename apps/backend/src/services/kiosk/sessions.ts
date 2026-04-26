@@ -1,47 +1,31 @@
-import { and, eq } from "drizzle-orm";
-import { api, APIError } from "encore.dev/api";
+import type {
+  CreateKioskSessionRequest,
+  GetKioskSessionResponse,
+  ListKioskSessionsResponse,
+  UpdateKioskSessionRequest,
+  UpsertKioskSessionResponse,
+} from "@instride/api/contracts";
+import { KioskScope } from "@instride/shared";
+import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { db } from "./db";
-import { clearKioskIdentity } from "./identity";
-import { kioskSessions } from "./schema";
-import { KioskScope, KioskSession } from "./types/models";
-
-interface CreateKioskSessionRequest {
-  boardId?: string | null;
-  locationName: string;
-}
-
-interface UpsertKioskSessionResponse {
-  session: {
-    id: string;
-    locationName: string;
-    boardId: string | null;
-  };
-}
+import { kioskService } from "./kiosk.service";
+import { toKioskSession, toKioskSessionListItem } from "./mappers";
 
 export const createKioskSession = api(
-  {
-    method: "POST",
-    path: "/kiosk/sessions",
-    expose: true,
-    auth: true,
-  },
+  { method: "POST", path: "/kiosk/sessions", expose: true, auth: true },
   async (
     request: CreateKioskSessionRequest
   ): Promise<UpsertKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const [session] = await db
-      .insert(kioskSessions)
-      .values({
-        organizationId,
-        boardId: request.boardId,
-        locationName: request.locationName,
-        scope: KioskScope.DEFAULT,
-      })
-      .returning();
+    const session = await kioskService.create({
+      organizationId,
+      boardId: request.boardId ?? null,
+      locationName: request.locationName,
+      scope: KioskScope.DEFAULT,
+    });
 
     return {
       session: {
@@ -52,12 +36,6 @@ export const createKioskSession = api(
     };
   }
 );
-
-interface UpdateKioskSessionRequest {
-  sessionId: string;
-  locationName: string;
-  boardId?: string | null;
-}
 
 export const updateKioskSession = api(
   {
@@ -71,19 +49,14 @@ export const updateKioskSession = api(
   ): Promise<UpsertKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const [session] = await db
-      .update(kioskSessions)
-      .set({
+    const session = await kioskService.update(
+      request.sessionId,
+      organizationId,
+      {
         locationName: request.locationName,
-        boardId: request.boardId,
-      })
-      .where(
-        and(
-          eq(kioskSessions.id, request.sessionId),
-          eq(kioskSessions.organizationId, organizationId)
-        )
-      )
-      .returning();
+        boardId: request.boardId ?? null,
+      }
+    );
 
     return {
       session: {
@@ -95,64 +68,16 @@ export const updateKioskSession = api(
   }
 );
 
-interface ListKioskSessionsResponse {
-  sessions: {
-    id: string;
-    locationName: string;
-    boardId: string | null;
-    boardName: string | null;
-    currentlyActing: boolean;
-    actingMemberId: string | null;
-    scope: KioskScope;
-  }[];
-}
-
 export const listKioskSessions = api(
-  {
-    method: "GET",
-    path: "/kiosk/sessions",
-    expose: true,
-    auth: true,
-  },
+  { method: "GET", path: "/kiosk/sessions", expose: true, auth: true },
   async (): Promise<ListKioskSessionsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const sessions = await db.query.kioskSessions.findMany({
-      where: {
-        organizationId,
-      },
-      with: {
-        board: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const rows = await kioskService.findMany(organizationId);
 
-    return {
-      sessions: sessions.map((session) => ({
-        id: session.id,
-        locationName: session.locationName,
-        boardId: session.boardId,
-        boardName: session.board?.name ?? null,
-        currentlyActing:
-          session.actingMemberId !== null &&
-          session.scope !== KioskScope.DEFAULT,
-        actingMemberId: session.actingMemberId,
-        scope: session.scope,
-      })),
-    };
+    return { sessions: rows.map(toKioskSessionListItem) };
   }
 );
-
-interface GetKioskSessionResponse {
-  session: KioskSession;
-  acting: {
-    actingMemberId: string | null;
-    scope: KioskScope;
-    expiresAt: string | null;
-  };
-}
 
 export const getKioskSession = api(
   {
@@ -168,26 +93,23 @@ export const getKioskSession = api(
   }): Promise<GetKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await db.query.kioskSessions.findFirst({
-      where: {
-        id: sessionId,
-        organizationId,
-      },
-    });
+    const session = await kioskService.findOne(sessionId, organizationId);
 
-    if (!session) {
-      throw APIError.notFound("Session not found");
-    }
-
-    // Check if acting state has expired
+    // Auto-clear expired acting state. Do the side-effect via the service
+    // (no HTTP call) and return the cleared state to the caller.
     const isExpired =
       session.expiresAt && new Date(session.expiresAt) < new Date();
 
     if (isExpired && session.actingMemberId) {
-      await clearKioskIdentity({ sessionId });
+      await kioskService.clearActing(sessionId, organizationId);
 
       return {
-        session,
+        session: toKioskSession({
+          ...session,
+          actingMemberId: null,
+          scope: KioskScope.DEFAULT,
+          expiresAt: null,
+        }),
         acting: {
           actingMemberId: null,
           scope: KioskScope.DEFAULT,
@@ -197,11 +119,15 @@ export const getKioskSession = api(
     }
 
     return {
-      session,
+      session: toKioskSession(session),
       acting: {
         actingMemberId: session.actingMemberId,
         scope: session.scope,
-        expiresAt: session.expiresAt?.toISOString() ?? null,
+        expiresAt: session.expiresAt
+          ? session.expiresAt instanceof Date
+            ? session.expiresAt.toISOString()
+            : session.expiresAt
+          : null,
       },
     };
   }
@@ -216,14 +142,6 @@ export const deleteKioskSession = api(
   },
   async ({ sessionId }: { sessionId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-
-    await db
-      .delete(kioskSessions)
-      .where(
-        and(
-          eq(kioskSessions.id, sessionId),
-          eq(kioskSessions.organizationId, organizationId)
-        )
-      );
+    await kioskService.delete(sessionId, organizationId);
   }
 );

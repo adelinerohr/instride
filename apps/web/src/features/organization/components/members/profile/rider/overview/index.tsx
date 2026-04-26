@@ -1,4 +1,4 @@
-import { type types } from "@instride/api";
+import { type Member } from "@instride/api";
 import { format } from "date-fns";
 import { CalendarIcon, MailIcon, PencilIcon, PhoneIcon } from "lucide-react";
 
@@ -20,7 +20,11 @@ import { getInitials } from "@/shared/lib/utils/format";
 import { RiderBoardsTab } from "./boards";
 import { RiderLevel } from "./level";
 
-export function RiderOverview({ member }: { member: types.Member }) {
+interface RiderOverviewProps {
+  member: Member;
+}
+
+export function RiderOverview({ member }: RiderOverviewProps) {
   return (
     <div className="bg-card border rounded-md h-fit">
       <div className="flex flex-col items-center justify-center gap-2 p-8">

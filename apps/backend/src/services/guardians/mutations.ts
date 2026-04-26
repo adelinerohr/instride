@@ -1,27 +1,73 @@
-import { GuardianRelationshipStatus } from "@instride/shared";
-import { and, eq } from "drizzle-orm";
-import { api } from "encore.dev/api";
-
-import { guardianRelationships } from "@/database/schema";
-import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
-
-import { db } from "./db";
 import {
   defaultPermissions,
-  GuardianPermissions,
-  GuardianRelationship,
-} from "./types/models";
+  type CreateGuardianRelationshipRequest,
+  type GuardianPermissions,
+  type MutateGuardianRelationshipResponse,
+  type UpdateGuardianRelationshipRequest,
+} from "@instride/api/contracts";
+import { GuardianRelationshipStatus } from "@instride/shared";
+import { api } from "encore.dev/api";
 
-interface UpdateGuardianRelationshipRequest {
-  relationshipId: string;
-  guardianMemberId?: string;
-  dependentMemberId?: string;
-  status?: GuardianRelationshipStatus;
-  permissions?: Partial<GuardianPermissions>;
-  coppaConsentGiven?: boolean;
-  coppaConsentGivenAt?: string | null;
+import { requireOrganizationAuth } from "@/shared/auth";
+
+import { guardianService } from "./guardian.service";
+import { toGuardianRelationship } from "./mappers";
+
+function mergePermissions(
+  partial: Partial<GuardianPermissions> | undefined
+): GuardianPermissions {
+  if (!partial) return defaultPermissions;
+  return {
+    ...defaultPermissions,
+    ...partial,
+  };
 }
+
+export const createGuardianRelationship = api(
+  { method: "POST", path: "/guardians", expose: true, auth: true },
+  async (
+    request: CreateGuardianRelationshipRequest
+  ): Promise<MutateGuardianRelationshipResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
+    const permissions = mergePermissions(request.permissions);
+
+    // Re-activate or update existing relationship if one already exists
+    const existing = await guardianService.findRelationshipBetween({
+      guardianMemberId: request.guardianMemberId,
+      dependentMemberId: request.dependentMemberId,
+      organizationId,
+    });
+
+    if (existing) {
+      const updated = await guardianService.updateRelationship(
+        existing.id,
+        organizationId,
+        {
+          permissions,
+          coppaConsentGiven: request.coppaConsentGiven,
+          coppaConsentGivenAt: request.coppaConsentGivenAt
+            ? new Date(request.coppaConsentGivenAt)
+            : null,
+        }
+      );
+      return { relationship: toGuardianRelationship(updated) };
+    }
+
+    const created = await guardianService.createRelationship({
+      organizationId,
+      guardianMemberId: request.guardianMemberId,
+      dependentMemberId: request.dependentMemberId,
+      permissions,
+      coppaConsentGiven: request.coppaConsentGiven,
+      coppaConsentGivenAt: request.coppaConsentGivenAt
+        ? new Date(request.coppaConsentGivenAt)
+        : null,
+    });
+
+    return { relationship: toGuardianRelationship(created) };
+  }
+);
 
 export const updateGuardianRelationship = api(
   {
@@ -32,36 +78,35 @@ export const updateGuardianRelationship = api(
   },
   async (
     request: UpdateGuardianRelationshipRequest
-  ): Promise<GuardianRelationship> => {
+  ): Promise<MutateGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const permissions = request.permissions
-      ? {
-          ...defaultPermissions,
-          ...request.permissions,
-        }
-      : defaultPermissions;
+    // Verify existence + tenant scope
+    await guardianService.findRelationshipScalar(
+      request.relationshipId,
+      organizationId
+    );
 
-    const [relationship] = await db
-      .update(guardianRelationships)
-      .set({
-        ...request,
-        permissions,
-        coppaConsentGivenAt: request.coppaConsentGivenAt
-          ? new Date(request.coppaConsentGivenAt)
-          : undefined,
-      })
-      .where(
-        and(
-          eq(guardianRelationships.id, request.relationshipId),
-          eq(guardianRelationships.organizationId, organizationId)
-        )
-      )
-      .returning();
+    const updated = await guardianService.updateRelationship(
+      request.relationshipId,
+      organizationId,
+      {
+        ...(request.status !== undefined && { status: request.status }),
+        ...(request.permissions !== undefined && {
+          permissions: mergePermissions(request.permissions),
+        }),
+        ...(request.coppaConsentGiven !== undefined && {
+          coppaConsentGiven: request.coppaConsentGiven,
+        }),
+        ...(request.coppaConsentGivenAt !== undefined && {
+          coppaConsentGivenAt: request.coppaConsentGivenAt
+            ? new Date(request.coppaConsentGivenAt)
+            : null,
+        }),
+      }
+    );
 
-    assertExists(relationship, "Guardian relationship not found");
-
-    return relationship;
+    return { relationship: toGuardianRelationship(updated) };
   }
 );
 
@@ -72,26 +117,29 @@ export const revokeRelationship = api(
     expose: true,
     auth: true,
   },
-  async (params: { relationshipId: string }): Promise<GuardianRelationship> => {
+  async ({
+    relationshipId,
+  }: {
+    relationshipId: string;
+  }): Promise<MutateGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const [relationship] = await db
-      .update(guardianRelationships)
-      .set({
+    // Tenant scope check
+    await guardianService.findRelationshipScalar(
+      relationshipId,
+      organizationId
+    );
+
+    const updated = await guardianService.updateRelationship(
+      relationshipId,
+      organizationId,
+      {
         status: GuardianRelationshipStatus.REVOKED,
         revokedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(guardianRelationships.id, params.relationshipId),
-          eq(guardianRelationships.organizationId, organizationId)
-        )
-      )
-      .returning();
+      }
+    );
 
-    assertExists(relationship, "Guardian relationship not found");
-
-    return relationship;
+    return { relationship: toGuardianRelationship(updated) };
   }
 );
 
@@ -102,22 +150,27 @@ export const acceptRelationship = api(
     expose: true,
     auth: true,
   },
-  async (params: { relationshipId: string }): Promise<GuardianRelationship> => {
+  async ({
+    relationshipId,
+  }: {
+    relationshipId: string;
+  }): Promise<MutateGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const [relationship] = await db
-      .update(guardianRelationships)
-      .set({ status: GuardianRelationshipStatus.ACTIVE, revokedAt: null })
-      .where(
-        and(
-          eq(guardianRelationships.id, params.relationshipId),
-          eq(guardianRelationships.organizationId, organizationId)
-        )
-      )
-      .returning();
+    await guardianService.findRelationshipScalar(
+      relationshipId,
+      organizationId
+    );
 
-    assertExists(relationship, "Guardian relationship not found");
+    const updated = await guardianService.updateRelationship(
+      relationshipId,
+      organizationId,
+      {
+        status: GuardianRelationshipStatus.ACTIVE,
+        revokedAt: null,
+      }
+    );
 
-    return relationship;
+    return { relationship: toGuardianRelationship(updated) };
   }
 );

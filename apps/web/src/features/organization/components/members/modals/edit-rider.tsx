@@ -5,7 +5,7 @@ import {
   useLevels,
   useRemoveFromBoard,
   useUpdateRider,
-  type types,
+  type Rider,
 } from "@instride/api";
 import { CircleIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -24,9 +24,12 @@ import {
 import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const editRiderModalHandler = DialogHandler.createHandle<{
-  rider: types.Rider;
-}>();
+interface EditRiderModalPayload {
+  rider: Rider;
+}
+
+export const editRiderModalHandler =
+  DialogHandler.createHandle<EditRiderModalPayload>();
 
 export function EditRiderModal() {
   return (
@@ -40,7 +43,7 @@ export function EditRiderModal() {
   );
 }
 
-export function EditRiderModalForm({ rider }: { rider: types.Rider }) {
+export function EditRiderModalForm({ rider }: EditRiderModalPayload) {
   const riderUser = getUser({ rider });
   const updateRider = useUpdateRider();
   const assignToBoard = useAssignToBoard();
@@ -63,9 +66,7 @@ export function EditRiderModalForm({ rider }: { rider: types.Rider }) {
         // Update rider level
         updateRider.mutateAsync({
           riderId: rider.id,
-          request: {
-            ridingLevelId: value.ridingLevelId,
-          },
+          ridingLevelId: value.ridingLevelId,
         });
 
         // Boards to assign

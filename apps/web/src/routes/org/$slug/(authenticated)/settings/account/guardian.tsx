@@ -1,4 +1,5 @@
 import {
+  getUser,
   guardianOptions,
   membersOptions,
   questionnaireOptions,
@@ -113,7 +114,7 @@ function RouteComponent() {
 
     await changeRole.mutateAsync({
       memberId: member.id,
-      request: { roles: nextRoles },
+      roles: nextRoles,
     });
   };
 
@@ -124,11 +125,11 @@ function RouteComponent() {
 
     await changeRole.mutateAsync({
       memberId: member.id,
-      request: { roles: nextRoles },
+      roles: nextRoles,
     });
   };
 
-  const canInviteDependent = (dateOfBirth: string) => {
+  const canInviteDependent = (dateOfBirth: Date | string) => {
     const dob = new Date(dateOfBirth);
     const age = differenceInYears(new Date(), dob);
     return age >= 12;
@@ -194,59 +195,65 @@ function RouteComponent() {
             <CardContent>
               {relationships.length > 0 ? (
                 <ItemGroup>
-                  {relationships.map((relationship) => (
-                    <Item variant="outline" key={relationship.id}>
-                      <ItemMedia>
-                        <UserAvatar
-                          name={relationship.dependent.name}
-                          image={relationship.dependent.image}
-                        />
-                      </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>{relationship.dependent.name}</ItemTitle>
-                      </ItemContent>
-                      <ItemActions>
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger
-                            render={<Button variant="ghost" size="icon" />}
-                          >
-                            <EllipsisVerticalIcon />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-fit">
-                            <DialogTrigger
-                              render={<DropdownMenuItem />}
-                              nativeButton={false}
-                              handle={editDependentProfileModalHandler}
-                              payload={{ relationship }}
+                  {relationships.map((relationship) => {
+                    const dependentUser = getUser({
+                      rider: relationship.rider,
+                    });
+
+                    return (
+                      <Item variant="outline" key={relationship.id}>
+                        <ItemMedia>
+                          <UserAvatar
+                            name={dependentUser.name}
+                            image={dependentUser.image}
+                          />
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle>{dependentUser.name}</ItemTitle>
+                        </ItemContent>
+                        <ItemActions>
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger
+                              render={<Button variant="ghost" size="icon" />}
                             >
-                              <UserPenIcon />
-                              Edit Profile
-                            </DialogTrigger>
-                            <DialogTrigger
-                              render={<DropdownMenuItem />}
-                              nativeButton={false}
-                              handle={guardianControlsModalHandler}
-                              payload={{ relationship }}
-                            >
-                              <SlidersIcon />
-                              Edit Controls
-                            </DialogTrigger>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              disabled={
-                                !canInviteDependent(
-                                  relationship.dependent.dateOfBirth!
-                                )
-                              }
-                            >
-                              <SendIcon />
-                              Invite Dependent
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </ItemActions>
-                    </Item>
-                  ))}
+                              <EllipsisVerticalIcon />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-fit">
+                              <DialogTrigger
+                                render={<DropdownMenuItem />}
+                                nativeButton={false}
+                                handle={editDependentProfileModalHandler}
+                                payload={{ relationship }}
+                              >
+                                <UserPenIcon />
+                                Edit Profile
+                              </DialogTrigger>
+                              <DialogTrigger
+                                render={<DropdownMenuItem />}
+                                nativeButton={false}
+                                handle={guardianControlsModalHandler}
+                                payload={{ relationship }}
+                              >
+                                <SlidersIcon />
+                                Edit Controls
+                              </DialogTrigger>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                disabled={
+                                  !canInviteDependent(
+                                    dependentUser.dateOfBirth!
+                                  )
+                                }
+                              >
+                                <SendIcon />
+                                Invite Dependent
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </ItemActions>
+                      </Item>
+                    );
+                  })}
                 </ItemGroup>
               ) : (
                 <Empty>

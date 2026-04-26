@@ -34,3 +34,8 @@ export const notificationPreferences = p.pgTable(
     p.unique().on(table.memberId, table.organizationId, table.type),
   ]
 );
+
+export type NotificationPreferenceRow =
+  typeof notificationPreferences.$inferSelect;
+export type NewNotificationPreferenceRow =
+  typeof notificationPreferences.$inferInsert;

@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { AuthUser } from "@instride/api";
 
 import { cn } from "@/shared/lib/utils";
 import { getInitials } from "@/shared/lib/utils/format";
@@ -18,7 +18,7 @@ function UserAvatar({
   image,
   ...props
 }: React.ComponentProps<typeof Avatar> & {
-  user?: types.AuthUser;
+  user?: AuthUser;
   name?: string;
   image?: string | null;
 }) {
@@ -39,7 +39,7 @@ function UserAvatarItem({
   className,
   ...props
 }: React.ComponentProps<typeof Item> & {
-  user: types.AuthUser;
+  user: AuthUser;
   description?: string;
 }) {
   const { size, ...rest } = props;

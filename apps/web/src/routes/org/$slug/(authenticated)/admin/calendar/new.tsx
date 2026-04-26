@@ -40,9 +40,8 @@ function RouteComponent() {
         {
           ...data,
           start: data.start,
-          effectiveFrom: data.effectiveFrom?.toISOString() ?? null,
           levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
-          riderIds: riderIds.map((rider) => rider.id),
+          riderIds,
         },
         {
           onSuccess: () => {

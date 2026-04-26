@@ -38,7 +38,7 @@ export function OrganizationDetails() {
     onSubmit: async ({ value }) => {
       await updateOrganization.mutateAsync({
         organizationId: organization.id,
-        request: value,
+        ...value,
       });
     },
   });

@@ -1,112 +1,111 @@
-import { eq } from "drizzle-orm";
+import type {
+  CreateNotificationRequest,
+  GetNotificationResponse,
+  GetUnreadResponse,
+} from "@instride/api/contracts";
+import { NotificationChannel } from "@instride/shared";
 import { api } from "encore.dev/api";
 
-import { notificationDeliveries, notifications } from "@/database/schema";
+import { requireOrganizationAuth } from "@/shared/auth";
 
-import { db } from "./db";
-import { getPreferences } from "./preferences";
-import { GetNotificationResponse } from "./types/contracts";
+import { toNotification } from "./mappers";
 import {
-  Notification,
-  NotificationChannel,
-  NotificationType,
-} from "./types/models";
-import { getEnabledChannels } from "./utils";
+  getEnabledChannels,
+  notificationService,
+} from "./notification.service";
 
-interface CreateNotificationRequest {
+interface CreateInput extends CreateNotificationRequest {
   organizationId: string;
-  recipientId: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  entityType: string;
-  entityId?: string;
-  deepLink?: string;
-  channels?: NotificationChannel[];
 }
 
 /**
- * Internal helper. Call this from pub/sub subscriptions and other
- * server-side code. Use `createNotification` (the api wrapper) only
- * when something outside the backend needs to hit it.
+ * Internal notification creation. Safe to call from pub/sub subscriptions
+ * because it does not call `requireOrganizationAuth` — the caller passes
+ * `organizationId` explicitly.
  */
 export async function createNotificationInternal(
-  request: CreateNotificationRequest
+  input: CreateInput
 ): Promise<GetNotificationResponse> {
-  const [notification] = await db
-    .insert(notifications)
-    .values(request)
-    .returning();
-
-  const preferences = await getPreferences({
-    memberId: request.recipientId,
+  const notification = await notificationService.create({
+    organizationId: input.organizationId,
+    recipientId: input.recipientId,
+    type: input.type,
+    title: input.title,
+    message: input.message,
+    entityType: input.entityType,
+    entityId: input.entityId ?? null,
+    deepLink: input.deepLink ?? null,
   });
 
-  // If the member has no preferences row yet, fall back to in-app only.
-  const channels =
-    request.channels ??
-    (preferences
-      ? getEnabledChannels(preferences)
-      : (["in_app"] as NotificationChannel[]));
+  // Resolve channels: explicit override → recipient's preferences → in-app only
+  let channels: NotificationChannel[];
+  if (input.channels) {
+    channels = input.channels;
+  } else {
+    const preference = await notificationService.findPreferenceForType({
+      memberId: input.recipientId,
+      organizationId: input.organizationId,
+      type: input.type,
+    });
+    channels = getEnabledChannels(preference ?? null);
+  }
 
+  // Dispatch on each channel; one failure shouldn't drop others
   await Promise.allSettled(
-    channels.map((channel) =>
-      dispatchInternal({ notificationId: notification.id, channel })
-    )
+    channels.map((channel) => dispatchToChannel(notification.id, channel))
   );
 
-  return { notification };
+  return { notification: toNotification(notification) };
 }
 
+/**
+ * HTTP endpoint wraps the internal helper, adding auth scope.
+ */
 export const createNotification = api(
-  {
-    method: "POST",
-    path: "/notifications",
-    expose: true,
-    auth: true,
-  },
-  createNotificationInternal
+  { method: "POST", path: "/notifications", expose: true, auth: true },
+  async (
+    request: CreateNotificationRequest
+  ): Promise<GetNotificationResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    return createNotificationInternal({ ...request, organizationId });
+  }
 );
 
-interface DispatchNotificationRequest {
-  notificationId: string;
-  channel: NotificationChannel;
-}
-
-async function dispatchInternal(
-  request: DispatchNotificationRequest
+async function dispatchToChannel(
+  notificationId: string,
+  channel: NotificationChannel
 ): Promise<void> {
   let externalId: string | undefined;
 
   try {
-    switch (request.channel) {
-      case "push":
-        console.log("push");
+    switch (channel) {
+      case NotificationChannel.PUSH:
+        // TODO: integrate push provider
         break;
-      case "email":
-        console.log("email");
+      case NotificationChannel.EMAIL:
+        // TODO: integrate email provider
         break;
-      case "sms":
-        console.log("sms");
+      case NotificationChannel.SMS:
+        // TODO: integrate SMS provider (Telnyx)
         break;
-      case "in_app":
-        // Already stored, no external service needed
+      case NotificationChannel.IN_APP:
+        // Already stored in the notifications table
         break;
     }
 
-    await db.insert(notificationDeliveries).values({
-      notificationId: request.notificationId,
-      channel: request.channel,
+    await notificationService.recordDelivery({
+      notificationId,
+      channel,
       externalId,
       status: "sent",
     });
   } catch (error) {
-    // One channel failing shouldn't break others. Log the failure, but
-    // guard the failure-write itself so a DB outage doesn't throw again.
+    // Defensive: if recording the failure also throws, log to console as
+    // a last resort so the original error isn't swallowed
     try {
-      await db.insert(notificationDeliveries).values({
-        notificationId: request.notificationId,
-        channel: request.channel,
+      await notificationService.recordDelivery({
+        notificationId,
+        channel,
         status: "failed",
         error: error instanceof Error ? error.message : "Unknown error",
       });
@@ -120,10 +119,6 @@ async function dispatchInternal(
   }
 }
 
-// Remove the `dispatch` api export entirely unless something external needs it.
-// If you do need to keep it exposed, make it a thin wrapper:
-// export const dispatch = api({ ... }, dispatchInternal);
-
 export const markAsRead = api(
   {
     method: "POST",
@@ -136,20 +131,14 @@ export const markAsRead = api(
   }: {
     notificationId: string;
   }): Promise<GetNotificationResponse> => {
-    const [notification] = await db
-      .update(notifications)
-      .set({ isRead: true, readAt: new Date() })
-      .where(eq(notifications.id, notificationId))
-      .returning();
-
-    return { notification };
+    const { organizationId } = requireOrganizationAuth();
+    const notification = await notificationService.markRead(
+      notificationId,
+      organizationId
+    );
+    return { notification: toNotification(notification) };
   }
 );
-
-interface GetUnreadResponse {
-  notifications: Notification[];
-  unreadCount: number;
-}
 
 export const getUnread = api(
   {
@@ -159,13 +148,11 @@ export const getUnread = api(
     auth: true,
   },
   async ({ memberId }: { memberId: string }): Promise<GetUnreadResponse> => {
-    const unread = await db.query.notifications.findMany({
-      where: {
-        recipientId: memberId,
-        isRead: false,
-      },
-    });
-
-    return { notifications: unread, unreadCount: unread.length };
+    requireOrganizationAuth();
+    const unread = await notificationService.findUnreadForMember(memberId);
+    return {
+      notifications: unread.map(toNotification),
+      unreadCount: unread.length,
+    };
   }
 );

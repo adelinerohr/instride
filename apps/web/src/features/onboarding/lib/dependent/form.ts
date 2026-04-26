@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { GuardianPermissions } from "@instride/api";
 import { signWaiverSchema, updateUserSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import z from "zod";
@@ -39,7 +39,7 @@ export const dependentOnboardingSchema = z.object({
 export type DependentOnboardingFormValues = z.infer<
   typeof dependentOnboardingSchema
 > & {
-  permissions: types.GuardianPermissions;
+  permissions: GuardianPermissions;
 };
 
 export const defaultDependentOnboardingValues: DependentOnboardingFormValues = {

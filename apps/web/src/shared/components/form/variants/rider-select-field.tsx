@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Rider } from "@instride/api";
 import * as React from "react";
 
 import {
@@ -32,7 +32,7 @@ import {
 } from "../../ui/combobox";
 
 interface BaseProps {
-  riders: types.Rider[];
+  riders: Rider[];
   placeholder?: string;
   className?: string;
   hideLabel?: boolean;
@@ -63,7 +63,7 @@ type Props =
   | SingleSelectFieldProps
   | MultiSelectFieldProps;
 
-const renderValue = (rider: types.Rider) => {
+const renderValue = (rider: Rider) => {
   const riderUser = getUser({ rider });
   return <UserAvatarItem user={riderUser} />;
 };
@@ -110,7 +110,7 @@ function SingleSelectField({
         <SelectTrigger className="h-auto!">
           <SelectValue placeholder={placeholder ?? "Select a rider"}>
             {currentItem
-              ? (value: types.Rider | null) =>
+              ? (value: Rider | null) =>
                   value != null ? renderValue(value) : null
               : undefined}
           </SelectValue>
@@ -152,7 +152,7 @@ function MultiSelectField({
       <Combobox
         value={currentItems}
         onValueChange={(value) => {
-          field.handleChange((value as types.Rider[]).map((v) => v.id));
+          field.handleChange((value as Rider[]).map((v) => v.id));
         }}
         multiple
         autoHighlight
@@ -162,7 +162,7 @@ function MultiSelectField({
           <ComboboxValue>
             {(values) => (
               <React.Fragment>
-                {values.map((value: types.Rider) => (
+                {values.map((value: Rider) => (
                   <ComboboxChip key={value.id}>
                     {getUser({ rider: value }).name}
                   </ComboboxChip>
@@ -180,7 +180,7 @@ function MultiSelectField({
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty>No riders found</ComboboxEmpty>
           <ComboboxList>
-            {(rider: types.Rider) => (
+            {(rider: Rider) => (
               <ComboboxItem key={rider.id} value={rider}>
                 {renderValue(rider)}
               </ComboboxItem>
@@ -228,9 +228,7 @@ function ClearableSingleSelectField({
           )}
         >
           <SelectValue placeholder={placeholder ?? "Select a rider"}>
-            {currentItem
-              ? (rider: types.Rider) => renderValue(rider)
-              : undefined}
+            {currentItem ? (rider: Rider) => renderValue(rider) : undefined}
           </SelectValue>
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>

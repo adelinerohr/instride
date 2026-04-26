@@ -1,32 +1,33 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, type business_hours } from "#client";
+import { apiClient } from "#client";
+import {
+  CheckLessonHoursRequest,
+  UpdateOrganizationBusinessHoursRequest,
+  UpdateTrainerBusinessHoursRequest,
+} from "#contracts";
 
 import { availabilityKeys } from "../keys";
 
 export const businessHoursMutations = {
-  checkLessonHours: async (request: business_hours.CheckLessonHoursRequest) =>
+  checkLessonHours: async (request: CheckLessonHoursRequest) =>
     await apiClient.availability.checkLessonHours(request),
 };
 
 export const organizationBusinessHoursMutations = {
-  upsert: async (
-    params: business_hours.UpdateOrganizationBusinessHoursParams
-  ) => await apiClient.availability.updateOrganizationBusinessHours(params),
+  upsert: async (params: UpdateOrganizationBusinessHoursRequest) =>
+    await apiClient.availability.updateOrganizationBusinessHours(params),
   reset: async ({ boardId }: { boardId: string }) =>
     await apiClient.availability.resetBoardBusinessHours(boardId),
 };
 
 export const trainerBusinessHoursMutations = {
-  upsert: async (input: {
-    trainerId: string;
-    params: business_hours.UpdateTrainerBusinessHoursParams;
-  }) =>
-    await apiClient.availability.updateTrainerBusinessHours(
-      input.trainerId,
-      input.params
-    ),
+  upsert: async ({
+    trainerId,
+    ...request
+  }: UpdateTrainerBusinessHoursRequest) =>
+    await apiClient.availability.updateTrainerBusinessHours(trainerId, request),
   resetBoard: async (input: { trainerId: string; boardId: string }) =>
     await apiClient.availability.resetTrainerBoardBusinessHours(
       input.trainerId,

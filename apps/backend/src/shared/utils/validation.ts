@@ -1,7 +1,7 @@
+import { Rider } from "@instride/api/contracts";
 import { APIError } from "encore.dev/api";
 
 import { AuthUser } from "@/services/auth/types/models";
-import { Rider } from "@/services/organizations/types/models";
 
 export function assertExists<T>(
   value: T | null | undefined,

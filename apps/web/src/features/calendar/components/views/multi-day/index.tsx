@@ -3,11 +3,7 @@ import { addDays, format, isSameDay } from "date-fns";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import {
-  HOURS,
-  SLOT_HEIGHT,
-  START_HOUR,
-} from "@/features/calendar/lib/constants";
+import { HOURS, START_HOUR } from "@/features/calendar/lib/constants";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { cn } from "@/shared/lib/utils";
 
@@ -22,6 +18,7 @@ export function MultiDayView() {
     trainers,
     selectedMultiDayCount,
     trainerBusinessHours,
+    slotHeight,
   } = useCalendar();
 
   const days = Array.from({ length: selectedMultiDayCount }, (_, i) =>
@@ -47,13 +44,13 @@ export function MultiDayView() {
     const targetHour = days.some((day) => isSameDay(day, now))
       ? now.getHours()
       : 9;
-    const offset = Math.max(0, (targetHour - START_HOUR - 1) * SLOT_HEIGHT);
+    const offset = Math.max(0, (targetHour - START_HOUR - 1) * slotHeight);
 
     // Ensure layout is committed before scrolling the viewport.
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({ top: offset, behavior: "smooth" });
     });
-  }, [days]);
+  }, [days, slotHeight]);
 
   return (
     <div className="flex h-full">
@@ -126,7 +123,7 @@ export function MultiDayView() {
                 <div
                   key={hour}
                   className="relative"
-                  style={{ height: `${SLOT_HEIGHT}px` }}
+                  style={{ height: `${slotHeight}px` }}
                 >
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
                     {index !== 0 && (

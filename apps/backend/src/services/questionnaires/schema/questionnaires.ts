@@ -1,11 +1,10 @@
-import * as p from "drizzle-orm/pg-core";
-
-import { organizations, members, boards } from "@/database/schema";
-
 import {
   QuestionnaireBoardAssignmentRule,
   QuestionnaireQuestion,
-} from "../types/models";
+} from "@instride/api/contracts";
+import * as p from "drizzle-orm/pg-core";
+
+import { organizations, members, boards } from "@/database/schema";
 
 /**
  * QUESTIONNAIRES
@@ -57,5 +56,5 @@ export const questionnaires = p.pgTable(
   ]
 );
 
-export type Questionnaire = typeof questionnaires.$inferSelect;
-export type NewQuestionnaire = typeof questionnaires.$inferInsert;
+export type QuestionnaireRow = typeof questionnaires.$inferSelect;
+export type NewQuestionnaireRow = typeof questionnaires.$inferInsert;

@@ -1,9 +1,8 @@
-import { Topic } from "encore.dev/pubsub";
-
 import {
   LessonInstanceCreatedEvent,
   RiderEnrolledInInstanceEvent,
-} from "./types/events";
+} from "@instride/shared";
+import { Topic } from "encore.dev/pubsub";
 
 export const lessonCreated = new Topic<LessonInstanceCreatedEvent>(
   "lesson-created",

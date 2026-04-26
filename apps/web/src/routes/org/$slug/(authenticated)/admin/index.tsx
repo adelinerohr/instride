@@ -1,4 +1,4 @@
-import { instanceOptions, type types } from "@instride/api";
+import { instanceOptions, type LessonInstance } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { endOfDay, endOfWeek, format, startOfDay, startOfWeek } from "date-fns";
@@ -109,7 +109,7 @@ function RouteComponent() {
       : "trainer";
 
   const filterForView = React.useCallback(
-    (lessons: types.LessonInstance[]) =>
+    (lessons: LessonInstance[]) =>
       activeView === "trainer" && trainerId
         ? lessons.filter((lesson) => lesson.trainerId === trainerId)
         : lessons,

@@ -82,15 +82,17 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       user: sessionData?.user,
     };
   },
-  head: ({ loaderData, match }) => {
+  head: () => {
+    // TODO: add title, description, and favicon based on tenant
     return {
       meta: [
         {
-          title: "instride",
+          title: "Instride",
         },
         {
           name: "description",
-          content: "instride is a web application",
+          content:
+            "Instride is a platform for managing your equestrian business.",
         },
         {
           name: "theme-color",

@@ -1,9 +1,9 @@
-import type { boards } from "#client";
+import { ListBoardsRequest } from "#contracts";
 
 const boardRootKey = ["boards"] as const;
 const assignmentRootKey = ["board-assignments"] as const;
 
-const normalizeListParams = (params?: boards.ListBoardsRequest) => {
+const normalizeListParams = (params?: ListBoardsRequest) => {
   if (!params) return params;
   return {
     ...params,
@@ -17,7 +17,7 @@ export const boardKeys = {
   /** Prefix for every list variant, regardless of params */
   lists: () => [...boardRootKey, "list"] as const,
   /** One specific parameterized list */
-  list: (params?: boards.ListBoardsRequest) =>
+  list: (params?: ListBoardsRequest) =>
     [...boardRootKey, "list", normalizeListParams(params)] as const,
   /** Prefix for every byId entry */
   details: () => [...boardRootKey, "byId"] as const,

@@ -3,7 +3,8 @@ import {
   useAssignToBoard,
   useBoards,
   useRemoveFromBoard,
-  type types,
+  type Board,
+  type Member,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
@@ -21,7 +22,7 @@ import {
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 
 export interface RiderBoardsTabProps {
-  member: types.Member;
+  member: Member;
 }
 
 export function RiderBoardsTab({ member }: RiderBoardsTabProps) {
@@ -46,7 +47,7 @@ export function RiderBoardsTab({ member }: RiderBoardsTabProps) {
     )
   );
 
-  const handleChange = (values: types.Board[]) => {
+  const handleChange = (values: Board[]) => {
     // Calculate the difference between the new values and the old values
     const newBoardIds = values.map((board) => board.id);
     const oldBoardIds = riderAssignments.map(
@@ -92,7 +93,7 @@ export function RiderBoardsTab({ member }: RiderBoardsTabProps) {
             <ComboboxValue>
               {(values) => (
                 <React.Fragment>
-                  {values.map((board: types.Board) => (
+                  {values.map((board: Board) => (
                     <ComboboxChip key={board.id}>{board.name}</ComboboxChip>
                   ))}
                 </React.Fragment>
@@ -102,7 +103,7 @@ export function RiderBoardsTab({ member }: RiderBoardsTabProps) {
           <ComboboxContent>
             <ComboboxEmpty>No boards found</ComboboxEmpty>
             <ComboboxList>
-              {(board: types.Board) => (
+              {(board: Board) => (
                 <ComboboxItem key={board.id} value={board}>
                   {board.name}
                 </ComboboxItem>

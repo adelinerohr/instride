@@ -1,33 +1,14 @@
+import type {
+  CheckLessonHoursRequest,
+  CheckLessonHoursResponse,
+} from "@instride/api/contracts";
 import { getDayOfWeek, isWithinAnySlot } from "@instride/shared";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { BusinessHoursDay } from "../types/models";
 import { resolveEffectiveDayHours } from "./utils";
 
-interface CheckLessonHoursRequest {
-  boardId: string;
-  trainerId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface CheckLessonHoursResponse {
-  withinOrgHours: boolean;
-  withinTrainerHours: boolean | null; // null if no trainer selected
-  effectiveOrgHours: BusinessHoursDay | null;
-  effectiveTrainerHours: BusinessHoursDay | null;
-  passes: boolean;
-}
-
-/**
- * Check whether a proposed lesson falls inside the effective org and trainer hours.
- *
- * "Within hours" means the entire [startTime, endTime) interval fits inside
- * at least one slot of the effective day.
- */
 export const checkLessonHours = api(
   {
     method: "POST",
@@ -54,12 +35,12 @@ export const checkLessonHours = api(
             endTime: request.endTime,
             slots: effectiveOrgHours.slots,
           })
-        : effectiveOrgHours // configured but closed
+        : effectiveOrgHours
           ? false
-          : true; // no hours configured = no restriction
+          : true;
 
     let withinTrainerHours: boolean | null = null;
-    let effectiveTrainerHours: BusinessHoursDay | null = null;
+    let effectiveTrainerHours = null;
 
     if (request.trainerId) {
       effectiveTrainerHours = await resolveEffectiveDayHours({

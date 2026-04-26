@@ -4,7 +4,7 @@ import {
   useTrainers,
   useUpdateTimeBlock,
   getUser,
-  type types,
+  type TimeBlock,
 } from "@instride/api";
 import { format } from "date-fns";
 import * as React from "react";
@@ -32,7 +32,7 @@ function toLocalInputValue(date: Date) {
 }
 
 export const timeBlockModalHandler = DialogHandler.createHandle<{
-  timeBlock: types.TimeBlock;
+  timeBlock: TimeBlock;
   defaultStart?: Date;
   defaultEnd?: Date;
   defaultTrainerId?: string;
@@ -51,7 +51,7 @@ export function TimeBlockModal() {
 }
 
 interface TimeBlockModalFormProps {
-  timeBlock?: types.TimeBlock;
+  timeBlock?: TimeBlock;
   defaultStart?: Date;
   defaultEnd?: Date;
   defaultTrainerId?: string;
@@ -117,7 +117,7 @@ export function TimeBlockModalForm({
     onSubmit: ({ value }) => {
       if (isEdit && timeBlock) {
         updateTimeBlock.mutateAsync(
-          { id: timeBlock.id, request: value },
+          { id: timeBlock.id, ...value },
           {
             onSuccess: () => {
               toast.success("Time block updated successfully.");

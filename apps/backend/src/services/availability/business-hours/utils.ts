@@ -1,16 +1,16 @@
+import type { BusinessHoursDay } from "@instride/api/contracts";
 import { DayHours, DayOfWeek, TimeSlot, timeToMinutes } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 
-import { db } from "../db";
-import { BusinessHoursDay, BusinessHours } from "../types/models";
+import { Database, Transaction } from "@/shared/utils/schema";
 
-/**
- * Validate a set of day-hour inputs:
- * - Open days must have at least one slot
- * - Closed days must have zero slots
- * - Each slot must have openTime < closeTime
- * - Slots within a day must not overlap
- */
+import { toBusinessHoursDay } from "../mappers";
+import { createBusinessHoursService } from "./service";
+
+// ============================================================================
+// Validation (unchanged)
+// ============================================================================
+
 export function validateDayHours(days: DayHours[]): void {
   for (const day of days) {
     if (!day.isOpen && day.slots.length > 0) {
@@ -39,7 +39,6 @@ export function validateDayHours(days: DayHours[]): void {
 }
 
 function assertNoOverlap(slots: TimeSlot[], dayOfWeek: DayOfWeek): void {
-  // Sort a copy so we can detect overlap by checking consecutive pairs
   const sorted = [...slots].sort((a, b) =>
     a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
   );
@@ -55,10 +54,6 @@ function assertNoOverlap(slots: TimeSlot[], dayOfWeek: DayOfWeek): void {
   }
 }
 
-/**
- * Assert that every trainer slot fits entirely inside at least one of the
- * effective org/board slots for that day.
- */
 export function assertTrainerSlotsClampedToOrg(input: {
   trainerSlots: TimeSlot[];
   orgSlots: TimeSlot[];
@@ -94,63 +89,39 @@ export function assertTrainerSlotsClampedToOrg(input: {
   }
 }
 
-/**
- * Resolve the effective day hours for a given organization, trainer, day of week, and board.
- */
+// ============================================================================
+// Resolution
+// ============================================================================
+
 export async function resolveEffectiveDayHours(input: {
   organizationId: string;
   trainerId?: string;
   dayOfWeek: DayOfWeek;
   boardId: string | null;
+  client?: Database | Transaction;
 }): Promise<BusinessHoursDay | null> {
   const week = await resolveEffectiveWeekHours(input);
   return week[input.dayOfWeek];
 }
 
-/**
- * Resolve the effective week hours for a given organization, trainer, and board.
- *
- * Resolution order for each day:
- *   1. Trainer board-specific row (if trainerId + boardId)
- *   2. Trainer general row (if trainerId, boardId null)
- *   3. Org board-specific row (if boardId)
- *   4. Org general row
- *
- * Trainer rows, when present, *replace* org hours for that day rather than
- * intersecting — but writes are clamped so trainer slots must fit inside
- * org slots.
- */
 export async function resolveEffectiveWeekHours(input: {
   organizationId: string;
   trainerId?: string;
   boardId: string | null;
+  client?: Database | Transaction;
 }): Promise<Record<DayOfWeek, BusinessHoursDay | null>> {
-  const boardCondition = input.boardId
-    ? {
-        OR: [
-          { boardId: input.boardId },
-          { boardId: { isNull: true as const } },
-        ],
-      }
-    : { boardId: { isNull: true as const } };
+  const service = createBusinessHoursService(input.client);
 
-  // Fetch day-rows with their slots joined via relations
-  const orgRows = await db.query.organizationAvailability.findMany({
-    where: {
-      organizationId: input.organizationId,
-      ...boardCondition,
-    },
-    with: { slots: true },
+  const orgRows = await service.findOrganizationDaysForResolve({
+    organizationId: input.organizationId,
+    boardId: input.boardId,
   });
 
   const trainerRows = input.trainerId
-    ? await db.query.trainerAvailability.findMany({
-        where: {
-          organizationId: input.organizationId,
-          trainerId: input.trainerId,
-          ...boardCondition,
-        },
-        with: { slots: true },
+    ? await service.findTrainerDaysForResolve({
+        organizationId: input.organizationId,
+        trainerId: input.trainerId,
+        boardId: input.boardId,
       })
     : [];
 
@@ -160,20 +131,17 @@ export async function resolveEffectiveWeekHours(input: {
   return Object.fromEntries(
     Object.values(DayOfWeek).map((day) => [
       day,
-      resolveDay({
-        day,
-        orgByDay,
-        trainerByDay,
-        trainerId: input.trainerId,
-      }),
+      resolveDay({ day, orgByDay, trainerByDay, trainerId: input.trainerId }),
     ])
   ) as Record<DayOfWeek, BusinessHoursDay | null>;
 }
 
-function resolveDay(input: {
+function resolveDay<
+  TRow extends Parameters<typeof toBusinessHoursDay>[0],
+>(input: {
   day: DayOfWeek;
-  orgByDay: Map<DayOfWeek, BusinessHours>;
-  trainerByDay: Map<DayOfWeek, BusinessHours>;
+  orgByDay: Map<DayOfWeek, TRow>;
+  trainerByDay: Map<DayOfWeek, TRow>;
   trainerId?: string;
 }): BusinessHoursDay | null {
   const trainerRow = input.trainerId
@@ -181,32 +149,15 @@ function resolveDay(input: {
     : undefined;
 
   if (trainerRow) {
-    return {
-      dayOfWeek: trainerRow.dayOfWeek,
-      isOpen: trainerRow.isOpen,
-      slots: sortSlots(trainerRow.slots),
-    };
+    return toBusinessHoursDay(trainerRow);
   }
 
   const orgRow = input.orgByDay.get(input.day);
   if (!orgRow) return null;
 
-  return {
-    dayOfWeek: orgRow.dayOfWeek,
-    isOpen: orgRow.isOpen,
-    slots: sortSlots(orgRow.slots),
-  };
+  return toBusinessHoursDay(orgRow);
 }
 
-function sortSlots<T extends TimeSlot>(slots: T[]): T[] {
-  return [...slots].sort((a, b) =>
-    a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
-  );
-}
-
-/**
- * Index rows by day, preferring board-specific over null-boardId rows.
- */
 function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
   rows: T[],
   boardId: string | null
@@ -225,9 +176,9 @@ function indexByDay<T extends { dayOfWeek: DayOfWeek; boardId: string | null }>(
   return map;
 }
 
-// ---------------------------------------------------------------------------
-// Calendar-facing projection
-// ---------------------------------------------------------------------------
+// ============================================================================
+// Calendar projection (unchanged)
+// ============================================================================
 
 export type EffectiveBusinessHours = Record<DayOfWeek, BusinessHoursDay>;
 export type TrainerEffectiveBusinessHours = Record<
@@ -240,10 +191,12 @@ type ListBusinessHoursBundle<TRow extends BusinessHoursDay> = {
   boardOverrides: Record<string, Array<TRow & { boardId: string }>>;
 };
 
-/**
- * Project a ListBusinessHoursResponse into a per-day lookup for a given board.
- * Falls back to defaults when the board has no override.
- */
+function sortSlots<T extends TimeSlot>(slots: T[]): T[] {
+  return [...slots].sort((a, b) =>
+    a.openTime < b.openTime ? -1 : a.openTime > b.openTime ? 1 : 0
+  );
+}
+
 export function resolveEffectiveBusinessHours<TRow extends BusinessHoursDay>(
   businessHours: ListBusinessHoursBundle<TRow>,
   boardId?: string

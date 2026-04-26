@@ -39,3 +39,8 @@ export const notificationPushTokens = p.pgTable(
     p.unique().on(table.token),
   ]
 );
+
+export type NotificationPushTokenRow =
+  typeof notificationPushTokens.$inferSelect;
+export type NewNotificationPushTokenRow =
+  typeof notificationPushTokens.$inferInsert;

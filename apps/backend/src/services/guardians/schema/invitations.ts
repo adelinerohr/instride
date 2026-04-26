@@ -46,5 +46,5 @@ export const guardianInvitations = p.pgTable(
   ]
 );
 
-export type GuardianInvitation = typeof guardianInvitations.$inferSelect;
-export type NewGuardianInvitation = typeof guardianInvitations.$inferInsert;
+export type GuardianInvitationRow = typeof guardianInvitations.$inferSelect;
+export type NewGuardianInvitationRow = typeof guardianInvitations.$inferInsert;

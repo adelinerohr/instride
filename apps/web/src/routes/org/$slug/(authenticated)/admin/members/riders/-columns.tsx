@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Board, type Level, type Rider } from "@instride/api";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -26,14 +26,14 @@ import { cn } from "@/shared/lib/utils";
 import { formatDate } from "@/shared/lib/utils/format";
 
 interface GetRidersTableColumnsProps {
-  levels: types.Level[];
-  boards: types.Board[];
+  levels: Level[];
+  boards: Board[];
 }
 
 export function getRidersTableColumns({
   levels,
   boards,
-}: GetRidersTableColumnsProps): ColumnDef<types.Rider>[] {
+}: GetRidersTableColumnsProps): ColumnDef<Rider>[] {
   return [
     {
       id: "select",

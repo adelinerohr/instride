@@ -1,4 +1,4 @@
-import { useLikePost, useUnlikePost, type types } from "@instride/api";
+import { useLikePost, useUnlikePost, type FeedPost } from "@instride/api";
 import { useRouteContext } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
 import * as React from "react";
@@ -11,7 +11,7 @@ import { CommentSheet, commentSheetHandler } from "./comment-sheet";
 import { PostHeader } from "./header";
 
 type PostProps = {
-  post: types.FeedPost;
+  post: FeedPost;
 };
 
 export function Post({ post }: PostProps) {

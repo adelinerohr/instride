@@ -23,5 +23,5 @@ export const levels = p.pgTable(
   (table) => [p.index("levels_organizationId_idx").on(table.organizationId)]
 );
 
-export type Level = typeof levels.$inferSelect;
-export type NewLevel = typeof levels.$inferInsert;
+export type LevelRow = typeof levels.$inferSelect;
+export type NewLevelRow = typeof levels.$inferInsert;

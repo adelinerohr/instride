@@ -1,4 +1,9 @@
-import { boardsOptions, membersOptions, type types } from "@instride/api";
+import {
+  boardsOptions,
+  membersOptions,
+  type Board,
+  type Trainer,
+} from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
@@ -109,7 +114,7 @@ export function FeedFilters() {
           <ComboboxValue>
             {(values) => (
               <React.Fragment>
-                {values.map((value: types.Board) => (
+                {values.map((value: Board) => (
                   <ComboboxChip key={value.id}>{value.name}</ComboboxChip>
                 ))}
                 <ComboboxChipsInput placeholder="Select boards" />
@@ -143,7 +148,7 @@ export function FeedFilters() {
           <ComboboxValue>
             {(values) => (
               <React.Fragment>
-                {values.map((value: types.Trainer) => (
+                {values.map((value: Trainer) => (
                   <ComboboxChip key={value.memberId}>
                     {value.member?.authUser?.name}
                   </ComboboxChip>
@@ -156,7 +161,7 @@ export function FeedFilters() {
         <ComboboxContent anchor={trainersAnchor}>
           <ComboboxEmpty>No trainers found.</ComboboxEmpty>
           <ComboboxList>
-            {(trainer: types.Trainer) => (
+            {(trainer: Trainer) => (
               <ComboboxItem key={trainer.memberId} value={trainer.memberId}>
                 <Item size="xs" className="p-0">
                   <ItemMedia>

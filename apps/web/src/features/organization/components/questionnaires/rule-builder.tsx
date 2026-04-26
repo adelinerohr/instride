@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Board } from "@instride/api";
 import { QuestionnaireQuestionOperator } from "@instride/shared";
 import { useStore } from "@tanstack/react-store";
 import { PlusIcon, TrashIcon } from "lucide-react";
@@ -14,7 +14,7 @@ import { ConditionsBuilder } from "./conditions-builder";
 export const RuleBuilder = withForm({
   ...questionnaireFormOpts,
   props: {
-    boards: [] as types.Board[],
+    boards: [] as Board[],
   },
   render: ({ form, boards }) => {
     const questions = useStore(form.store, (state) => state.values.questions);

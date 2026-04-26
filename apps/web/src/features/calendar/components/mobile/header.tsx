@@ -15,13 +15,8 @@ import { useCalendar } from "../../hooks/use-calendar";
 import { CalendarFilters } from "../header/filters";
 
 export function MobileHeader() {
-  const {
-    selectedDate,
-    createLesson,
-    selectedBoardId,
-    selectedTrainerIds,
-    type,
-  } = useCalendar();
+  const { selectedDate, createLesson, selectedBoardId, selectedTrainerIds } =
+    useCalendar();
 
   const monthYear = format(selectedDate, "MMMM yyyy").toUpperCase();
   const dayName = format(selectedDate, "EEEE d");

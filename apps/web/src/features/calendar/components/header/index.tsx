@@ -1,4 +1,4 @@
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useParams, useRouteContext } from "@tanstack/react-router";
 import {
   CalendarPlusIcon,
   ClockIcon,
@@ -6,6 +6,7 @@ import {
   PlusIcon,
 } from "lucide-react";
 
+import { KioskScope } from "@/features/kiosk/lib/types";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
@@ -25,8 +26,33 @@ import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
   const { slug } = useParams({ strict: false });
+  const { kioskSession, kioskPermissions } = useRouteContext({ strict: false });
   const { selectedTrainerIds, selectedBoardId, createLesson, type } =
     useCalendar();
+
+  const getVisibility = () => {
+    if (type === "admin") {
+      return "dropdown";
+    }
+
+    if (type === "portal") {
+      return "link";
+    }
+
+    if (type === "kiosk" && kioskSession) {
+      if (kioskSession.scope === KioskScope.DEFAULT) {
+        return "none";
+      }
+      if (kioskSession.scope === KioskScope.STAFF) {
+        return "dropdown";
+      }
+      if (kioskSession.scope === KioskScope.SELF && kioskPermissions) {
+        return kioskPermissions.canCreateLesson ? "link" : "none";
+      }
+    }
+  };
+
+  const visibility = getVisibility();
 
   return (
     <div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
@@ -36,7 +62,7 @@ export function CalendarHeader() {
           <ViewSwitcher />
           <CalendarFilters />
 
-          {type === "admin" ? (
+          {visibility === "dropdown" ? (
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button />}>
                 <PlusIcon />
@@ -76,7 +102,7 @@ export function CalendarHeader() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
+          ) : visibility === "link" ? (
             <Link
               to="/org/$slug/portal/lessons/create"
               params={{ slug: slug ?? "" }}
@@ -84,7 +110,7 @@ export function CalendarHeader() {
             >
               <PlusIcon />
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

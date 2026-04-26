@@ -1,4 +1,4 @@
-import { getUser, useMarkAttendance, type types } from "@instride/api";
+import { getUser, useMarkAttendance, type LessonInstance } from "@instride/api";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { isAfter, isSameDay } from "date-fns";
 import { ArrowDownIcon, BanIcon, EllipsisVerticalIcon } from "lucide-react";
@@ -15,7 +15,7 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 
 type RidersListProps = {
-  instance: types.LessonInstance;
+  instance: LessonInstance;
   isPortal: boolean;
 };
 
@@ -90,7 +90,7 @@ export function RidersList({ instance, isPortal }: RidersListProps) {
                     onCheckedChange={() =>
                       updateAttendance.mutate({
                         enrollmentId: enrollment.id,
-                        request: { attended: !enrollment.attended },
+                        attended: !enrollment.attended,
                       })
                     }
                   />

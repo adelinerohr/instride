@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Level } from "@instride/api";
 import { RecurrenceFrequency } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
@@ -30,7 +30,7 @@ export const DetailsSection = withForm({
     isOpen: true as boolean,
     onOpenChange: (_open: boolean) => {},
     isReady: false as boolean,
-    levels: [] as types.Level[],
+    levels: [] as Level[],
   },
   render: ({ form, isOpen, onOpenChange, isReady, levels }) => {
     const [showCustomDetails, setShowCustomDetails] = React.useState(false);

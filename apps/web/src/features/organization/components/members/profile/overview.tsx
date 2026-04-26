@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Member } from "@instride/api";
 import { format } from "date-fns";
 import { MailIcon, PhoneIcon } from "lucide-react";
 
@@ -6,7 +6,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { ROLE_LABELS, ROLE_VARIANTS } from "@/shared/lib/auth/roles";
 
 type MemberOverviewProps = {
-  member: types.Member;
+  member: Member;
 };
 
 export function MemberOverview({ member }: MemberOverviewProps) {

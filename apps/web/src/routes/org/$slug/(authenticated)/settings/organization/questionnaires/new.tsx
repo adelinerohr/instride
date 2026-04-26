@@ -100,20 +100,15 @@ function RouteComponent() {
               <form.AppField
                 name="defaultBoardId"
                 children={(field) => (
-                  <field.SelectField
+                  <field.ClearableSelectField
                     label="Default Board (Fallback)"
                     placeholder="Select a default board (optional)"
                     description="Assign to this board if no rules match the user's answers"
-                    items={[
-                      {
-                        label: "No default (required rules match)",
-                        value: "reset",
-                      },
-                      ...boards.map((board) => ({
-                        label: board.name,
-                        value: board.id,
-                      })),
-                    ]}
+                    items={boards}
+                    itemToValue={(board) => board?.id ?? null}
+                    renderValue={(board) =>
+                      board?.name ?? "No default (required rules match)"
+                    }
                   />
                 )}
               />

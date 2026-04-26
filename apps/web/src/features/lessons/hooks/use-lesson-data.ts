@@ -1,27 +1,32 @@
-import { getUser, type types } from "@instride/api";
+import {
+  getUser,
+  type AuthUser,
+  type LessonInstance,
+  type Rider,
+} from "@instride/api";
 import { differenceInMinutes, format, formatDuration } from "date-fns";
 
 export interface LessonRosterStatus {
-  checkedIn: types.AuthUser[];
-  notCheckedIn: types.AuthUser[];
+  checkedIn: AuthUser[];
+  notCheckedIn: AuthUser[];
 }
 
 export interface LessonCardData {
-  lesson: types.LessonInstance;
+  lesson: LessonInstance;
   startTime: string;
   endTime: string;
   duration: string;
   lessonTitle: string;
   isPrivate: boolean;
-  trainerUser: types.AuthUser;
-  riderUser: types.AuthUser | null;
+  trainerUser: AuthUser;
+  riderUser: AuthUser | null;
   openSlots: number;
   rosterStatus: LessonRosterStatus;
 }
 
 export function useLessonCardData(params: {
-  lesson: types.LessonInstance;
-  rider?: types.Rider | null;
+  lesson: LessonInstance;
+  rider?: Rider | null;
 }): LessonCardData {
   const { lesson, rider } = params;
 
@@ -29,8 +34,8 @@ export function useLessonCardData(params: {
     throw Error("Lesson must have a trainer");
   }
 
-  const checkedIn: types.AuthUser[] = [];
-  const notCheckedIn: types.AuthUser[] = [];
+  const checkedIn: AuthUser[] = [];
+  const notCheckedIn: AuthUser[] = [];
 
   for (const enrollment of lesson.enrollments ?? []) {
     if (!enrollment.rider) continue;

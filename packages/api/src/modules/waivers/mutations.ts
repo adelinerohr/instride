@@ -1,23 +1,22 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, waivers } from "#client";
+import { apiClient } from "#client";
+import {
+  CreateWaiverRequest,
+  SignWaiverRequest,
+  UpdateWaiverRequest,
+} from "#contracts";
 
 import { waiverKeys } from "./keys";
 
 export const waiverMutations = {
-  create: async (request: waivers.CreateWaiverRequest) => {
+  create: async (request: CreateWaiverRequest) => {
     const { waiver } = await apiClient.waivers.createWaiver(request);
     return waiver;
   },
-  update: async ({
-    waiverId,
-    request,
-  }: {
-    waiverId: string;
-    request: waivers.UpdateWaiverRequest;
-  }) => {
-    const { waiver } = await apiClient.waivers.updateWaiver(waiverId, request);
+  update: async ({ id, ...request }: UpdateWaiverRequest) => {
+    const { waiver } = await apiClient.waivers.updateWaiver(id, request);
     return waiver;
   },
   archive: async (waiverId: string) => {
@@ -25,14 +24,8 @@ export const waiverMutations = {
   },
 
   // Signatures
-  sign: async (input: {
-    waiverId: string;
-    request: waivers.SignWaiverRequest;
-  }) => {
-    const { signature } = await apiClient.waivers.signWaiver(
-      input.waiverId,
-      input.request
-    );
+  sign: async ({ id, ...request }: SignWaiverRequest) => {
+    const { signature } = await apiClient.waivers.signWaiver(id, request);
     return signature;
   },
 };
@@ -47,7 +40,7 @@ export function useCreateWaiver({
     ...config,
     onSuccess: (waiver, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: waiverKeys.list(),
+        queryKey: waiverKeys.root(),
       });
       onSuccess?.(waiver, ...args);
     },
@@ -82,7 +75,7 @@ export function useArchiveWaiver({
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
-        queryKey: waiverKeys.list(),
+        queryKey: waiverKeys.root(),
       });
       onSuccess?.(...args);
     },

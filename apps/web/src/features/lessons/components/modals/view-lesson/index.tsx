@@ -1,4 +1,4 @@
-import { useCancelLessonInstance, type types } from "@instride/api";
+import { useCancelLessonInstance, type LessonInstance } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -22,9 +22,12 @@ import { LessonDetails } from "./lesson-details";
 import { PortalActions } from "./portal-actions";
 import { RidersList } from "./riders-list";
 
-export const viewLessonModalHandler = SheetHandler.createHandle<{
-  lesson: types.LessonInstance;
-}>();
+interface ViewLessonModalPayload {
+  lesson: LessonInstance;
+}
+
+export const viewLessonModalHandler =
+  SheetHandler.createHandle<ViewLessonModalPayload>();
 
 export function ViewLessonModal() {
   return (
@@ -34,11 +37,7 @@ export function ViewLessonModal() {
   );
 }
 
-interface ViewLessonModalFormProps {
-  lesson: types.LessonInstance;
-}
-
-export function ViewLessonModalForm({ lesson }: ViewLessonModalFormProps) {
+export function ViewLessonModalForm({ lesson }: ViewLessonModalPayload) {
   const { member, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
@@ -72,7 +71,7 @@ export function ViewLessonModalForm({ lesson }: ViewLessonModalFormProps) {
         cancelLesson.mutateAsync(
           {
             instanceId: lesson.id,
-            request: { reason: "User cancelled" },
+            reason: "User cancelled",
           },
           {
             onSuccess: () => {

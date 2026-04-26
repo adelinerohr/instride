@@ -1,4 +1,7 @@
-import type { types } from "@instride/api";
+import type {
+  QuestionnaireQuestion,
+  QuestionnaireQuestionResponse,
+} from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { z } from "zod";
 
@@ -21,7 +24,7 @@ export const questionnaireResponseSchema = z.object({
  * Only validates visible, required questions
  */
 export function buildQuestionnaireResponsesSchema(
-  questions: types.QuestionnaireQuestion[]
+  questions: QuestionnaireQuestion[]
 ) {
   return z
     .array(
@@ -66,9 +69,9 @@ export function buildQuestionnaireResponsesSchema(
  * Build initial responses with proper defaults
  */
 export function buildInitialResponses(
-  questions: types.QuestionnaireQuestion[]
-): types.QuestionnaireQuestionResponse[] {
-  const responses: types.QuestionnaireQuestionResponse[] = [];
+  questions: QuestionnaireQuestion[]
+): QuestionnaireQuestionResponse[] {
+  const responses: QuestionnaireQuestionResponse[] = [];
 
   for (const question of questions) {
     // Only initialize top-level questions (no showIf conditions)
@@ -98,9 +101,9 @@ export function buildInitialResponses(
  * Check if a question should be visible based on its showIf condition
  */
 export function isQuestionVisible(input: {
-  question: types.QuestionnaireQuestion;
-  questions: types.QuestionnaireQuestion[];
-  responses: types.QuestionnaireQuestionResponse[];
+  question: QuestionnaireQuestion;
+  questions: QuestionnaireQuestion[];
+  responses: QuestionnaireQuestionResponse[];
 }): boolean {
   if (!input.question.showIf) {
     return true;
@@ -122,9 +125,9 @@ export function isQuestionVisible(input: {
  * Filter responses to only include visible questions
  */
 export function filterVisibleResponses(
-  questions: types.QuestionnaireQuestion[],
-  responses: types.QuestionnaireQuestionResponse[]
-): types.QuestionnaireQuestionResponse[] {
+  questions: QuestionnaireQuestion[],
+  responses: QuestionnaireQuestionResponse[]
+): QuestionnaireQuestionResponse[] {
   return responses.filter((response) => {
     const question = questions.find((q) => q.id === response.questionId);
     return question && isQuestionVisible({ question, questions, responses });

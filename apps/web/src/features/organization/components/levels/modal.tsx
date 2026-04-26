@@ -1,4 +1,4 @@
-import { useCreateLevel, useLevelById, useUpdateLevel } from "@instride/api";
+import { useCreateLevel, useUpdateLevel, type Level } from "@instride/api";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -16,33 +16,31 @@ import {
 import { FieldGroup } from "@/shared/components/ui/field";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const levelModalHandler = DialogHandler.createHandle<{
-  level: Awaited<ReturnType<typeof useLevelById>["data"]>;
-}>();
+interface LevelModalPayload {
+  level?: Level;
+}
+
+export const levelModalHandler =
+  DialogHandler.createHandle<LevelModalPayload | null>();
 
 export function LevelModal() {
   return (
     <Dialog handle={levelModalHandler}>
       {({ payload }) => (
         <DialogPortal>
-          <LevelModalForm
-            level={payload?.level ?? undefined}
-            onSuccess={() => levelModalHandler.close()}
-          />
+          <LevelModalForm {...payload} />
         </DialogPortal>
       )}
     </Dialog>
   );
 }
 
-interface LevelModalFormProps {
-  level: Awaited<ReturnType<typeof useLevelById>["data"]> | undefined;
-  onSuccess: () => void;
-}
-
-export function LevelModalForm({ level, onSuccess }: LevelModalFormProps) {
+export function LevelModalForm(props: LevelModalPayload) {
+  const level = props?.level;
   const createLevel = useCreateLevel();
   const updateLevel = useUpdateLevel();
+
+  const onSuccess = () => levelModalHandler.close();
 
   const form = useAppForm({
     defaultValues: {
@@ -63,11 +61,9 @@ export function LevelModalForm({ level, onSuccess }: LevelModalFormProps) {
 
       if (level) {
         await updateLevel.mutateAsync({
-          levelId: level.id,
-          request: {
-            ...value,
-            description,
-          },
+          id: level.id,
+          ...value,
+          description,
         });
       } else {
         await createLevel.mutateAsync(

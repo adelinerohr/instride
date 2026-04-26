@@ -44,20 +44,17 @@ function RouteComponent() {
   const form = useAppForm({
     ...serviceFormOpts,
     onSubmit: async ({ value }) => {
-      createService.mutateAsync(
-        { request: value },
-        {
-          onSuccess: () => {
-            toast.success("Board created successfully");
-            navigate({
-              to: "/org/$slug/admin/services",
-            });
-          },
-          onError: () => {
-            toast.error("Failed to create board");
-          },
-        }
-      );
+      createService.mutateAsync(value, {
+        onSuccess: () => {
+          toast.success("Board created successfully");
+          navigate({
+            to: "/org/$slug/admin/services",
+          });
+        },
+        onError: () => {
+          toast.error("Failed to create board");
+        },
+      });
     },
   });
 

@@ -13,11 +13,12 @@ import {
   organizationClient,
   inferAdditionalFields,
 } from "better-auth/client/plugins";
+import type { AccessControl } from "better-auth/plugins/access";
 import { createAuthClient } from "better-auth/react";
 
 import { serverBaseURL } from "./api-client";
 
-export const authClient = createAuthClient({
+const _authClient = createAuthClient({
   baseURL: serverBaseURL,
   basePath: "/auth",
   fetchOptions: {
@@ -34,7 +35,7 @@ export const authClient = createAuthClient({
           additionalFields: organizationAdditionalFields,
         },
       }),
-      ac: ac,
+      ac: ac as unknown as AccessControl,
       roles: {
         admin: adminRole,
         trainer: trainerRole,
@@ -45,4 +46,5 @@ export const authClient = createAuthClient({
   ],
 });
 
+export const authClient: typeof _authClient = _authClient;
 export type AuthClient = typeof authClient;

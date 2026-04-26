@@ -2,7 +2,6 @@ import {
   boardsOptions,
   eventOptions,
   instanceOptions,
-  kioskOptions,
   membersOptions,
   servicesOptions,
   timeBlockOptions,
@@ -19,6 +18,7 @@ import {
   subMonths,
   subWeeks,
 } from "date-fns";
+import { z } from "zod";
 
 import { Calendar } from "@/features/calendar/components";
 import { CalendarProvider } from "@/features/calendar/hooks/use-calendar";
@@ -29,7 +29,9 @@ export const Route = createFileRoute(
   "/org/$slug/(authenticated)/kiosk/$sessionId/calendar"
 )({
   component: RouteComponent,
-  validateSearch: calendarSearchSchema,
+  validateSearch: calendarSearchSchema.extend({
+    onlyMine: z.boolean().optional().default(false),
+  }),
   beforeLoad: async ({ context, search }) => {
     if (search.boardId.trim() !== "") return;
 
@@ -58,36 +60,28 @@ export const Route = createFileRoute(
     const from = startOfMonth(monthStart);
     const to = endOfMonth(monthStart);
 
-    context.queryClient.ensureQueryData(instanceOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to));
-    context.queryClient.ensureQueryData(membersOptions.trainers());
-    context.queryClient.ensureQueryData(boardsOptions.list());
-    context.queryClient.ensureQueryData(servicesOptions.all());
-    context.queryClient.ensureQueryData(
-      eventOptions.list({
-        from: from.toISOString(),
-        to: to.toISOString(),
-      })
-    );
-
-    context.queryClient.ensureQueryData(kioskOptions.session(params.sessionId));
+    await Promise.all([
+      context.queryClient.ensureQueryData(instanceOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(timeBlockOptions.inRange(from, to)),
+      context.queryClient.ensureQueryData(membersOptions.trainers()),
+      context.queryClient.ensureQueryData(boardsOptions.list()),
+      context.queryClient.ensureQueryData(servicesOptions.all()),
+      context.queryClient.ensureQueryData(
+        eventOptions.list({ from: from.toISOString(), to: to.toISOString() })
+      ),
+    ]);
 
     return {
       from,
       to,
-      sessionId: params.sessionId,
     };
   },
 });
 
 function RouteComponent() {
   const { from, to } = Route.useLoaderData();
-  const { sessionId } = Route.useParams();
+  const { kioskSession } = Route.useRouteContext();
   const { date, view } = Route.useSearch();
-
-  const {
-    data: { session },
-  } = useSuspenseQuery(kioskOptions.session(sessionId));
 
   const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
   const { data: boards } = useSuspenseQuery(boardsOptions.list());
@@ -119,15 +113,16 @@ function RouteComponent() {
         ? addMonths(date, 1)
         : addWeeks(date, 1);
 
-  // Filter to visible range
   const lessons = allLessons.filter((lesson) => {
-    if (session.boardId && lesson.boardId !== session.boardId) return false;
+    if (kioskSession.boardId && lesson.boardId !== kioskSession.boardId)
+      return false;
     const lessonDate = new Date(lesson.start);
     return lessonDate >= visibleFrom && lessonDate <= visibleTo;
   });
 
   const timeBlocks = allTimeBlocks.filter((block) => {
-    if (session.boardId && block.boardId !== session.boardId) return false;
+    if (kioskSession.boardId && block.boardId !== kioskSession.boardId)
+      return false;
     const blockStart = new Date(block.start);
     const blockEnd = new Date(block.end);
     return blockStart >= visibleFrom && blockEnd <= visibleTo;

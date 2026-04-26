@@ -60,9 +60,7 @@ function RouteComponent() {
                 onCheckedChange={(value) =>
                   updateOrganization.mutateAsync({
                     organizationId: organization.id,
-                    request: {
-                      allowPublicJoin: value,
-                    },
+                    allowPublicJoin: value,
                   })
                 }
               />

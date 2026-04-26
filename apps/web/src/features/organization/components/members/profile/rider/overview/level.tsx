@@ -1,5 +1,9 @@
-import { levelOptions, useUpdateRider } from "@instride/api";
-import { type types } from "@instride/api";
+import {
+  levelOptions,
+  useUpdateRider,
+  type Level,
+  type Member,
+} from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Field, FieldLabel } from "@/shared/components/ui/field";
@@ -12,7 +16,7 @@ import {
 } from "@/shared/components/ui/select";
 
 export interface RiderLevelProps {
-  member: types.Member;
+  member: Member;
 }
 
 export function RiderLevel({ member }: RiderLevelProps) {
@@ -33,15 +37,13 @@ export function RiderLevel({ member }: RiderLevelProps) {
           onValueChange={(value) => {
             updateRider.mutate({
               riderId: member.id,
-              request: {
-                ridingLevelId: value === null ? undefined : value,
-              },
+              ridingLevelId: value === null ? undefined : value,
             });
           }}
         >
           <SelectTrigger>
             <SelectValue>
-              {(value: types.Level | null) => (
+              {(value: Level | null) => (
                 <div className="flex items-center gap-2">
                   <div
                     className="size-2 rounded-full"

@@ -5,9 +5,9 @@ import {
   memberAc,
 } from "better-auth/plugins/organization/access";
 
-export const ac = createAccessControl({
-  ...defaultStatements,
-});
+const { ac: _ac, ...statements } = defaultStatements;
+
+export const ac = createAccessControl(statements);
 
 export const admin = ac.newRole({
   ...ownerAc.statements,

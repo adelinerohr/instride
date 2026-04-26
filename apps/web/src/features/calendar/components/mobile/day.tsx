@@ -12,8 +12,13 @@ import { LessonBlock } from "../views/fragments/lesson-block";
 import { CalendarTimeline } from "../views/fragments/timeline";
 
 export function MobileDayView() {
-  const { selectedDate, lessons, selectedTrainerIds, trainerBusinessHours } =
-    useCalendar();
+  const {
+    selectedDate,
+    lessons,
+    selectedTrainerIds,
+    trainerBusinessHours,
+    slotHeight,
+  } = useCalendar();
 
   const currentTrainerBusinessHours =
     trainerBusinessHours[selectedTrainerIds[0]];
@@ -77,7 +82,8 @@ export function MobileDayView() {
                 lesson,
                 selectedDate,
                 groupIndex,
-                groupedLessons.length
+                groupedLessons.length,
+                slotHeight
               );
               const hasOverlap = groupedLessons.some(
                 (otherGroup, otherIndex) =>

@@ -56,3 +56,10 @@ export const eventSchedulingBlocks = p.pgTable(
     p.index("eventSchedulingBlocks_trainerId_idx").on(table.trainerId),
   ]
 );
+
+export type EventSchedulingBlockRow = typeof eventSchedulingBlocks.$inferSelect;
+export type NewEventSchedulingBlockRow =
+  typeof eventSchedulingBlocks.$inferInsert;
+
+export type EventRow = typeof events.$inferSelect;
+export type NewEventRow = typeof events.$inferInsert;

@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { LessonInstance } from "@instride/api";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
 import { CalendarX2Icon } from "lucide-react";
 import * as React from "react";
@@ -24,7 +24,7 @@ export function AgendaView() {
   const lessonsByDay = React.useMemo(() => {
     const allDates = new Map<
       string,
-      { date: Date; lessons: types.LessonInstance[] }
+      { date: Date; lessons: LessonInstance[] }
     >();
 
     lessons.forEach((lesson) => {

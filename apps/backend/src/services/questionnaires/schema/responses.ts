@@ -1,8 +1,7 @@
+import { QuestionnaireQuestionResponse } from "@instride/api/contracts";
 import * as p from "drizzle-orm/pg-core";
 
 import { questionnaires, organizations, members } from "@/database/schema";
-
-import { QuestionnaireQuestionResponse } from "../types/models";
 
 /**
  * QUESTIONNAIRE RESPONSES
@@ -61,6 +60,7 @@ export const questionnaireResponses = p.pgTable(
   ]
 );
 
-export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
-export type NewQuestionnaireResponse =
+export type QuestionnaireResponseRow =
+  typeof questionnaireResponses.$inferSelect;
+export type NewQuestionnaireResponseRow =
   typeof questionnaireResponses.$inferInsert;

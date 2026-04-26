@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { Event } from "@instride/api";
 import { cva } from "class-variance-authority";
 import { format, parseISO, startOfDay } from "date-fns";
 
@@ -31,7 +31,7 @@ const eventBadgeVariants = cva(
 );
 
 interface MultiDayRowItemProps {
-  event: types.Event;
+  event: Event;
   cellDate: Date;
   eventCurrentDay?: number;
   eventTotalDays?: number;
@@ -41,7 +41,7 @@ interface MultiDayRowItemProps {
   colStart: number;
   colSpan: number;
   className?: string;
-  onEventClick: (event: types.Event) => void;
+  onEventClick: (event: Event) => void;
 }
 
 export function MultiDayRowItem({

@@ -2,7 +2,7 @@ import {
   useKioskEnrollInInstance,
   useKioskMarkAttendance,
   useKioskUnenrollFromInstance,
-  type types,
+  type LessonInstance,
 } from "@instride/api";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ import { useKiosk } from "../../hooks/use-kiosk";
 import { KioskScope } from "../../lib/types";
 
 interface LessonsActionsProps {
-  lesson: types.LessonInstance;
+  lesson: LessonInstance;
   onClose: () => void;
 }
 
@@ -74,10 +74,8 @@ export function LessonsActions({ lesson, onClose }: LessonsActionsProps) {
           onClick={() =>
             markAttendance.mutateAsync({
               enrollmentId: actingEnrollment.id,
-              request: {
-                sessionId: sessionId!,
-                attended: true,
-              },
+              sessionId: sessionId!,
+              attended: true,
             })
           }
         >
@@ -89,9 +87,7 @@ export function LessonsActions({ lesson, onClose }: LessonsActionsProps) {
           onClick={() =>
             unenroll.mutateAsync({
               enrollmentId: actingEnrollment.id,
-              request: {
-                sessionId: sessionId!,
-              },
+              sessionId: sessionId!,
             })
           }
         >
@@ -103,10 +99,8 @@ export function LessonsActions({ lesson, onClose }: LessonsActionsProps) {
           onClick={() =>
             enroll.mutateAsync({
               instanceId: lesson.id,
-              request: {
-                sessionId: sessionId!,
-                riderMemberId: acting.actingMemberId!,
-              },
+              sessionId: sessionId!,
+              riderMemberId: acting.actingMemberId!,
             })
           }
         >

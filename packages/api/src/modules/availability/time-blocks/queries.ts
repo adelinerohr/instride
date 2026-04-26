@@ -18,10 +18,7 @@ export const timeBlockOptions = {
   byId: (id: string) =>
     queryOptions({
       queryKey: availabilityKeys.timeBlockById(id),
-      queryFn: async () => {
-        const { timeBlock } = await apiClient.availability.getTimeBlock(id);
-        return timeBlock;
-      },
+      queryFn: async () => await apiClient.availability.getTimeBlock(id),
     }),
   inRange: (from: Date, to: Date) =>
     queryOptions({

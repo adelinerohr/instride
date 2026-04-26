@@ -81,7 +81,7 @@ export function CreateLesson({ initialQuery }: CreateLessonProps = {}) {
   const { rider } = useRouteContext({ strict: false });
   const createLesson = useCreateLessonSeries();
 
-  const { data: assignments } = useRiderAssignments(member?.rider?.id ?? "");
+  const { data: assignments } = useRiderAssignments(rider?.id ?? "");
   const { data: trainers } = useTrainers();
   const { data: boards } = useBoards();
   const { data: services } = useServices();
@@ -104,7 +104,7 @@ export function CreateLesson({ initialQuery }: CreateLessonProps = {}) {
         trainerId: value.trainerId,
         duration: service.duration,
         maxRiders: service.maxRiders,
-        ...(member?.rider?.id ? { riderIds: [member.rider.id] } : {}),
+        ...(rider?.id ? { riderIds: [rider.id] } : {}),
       });
     },
   });
@@ -303,7 +303,7 @@ export function CreateLesson({ initialQuery }: CreateLessonProps = {}) {
                   boardId={boardId}
                   trainerId={trainerId}
                   serviceId={serviceId}
-                  riderId={member.rider.id}
+                  riderId={rider?.id ?? ""}
                   onSlotSelect={handleSlotSelect}
                   selectedSlotStart={form.state.values.start}
                 />

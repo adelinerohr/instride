@@ -179,3 +179,103 @@ export const EventScope = {
 } as const;
 
 export type EventScope = (typeof EventScope)[keyof typeof EventScope];
+
+/**
+ * Activity type
+ */
+export const ActivityType = {
+  // Rider-specific
+  ENROLLMENT_CREATED: "enrollment_created",
+  LESSON_COMPLETED: "lesson_completed_as_rider",
+  WAIVER_SIGNED: "waiver_signed",
+  QUESTIONNAIRE_SUBMITTED: "questionnaire_submitted",
+  LEVEL_UPDATED: "level_updated",
+
+  // Trainer-specific
+  LESSON_TAUGHT: "lesson_taught",
+  STUDENT_ASSIGNED: "student_assigned",
+
+  // Role-neutral (posts, comments, etc.)
+  POST_CREATED: "post_created",
+  COMMENT_ADDED: "comment_added",
+  PROFILE_UPDATED: "profile_updated",
+  CREDIT_PACKAGE_PURCHASED: "credit_package_purchased",
+  INVOICE_PAID: "invoice_paid",
+  USER_UPDATED: "user_updated",
+} as const;
+
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
+/**
+ * Activity subject type
+ */
+export const ActivitySubjectType = {
+  LESSON: "lesson",
+  POST: "post",
+  PAYMENT: "payment",
+  RIDER: "rider",
+  TRAINER: "trainer",
+  OTHER: "other",
+} as const;
+
+export type ActivitySubjectType =
+  (typeof ActivitySubjectType)[keyof typeof ActivitySubjectType];
+
+/**
+ * Notifications
+ */
+export const NotificationType = {
+  ENROLLMENT_CREATED: "enrollment_created",
+  LESSON_ENROLLED: "lesson_enrolled",
+  LESSON_CANCELLED: "lesson_cancelled",
+  LESSON_REMINDER: "lesson_reminder",
+  POST_CREATED: "post_created",
+  COMMENT_ADDED: "comment_added",
+  PROFILE_UPDATED: "profile_updated",
+  CREDIT_PACKAGE_PURCHASED: "credit_package_purchased",
+  INVOICE_PAID: "invoice_paid",
+  USER_UPDATED: "user_updated",
+} as const;
+
+export type NotificationType =
+  (typeof NotificationType)[keyof typeof NotificationType];
+
+/**
+ * Notification channels
+ */
+export const NotificationChannel = {
+  EMAIL: "email",
+  SMS: "sms",
+  PUSH: "push",
+  IN_APP: "in_app",
+};
+
+export type NotificationChannel =
+  (typeof NotificationChannel)[keyof typeof NotificationChannel];
+
+/**
+ * Kiosk scopes
+ */
+export const KioskScope = {
+  DEFAULT: "default",
+  STAFF: "staff",
+  SELF: "self",
+} as const;
+
+export type KioskScope = (typeof KioskScope)[keyof typeof KioskScope];
+
+/**
+ * Kiosk actions
+ */
+export const KioskAction = {
+  LESSON_CHECK_IN: "lesson_check_in",
+  LESSON_CREATE: "lesson_create",
+  LESSON_EDIT: "lesson_edit",
+  TIME_BLOCK_CREATE: "time_block_create",
+  TIME_BLOCK_EDIT: "time_block_edit",
+  ENROLL: "enroll",
+  UNENROLL: "unenroll",
+  MARK_ATTENDANCE: "mark_attendance",
+} as const;
+
+export type KioskAction = (typeof KioskAction)[keyof typeof KioskAction];

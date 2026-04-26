@@ -42,5 +42,5 @@ export const feedComments = p.pgTable(
   ]
 );
 
-export type FeedComment = typeof feedComments.$inferSelect;
-export type NewFeedComment = typeof feedComments.$inferInsert;
+export type FeedCommentRow = typeof feedComments.$inferSelect;
+export type NewFeedCommentRow = typeof feedComments.$inferInsert;

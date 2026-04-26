@@ -1,4 +1,7 @@
-import type { types } from "@instride/api";
+import type {
+  Questionnaire,
+  QuestionnaireQuestionResponse,
+} from "@instride/api";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { replaceYouWithThey } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
@@ -19,11 +22,11 @@ import { isQuestionVisible } from "../../lib/member/questionnaire.schema";
 export const QuestionnaireStep = withFieldGroup({
   defaultValues: {
     questionnaireId: "",
-    responses: [] as types.QuestionnaireQuestionResponse[],
+    responses: [] as QuestionnaireQuestionResponse[],
   },
   props: {
     isDependent: false,
-    questionnaire: {} as types.Questionnaire,
+    questionnaire: {} as Questionnaire,
   },
   render: function Render({ group, isDependent, questionnaire }) {
     const responses = useStore(group.store, (state) => state.values.responses);

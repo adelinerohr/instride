@@ -1,48 +1,43 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, type enrollments } from "#client";
+import { apiClient } from "#client";
+import {
+  EnrollRidersInInstanceRequest,
+  EnrollRidersInSeriesRequest,
+  MarkAttendanceRequest,
+  UnenrollRiderFromSeriesRequest,
+} from "#contracts";
 
 import { lessonKeys } from "../keys";
 
 export const enrollmentsMutations = {
   enrollInSeries: async ({
     seriesId,
-    request,
-  }: {
-    seriesId: string;
-    request: enrollments.EnrollInSeriesRequest;
-  }) => {
-    const { enrollment } = await apiClient.lessons.enrollInSeries(
-      seriesId,
-      request
-    );
-    return enrollment;
+    ...request
+  }: EnrollRidersInSeriesRequest) => {
+    return await apiClient.lessons.enrollInSeries(seriesId, request);
   },
-  unenrollFromSeries: async (seriesId: string) => {
-    await apiClient.lessons.unenrollFromSeries(seriesId);
+  unenrollFromSeries: async ({
+    seriesId,
+    ...request
+  }: UnenrollRiderFromSeriesRequest) => {
+    return await apiClient.lessons.unenrollRiderFromSeries(seriesId, request);
   },
   enrollInInstance: async ({
     instanceId,
-    request,
-  }: {
-    instanceId: string;
-    request: enrollments.EnrollInInstanceRequest;
-  }) => {
-    const { enrollment } = await apiClient.lessons.enrollInInstance(
-      instanceId,
-      request
-    );
-    return enrollment;
+    ...request
+  }: EnrollRidersInInstanceRequest) => {
+    return await apiClient.lessons.enrollInInstance(instanceId, request);
   },
   unenrollFromInstance: async (instanceId: string) => {
     await apiClient.lessons.unenrollFromInstance(instanceId);
   },
-  markAttendance: async (input: {
-    enrollmentId: string;
-    request: enrollments.MarkAttendanceRequest;
-  }) => {
-    await apiClient.lessons.markAttendance(input.enrollmentId, input.request);
+  markAttendance: async ({
+    enrollmentId,
+    ...request
+  }: MarkAttendanceRequest) => {
+    return await apiClient.lessons.markAttendance(enrollmentId, request);
   },
 };
 

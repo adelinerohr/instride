@@ -12,7 +12,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@better-auth/expo": "^1.6.2",
+    "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~55.0.6",
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5",
@@ -24,7 +24,7 @@
     "@react-navigation/elements": "^2.8.1",
     "@tanstack/react-form": "^1.28.6",
     "@tanstack/react-query": "^5.95.2",
-    "better-auth": "^1.6.2",
+    "better-auth": "catalog:",
     "date-fns": "^4.1.0",
     "dotenv": "catalog:",
     "expo": "^55.0.0",
@@ -39,8 +39,8 @@
     "expo-web-browser": "~55.0.9",
     "heroui-native": "^1.0.0",
     "lucide-react": "^1.8.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-native": "0.83.2",
     "react-native-gesture-handler": "~2.30.0",
     "react-native-keyboard-controller": "1.20.7",
@@ -59,7 +59,7 @@
   "devDependencies": {
     "@instride/config": "workspace:*",
     "@types/node": "^24.10.0",
-    "@types/react": "~19.2.10",
+    "@types/react": "catalog:",
     "typescript": "^5"
   }
 }

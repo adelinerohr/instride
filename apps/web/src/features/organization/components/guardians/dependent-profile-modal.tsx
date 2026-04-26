@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import { getUser, type MyDependent } from "@instride/api";
 import { FileUploadAction } from "@instride/shared";
 import { z } from "zod";
 
@@ -18,7 +18,7 @@ import { AvatarUpload } from "@/shared/components/ui/file-upload";
 import { useAppForm } from "@/shared/hooks/use-form";
 
 interface DependentProfileModalPayload {
-  relationship: types.MyDependent;
+  dependent: MyDependent;
 }
 
 export const editDependentProfileModalHandler =
@@ -29,9 +29,7 @@ export function EditDependentProfileModal() {
     <Dialog handle={editDependentProfileModalHandler}>
       {({ payload }) => (
         <DialogPortal>
-          {payload && (
-            <DependentProfileForm relationship={payload.relationship} />
-          )}
+          {payload && <DependentProfileForm dependent={payload.dependent} />}
         </DialogPortal>
       )}
     </Dialog>
@@ -39,13 +37,15 @@ export function EditDependentProfileModal() {
 }
 
 export function DependentProfileForm({
-  relationship,
+  dependent,
 }: DependentProfileModalPayload) {
+  const dependentUser = getUser({ rider: dependent.rider });
+
   const form = useAppForm({
     defaultValues: {
-      name: relationship.dependent.name ?? "",
-      phone: relationship.dependent.phone ?? "",
-      image: relationship.dependent.image ?? "",
+      name: dependentUser.name ?? "",
+      phone: dependentUser.phone ?? "",
+      image: dependentUser.image ?? "",
       newImage: null as File | null,
       imageAction: FileUploadAction.NONE as FileUploadAction,
     },
@@ -77,9 +77,7 @@ export function DependentProfileForm({
         className="space-y-4"
       >
         <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle>
-            Edit {relationship.dependent.name}'s Profile
-          </DialogTitle>
+          <DialogTitle>Edit {dependentUser.name}'s Profile</DialogTitle>
         </DialogHeader>
         <FieldGroup>
           <form.Field

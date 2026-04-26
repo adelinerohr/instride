@@ -1,11 +1,11 @@
 import {
   APIError,
-  useBoards,
   useCreateEvent,
   useTrainers,
   useUpdateEvent,
   getUser,
-  type types,
+  useBoards,
+  type Event,
 } from "@instride/api";
 import { eventInputSchema, EventScope } from "@instride/shared";
 import * as React from "react";
@@ -31,8 +31,7 @@ import {
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useAppForm } from "@/shared/hooks/use-form";
 
-export const eventModalHandler =
-  DialogHandler.createHandle<types.GetEventResponse | null>();
+export const eventModalHandler = DialogHandler.createHandle<Event | null>();
 
 export function EventModal() {
   return (
@@ -46,13 +45,11 @@ export function EventModal() {
   );
 }
 
-export function EventModalForm(props?: Partial<types.GetEventResponse>) {
+export function EventModalForm(props?: Partial<Event>) {
   const [startFullDay, setStartFullDay] = React.useState(
-    props?.event?.startTime === null
+    props?.startTime === null
   );
-  const [endFullDay, setEndFullDay] = React.useState(
-    props?.event?.endTime === null
-  );
+  const [endFullDay, setEndFullDay] = React.useState(props?.endTime === null);
 
   const { data: boards, isPending: isBoardsPending } = useBoards();
   const { data: trainers, isPending: isTrainersPending } = useTrainers();
@@ -62,16 +59,16 @@ export function EventModalForm(props?: Partial<types.GetEventResponse>) {
 
   const form = useAppForm({
     defaultValues: {
-      title: props?.event?.title ?? "",
-      description: props?.event?.description ?? null,
-      startDate: props?.event?.startDate ?? "",
-      endDate: props?.event?.endDate ?? "",
-      startTime: props?.event?.startTime ?? null,
-      endTime: props?.event?.endTime ?? null,
+      title: props?.title ?? "",
+      description: props?.description ?? null,
+      startDate: props?.startDate ?? "",
+      endDate: props?.endDate ?? "",
+      startTime: props?.startTime ?? null,
+      endTime: props?.endTime ?? null,
       scope: props?.scope ?? EventScope.ORGANIZATION,
       boardIds: props?.boardIds ?? [],
       trainerIds: props?.trainerIds ?? [],
-      blockScheduling: props?.event?.blockScheduling ?? false,
+      blockScheduling: props?.blockScheduling ?? false,
     },
     validators: {
       onSubmit: eventInputSchema,
@@ -84,10 +81,10 @@ export function EventModalForm(props?: Partial<types.GetEventResponse>) {
     },
     onSubmit: async ({ value }) => {
       console.log(value);
-      if (props?.event) {
+      if (props?.id) {
         updateEvent.mutateAsync(
           {
-            id: props.event.id,
+            id: props.id,
             request: {
               ...value,
               boardIds: value.boardIds.length > 0 ? value.boardIds : null,
@@ -149,7 +146,7 @@ export function EventModalForm(props?: Partial<types.GetEventResponse>) {
         className="space-y-4"
       >
         <DialogHeader>
-          <DialogTitle>{props?.event?.title ?? "New Event"}</DialogTitle>
+          <DialogTitle>{props?.title ?? "New Event"}</DialogTitle>
         </DialogHeader>
         <FieldGroup>
           <form.AppField

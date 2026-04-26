@@ -1,14 +1,15 @@
+import { NotificationType } from "@instride/shared";
 import { parseISO } from "date-fns";
 import { Subscription } from "encore.dev/pubsub";
 
-import { lessonEnrolled } from "../lessons/topics";
+import { lessonEnrolled } from "@/services/lessons/topics";
+
 import { createNotificationInternal } from "./notifications";
-import { NotificationType } from "./types/models";
 
 const _ = new Subscription(lessonEnrolled, "notify-lesson-enrolled", {
   handler: async (event) => {
     const startDate = parseISO(event.startTime);
-    const formatted = startDate.toLocaleString(); // or format(startDate, "yyyy-MM-dd HH:mm")
+    const formatted = startDate.toLocaleString();
 
     await createNotificationInternal({
       organizationId: event.organizationId,

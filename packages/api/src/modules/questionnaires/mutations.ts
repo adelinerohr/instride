@@ -1,28 +1,24 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
-import { apiClient, type questionnaires } from "#client";
+import { apiClient } from "#client";
+import {
+  CreateQuestionnaireRequest,
+  SubmitQuestionnaireResponseRequest,
+  UpdateQuestionnaireRequest,
+} from "#contracts";
 
 import { questionnaireKeys } from "./keys";
 
 export const questionnaireMutations = {
-  create: async (request: questionnaires.CreateQuestionnaireRequest) => {
+  create: async (request: CreateQuestionnaireRequest) => {
     const { questionnaire } =
       await apiClient.questionnaires.createQuestionnaire(request);
     return questionnaire;
   },
-  update: async ({
-    questionnaireId,
-    request,
-  }: {
-    questionnaireId: string;
-    request: questionnaires.UpdateQuestionnaireRequest;
-  }) => {
+  update: async ({ id, ...request }: UpdateQuestionnaireRequest) => {
     const { questionnaire } =
-      await apiClient.questionnaires.updateQuestionnaire(
-        questionnaireId,
-        request
-      );
+      await apiClient.questionnaires.updateQuestionnaire(id, request);
     return questionnaire;
   },
   deactivate: async (questionnaireId: string) => {
@@ -31,11 +27,8 @@ export const questionnaireMutations = {
   // ---- Responses ------------------------------------------------
   submitResponse: async ({
     questionnaireId,
-    request,
-  }: {
-    questionnaireId: string;
-    request: questionnaires.SubmitQuestionnaireResponseRequest;
-  }) => {
+    ...request
+  }: SubmitQuestionnaireResponseRequest) => {
     return await apiClient.questionnaires.submitResponse(
       questionnaireId,
       request
@@ -53,7 +46,7 @@ export function useCreateQuestionnaire({
     ...config,
     onSuccess: (questionnaire, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: questionnaireKeys.list(),
+        queryKey: questionnaireKeys.list(questionnaire.organizationId),
       });
       onSuccess?.(questionnaire, ...args);
     },
@@ -87,7 +80,7 @@ export function useDeactivateQuestionnaire({
     ...config,
     onSuccess: (questionnaireId, ...args) => {
       queryClient.invalidateQueries({
-        queryKey: questionnaireKeys.list(),
+        queryKey: questionnaireKeys.root(),
       });
       onSuccess?.(questionnaireId, ...args);
     },

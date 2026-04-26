@@ -1,12 +1,13 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import { STALE } from "#_internal/constants";
-import { apiClient, boards } from "#client";
+import { apiClient } from "#client";
+import { ListBoardsRequest } from "#contracts";
 
 import { boardAssignmentKeys, boardKeys } from "./keys";
 
 export const boardsOptions = {
-  list: (params?: boards.ListBoardsRequest) =>
+  list: (params?: ListBoardsRequest) =>
     queryOptions({
       queryKey: boardKeys.list(params),
       queryFn: async () => {
@@ -26,13 +27,13 @@ export const boardsOptions = {
 };
 
 export const boardAssignmentsOptions = {
-  byBoard: (boardId: string, type: "all" | "trainer" | "rider") =>
+  byBoard: (boardId: string, type?: "trainer" | "rider") =>
     queryOptions({
       queryKey: [...boardAssignmentKeys.byBoard(boardId), type] as const,
       queryFn: async () => {
         const { assignments } = await apiClient.boards.listBoardAssignments(
           boardId,
-          { type }
+          { role: type }
         );
         return assignments;
       },
@@ -41,9 +42,9 @@ export const boardAssignmentsOptions = {
     queryOptions({
       queryKey: boardAssignmentKeys.byTrainer(trainerId),
       queryFn: async () => {
-        const { assignments } = await apiClient.boards.listMemberAssignments(
+        const { assignments } = await apiClient.boards.listBoardAssignments(
           trainerId,
-          { isTrainer: true }
+          { role: "trainer" }
         );
         return assignments;
       },
@@ -52,9 +53,9 @@ export const boardAssignmentsOptions = {
     queryOptions({
       queryKey: boardAssignmentKeys.byRider(riderId),
       queryFn: async () => {
-        const { assignments } = await apiClient.boards.listMemberAssignments(
+        const { assignments } = await apiClient.boards.listBoardAssignments(
           riderId,
-          { isTrainer: false }
+          { role: "rider" }
         );
         return assignments;
       },
@@ -79,7 +80,7 @@ export function useTrainerAssignments(trainerId: string) {
 
 export function useBoardAssignments(
   boardId: string,
-  type: "all" | "trainer" | "rider"
+  type?: "trainer" | "rider"
 ) {
   return useQuery(boardAssignmentsOptions.byBoard(boardId, type));
 }

@@ -1,25 +1,32 @@
+import type {
+  GetGuardianInvitationResponse,
+  GetPendingInvitationResponse,
+  SendDependentInvitationResponse,
+  SendDependentInvitationRequest,
+} from "@instride/api/contracts";
 import { GuardianRelationshipStatus, InvitationStatus } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";
 import { render } from "react-email";
 
+import { authUsers } from "@/services/auth/schema";
+import DependentInvitationEmail from "@/services/email/templates/dependent-invitation";
+import { sendEmailTopic } from "@/services/email/topic";
+import { authMembers, members } from "@/services/organizations/schema";
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 import { APP_NAME } from "@/shared/constants";
-import { memberFragment } from "@/shared/utils/fragments";
 import { getBaseUrl } from "@/shared/utils/url";
-import { assertExists, assertMember } from "@/shared/utils/validation";
+import { assertExists } from "@/shared/utils/validation";
 
-import { authUsers } from "../auth/schema";
-import DependentInvitationEmail from "../email/templates/dependent-invitation";
-import { sendEmailTopic } from "../email/topic";
-import { authMembers, members } from "../organizations/schema";
 import { db } from "./db";
+import { guardianService } from "./guardian.service";
+import {
+  toGuardianInvitation,
+  toGuardianInvitationWithContext,
+} from "./mappers";
 import { guardianInvitations, guardianRelationships } from "./schema";
-import { GuardianInvitation } from "./types/models";
 
-interface GetPendingInvitationResponse {
-  invitation: { token: string; organizationSlug: string } | null;
-}
+const INVITATION_EXPIRY_DAYS = 14;
 
 export const getPendingInvitation = api(
   {
@@ -34,17 +41,9 @@ export const getPendingInvitation = api(
     const user = await db.query.authUsers.findFirst({ where: { id: userID } });
     if (!user) return { invitation: null };
 
-    const invitation = await db.query.guardianInvitations.findFirst({
-      where: {
-        email: user.email,
-        status: InvitationStatus.PENDING,
-      },
-      with: {
-        relationship: {
-          with: { organization: true },
-        },
-      },
-    });
+    const invitation = await guardianService.findPendingInvitationForEmail(
+      user.email
+    );
 
     if (!invitation || !invitation.relationship?.organization) {
       return { invitation: null };
@@ -66,47 +65,17 @@ export const getInvitationByToken = api(
     expose: true,
     auth: true,
   },
-  async (params: { token: string }): Promise<GuardianInvitation> => {
-    const { token } = params;
-
-    const invitation = await db.query.guardianInvitations.findFirst({
-      where: { token },
-      with: {
-        relationship: {
-          with: {
-            organization: true,
-            dependent: memberFragment,
-            guardian: memberFragment,
-          },
-        },
-      },
-    });
-
+  async ({
+    token,
+  }: {
+    token: string;
+  }): Promise<GetGuardianInvitationResponse> => {
+    const invitation = await guardianService.findInvitationByToken(token);
     assertExists(invitation, "Invitation not found");
-    assertExists(invitation.relationship, "Relationship not found");
-    assertExists(
-      invitation.relationship.organization,
-      "Organization not found"
-    );
-    assertMember(invitation.relationship.dependent, "Dependent not found");
-    assertMember(invitation.relationship.guardian, "Guardian not found");
 
-    return {
-      ...invitation,
-      expiresAt: invitation.expiresAt.toISOString(),
-      guardianName: invitation.relationship.guardian.authUser.name,
-      guardianEmail: invitation.relationship.guardian.authUser.email,
-      dependentName: invitation.relationship.dependent.authUser.name,
-      organizationName: invitation.relationship.organization.name,
-      organizationSlug: invitation.relationship.organization.slug,
-    };
+    return { invitation: toGuardianInvitationWithContext(invitation) };
   }
 );
-
-interface SendInvitationParams {
-  relationshipId: string;
-  email: string;
-}
 
 export const sendInvitation = api(
   {
@@ -115,51 +84,37 @@ export const sendInvitation = api(
     expose: true,
     auth: true,
   },
-  async (params: SendInvitationParams) => {
+  async (
+    request: SendDependentInvitationRequest
+  ): Promise<SendDependentInvitationResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
     const relationship = await db.query.guardianRelationships.findFirst({
-      where: {
-        id: params.relationshipId,
-        organizationId,
-      },
+      where: { id: request.relationshipId, organizationId },
       with: {
         organization: true,
-        dependent: memberFragment,
-        guardian: memberFragment,
+        guardian: { with: { authUser: true } },
+        dependent: { with: { authUser: true } },
       },
     });
 
     assertExists(relationship, "Relationship not found");
     assertExists(relationship.organization, "Organization not found");
-    assertMember(relationship.dependent, "Dependent not found");
-    assertMember(relationship.guardian, "Guardian not found");
-
-    // Note: the placeholder auth user's email is NOT changed here.
-    // The placeholder stays disposable — it gets deleted when the
-    // real dependent user accepts the invitation.
+    assertExists(relationship.guardian, "Guardian not found");
+    assertExists(relationship.guardian.authUser, "Guardian has no auth user");
+    assertExists(relationship.dependent, "Dependent not found");
+    assertExists(relationship.dependent.authUser, "Dependent has no auth user");
 
     const token = crypto.randomUUID();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 14);
+    expiresAt.setDate(expiresAt.getDate() + INVITATION_EXPIRY_DAYS);
 
-    const [invitation] = await db
-      .insert(guardianInvitations)
-      .values({
-        relationshipId: params.relationshipId,
-        email: params.email,
-        token,
-        expiresAt,
-      })
-      .onConflictDoUpdate({
-        target: [guardianInvitations.relationshipId, guardianInvitations.email],
-        set: {
-          token,
-          expiresAt,
-          status: InvitationStatus.PENDING,
-        },
-      })
-      .returning();
+    const invitation = await guardianService.upsertInvitation({
+      relationshipId: request.relationshipId,
+      email: request.email,
+      token,
+      expiresAt,
+    });
 
     const baseUrl = getBaseUrl({
       type: "web",
@@ -172,7 +127,7 @@ export const sendInvitation = api(
       guardianEmail: relationship.guardian.authUser.email,
       dependentName: relationship.dependent.authUser.name,
       organizationName: relationship.organization.name,
-      inviteLink: `${baseUrl}/invitation/${invitation.token}?type=guardian&email=${encodeURIComponent(params.email)}`,
+      inviteLink: `${baseUrl}/invitation/${invitation.token}?type=guardian&email=${encodeURIComponent(request.email)}`,
     });
 
     const [html, text] = await Promise.all([
@@ -181,13 +136,13 @@ export const sendInvitation = api(
     ]);
 
     await sendEmailTopic.publish({
-      to: params.email,
+      to: request.email,
       subject: `${relationship.guardian.authUser.name} invited you to join ${relationship.organization.name} on ${APP_NAME}`,
       html,
       text,
     });
 
-    return invitation;
+    return { invitation: toGuardianInvitation(invitation) };
   }
 );
 
@@ -198,19 +153,10 @@ export const acceptInvitation = api(
     expose: true,
     auth: true,
   },
-  async (params: { token: string }) => {
+  async ({ token }: { token: string }): Promise<void> => {
     const { userID } = requireAuth();
 
-    const invitation = await db.query.guardianInvitations.findFirst({
-      where: {
-        token: params.token,
-        relationship: true,
-      },
-      with: {
-        relationship: true,
-      },
-    });
-
+    const invitation = await guardianService.findInvitationScalar(token);
     assertExists(invitation, "Invitation not found");
     assertExists(invitation.relationship, "Relationship not found");
 
@@ -228,12 +174,9 @@ export const acceptInvitation = api(
     assertExists(currentUser, "User not found");
 
     if (currentUser.email.toLowerCase() !== invitation.email.toLowerCase()) {
-      throw APIError.permissionDenied("Email doesn't match invitation");
+      throw APIError.permissionDenied("Email does not match invitation");
     }
 
-    // The placeholder member currently points at a placeholder auth user.
-    // Relink it to the currently-authenticated user, then clean up the
-    // orphaned placeholder auth row.
     const placeholderMember = await db.query.members.findFirst({
       where: { id: invitation.relationship.dependentMemberId },
     });
@@ -252,8 +195,7 @@ export const acceptInvitation = api(
         })
         .where(eq(members.id, placeholderMember.id));
 
-      // Also relink the Better Auth membership row (authMembers) so the
-      // org plugin sees the current user as a member of this org
+      // Better Auth membership row
       await tx
         .update(authMembers)
         .set({ userId: currentUser.id })
@@ -272,8 +214,8 @@ export const acceptInvitation = api(
         .set({ status: GuardianRelationshipStatus.ACTIVE })
         .where(eq(guardianRelationships.id, invitation.relationship!.id));
 
-      // Delete the now-orphaned placeholder auth user.
-      // Only safe if the placeholder wasn't linked to anything else.
+      // Drop the orphaned placeholder auth user (only if it isn't already
+      // the current user — defensive, shouldn't happen)
       if (placeholderAuthUserId !== currentUser.id) {
         await tx
           .delete(authUsers)

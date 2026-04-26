@@ -1,10 +1,5 @@
 import { otpSchema } from "@instride/shared";
-import {
-  Link,
-  linkOptions,
-  useParams,
-  useSearch,
-} from "@tanstack/react-router";
+import { Link, linkOptions, useParams } from "@tanstack/react-router";
 
 import { useAppForm } from "@/shared/hooks/use-form";
 
@@ -27,26 +22,7 @@ import {
 } from "../ui/input-otp";
 
 export function OtpCard() {
-  const search = useSearch({ strict: false });
-  const { slug, invitationId } = useParams({ strict: false });
-
-  const getRedirectLink = () => {
-    if (slug && invitationId) {
-      return linkOptions({
-        to: "/org/$slug/invitation/$invitationId",
-        params: { slug, invitationId },
-      });
-    }
-    if (slug) {
-      return linkOptions({
-        to: "/org/$slug",
-        params: { slug },
-      });
-    }
-    return linkOptions({
-      to: "/",
-    });
-  };
+  const { slug } = useParams({ strict: false });
 
   const loginLink = slug
     ? linkOptions({

@@ -1,6 +1,6 @@
 import * as p from "drizzle-orm/pg-core";
 
-import { db } from "@/database";
+import type { initDrizzle } from "@/database";
 
 export const timeStamps = {
   createdAt: p.timestamp("created_at").defaultNow().notNull(),
@@ -12,5 +12,14 @@ export const timeStamps = {
     .notNull(),
 };
 
-export type Database = typeof db;
+export type Database = ReturnType<typeof initDrizzle>;
 export type Transaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
+
+export function isTransaction(
+  client: Database | Transaction
+): client is Transaction {
+  return (
+    !("transaction" in client) ||
+    typeof (client as Database).transaction !== "function"
+  );
+}

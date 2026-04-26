@@ -50,3 +50,33 @@ export function useKioskIdleTimeout(
     };
   }, [enabled, onIdle, idleMs]);
 }
+
+export function useExpiryCountdown(expiresAt: string | null) {
+  const [remaining, setRemaining] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!expiresAt) {
+      setRemaining(null);
+      return;
+    }
+
+    const tick = () => {
+      const msRemaining = new Date(expiresAt).getTime() - Date.now();
+      if (msRemaining <= 0) {
+        setRemaining(null);
+        return false;
+      }
+      const totalSeconds = Math.ceil(msRemaining / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      setRemaining(`${minutes}:${String(seconds).padStart(2, "0")}`);
+      return true;
+    };
+
+    if (!tick()) return;
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [expiresAt]);
+
+  return remaining;
+}

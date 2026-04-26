@@ -1,23 +1,26 @@
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useWrappedMutation, type MutationHookOptions } from "#_internal/types";
-import { apiClient, organizations, upload, type levels } from "#client";
+import { apiClient, upload } from "#client";
+import {
+  CreateLevelRequest,
+  CreateOrganizationRequest,
+  UpdateLevelRequest,
+  UpdateOrganizationRequest,
+} from "#contracts";
 
 import { organizationKeys } from "./keys";
 
 export const organizationMutations = {
-  create: async (request: organizations.CreateOrganizationRequest) => {
+  create: async (request: CreateOrganizationRequest) => {
     const { organization } =
       await apiClient.organizations.createOrganization(request);
     return organization;
   },
-  update: async (input: {
-    organizationId: string;
-    request: organizations.UpdateOrganizationRequest;
-  }) => {
+  update: async ({ organizationId, ...request }: UpdateOrganizationRequest) => {
     const { organization } = await apiClient.organizations.updateOrganization(
-      input.organizationId,
-      input.request
+      organizationId,
+      request
     );
     return organization;
   },
@@ -28,18 +31,12 @@ export const organizationMutations = {
 };
 
 export const levelMutations = {
-  create: async (request: levels.CreateLevelRequest) => {
+  create: async (request: CreateLevelRequest) => {
     const { level } = await apiClient.organizations.createLevel(request);
     return level;
   },
-  update: async (input: {
-    levelId: string;
-    request: levels.UpdateLevelRequest;
-  }) => {
-    const { level } = await apiClient.organizations.updateLevel(
-      input.levelId,
-      input.request
-    );
+  update: async ({ id, ...request }: UpdateLevelRequest) => {
+    const { level } = await apiClient.organizations.updateLevel(id, request);
     return level;
   },
   delete: async (levelId: string) => {

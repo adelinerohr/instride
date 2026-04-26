@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { LessonInstance } from "@instride/api";
 import {
   lessonSeriesInputSchema,
   type LessonSeriesInputSchema,
@@ -27,7 +27,7 @@ export const lessonFormOpts = formOptions({
 });
 
 export function buildLessonDefaultValues(initialValues: {
-  lesson?: types.LessonInstance;
+  lesson?: LessonInstance;
   start?: string;
   boardId?: string;
   trainerId?: string;
@@ -56,13 +56,9 @@ export function buildLessonDefaultValues(initialValues: {
         (new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) /
           60000
       ),
-      isRecurring: series?.isRecurring ?? false,
-      recurrenceFrequency: series?.recurrenceFrequency ?? null,
-      effectiveFrom: series?.effectiveFrom
-        ? new Date(series.effectiveFrom)
-        : null,
-      riderIds:
-        lesson.enrollments?.map((enrollment) => enrollment.riderId) ?? [],
+      isRecurring: series.isRecurring ?? false,
+      recurrenceFrequency: series.recurrenceFrequency ?? null,
+      riderIds: lesson.enrollments.map((enrollment) => enrollment.riderId),
     };
   } else {
     return {

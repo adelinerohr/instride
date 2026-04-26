@@ -1,4 +1,4 @@
-import { useChangeRole, type types } from "@instride/api";
+import { useChangeRole, type Member } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { toast } from "sonner";
 import z from "zod";
@@ -23,9 +23,12 @@ const allRoles = [
   { value: MembershipRole.RIDER, label: "Rider" },
 ];
 
-export const changeRoleModalHandler = DialogHandler.createHandle<{
-  member: types.Member;
-}>();
+interface ChangeRoleModalPayload {
+  member: Member;
+}
+
+export const changeRoleModalHandler =
+  DialogHandler.createHandle<ChangeRoleModalPayload>();
 
 export function ChangeRoleModal() {
   return (
@@ -36,10 +39,7 @@ export function ChangeRoleModal() {
 
         return (
           <DialogPortal>
-            <ChangeRoleForm
-              member={member}
-              onSuccess={() => changeRoleModalHandler.close()}
-            />
+            <ChangeRoleForm member={member} />
           </DialogPortal>
         );
       }}
@@ -47,14 +47,10 @@ export function ChangeRoleModal() {
   );
 }
 
-function ChangeRoleForm({
-  member,
-  onSuccess,
-}: {
-  member: types.Member;
-  onSuccess: () => void;
-}) {
+function ChangeRoleForm({ member }: ChangeRoleModalPayload) {
   const changeRole = useChangeRole();
+
+  const onSuccess = () => changeRoleModalHandler.close();
 
   const form = useAppForm({
     defaultValues: {
@@ -67,7 +63,7 @@ function ChangeRoleForm({
     },
     onSubmit: async ({ value }) => {
       changeRole.mutate(
-        { memberId: member.id, request: { roles: value.roles } },
+        { memberId: member.id, roles: value.roles },
         {
           onSuccess: () => {
             toast.success("Roles updated successfully");

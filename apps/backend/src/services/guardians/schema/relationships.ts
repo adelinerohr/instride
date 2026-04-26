@@ -1,9 +1,11 @@
-import { GuardianRelationshipStatus } from "@instride/shared";
+import { defaultPermissions } from "@instride/api/contracts";
+import {
+  GuardianPermissions,
+  GuardianRelationshipStatus,
+} from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { organizations, members } from "@/database/schema";
-
-import { defaultPermissions, GuardianPermissions } from "../types/models";
 
 export const guardianRelationshipStatuses = p.pgEnum(
   "guardian_relationship_statuses",
@@ -77,5 +79,6 @@ export const guardianRelationships = p.pgTable(
   ]
 );
 
-export type GuardianRelationship = typeof guardianRelationships.$inferSelect;
-export type NewGuardianRelationship = typeof guardianRelationships.$inferInsert;
+export type GuardianRelationshipRow = typeof guardianRelationships.$inferSelect;
+export type NewGuardianRelationshipRow =
+  typeof guardianRelationships.$inferInsert;

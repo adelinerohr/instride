@@ -1,6 +1,6 @@
+import { NotificationChannel } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
-import { NotificationChannel } from "../types/models";
 import { notifications } from "./notifications";
 
 export const notificationChannelEnum = p.pgEnum(
@@ -36,3 +36,8 @@ export const notificationDeliveries = p.pgTable(
   },
   (table) => [p.index("deliveries_notification_idx").on(table.notificationId)]
 );
+
+export type NotificationDeliveryRow =
+  typeof notificationDeliveries.$inferSelect;
+export type NewNotificationDeliveryRow =
+  typeof notificationDeliveries.$inferInsert;

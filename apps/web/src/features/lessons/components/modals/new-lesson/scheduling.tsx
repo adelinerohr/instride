@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Board, type Service, type Trainer } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
 import { CalendarIcon, CheckCircle2Icon, ChevronDownIcon } from "lucide-react";
 
@@ -15,9 +15,9 @@ import { cn } from "@/shared/lib/utils";
 export const SchedulingSection = withForm({
   ...lessonFormOpts,
   props: {
-    boards: [] as types.Board[],
-    trainers: [] as types.Trainer[],
-    services: [] as types.Service[],
+    boards: [] as Board[],
+    trainers: [] as Trainer[],
+    services: [] as Service[],
     isOpen: true as boolean,
     onOpenChange: (_open: boolean) => {},
   },

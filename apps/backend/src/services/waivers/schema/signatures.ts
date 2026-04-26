@@ -29,5 +29,5 @@ export const waiverSignatures = p.pgTable("waiver_signatures", {
   invalidatedReason: p.text("invalidated_reason"),
 });
 
-export type WaiverSignature = typeof waiverSignatures.$inferSelect;
-export type NewWaiverSignature = typeof waiverSignatures.$inferInsert;
+export type WaiverSignatureRow = typeof waiverSignatures.$inferSelect;
+export type NewWaiverSignatureRow = typeof waiverSignatures.$inferInsert;

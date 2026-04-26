@@ -7,48 +7,71 @@ import {
 import { addMinutes } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
-import { db } from "../db";
-import { createLessonInstance } from "../instances/post";
-import { LessonInstance, LessonSeries } from "../types/models";
-import { checkLessonAvailability } from "../utils/availability";
+import { checkLessonAvailability } from "../../availability/scheduling/check-availability";
+import { createInstanceWithPublish } from "../instances/instance.service";
+import { LessonInstanceRow, LessonSeriesRow } from "../schema";
 import { SkippedInstance } from "./generate";
 
-export async function generateStandaloneInstance(input: {
-  series: LessonSeries;
+interface GenerateInput {
+  series: LessonSeriesRow;
   timezone: string;
-}): Promise<{
-  instances: LessonInstance[];
-  skipped: SkippedInstance[];
-}> {
-  const { id: _seriesId, ...seriesFields } = input.series;
-
-  const { instance } = await createLessonInstance({
-    ...seriesFields,
-    seriesId: input.series.id,
-    occurrenceKey: `standalone:${input.series.id}`,
-    start: new Date(input.series.start).toISOString(),
-    end: addMinutes(
-      new Date(input.series.start),
-      input.series.duration
-    ).toISOString(),
-  });
-
-  return { instances: [instance], skipped: [] };
+  /** Member id to record as creator. `null` for system callers (cron). */
+  createdByMemberId: string | null;
 }
 
-export async function generateRecurringInstances(input: {
-  series: LessonSeries;
-  timezone: string;
-  until: Date;
-}): Promise<{
-  instances: LessonInstance[];
+export async function generateStandaloneInstance(
+  input: GenerateInput
+): Promise<{
+  instances: LessonInstanceRow[];
   skipped: SkippedInstance[];
 }> {
+  const start = new Date(input.series.start);
+  const end = addMinutes(start, input.series.duration);
+
+  const { instance, wasCreated } = await createInstanceWithPublish({
+    organizationId: input.series.organizationId,
+    createdByMemberId: input.createdByMemberId,
+    seriesId: input.series.id,
+    boardId: input.series.boardId,
+    trainerId: input.series.trainerId,
+    serviceId: input.series.serviceId,
+    levelId: input.series.levelId,
+    name: input.series.name,
+    notes: input.series.notes,
+    maxRiders: input.series.maxRiders,
+    occurrenceKey: `standalone:${input.series.id}`,
+    start: start.toISOString(),
+    end: end.toISOString(),
+  });
+
+  // Only report as "created" if this call actually produced the row.
+  // Idempotent retries return the existing instance without counting it.
+  return {
+    instances: wasCreated ? [instance] : [],
+    skipped: [],
+  };
+}
+
+interface GenerateRecurringInput extends GenerateInput {
+  /** Upper bound for materialization. Will be clamped to `recurrenceEnd`. */
+  until: Date;
+}
+
+export async function generateRecurringInstances(
+  input: GenerateRecurringInput
+): Promise<{
+  instances: LessonInstanceRow[];
+  skipped: SkippedInstance[];
+  /** The date we actually materialized through, clamped to recurrenceEnd. */
+  plannedUntil: Date;
+}> {
   const seriesStart = new Date(input.series.start);
+  const recurrenceEnd = input.series.recurrenceEnd
+    ? new Date(input.series.recurrenceEnd)
+    : null;
+
   const effectiveUntil =
-    input.series.recurrenceEnd && input.series.recurrenceEnd < input.until
-      ? input.series.recurrenceEnd
-      : input.until;
+    recurrenceEnd && recurrenceEnd < input.until ? recurrenceEnd : input.until;
 
   const startParts = getLocalParts({
     date: seriesStart,
@@ -59,8 +82,14 @@ export async function generateRecurringInstances(input: {
     timeZone: input.timezone,
   });
 
-  const cursorBase = input.series.lastPlannedUntil
-    ? addMinutes(new Date(input.series.lastPlannedUntil), 1)
+  // Start walking from whichever is later: the series anchor, or the day
+  // after our last planned run. Taking max() with `now` lets us safely
+  // shrink the generation window without re-walking past dates.
+  const lastPlanned = input.series.lastPlannedUntil
+    ? new Date(input.series.lastPlannedUntil)
+    : null;
+  const cursorBase = lastPlanned
+    ? new Date(Math.max(seriesStart.getTime(), lastPlanned.getTime() + 60_000))
     : seriesStart;
 
   const cursorDay = getDOWInTimeZone({
@@ -74,7 +103,7 @@ export async function generateRecurringInstances(input: {
     daysToAdd: daysUntilTarget,
   });
 
-  const instances: LessonInstance[] = [];
+  const instances: LessonInstanceRow[] = [];
   const skipped: SkippedInstance[] = [];
 
   while (true) {
@@ -89,30 +118,34 @@ export async function generateRecurringInstances(input: {
 
     if (instanceStart > effectiveUntil) break;
 
-    // Only create future instances
+    // Only materialize future occurrences. Past dates are skipped silently;
+    // we never backfill.
     if (instanceStart >= new Date()) {
       const result = await materializeOccurrence({
         series: input.series,
         timezone: input.timezone,
         instanceStart,
+        createdByMemberId: input.createdByMemberId,
       });
 
       if (result.type === "created") instances.push(result.instance);
       if (result.type === "skipped") skipped.push(result.skipped);
+      // "exists" is a silent no-op — don't count it as created.
     }
 
     currentYmd = addDaysToYmd({ ...currentYmd, daysToAdd: 7 });
   }
 
-  return { instances, skipped };
+  return { instances, skipped, plannedUntil: effectiveUntil };
 }
 
 async function materializeOccurrence(input: {
-  series: LessonSeries;
+  series: LessonSeriesRow;
   timezone: string;
   instanceStart: Date;
+  createdByMemberId: string | null;
 }): Promise<
-  | { type: "created"; instance: LessonInstance }
+  | { type: "created"; instance: LessonInstanceRow }
   | { type: "skipped"; skipped: SkippedInstance }
   | { type: "exists" }
 > {
@@ -123,12 +156,6 @@ async function materializeOccurrence(input: {
     "yyyy-MM-dd"
   );
   const key = `${input.series.id}:${localDate}`;
-
-  const alreadyExists = await db.query.lessonInstances.findFirst({
-    where: { occurrenceKey: key },
-  });
-
-  if (alreadyExists) return { type: "exists" };
 
   const violations = await checkLessonAvailability({
     organizationId: input.series.organizationId,
@@ -152,7 +179,11 @@ async function materializeOccurrence(input: {
     };
   }
 
-  const { instance } = await createLessonInstance({
+  // createLessonInstanceCore handles the race: if the row already exists
+  // (same occurrenceKey), wasCreated will be false and we return "exists".
+  const { instance, wasCreated } = await createInstanceWithPublish({
+    organizationId: input.series.organizationId,
+    createdByMemberId: input.createdByMemberId,
     seriesId: input.series.id,
     boardId: input.series.boardId,
     trainerId: input.series.trainerId,
@@ -166,5 +197,5 @@ async function materializeOccurrence(input: {
     end: instanceEnd.toISOString(),
   });
 
-  return { type: "created", instance };
+  return wasCreated ? { type: "created", instance } : { type: "exists" };
 }

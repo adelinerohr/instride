@@ -40,5 +40,5 @@ export const timeBlocks = p.pgTable(
   ]
 );
 
-export type TimeBlock = typeof timeBlocks.$inferSelect;
-export type NewTimeBlock = typeof timeBlocks.$inferInsert;
+export type TimeBlockRow = typeof timeBlocks.$inferSelect;
+export type NewTimeBlockRow = typeof timeBlocks.$inferInsert;

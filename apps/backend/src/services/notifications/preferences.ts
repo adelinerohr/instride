@@ -1,13 +1,20 @@
-import { sql } from "drizzle-orm";
+import type {
+  ListPreferencesResponse,
+  UpdatePreferencesRequest,
+  UpdatePreferencesResponse,
+} from "@instride/api/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
 
-import { db } from "./db";
-import { notificationPreferences } from "./schema";
-import { NotificationPreference, NotificationType } from "./types/models";
+import { toNotificationPreference } from "./mappers";
+import { notificationService } from "./notification.service";
 
+/**
+ * Returns ALL preferences for a member (one row per notification type),
+ * not just one. The original "find first" only returned one preference,
+ * which made it impossible for the UI to show a full preferences list.
+ */
 export const getPreferences = api(
   {
     method: "GET",
@@ -15,29 +22,21 @@ export const getPreferences = api(
     expose: true,
     auth: true,
   },
-  async (input: { memberId: string }): Promise<NotificationPreference> => {
+  async ({
+    memberId,
+  }: {
+    memberId: string;
+  }): Promise<ListPreferencesResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const preferences = await db.query.notificationPreferences.findFirst({
-      where: { memberId: input.memberId, organizationId },
+    const rows = await notificationService.findPreferencesForMember({
+      memberId,
+      organizationId,
     });
 
-    assertExists(preferences, "Preferences not found");
-
-    return preferences;
+    return { preferences: rows.map(toNotificationPreference) };
   }
 );
-
-interface UpdatePreferencesParams {
-  memberId: string;
-  preferences: {
-    type: NotificationType;
-    inAppEnabled: boolean;
-    pushEnabled: boolean;
-    emailEnabled: boolean;
-    smsEnabled: boolean;
-  }[];
-}
 
 export const updatePreferences = api(
   {
@@ -47,34 +46,18 @@ export const updatePreferences = api(
     auth: true,
   },
   async (
-    params: UpdatePreferencesParams
-  ): Promise<{ preferences: NotificationPreference[] }> => {
+    request: UpdatePreferencesRequest
+  ): Promise<UpdatePreferencesResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const upserted = await db
-      .insert(notificationPreferences)
-      .values(
-        params.preferences.map((preference) => ({
-          ...preference,
-          organizationId,
-          memberId: params.memberId,
-        }))
-      )
-      .onConflictDoUpdate({
-        target: [
-          notificationPreferences.memberId,
-          notificationPreferences.organizationId,
-          notificationPreferences.type,
-        ],
-        set: {
-          inAppEnabled: sql`excluded.in_app_enabled`,
-          pushEnabled: sql`excluded.push_enabled`,
-          emailEnabled: sql`excluded.email_enabled`,
-          smsEnabled: sql`excluded.sms_enabled`,
-        },
-      })
-      .returning();
+    const upserted = await notificationService.upsertPreferences(
+      request.preferences.map((preference) => ({
+        ...preference,
+        organizationId,
+        memberId: request.memberId,
+      }))
+    );
 
-    return { preferences: upserted };
+    return { preferences: upserted.map(toNotificationPreference) };
   }
 );

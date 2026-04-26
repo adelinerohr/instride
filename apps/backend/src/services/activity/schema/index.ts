@@ -1,12 +1,8 @@
+import { ActivityMetadata } from "@instride/api/contracts";
+import { ActivitySubjectType, ActivityType } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { members, organizations, riders, trainers } from "@/database/schema";
-
-import {
-  ActivityMetadata,
-  ActivitySubjectType,
-  ActivityType,
-} from "../types/models";
 
 export const activityTypeEnum = p.pgEnum("activity_type", ActivityType);
 export const activitySubjectTypeEnum = p.pgEnum(
@@ -61,4 +57,5 @@ export const activity = p.pgTable(
   ]
 );
 
-export type Activity = typeof activity.$inferSelect;
+export type ActivityRow = typeof activity.$inferSelect;
+export type NewActivityRow = typeof activity.$inferInsert;

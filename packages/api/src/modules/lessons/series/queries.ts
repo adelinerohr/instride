@@ -16,10 +16,7 @@ export const lessonSeriesOptions = {
   byId: (seriesId: string) =>
     queryOptions({
       queryKey: lessonKeys.seriesById(seriesId),
-      queryFn: async () => {
-        const { series } = await apiClient.lessons.getLessonSeries(seriesId);
-        return series;
-      },
+      queryFn: async () => await apiClient.lessons.getLessonSeries(seriesId),
     }),
 };
 

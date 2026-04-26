@@ -1,14 +1,10 @@
-import { startOfMonth } from "date-fns";
-import { subMonths } from "date-fns";
+import type { GetLessonStatsResponse } from "@instride/api/contracts";
+import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { api } from "encore.dev/api";
 
-import { listLessonInstances } from "./get";
+import { requireOrganizationAuth } from "@/shared/auth";
 
-interface GetLessonStatsResponse {
-  totalLessonInstancesThisMonth: number;
-  totalLessonInstancesLastMonth: number;
-  percentageChange: number;
-}
+import { lessonInstanceService } from "./instance.service";
 
 export const getLessonStats = api(
   {
@@ -18,23 +14,27 @@ export const getLessonStats = api(
     auth: true,
   },
   async (): Promise<GetLessonStatsResponse> => {
-    const thisMonthStart = startOfMonth(new Date());
-    const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+    const { organizationId } = requireOrganizationAuth();
 
-    const lessonInstancesThisMonth = await listLessonInstances({
-      from: thisMonthStart.toISOString(),
-      to: thisMonthStart.toISOString(),
-    });
+    const now = new Date();
+    const thisMonthStart = startOfMonth(now);
+    const thisMonthEnd = endOfMonth(now);
+    const lastMonthStart = startOfMonth(subMonths(now, 1));
+    const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
-    const lessonInstancesLastMonth = await listLessonInstances({
-      from: lastMonthStart.toISOString(),
-      to: lastMonthStart.toISOString(),
-    });
+    const [thisMonth, lastMonth] = await Promise.all([
+      lessonInstanceService.findMany({
+        organizationId,
+        filters: { range: { from: thisMonthStart, to: thisMonthEnd } },
+      }),
+      lessonInstanceService.findMany({
+        organizationId,
+        filters: { range: { from: lastMonthStart, to: lastMonthEnd } },
+      }),
+    ]);
 
-    const totalLessonInstancesThisMonth =
-      lessonInstancesThisMonth.instances.length;
-    const totalLessonInstancesLastMonth =
-      lessonInstancesLastMonth.instances.length;
+    const totalLessonInstancesThisMonth = thisMonth.length;
+    const totalLessonInstancesLastMonth = lastMonth.length;
 
     const percentageChange =
       totalLessonInstancesLastMonth > 0

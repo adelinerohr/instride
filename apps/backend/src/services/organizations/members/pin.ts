@@ -1,22 +1,17 @@
 import { randomBytes, scrypt as _scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
-import { and, eq } from "drizzle-orm";
+import type { GetMemberResponse, Member } from "@instride/api/contracts";
 import { api, APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { db } from "../db";
-import { members } from "../schema";
-import { GetMemberResponse } from "../types/contracts";
-import { Member } from "../types/models";
-import { getMember } from "./get";
+import { memberService } from "./member.service";
+import { getMember } from "./queries";
 
 const scrypt = promisify(_scrypt);
-
 const SCRYPT_KEYLEN = 64;
 
-// Pin must be 4 digits
 function validatePinFormat(pin: string) {
   if (!/^[0-9]{4}$/.test(pin)) {
     throw APIError.invalidArgument("PIN must be 4 digits");
@@ -25,11 +20,8 @@ function validatePinFormat(pin: string) {
 
 export async function hashKioskPin(pin: string): Promise<string> {
   validatePinFormat(pin);
-
   const salt = randomBytes(16).toString("hex");
   const derived = (await scrypt(pin, salt, SCRYPT_KEYLEN)) as Buffer;
-
-  // Versioned format for future upgrades
   return `s1:${salt}:${derived.toString("hex")}`;
 }
 
@@ -37,20 +29,11 @@ export async function verifyKioskPin(input: {
   pin: string;
   organizationId: string;
   memberId: string;
-}): Promise<{
-  ok: boolean;
-  member: Member;
-}> {
-  const member = await db.query.members.findFirst({
-    where: {
-      id: input.memberId,
-      organizationId: input.organizationId,
-    },
-  });
-
-  if (!member) {
-    throw APIError.notFound("Member not found");
-  }
+}): Promise<{ ok: boolean; member: Member }> {
+  const member = await memberService.findOne(
+    input.memberId,
+    input.organizationId
+  );
 
   if (!member.kioskPin) {
     return { ok: false, member };
@@ -76,31 +59,21 @@ interface SetKioskPinRequest {
 }
 
 export const setKioskPin = api(
-  {
-    method: "POST",
-    path: "/members/pin",
-    expose: true,
-    auth: true,
-  },
+  { expose: true, method: "POST", path: "/members/pin", auth: true },
   async (request: SetKioskPinRequest): Promise<GetMemberResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const { member } = await getMember();
+    const { member: currentMember } = await getMember();
 
     const pinHash = await hashKioskPin(request.pin);
 
-    const [updatedMember] = await db
-      .update(members)
-      .set({
-        kioskPin: pinHash,
-      })
-      .where(
-        and(
-          eq(members.id, member.id),
-          eq(members.organizationId, organizationId)
-        )
-      )
-      .returning();
+    await memberService.update(currentMember.id, organizationId, {
+      kioskPin: pinHash,
+    });
 
-    return { member: updatedMember };
+    const member = await memberService.findOne(
+      currentMember.id,
+      organizationId
+    );
+    return { member };
   }
 );
