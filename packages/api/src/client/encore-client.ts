@@ -1337,9 +1337,9 @@ export namespace organizations {
             return await resp.json() as contracts.GetMemberResponse
         }
 
-        public async listInvitations(): Promise<contracts.ListInvitationsResponse> {
+        public async listInvitations(organizationId: string): Promise<contracts.ListInvitationsResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/invitations`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/organization/${encodeURIComponent(organizationId)}/invitations`)
             return await resp.json() as contracts.ListInvitationsResponse
         }
 

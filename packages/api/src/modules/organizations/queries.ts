@@ -56,11 +56,12 @@ export const organizationOptions = {
 };
 
 export const invitationOptions = {
-  list: () =>
+  list: (organizationId: string) =>
     queryOptions({
       queryKey: organizationKeys.listInvitations(),
       queryFn: async () => {
-        const { invitations } = await apiClient.organizations.listInvitations();
+        const { invitations } =
+          await apiClient.organizations.listInvitations(organizationId);
         return invitations;
       },
     }),

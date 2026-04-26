@@ -6,16 +6,24 @@ import { MembershipRole } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 
 import { authService } from "@/services/auth/auth.service";
-import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
+import { requireAuth } from "@/shared/auth";
 
 import { toInvitation } from "../mappers";
 import { organizationService } from "../organization.service";
 import { invitationService } from "./invitation.service";
 
 export const listInvitations = api(
-  { method: "GET", path: "/invitations", auth: true, expose: true },
-  async (): Promise<ListInvitationsResponse> => {
-    const { organizationId } = requireOrganizationAuth();
+  {
+    method: "GET",
+    path: "/organization/:organizationId/invitations",
+    auth: true,
+    expose: true,
+  },
+  async ({
+    organizationId,
+  }: {
+    organizationId: string;
+  }): Promise<ListInvitationsResponse> => {
     const organization = await organizationService.findOne(organizationId);
 
     const rows = await invitationService.findManyByOrg(
@@ -47,7 +55,7 @@ export const listMyInvitedRoles = api(
   }: {
     organizationId: string;
   }): Promise<{ roles: MembershipRole[] }> => {
-    const { userID } = requireOrganizationAuth();
+    const { userID } = requireAuth();
 
     const user = await authService.findOneUser(userID);
 

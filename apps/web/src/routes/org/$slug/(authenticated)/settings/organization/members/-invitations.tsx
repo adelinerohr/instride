@@ -56,10 +56,13 @@ import { cn } from "@/shared/lib/utils";
 import { Route } from "./index";
 
 export function TeamMembersCard() {
+  const { organization } = Route.useRouteContext();
   const [activeTab, setActiveTab] = React.useState<"active" | "pending">(
     "active"
   );
-  const { data: invitations } = useSuspenseQuery(invitationOptions.list());
+  const { data: invitations } = useSuspenseQuery(
+    invitationOptions.list(organization.id)
+  );
   const { data: members } = useSuspenseQuery(membersOptions.all());
 
   const pendingInvitations = invitations.filter(
@@ -165,7 +168,9 @@ function MemberRow(props: MemberRowProps) {
       {
         loading: "Revoking invitation...",
         success: () => {
-          queryClient.invalidateQueries(invitationOptions.list());
+          queryClient.invalidateQueries(
+            invitationOptions.list(organization.id)
+          );
           return "Invitation successfully revoked.";
         },
         error: "Failed to revoke invitation. Please try again.",
