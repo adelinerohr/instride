@@ -18,7 +18,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
     );
 
     if (!session?.user) {
-      throw Route.redirect({ to: "/org/$slug/auth/login", params });
+      throw Route.redirect({
+        to: "/org/$slug/auth/login",
+        params,
+        search: {
+          redirect: location.pathname + location.searchStr,
+        },
+      });
     }
 
     if (!context.member) {

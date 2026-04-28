@@ -115,10 +115,9 @@ export const updateBoard = api(
       }
 
       if (serviceIds !== undefined) {
-        // FIX: Delete all board assignments for the board
-        await txServiceService.deleteBoardAssignmentByType(
+        await txServiceService.deleteBoardAssignmentsForBoard(
           organizationId,
-          "board"
+          boardId
         );
         if (serviceIds.length > 0) {
           await txServiceService.bulkCreateBoardAssignments(

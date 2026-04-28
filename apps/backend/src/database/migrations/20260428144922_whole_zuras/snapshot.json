@@ -2,27 +2,16 @@
   "version": "8",
   "dialect": "postgres",
   "id": "2cc0ad78-197d-4f24-931a-02487950f6d7",
-  "prevIds": [
-    "961a5e9f-033d-4e8e-9ef3-99dad1b381ec"
-  ],
+  "prevIds": ["961a5e9f-033d-4e8e-9ef3-99dad1b381ec"],
   "ddl": [
     {
-      "values": [
-        "rider",
-        "guardian",
-        "dependent"
-      ],
+      "values": ["rider", "guardian", "dependent"],
       "name": "membership_capability",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "admin",
-        "rider",
-        "trainer",
-        "guardian"
-      ],
+      "values": ["admin", "rider", "trainer", "guardian"],
       "name": "membership_role",
       "entityType": "enums",
       "schema": "public"
@@ -42,105 +31,61 @@
       "schema": "public"
     },
     {
-      "values": [
-        "weekly",
-        "biweekly"
-      ],
+      "values": ["weekly", "biweekly"],
       "name": "recurrence_frequency",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "active",
-        "paused",
-        "cancelled",
-        "completed"
-      ],
+      "values": ["active", "paused", "cancelled", "completed"],
       "name": "series_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "scheduled",
-        "completed",
-        "cancelled"
-      ],
+      "values": ["scheduled", "completed", "cancelled"],
       "name": "instance_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "enrolled",
-        "waitlisted",
-        "cancelled",
-        "attended",
-        "no_show"
-      ],
+      "values": ["enrolled", "waitlisted", "cancelled", "attended", "no_show"],
       "name": "instance_enrollment_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "active",
-        "paused",
-        "cancelled"
-      ],
+      "values": ["active", "paused", "cancelled"],
       "name": "series_enrollment_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "active",
-        "revoked",
-        "pending"
-      ],
+      "values": ["active", "revoked", "pending"],
       "name": "guardian_relationship_statuses",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "pending",
-        "accepted",
-        "rejected",
-        "cancelled"
-      ],
+      "values": ["pending", "accepted", "rejected", "cancelled"],
       "name": "invitation_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "active",
-        "archived"
-      ],
+      "values": ["active", "archived"],
       "name": "waiver_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "email",
-        "sms",
-        "push",
-        "in_app"
-      ],
+      "values": ["email", "sms", "push", "in_app"],
       "name": "notification_channel",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "pending",
-        "sent",
-        "delivered",
-        "failed"
-      ],
+      "values": ["pending", "sent", "delivered", "failed"],
       "name": "notification_delivery_status",
       "entityType": "enums",
       "schema": "public"
@@ -182,14 +127,7 @@
       "schema": "public"
     },
     {
-      "values": [
-        "lesson",
-        "post",
-        "payment",
-        "rider",
-        "trainer",
-        "other"
-      ],
+      "values": ["lesson", "post", "payment", "rider", "trainer", "other"],
       "name": "activity_subject_type",
       "entityType": "enums",
       "schema": "public"
@@ -215,39 +153,25 @@
       "schema": "public"
     },
     {
-      "values": [
-        "default",
-        "staff",
-        "self"
-      ],
+      "values": ["default", "staff", "self"],
       "name": "kiosk_scope",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "organization",
-        "board",
-        "trainer"
-      ],
+      "values": ["organization", "board", "trainer"],
       "name": "event_scope",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "direct",
-        "group"
-      ],
+      "values": ["direct", "group"],
       "name": "conversation_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "lesson_reference",
-        "lesson_proposal"
-      ],
+      "values": ["lesson_reference", "lesson_proposal"],
       "name": "message_attachment_type",
       "entityType": "enums",
       "schema": "public"
@@ -266,11 +190,7 @@
       "schema": "public"
     },
     {
-      "values": [
-        "staff",
-        "rider",
-        "guardian"
-      ],
+      "values": ["staff", "rider", "guardian"],
       "name": "conversation_participant_role",
       "entityType": "enums",
       "schema": "public"
@@ -9781,14 +9701,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "auth_users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_sessions_user_id_auth_users_id_fkey",
@@ -9798,14 +9714,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "auth_users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_accounts_user_id_auth_users_id_fkey",
@@ -9815,14 +9727,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "auth_users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_members_user_id_auth_users_id_fkey",
@@ -9832,14 +9740,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "auth_organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_members_organization_id_auth_organizations_id_fkey",
@@ -9849,14 +9753,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "auth_users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "members_user_id_auth_users_id_fkey",
@@ -9866,14 +9766,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "auth_member_id"
-      ],
+      "columns": ["auth_member_id"],
       "schemaTo": "public",
       "tableTo": "auth_members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "members_auth_member_id_auth_members_id_fkey",
@@ -9883,14 +9779,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "members_organization_id_organizations_id_fkey",
@@ -9900,14 +9792,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "riders_member_id_members_id_fkey",
@@ -9917,14 +9805,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "riders_organization_id_organizations_id_fkey",
@@ -9934,14 +9818,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "riding_level_id"
-      ],
+      "columns": ["riding_level_id"],
       "schemaTo": "public",
       "tableTo": "levels",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "riders_riding_level_id_levels_id_fkey",
@@ -9951,14 +9831,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "trainers_member_id_members_id_fkey",
@@ -9968,14 +9844,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "trainers_organization_id_organizations_id_fkey",
@@ -9985,14 +9857,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "auth_organization_id"
-      ],
+      "columns": ["auth_organization_id"],
       "schemaTo": "public",
       "tableTo": "auth_organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "organizations_auth_organization_id_auth_organizations_id_fkey",
@@ -10002,14 +9870,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "auth_organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_invitations_organization_id_auth_organizations_id_fkey",
@@ -10019,14 +9883,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "inviter_id"
-      ],
+      "columns": ["inviter_id"],
       "schemaTo": "public",
       "tableTo": "auth_users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "auth_invitations_inviter_id_auth_users_id_fkey",
@@ -10036,14 +9896,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "levels_organization_id_organizations_id_fkey",
@@ -10053,14 +9909,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "boards_organization_id_organizations_id_fkey",
@@ -10070,14 +9922,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "board_assignments_board_id_boards_id_fkey",
@@ -10087,14 +9935,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "board_assignments_organization_id_organizations_id_fkey",
@@ -10104,14 +9948,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "board_assignments_trainer_id_trainers_id_fkey",
@@ -10121,14 +9961,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "rider_id"
-      ],
+      "columns": ["rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "board_assignments_rider_id_riders_id_fkey",
@@ -10138,14 +9974,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "service_id"
-      ],
+      "columns": ["service_id"],
       "schemaTo": "public",
       "tableTo": "services",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_board_assignments_service_id_services_id_fkey",
@@ -10155,14 +9987,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_board_assignments_organization_id_organizations_id_fkey",
@@ -10172,14 +10000,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_board_assignments_board_id_boards_id_fkey",
@@ -10189,14 +10013,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "service_id"
-      ],
+      "columns": ["service_id"],
       "schemaTo": "public",
       "tableTo": "services",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_trainer_assignments_service_id_services_id_fkey",
@@ -10206,14 +10026,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_trainer_assignments_zAU6AiWtd1tn_fkey",
@@ -10223,14 +10039,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "service_trainer_assignments_trainer_id_trainers_id_fkey",
@@ -10240,14 +10052,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "services_organization_id_organizations_id_fkey",
@@ -10257,14 +10065,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "restricted_to_level_id"
-      ],
+      "columns": ["restricted_to_level_id"],
       "schemaTo": "public",
       "tableTo": "levels",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "services_restricted_to_level_id_levels_id_fkey",
@@ -10274,14 +10078,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_series_organization_id_organizations_id_fkey",
@@ -10291,14 +10091,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_series_board_id_boards_id_fkey",
@@ -10308,14 +10104,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_series_trainer_id_trainers_id_fkey",
@@ -10325,14 +10117,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "level_id"
-      ],
+      "columns": ["level_id"],
       "schemaTo": "public",
       "tableTo": "levels",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_series_level_id_levels_id_fkey",
@@ -10342,14 +10130,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "service_id"
-      ],
+      "columns": ["service_id"],
       "schemaTo": "public",
       "tableTo": "services",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_series_service_id_services_id_fkey",
@@ -10359,14 +10143,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by_member_id"
-      ],
+      "columns": ["created_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_series_created_by_member_id_members_id_fkey",
@@ -10376,14 +10156,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "updated_by_member_id"
-      ],
+      "columns": ["updated_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_series_updated_by_member_id_members_id_fkey",
@@ -10393,14 +10169,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_instances_organization_id_organizations_id_fkey",
@@ -10410,14 +10182,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "series_id"
-      ],
+      "columns": ["series_id"],
       "schemaTo": "public",
       "tableTo": "lesson_series",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_instances_series_id_lesson_series_id_fkey",
@@ -10427,14 +10195,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_instances_board_id_boards_id_fkey",
@@ -10444,14 +10208,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_instances_trainer_id_trainers_id_fkey",
@@ -10461,14 +10221,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "level_id"
-      ],
+      "columns": ["level_id"],
       "schemaTo": "public",
       "tableTo": "levels",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instances_level_id_levels_id_fkey",
@@ -10478,14 +10234,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "service_id"
-      ],
+      "columns": ["service_id"],
       "schemaTo": "public",
       "tableTo": "services",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "lesson_instances_service_id_services_id_fkey",
@@ -10495,14 +10247,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "canceled_by_member_id"
-      ],
+      "columns": ["canceled_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instances_canceled_by_member_id_members_id_fkey",
@@ -10512,14 +10260,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by_member_id"
-      ],
+      "columns": ["created_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instances_created_by_member_id_members_id_fkey",
@@ -10529,14 +10273,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "updated_by_member_id"
-      ],
+      "columns": ["updated_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instances_updated_by_member_id_members_id_fkey",
@@ -10546,14 +10286,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_instance_enrollments_X4kZ0hCxN5GP_fkey",
@@ -10563,14 +10299,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "instance_id"
-      ],
+      "columns": ["instance_id"],
       "schemaTo": "public",
       "tableTo": "lesson_instances",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_instance_enrollments_K5d1eA7V80LI_fkey",
@@ -10580,14 +10312,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "rider_id"
-      ],
+      "columns": ["rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_instance_enrollments_rider_id_riders_id_fkey",
@@ -10597,14 +10325,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "marked_by_member_profile_id"
-      ],
+      "columns": ["marked_by_member_profile_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instance_enrollments_OuDfOc9Hbl9Y_fkey",
@@ -10614,14 +10338,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "from_series_enrollment_id"
-      ],
+      "columns": ["from_series_enrollment_id"],
       "schemaTo": "public",
       "tableTo": "lesson_series_enrollments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instance_enrollments_l0Ow9UhFaXA3_fkey",
@@ -10631,14 +10351,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "enrolled_by_member_id"
-      ],
+      "columns": ["enrolled_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instance_enrollments_aJJ6dK1odDBd_fkey",
@@ -10648,14 +10364,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "unenrolled_by_member_id"
-      ],
+      "columns": ["unenrolled_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_instance_enrollments_0K39q9lNHpui_fkey",
@@ -10665,14 +10377,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_series_enrollments_organization_id_organizations_id_fkey",
@@ -10682,14 +10390,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "series_id"
-      ],
+      "columns": ["series_id"],
       "schemaTo": "public",
       "tableTo": "lesson_series",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_series_enrollments_series_id_lesson_series_id_fkey",
@@ -10699,14 +10403,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "rider_id"
-      ],
+      "columns": ["rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "lesson_series_enrollments_rider_id_riders_id_fkey",
@@ -10716,14 +10416,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "enrolled_by_member_id"
-      ],
+      "columns": ["enrolled_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_series_enrollments_enrolled_by_member_id_members_id_fkey",
@@ -10733,14 +10429,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "ended_by_member_id"
-      ],
+      "columns": ["ended_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "lesson_series_enrollments_ended_by_member_id_members_id_fkey",
@@ -10750,14 +10442,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "organization_availability_organization_id_organizations_id_fkey",
@@ -10767,14 +10455,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "organization_availability_board_id_boards_id_fkey",
@@ -10784,14 +10468,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "availability_id"
-      ],
+      "columns": ["availability_id"],
       "schemaTo": "public",
       "tableTo": "organization_availability",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "organization_availability_slots_G44pIPlQ89IV_fkey",
@@ -10801,14 +10481,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "trainer_availability_organization_id_organizations_id_fkey",
@@ -10818,14 +10494,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "trainer_availability_trainer_id_trainers_id_fkey",
@@ -10835,14 +10507,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "trainer_availability_board_id_boards_id_fkey",
@@ -10852,14 +10520,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_availability_id"
-      ],
+      "columns": ["trainer_availability_id"],
       "schemaTo": "public",
       "tableTo": "trainer_availability",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "trainer_availability_slots_bn15XaiOFcJf_fkey",
@@ -10869,14 +10533,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "time_blocks_organization_id_organizations_id_fkey",
@@ -10886,14 +10546,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "time_blocks_trainer_id_trainers_id_fkey",
@@ -10903,14 +10559,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "time_blocks_board_id_boards_id_fkey",
@@ -10920,14 +10572,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_posts_organization_id_organizations_id_fkey",
@@ -10937,14 +10585,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "author_member_id"
-      ],
+      "columns": ["author_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_posts_author_member_id_members_id_fkey",
@@ -10954,14 +10598,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "feed_posts_board_id_boards_id_fkey",
@@ -10971,14 +10611,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "feed_posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_likes_post_id_feed_posts_id_fkey",
@@ -10988,14 +10624,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_likes_member_id_members_id_fkey",
@@ -11005,14 +10637,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "feed_posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_comments_post_id_feed_posts_id_fkey",
@@ -11022,14 +10650,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_comments_member_id_members_id_fkey",
@@ -11039,14 +10663,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "parent_comment_id"
-      ],
+      "columns": ["parent_comment_id"],
       "schemaTo": "public",
       "tableTo": "feed_comments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_comments_parent_comment_id_feed_comments_id_fkey",
@@ -11056,14 +10676,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "questionnaires_organization_id_organizations_id_fkey",
@@ -11073,14 +10689,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "default_board_id"
-      ],
+      "columns": ["default_board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "questionnaires_default_board_id_boards_id_fkey",
@@ -11090,14 +10702,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by_member_id"
-      ],
+      "columns": ["created_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "questionnaires_created_by_member_id_members_id_fkey",
@@ -11107,14 +10715,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "questionnaire_id"
-      ],
+      "columns": ["questionnaire_id"],
       "schemaTo": "public",
       "tableTo": "questionnaires",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "questionnaire_responses_questionnaire_id_questionnaires_id_fkey",
@@ -11124,14 +10728,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "questionnaire_responses_organization_id_organizations_id_fkey",
@@ -11141,14 +10741,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "questionnaire_responses_member_id_members_id_fkey",
@@ -11158,14 +10754,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "submitted_by_member_id"
-      ],
+      "columns": ["submitted_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "questionnaire_responses_submitted_by_member_id_members_id_fkey",
@@ -11175,14 +10767,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "guardian_relationships_organization_id_organizations_id_fkey",
@@ -11192,14 +10780,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "guardian_member_id"
-      ],
+      "columns": ["guardian_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "guardian_relationships_guardian_member_id_members_id_fkey",
@@ -11209,14 +10793,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dependent_member_id"
-      ],
+      "columns": ["dependent_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "guardian_relationships_dependent_member_id_members_id_fkey",
@@ -11226,14 +10806,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "relationship_id"
-      ],
+      "columns": ["relationship_id"],
       "schemaTo": "public",
       "tableTo": "guardian_relationships",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "guardian_invitations_vOvzJoVpeHdt_fkey",
@@ -11243,14 +10819,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "waiver_signatures_organization_id_organizations_id_fkey",
@@ -11260,14 +10832,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "waiver_id"
-      ],
+      "columns": ["waiver_id"],
       "schemaTo": "public",
       "tableTo": "waivers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "waiver_signatures_waiver_id_waivers_id_fkey",
@@ -11277,14 +10845,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "signer_member_id"
-      ],
+      "columns": ["signer_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "waiver_signatures_signer_member_id_members_id_fkey",
@@ -11294,14 +10858,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "on_behalf_of_member_id"
-      ],
+      "columns": ["on_behalf_of_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "waiver_signatures_on_behalf_of_member_id_members_id_fkey",
@@ -11311,14 +10871,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "waivers_organization_id_organizations_id_fkey",
@@ -11328,14 +10884,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "notification_id"
-      ],
+      "columns": ["notification_id"],
       "schemaTo": "public",
       "tableTo": "notifications",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "notification_deliveries_notification_id_notifications_id_fkey",
@@ -11345,14 +10897,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "notifications_organization_id_organizations_id_fkey",
@@ -11362,14 +10910,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "recipient_id"
-      ],
+      "columns": ["recipient_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "notifications_recipient_id_members_id_fkey",
@@ -11379,14 +10923,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_preferences_member_id_members_id_fkey",
@@ -11396,14 +10936,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_preferences_organization_id_organizations_id_fkey",
@@ -11413,14 +10949,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "push_tokens_member_id_members_id_fkey",
@@ -11430,14 +10962,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "push_tokens_organization_id_organizations_id_fkey",
@@ -11447,14 +10975,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "activity_organization_id_organizations_id_fkey",
@@ -11464,14 +10988,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "actor_member_id"
-      ],
+      "columns": ["actor_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "activity_actor_member_id_members_id_fkey",
@@ -11481,14 +11001,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "owner_member_id"
-      ],
+      "columns": ["owner_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "activity_owner_member_id_members_id_fkey",
@@ -11498,14 +11014,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "activity_trainer_id_trainers_id_fkey",
@@ -11515,14 +11027,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "rider_id"
-      ],
+      "columns": ["rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "activity_rider_id_riders_id_fkey",
@@ -11532,14 +11040,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "kiosk_acting_tokens_organization_id_organizations_id_fkey",
@@ -11549,14 +11053,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "kiosk_acting_tokens_board_id_boards_id_fkey",
@@ -11566,14 +11066,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "acting_for_member_id"
-      ],
+      "columns": ["acting_for_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "kiosk_acting_tokens_acting_for_member_id_members_id_fkey",
@@ -11583,14 +11079,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "event_id"
-      ],
+      "columns": ["event_id"],
       "schemaTo": "public",
       "tableTo": "events",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "event_scheduling_blocks_event_id_events_id_fkey",
@@ -11600,14 +11092,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "board_id"
-      ],
+      "columns": ["board_id"],
       "schemaTo": "public",
       "tableTo": "boards",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "event_scheduling_blocks_board_id_boards_id_fkey",
@@ -11617,14 +11105,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "trainer_id"
-      ],
+      "columns": ["trainer_id"],
       "schemaTo": "public",
       "tableTo": "trainers",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "event_scheduling_blocks_trainer_id_trainers_id_fkey",
@@ -11634,14 +11118,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "events_organization_id_organizations_id_fkey",
@@ -11651,14 +11131,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by_member_id"
-      ],
+      "columns": ["created_by_member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "events_created_by_member_id_members_id_fkey",
@@ -11668,14 +11144,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "organization_id"
-      ],
+      "columns": ["organization_id"],
       "schemaTo": "public",
       "tableTo": "organizations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "conversations_organization_id_organizations_id_fkey",
@@ -11685,14 +11157,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "conversations_created_by_members_id_fkey",
@@ -11702,14 +11170,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "message_id"
-      ],
+      "columns": ["message_id"],
       "schemaTo": "public",
       "tableTo": "messages",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "message_responses_message_id_messages_id_fkey",
@@ -11719,14 +11183,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "for_rider_id"
-      ],
+      "columns": ["for_rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "message_responses_for_rider_id_riders_id_fkey",
@@ -11736,14 +11196,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "responded_by"
-      ],
+      "columns": ["responded_by"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "message_responses_responded_by_members_id_fkey",
@@ -11753,14 +11209,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "result_enrollment_id"
-      ],
+      "columns": ["result_enrollment_id"],
       "schemaTo": "public",
       "tableTo": "lesson_instance_enrollments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "message_responses_vLYlC4RaxKOO_fkey",
@@ -11770,14 +11222,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "result_lesson_instance_id"
-      ],
+      "columns": ["result_lesson_instance_id"],
       "schemaTo": "public",
       "tableTo": "lesson_instances",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "message_responses_38JMeKyiZ4HV_fkey",
@@ -11787,14 +11235,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "conversation_id"
-      ],
+      "columns": ["conversation_id"],
       "schemaTo": "public",
       "tableTo": "conversations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "messages_conversation_id_conversations_id_fkey",
@@ -11804,14 +11248,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "sender_id"
-      ],
+      "columns": ["sender_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "messages_sender_id_members_id_fkey",
@@ -11821,14 +11261,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "conversation_id"
-      ],
+      "columns": ["conversation_id"],
       "schemaTo": "public",
       "tableTo": "conversations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "conversation_participants_conversation_id_conversations_id_fkey",
@@ -11838,14 +11274,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "members",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "conversation_participants_member_id_members_id_fkey",
@@ -11855,14 +11287,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "last_read_message_id"
-      ],
+      "columns": ["last_read_message_id"],
       "schemaTo": "public",
       "tableTo": "messages",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "conversation_participants_last_read_message_id_messages_id_fkey",
@@ -11872,14 +11300,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "conversation_id"
-      ],
+      "columns": ["conversation_id"],
       "schemaTo": "public",
       "tableTo": "conversations",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "conversation_subject_riders_PTLiyVJXRMRh_fkey",
@@ -11889,14 +11313,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "rider_id"
-      ],
+      "columns": ["rider_id"],
       "schemaTo": "public",
       "tableTo": "riders",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "conversation_subject_riders_rider_id_riders_id_fkey",
@@ -11905,10 +11325,7 @@
       "table": "conversation_subject_riders"
     },
     {
-      "columns": [
-        "conversation_id",
-        "member_id"
-      ],
+      "columns": ["conversation_id", "member_id"],
       "nameExplicit": false,
       "name": "conversation_participants_pkey",
       "entityType": "pks",
@@ -11916,10 +11333,7 @@
       "table": "conversation_participants"
     },
     {
-      "columns": [
-        "conversation_id",
-        "rider_id"
-      ],
+      "columns": ["conversation_id", "rider_id"],
       "nameExplicit": false,
       "name": "conversation_subject_riders_pkey",
       "entityType": "pks",
@@ -11927,9 +11341,7 @@
       "table": "conversation_subject_riders"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_users_pkey",
       "schema": "public",
@@ -11937,9 +11349,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_sessions_pkey",
       "schema": "public",
@@ -11947,9 +11357,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_accounts_pkey",
       "schema": "public",
@@ -11957,9 +11365,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_verifications_pkey",
       "schema": "public",
@@ -11967,9 +11373,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_members_pkey",
       "schema": "public",
@@ -11977,9 +11381,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "members_pkey",
       "schema": "public",
@@ -11987,9 +11389,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "riders_pkey",
       "schema": "public",
@@ -11997,9 +11397,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "trainers_pkey",
       "schema": "public",
@@ -12007,9 +11405,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_organizations_pkey",
       "schema": "public",
@@ -12017,9 +11413,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "organizations_pkey",
       "schema": "public",
@@ -12027,9 +11421,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "auth_invitations_pkey",
       "schema": "public",
@@ -12037,9 +11429,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "levels_pkey",
       "schema": "public",
@@ -12047,9 +11437,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "boards_pkey",
       "schema": "public",
@@ -12057,9 +11445,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "board_assignments_pkey",
       "schema": "public",
@@ -12067,9 +11453,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "service_board_assignments_pkey",
       "schema": "public",
@@ -12077,9 +11461,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "service_trainer_assignments_pkey",
       "schema": "public",
@@ -12087,9 +11469,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "services_pkey",
       "schema": "public",
@@ -12097,9 +11477,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "lesson_series_pkey",
       "schema": "public",
@@ -12107,9 +11485,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "lesson_instances_pkey",
       "schema": "public",
@@ -12117,9 +11493,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "lesson_instance_enrollments_pkey",
       "schema": "public",
@@ -12127,9 +11501,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "lesson_series_enrollments_pkey",
       "schema": "public",
@@ -12137,9 +11509,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "organization_availability_pkey",
       "schema": "public",
@@ -12147,9 +11517,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "organization_availability_slots_pkey",
       "schema": "public",
@@ -12157,9 +11525,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "trainer_availability_pkey",
       "schema": "public",
@@ -12167,9 +11533,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "trainer_availability_slots_pkey",
       "schema": "public",
@@ -12177,9 +11541,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "time_blocks_pkey",
       "schema": "public",
@@ -12187,9 +11549,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "feed_posts_pkey",
       "schema": "public",
@@ -12197,9 +11557,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "feed_likes_pkey",
       "schema": "public",
@@ -12207,9 +11565,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "feed_comments_pkey",
       "schema": "public",
@@ -12217,9 +11573,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "questionnaires_pkey",
       "schema": "public",
@@ -12227,9 +11581,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "questionnaire_responses_pkey",
       "schema": "public",
@@ -12237,9 +11589,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "guardian_relationships_pkey",
       "schema": "public",
@@ -12247,9 +11597,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "guardian_invitations_pkey",
       "schema": "public",
@@ -12257,9 +11605,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "waiver_signatures_pkey",
       "schema": "public",
@@ -12267,9 +11613,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "waivers_pkey",
       "schema": "public",
@@ -12277,9 +11621,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "notification_deliveries_pkey",
       "schema": "public",
@@ -12287,9 +11629,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "notifications_pkey",
       "schema": "public",
@@ -12297,9 +11637,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "notification_preferences_pkey",
       "schema": "public",
@@ -12307,9 +11645,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "push_tokens_pkey",
       "schema": "public",
@@ -12317,9 +11653,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "activity_pkey",
       "schema": "public",
@@ -12327,9 +11661,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "kiosk_acting_tokens_pkey",
       "schema": "public",
@@ -12337,9 +11669,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "event_scheduling_blocks_pkey",
       "schema": "public",
@@ -12347,9 +11677,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "events_pkey",
       "schema": "public",
@@ -12357,9 +11685,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "conversations_pkey",
       "schema": "public",
@@ -12367,9 +11693,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "message_id"
-      ],
+      "columns": ["message_id"],
       "nameExplicit": false,
       "name": "message_responses_pkey",
       "schema": "public",
@@ -12377,9 +11701,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "messages_pkey",
       "schema": "public",
@@ -12388,11 +11710,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "organization_id",
-        "board_id",
-        "day_of_week"
-      ],
+      "columns": ["organization_id", "board_id", "day_of_week"],
       "nullsNotDistinct": true,
       "name": "org_avail_organization_board_day_unique",
       "entityType": "uniques",
@@ -12401,11 +11719,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "trainer_id",
-        "board_id",
-        "day_of_week"
-      ],
+      "columns": ["trainer_id", "board_id", "day_of_week"],
       "nullsNotDistinct": true,
       "name": "trainer_avail_trainer_board_day_unique",
       "entityType": "uniques",
@@ -12414,10 +11728,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "recipient_id",
-        "source_event_id"
-      ],
+      "columns": ["recipient_id", "source_event_id"],
       "nullsNotDistinct": false,
       "name": "notifications_event_idempotency_key",
       "entityType": "uniques",
@@ -12426,11 +11737,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id",
-        "organization_id",
-        "type"
-      ],
+      "columns": ["member_id", "organization_id", "type"],
       "nullsNotDistinct": false,
       "name": "notification_preferences_member_id_organization_id_type_unique",
       "entityType": "uniques",
@@ -12439,9 +11746,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nullsNotDistinct": false,
       "name": "push_tokens_token_unique",
       "entityType": "uniques",
@@ -12450,9 +11755,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "email"
-      ],
+      "columns": ["email"],
       "nullsNotDistinct": false,
       "name": "auth_users_email_key",
       "schema": "public",
@@ -12461,9 +11764,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nullsNotDistinct": false,
       "name": "auth_sessions_token_key",
       "schema": "public",
@@ -12472,9 +11773,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "auth_member_id"
-      ],
+      "columns": ["auth_member_id"],
       "nullsNotDistinct": false,
       "name": "members_auth_member_id_key",
       "schema": "public",
@@ -12483,9 +11782,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "nullsNotDistinct": false,
       "name": "riders_member_id_key",
       "schema": "public",
@@ -12494,9 +11791,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "nullsNotDistinct": false,
       "name": "trainers_member_id_key",
       "schema": "public",
@@ -12505,9 +11800,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nullsNotDistinct": false,
       "name": "auth_organizations_slug_key",
       "schema": "public",
@@ -12516,9 +11809,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nullsNotDistinct": false,
       "name": "organizations_slug_key",
       "schema": "public",
@@ -12527,9 +11818,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "occurrence_key"
-      ],
+      "columns": ["occurrence_key"],
       "nullsNotDistinct": false,
       "name": "lesson_instances_occurrence_key_key",
       "schema": "public",
@@ -12538,9 +11827,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nullsNotDistinct": false,
       "name": "guardian_invitations_token_key",
       "schema": "public",

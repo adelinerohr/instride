@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
@@ -23,12 +23,7 @@ function RouteComponent() {
   const isMobile = useIsMobile();
 
   if (!isMobile) {
-    return (
-      <Navigate
-        to="/org/$slug/settings/account/profile"
-        params={{ slug: organization.slug }}
-      />
-    );
+    throw Route.redirect({ to: "/org/$slug/settings/account/profile" });
   }
 
   const sections = getSettingsNavItems(organization.slug, isAdmin, isTrainer);

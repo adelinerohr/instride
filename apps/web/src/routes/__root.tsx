@@ -56,14 +56,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       const orgMatch = location.pathname.match(/^\/org\/([^/]+)/); // match against pathname only
 
       if (orgMatch) {
-        const redirectPath =
-          currentPath.replace(`/org/${orgMatch[1]}`, "") || "/dashboard";
-
         throw redirect({
           to: "/org/$slug/auth/login",
           params: { slug: orgMatch[1] },
           search: {
-            redirect: redirectPath,
+            // Important: preserve the *internal* path TanStack Router uses.
+            // Our router rewrite may prepend `/org/:slug` for subdomain routing.
+            // If we strip it, post-login navigation can land on the wrong page.
+            redirect: currentPath,
           },
         });
       }

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/org/$slug/(non-member)")({
         to: "/org/$slug/auth/login",
         params,
         search: {
-          redirect: location.pathname,
+          redirect: location.pathname + location.searchStr,
         },
       });
     }

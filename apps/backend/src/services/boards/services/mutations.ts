@@ -73,8 +73,7 @@ export const updateService = api(
       }
 
       if (boardIds !== undefined) {
-        // FIX: Delete all board assignments for the service
-        await serviceTx.deleteBoardAssignmentByType(organizationId, "service");
+        await serviceTx.deleteBoardAssignmentsForService(organizationId, id);
         if (boardIds.length > 0) {
           await serviceTx.bulkCreateBoardAssignments(
             boardIds.map((boardId) => ({
@@ -87,11 +86,7 @@ export const updateService = api(
       }
 
       if (trainerIds !== undefined) {
-        // FIX: Delete all trainer assignments for the service
-        await serviceTx.deleteTrainerAssignmentByType(
-          organizationId,
-          "service"
-        );
+        await serviceTx.deleteTrainerAssignmentsForService(organizationId, id);
         if (trainerIds.length > 0) {
           await serviceTx.bulkCreateTrainerAssignments(
             trainerIds.map((trainerId) => ({

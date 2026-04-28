@@ -170,6 +170,22 @@ export const createServiceService = (client: Database | Transaction = db) => ({
     return result;
   },
 
+  deleteTrainerAssignmentsForService: async (
+    organizationId: string,
+    serviceId: string
+  ) => {
+    const result = await client
+      .delete(serviceTrainerAssignments)
+      .where(
+        and(
+          eq(serviceTrainerAssignments.organizationId, organizationId),
+          eq(serviceTrainerAssignments.serviceId, serviceId)
+        )
+      );
+    assertExists(result, "Failed to delete trainer assignments");
+    return result;
+  },
+
   // ============================================================================
   // Board assignments
   // ============================================================================
@@ -262,6 +278,38 @@ export const createServiceService = (client: Database | Transaction = db) => ({
         )
       );
     assertExists(result, "Failed to delete board assignment");
+    return result;
+  },
+
+  deleteBoardAssignmentsForService: async (
+    organizationId: string,
+    serviceId: string
+  ) => {
+    const result = await client
+      .delete(serviceBoardAssignments)
+      .where(
+        and(
+          eq(serviceBoardAssignments.organizationId, organizationId),
+          eq(serviceBoardAssignments.serviceId, serviceId)
+        )
+      );
+    assertExists(result, "Failed to delete board assignments");
+    return result;
+  },
+
+  deleteBoardAssignmentsForBoard: async (
+    organizationId: string,
+    boardId: string
+  ) => {
+    const result = await client
+      .delete(serviceBoardAssignments)
+      .where(
+        and(
+          eq(serviceBoardAssignments.organizationId, organizationId),
+          eq(serviceBoardAssignments.boardId, boardId)
+        )
+      );
+    assertExists(result, "Failed to delete board assignments");
     return result;
   },
 });

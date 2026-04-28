@@ -1,3 +1,4 @@
+import { AuthUser } from "@instride/api/contracts";
 import { eq } from "drizzle-orm";
 import { appMeta } from "encore.dev";
 import { api, APIError, Cookie } from "encore.dev/api";
@@ -7,6 +8,7 @@ import { requireAuth } from "@/shared/auth";
 
 import { auth } from "./auth";
 import { db } from "./db";
+import { toAuthUser } from "./mappers";
 import { authUsers } from "./schema";
 import { buildSessionCookieHeader } from "./session-cookie";
 import { Session } from "./types/models";
@@ -110,7 +112,7 @@ interface UpdateUserRequest {
   dateOfBirth?: string | null | undefined;
 }
 
-export const updateUser = api<UpdateUserRequest, void>(
+export const updateUser = api<UpdateUserRequest, AuthUser>(
   { expose: true, method: "POST", path: "/users", auth: true },
   async (request) => {
     const { userID } = requireAuth();
@@ -125,7 +127,7 @@ export const updateUser = api<UpdateUserRequest, void>(
       throw APIError.notFound("User not found");
     }
 
-    return updatedUser;
+    return toAuthUser(updatedUser);
   }
 );
 
