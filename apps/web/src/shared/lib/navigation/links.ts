@@ -54,3 +54,20 @@ export const getDashboardLink = (orgSlug: string, isAdmin: boolean) => {
   }
   return getPortalDashboardLink(orgSlug);
 };
+
+export const getConversationLink = (
+  orgSlug: string,
+  conversationId: string,
+  isPortal: boolean
+) => {
+  if (isPortal) {
+    return linkOptions({
+      to: "/org/$slug/portal/messages/$conversationId",
+      params: { slug: orgSlug, conversationId },
+    });
+  }
+  return linkOptions({
+    to: "/org/$slug/admin/messages/$conversationId",
+    params: { slug: orgSlug, conversationId },
+  });
+};

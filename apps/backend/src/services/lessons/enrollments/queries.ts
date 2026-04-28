@@ -15,9 +15,9 @@ import {
   toInstanceEnrollmentWithInstance,
 } from "../mappers";
 import {
-  instanceEnrollmentService,
-  seriesEnrollmentService,
-} from "./enrollment.service";
+  instanceEnrollmentRepo,
+  seriesEnrollmentRepo,
+} from "./enrollment.repo";
 
 export const listSeriesEnrollments = api(
   {
@@ -29,10 +29,7 @@ export const listSeriesEnrollments = api(
   async ({ id }: { id: string }): Promise<ListSeriesEnrollmentsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const enrollments = await seriesEnrollmentService.findMany(
-      id,
-      organizationId
-    );
+    const enrollments = await seriesEnrollmentRepo.findMany(id, organizationId);
 
     return { enrollments };
   }
@@ -48,7 +45,7 @@ export const listInstanceEnrollments = api(
   async ({ id }: { id: string }): Promise<ListInstanceEnrollmentsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const enrollments = await instanceEnrollmentService.findManyByInstance({
+    const enrollments = await instanceEnrollmentRepo.findManyByInstance({
       instanceId: id,
       organizationId,
     });
@@ -81,7 +78,7 @@ export const listMyEnrollments = api(
 
     const riderIds = [member.rider.id, ...dependentRiderIds];
 
-    const enrollments = await instanceEnrollmentService.findManyForRiders({
+    const enrollments = await instanceEnrollmentRepo.findManyForRiders({
       organizationId,
       riderIds,
       range: { from: new Date(from), to: new Date(to) },

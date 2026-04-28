@@ -7,7 +7,7 @@ import { api, APIError, ErrCode } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { boardService } from "../boards/board.service";
-import { memberService } from "../organizations/members/member.service";
+import { memberRepo } from "../organizations/members/member.repo";
 import { questionnaireService } from "./questionnaire.service";
 import {
   assertMaySubmitForMember,
@@ -28,7 +28,7 @@ export const submitResponse = api(
     const { organizationId, userID } = requireOrganizationAuth();
     const rawResponses = request.responses;
 
-    const caller = await memberService.findOneByUser(userID, organizationId);
+    const caller = await memberRepo.findOneByUser(userID, organizationId);
 
     await assertMaySubmitForMember({
       organizationId,
@@ -36,7 +36,7 @@ export const submitResponse = api(
       callerMemberId: caller.id,
     });
 
-    const subjectMember = await memberService.findOne(
+    const subjectMember = await memberRepo.findOne(
       request.memberId ?? caller.id,
       organizationId
     );

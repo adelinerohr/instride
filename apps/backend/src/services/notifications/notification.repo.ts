@@ -15,7 +15,7 @@ import {
   type NotificationPreferenceRow,
 } from "./schema";
 
-export const createNotificationService = (
+export const createNotificationRepo = (
   client: Database | Transaction = db
 ) => ({
   // ============================================================================
@@ -23,12 +23,29 @@ export const createNotificationService = (
   // ============================================================================
 
   create: async (data: NewNotificationRow) => {
-    const [notification] = await client
+    const [inserted] = await client
       .insert(notifications)
       .values(data)
+      .onConflictDoNothing({
+        target: [notifications.recipientId, notifications.sourceEventId],
+      })
       .returning();
-    assertExists(notification, "Failed to create notification");
-    return notification;
+
+    if (inserted) {
+      return { notification: inserted, wasCreated: true };
+    }
+
+    // Conflict — fetch the existing row so the caller has something to
+    // return (and so dispatch logic can decide whether to re-dispatch).
+    const existing = await client.query.notifications.findFirst({
+      where: {
+        recipientId: data.recipientId,
+        sourceEventId:
+          data.sourceEventId === null ? { isNull: true } : data.sourceEventId,
+      },
+    });
+    assertExists(existing, "Failed to load notification after conflict");
+    return { notification: existing, wasCreated: false };
   },
 
   findOne: async (id: string) => {
@@ -122,7 +139,7 @@ export const createNotificationService = (
   },
 });
 
-export const notificationService = createNotificationService();
+export const notificationRepo = createNotificationRepo();
 
 /**
  * Always-on channel + opt-in channels per the member's preferences.

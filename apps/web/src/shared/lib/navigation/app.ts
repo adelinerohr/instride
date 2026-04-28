@@ -5,6 +5,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   MessageCircle,
+  Newspaper,
   Settings,
   Ticket,
   UsersIcon,
@@ -20,17 +21,24 @@ export const getPortalNavItems = (slug: string) =>
       activeOptions: { exact: true },
     },
     {
-      title: "Feed",
-      icon: MessageCircle,
-      to: "/org/$slug/portal/feed",
-      params: { slug },
-    },
-    {
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/portal/calendar",
       params: { slug },
     },
+    {
+      title: "Messages",
+      icon: MessageCircle,
+      to: "/org/$slug/portal/messages",
+      params: { slug },
+    },
+    {
+      title: "Feed",
+      icon: Newspaper,
+      to: "/org/$slug/portal/feed",
+      params: { slug },
+    },
+
     {
       title: "Settings",
       icon: Settings,
@@ -49,17 +57,24 @@ export const getAdminNavItems = (slug: string) => ({
       activeOptions: { exact: true },
     },
     {
-      title: "Feed",
-      icon: MessageCircle,
-      to: "/org/$slug/admin/feed",
-      params: { slug },
-    },
-    {
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/admin/calendar",
       params: { slug },
     },
+    {
+      title: "Messages",
+      icon: MessageCircle,
+      to: "/org/$slug/admin/messages",
+      params: { slug },
+    },
+    {
+      title: "Feed",
+      icon: Newspaper,
+      to: "/org/$slug/admin/feed",
+      params: { slug },
+    },
+
     {
       title: "Settings",
       icon: Settings,

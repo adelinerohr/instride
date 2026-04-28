@@ -1,5 +1,6 @@
 import type { AuthUser } from "@instride/api";
 
+import { categoryColorClasses, getUserColor } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 import { getInitials } from "@/shared/lib/utils/format";
 
@@ -22,13 +23,17 @@ function UserAvatar({
   name?: string;
   image?: string | null;
 }) {
+  const color = user ? getUserColor(user.id) : "clay";
+  const classes = categoryColorClasses(color).primary;
   return (
     <Avatar {...props}>
       <AvatarImage
         src={image ?? user?.image ?? undefined}
         alt={name ?? user?.name ?? ""}
       />
-      <AvatarFallback>{getInitials(name ?? user?.name ?? "")}</AvatarFallback>
+      <AvatarFallback className={cn(classes, "text-primary-foreground!")}>
+        {getInitials(name ?? user?.name ?? "")}
+      </AvatarFallback>
     </Avatar>
   );
 }

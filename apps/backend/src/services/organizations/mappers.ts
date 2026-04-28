@@ -18,7 +18,10 @@ import { assertExists } from "@/shared/utils/validation";
 
 import { toAuthUser } from "../auth/mappers";
 import { AuthUserRow } from "../auth/schema";
-import { toBoardAssignmentSummary } from "../boards/mappers";
+import {
+  BoardAssignmentSummaryRow,
+  toBoardAssignmentSummary,
+} from "../boards/mappers";
 import {
   AuthInvitationRow,
   LevelRow,
@@ -28,6 +31,40 @@ import {
   TrainerRow,
 } from "./schema";
 
+// ---------------------------------------------------------------------------
+// Augmented row types (row + relations as fetched via fragments)
+// ---------------------------------------------------------------------------
+
+export type MemberSummaryRow = MemberRow & { authUser: AuthUserRow | null };
+
+export type MemberWithAuthAndRolesRow = MemberSummaryRow & {
+  rider: RiderRow | null;
+  trainer: TrainerRow | null;
+};
+
+export type RiderSummaryRow = RiderRow & {
+  member: MemberSummaryRow | null;
+};
+
+export type RiderWithExpansionRow = RiderRow & {
+  level: LevelRow | null;
+  member: MemberSummaryRow | null;
+  boardAssignments: BoardAssignmentSummaryRow[];
+};
+
+export type TrainerSummaryRow = TrainerRow & {
+  member: MemberSummaryRow | null;
+};
+
+export type TrainerWithExpansionRow = TrainerRow & {
+  member: MemberSummaryRow | null;
+  boardAssignments: BoardAssignmentSummaryRow[];
+};
+
+// ---------------------------------------------------------------------------
+// Mappers
+// ---------------------------------------------------------------------------
+
 export function toOrganization(row: OrganizationRow): Organization {
   return {
     ...row,
@@ -35,11 +72,7 @@ export function toOrganization(row: OrganizationRow): Organization {
   };
 }
 
-export function toMemberSummary(
-  row: MemberRow & {
-    authUser: AuthUserRow | null;
-  }
-): MemberSummary {
+export function toMemberSummary(row: MemberSummaryRow): MemberSummary {
   assertExists(row.authUser, "Member has no auth user");
 
   return {
@@ -50,13 +83,7 @@ export function toMemberSummary(
   };
 }
 
-export function toMember(
-  row: MemberRow & {
-    authUser: AuthUserRow | null;
-    rider: RiderRow | null;
-    trainer: TrainerRow | null;
-  }
-): Member {
+export function toMember(row: MemberWithAuthAndRolesRow): Member {
   assertExists(row.authUser, "Member has no auth user");
 
   return {
@@ -76,9 +103,7 @@ export function toLevel(row: LevelRow): Level {
   };
 }
 
-export function toRiderSummary(
-  row: RiderRow & { member: Parameters<typeof toMemberSummary>[0] | null }
-): RiderSummary {
+export function toRiderSummary(row: RiderSummaryRow): RiderSummary {
   assertExists(row.member, "Rider has no member");
 
   return {
@@ -95,13 +120,7 @@ export function toRiderProfile(row: RiderRow): RiderProfile {
   };
 }
 
-export function toRider(
-  row: RiderRow & {
-    level: LevelRow | null;
-    member: Parameters<typeof toMemberSummary>[0] | null;
-    boardAssignments: Array<Parameters<typeof toBoardAssignmentSummary>[0]>;
-  }
-): Rider {
+export function toRider(row: RiderWithExpansionRow): Rider {
   assertExists(row.member, "Rider has no member");
 
   return {
@@ -114,9 +133,7 @@ export function toRider(
   };
 }
 
-export function toTrainerSummary(
-  row: TrainerRow & { member: Parameters<typeof toMemberSummary>[0] | null }
-): TrainerSummary {
+export function toTrainerSummary(row: TrainerSummaryRow): TrainerSummary {
   assertExists(row.member, "Trainer has no member");
 
   return {
@@ -132,12 +149,7 @@ export function toTrainerProfile(row: TrainerRow): TrainerProfile {
   };
 }
 
-export function toTrainer(
-  row: TrainerRow & {
-    member: Parameters<typeof toMemberSummary>[0] | null;
-    boardAssignments: Array<Parameters<typeof toBoardAssignmentSummary>[0]>;
-  }
-): Trainer {
+export function toTrainer(row: TrainerWithExpansionRow): Trainer {
   assertExists(row.member, "Trainer has no member");
 
   return {

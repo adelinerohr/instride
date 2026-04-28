@@ -1,4 +1,4 @@
-import { NotificationType } from "@instride/shared";
+import { NotificationEntityType, NotificationType } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { members } from "@/services/organizations/schema/members";
@@ -7,6 +7,11 @@ import { organizations } from "@/services/organizations/schema/organizations";
 export const notificationTypeEnum = p.pgEnum(
   "notification_type",
   NotificationType
+);
+
+export const notificationEntityTypeEnum = p.pgEnum(
+  "notification_entity_type",
+  NotificationEntityType
 );
 
 export const notifications = p.pgTable(
@@ -21,6 +26,7 @@ export const notifications = p.pgTable(
       .uuid("recipient_id")
       .notNull()
       .references(() => members.id, { onDelete: "cascade" }),
+    sourceEventId: p.text("source_event_id"),
 
     type: notificationTypeEnum("type").notNull(),
 
@@ -28,7 +34,7 @@ export const notifications = p.pgTable(
     message: p.text("message").notNull(),
 
     // Link to the related entity
-    entityType: p.text("entity_type").notNull(), // "lesson", "payment", etc.
+    entityType: notificationEntityTypeEnum("entity_type").notNull(),
     entityId: p.uuid("entity_id"),
 
     // Deep link for mobile/web navigation
@@ -47,6 +53,10 @@ export const notifications = p.pgTable(
     p
       .index("notifications_unread_idx")
       .on(table.recipientId, table.isRead, table.createdAt),
+    // Idempotency key
+    p
+      .unique("notifications_event_idempotency_key")
+      .on(table.recipientId, table.sourceEventId),
   ]
 );
 

@@ -9,7 +9,7 @@ import { api, APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { memberService } from "../organizations/members/member.service";
+import { memberRepo } from "../organizations/members/member.repo";
 import { db } from "./db";
 import { waiverService } from "./service";
 
@@ -74,7 +74,7 @@ export const signWaiver = api(
     const { organizationId, userID } = requireOrganizationAuth();
 
     const waiver = await waiverService.findOne(request.id, organizationId);
-    const member = await memberService.findOneByUser(userID, organizationId);
+    const member = await memberRepo.findOneByUser(userID, organizationId);
 
     const existing = await db.query.waiverSignatures.findFirst({
       where: {

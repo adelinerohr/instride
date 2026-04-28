@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { SQLDatabase } from "encore.dev/storage/sqldb";
 
 import { activityRelations } from "@/services/activity/schema/relations";
+import { chatRelations } from "@/services/chat/schema/relations";
 import { eventsRelations } from "@/services/events/schema/relations";
 import { kioskRelations } from "@/services/kiosk/schema/relations";
 import { notificationsRelations } from "@/services/notifications/schema/relations";
@@ -41,6 +42,7 @@ const relations = {
   ...notificationsRelations,
   ...kioskRelations,
   ...eventsRelations,
+  ...chatRelations,
 };
 
 let _db: ReturnType<typeof createDb> | undefined;

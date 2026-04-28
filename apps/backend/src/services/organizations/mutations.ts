@@ -12,8 +12,8 @@ import { requireAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { toOrganization } from "./mappers";
-import { memberService } from "./members/member.service";
-import { organizationService } from "./organization.service";
+import { memberRepo } from "./members/member.repo";
+import { organizationRepo } from "./organization.repo";
 
 export const createOrganization = api(
   { expose: true, method: "POST", path: "/organizations", auth: true },
@@ -22,7 +22,7 @@ export const createOrganization = api(
   ): Promise<GetOrganizationResponse> => {
     const { userID } = requireAuth();
 
-    const existing = await organizationService.findOneBySlug(request.slug);
+    const existing = await organizationRepo.findOneBySlug(request.slug);
     if (existing) {
       throw APIError.alreadyExists(`Slug "${request.slug}" is already taken`);
     }
@@ -37,7 +37,7 @@ export const createOrganization = api(
     });
     assertExists(authOrg, "Failed to create organization in auth");
 
-    const organization = await organizationService.create({
+    const organization = await organizationRepo.create({
       ...request,
       authOrganizationId: authOrg.id,
     });
@@ -49,7 +49,7 @@ export const createOrganization = api(
 
     const authMemberRow = authOrg.members[0];
     if (authMemberRow) {
-      await memberService.create({
+      await memberRepo.create({
         userId: userID,
         organizationId: organization.id,
         authMemberId: authMemberRow.id,
@@ -77,7 +77,7 @@ export const updateOrganization = api(
 
     await assertAdmin(organizationId, userID);
 
-    const updated = await organizationService.update(organizationId, data);
+    const updated = await organizationRepo.update(organizationId, data);
     return { organization: toOrganization(updated) };
   }
 );

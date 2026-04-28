@@ -8,25 +8,28 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { dispatchEmail } from "./channels/email";
 import { toNotification } from "./mappers";
-import {
-  getEnabledChannels,
-  notificationService,
-} from "./notification.service";
+import { getEnabledChannels, notificationRepo } from "./notification.repo";
+import { NotificationRow } from "./schema";
 
 interface CreateInput extends CreateNotificationRequest {
   organizationId: string;
 }
 
-/**
- * Internal notification creation. Safe to call from pub/sub subscriptions
- * because it does not call `requireOrganizationAuth` — the caller passes
- * `organizationId` explicitly.
- */
+// =============================================================================
+// Internal helper — safe to call from Pub/Sub subscribers
+// =============================================================================
+//
+// Idempotent on (recipientId, sourceEventId). If a row already exists for
+// the same source event, we return the existing notification WITHOUT
+// re-dispatching the external channels — the original creation already
+// emailed them.
+
 export async function createNotificationInternal(
   input: CreateInput
 ): Promise<GetNotificationResponse> {
-  const notification = await notificationService.create({
+  const { notification, wasCreated } = await notificationRepo.create({
     organizationId: input.organizationId,
     recipientId: input.recipientId,
     type: input.type,
@@ -35,14 +38,21 @@ export async function createNotificationInternal(
     entityType: input.entityType,
     entityId: input.entityId ?? null,
     deepLink: input.deepLink ?? null,
+    sourceEventId: input.sourceEventId ?? null,
   });
 
-  // Resolve channels: explicit override → recipient's preferences → in-app only
+  // Already created and dispatched on a previous delivery of the same
+  // source event - return the existing row
+  if (!wasCreated) {
+    return { notification: toNotification(notification) };
+  }
+
+  // Resolve channels: explicit override -> recipient's preferences -> defaults
   let channels: NotificationChannel[];
   if (input.channels) {
     channels = input.channels;
   } else {
-    const preference = await notificationService.findPreferenceForType({
+    const preference = await notificationRepo.findPreferenceForType({
       memberId: input.recipientId,
       organizationId: input.organizationId,
       type: input.type,
@@ -50,12 +60,26 @@ export async function createNotificationInternal(
     channels = getEnabledChannels(preference ?? null);
   }
 
-  // Dispatch on each channel; one failure shouldn't drop others
-  await Promise.allSettled(
-    channels.map((channel) => dispatchToChannel(notification.id, channel))
-  );
-
+  await dispatch(notification, channels);
   return { notification: toNotification(notification) };
+}
+
+// =============================================================================
+// External channel dispatch
+// =============================================================================
+//
+// In-app is implicit (the notification row IS the in-app delivery, no
+// extra step needed). Today only EMAIL has a real dispatch path; PUSH and
+// SMS are filtered out upstream by getEnabledChannels and will be added
+// here when those channels go live.
+
+async function dispatch(
+  notification: NotificationRow,
+  channels: NotificationChannel[]
+): Promise<void> {
+  if (channels.includes(NotificationChannel.EMAIL)) {
+    await dispatchEmail(notification);
+  }
 }
 
 /**
@@ -71,54 +95,6 @@ export const createNotification = api(
   }
 );
 
-async function dispatchToChannel(
-  notificationId: string,
-  channel: NotificationChannel
-): Promise<void> {
-  let externalId: string | undefined;
-
-  try {
-    switch (channel) {
-      case NotificationChannel.PUSH:
-        // TODO: integrate push provider
-        break;
-      case NotificationChannel.EMAIL:
-        // TODO: integrate email provider
-        break;
-      case NotificationChannel.SMS:
-        // TODO: integrate SMS provider (Telnyx)
-        break;
-      case NotificationChannel.IN_APP:
-        // Already stored in the notifications table
-        break;
-    }
-
-    await notificationService.recordDelivery({
-      notificationId,
-      channel,
-      externalId,
-      status: "sent",
-    });
-  } catch (error) {
-    // Defensive: if recording the failure also throws, log to console as
-    // a last resort so the original error isn't swallowed
-    try {
-      await notificationService.recordDelivery({
-        notificationId,
-        channel,
-        status: "failed",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    } catch (logError) {
-      console.error(
-        "Failed to record notification delivery failure",
-        logError,
-        error
-      );
-    }
-  }
-}
-
 export const markAsRead = api(
   {
     method: "POST",
@@ -132,7 +108,7 @@ export const markAsRead = api(
     notificationId: string;
   }): Promise<GetNotificationResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const notification = await notificationService.markRead(
+    const notification = await notificationRepo.markRead(
       notificationId,
       organizationId
     );
@@ -149,7 +125,7 @@ export const getUnread = api(
   },
   async ({ memberId }: { memberId: string }): Promise<GetUnreadResponse> => {
     requireOrganizationAuth();
-    const unread = await notificationService.findUnreadForMember(memberId);
+    const unread = await notificationRepo.findUnreadForMember(memberId);
     return {
       notifications: unread.map(toNotification),
       unreadCount: unread.length,

@@ -1,11 +1,11 @@
 import type { Board, Trainer } from "@instride/api";
 import {
-  portalLessonInputSchema,
-  type PortalLessonInputSchema,
+  riderCreateLessonInputSchema,
+  type RiderCreateLessonInputSchema,
 } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 
-const portalLessonDefaultValues: PortalLessonInputSchema = {
+const portalLessonDefaultValues: RiderCreateLessonInputSchema = {
   boardId: "",
   serviceId: "",
   start: new Date().toISOString(),
@@ -16,7 +16,7 @@ const portalLessonDefaultValues: PortalLessonInputSchema = {
 
 export const portalLessonFormOpts = formOptions({
   defaultValues: portalLessonDefaultValues,
-  validators: { onSubmit: portalLessonInputSchema },
+  validators: { onSubmit: riderCreateLessonInputSchema },
 });
 
 interface PortalLessonInitalValues {
@@ -30,7 +30,7 @@ export function buildPortalLessonDefaultValues(input: {
   boards: Board[];
   trainers: Trainer[];
   riderId?: string;
-}): PortalLessonInputSchema {
+}): RiderCreateLessonInputSchema {
   // Validate that the trainer is assigned to the board
   const selectedTrainer = input.trainers.find(
     (trainer) => trainer.id === input.initialValues.trainerId

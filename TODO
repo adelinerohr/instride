@@ -1,2 +1,6 @@
 Backend:
   ☐ Fix deleting services in updateBoard
+Web App:
+  ☐ Swipe left/right to navigate through the calendar
+  ☐ Instead of sessions on kiosk (maybe in addition to), have a pin request when trying to do an action
+  ☐ For dependents, when trying to do an action, have a modal that sends a request to the guardian

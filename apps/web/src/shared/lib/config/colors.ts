@@ -24,6 +24,14 @@ export function isCategoryColor(v: string): v is CategoryColor {
   return (CATEGORY_COLORS as readonly string[]).includes(v);
 }
 
+export function getUserColor(userId: string): CategoryColor {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+}
+
 export function getTrainerColor(trainerId: string): CategoryColor {
   let hash = 0;
   for (let i = 0; i < trainerId.length; i++) {
@@ -82,41 +90,50 @@ export function categoryBadgeClasses(color?: string): string {
 export function categoryColorClasses(color?: string): {
   border: string;
   bg: string;
+  primary: string;
   fg: string;
 } {
-  const map: Record<CategoryColor, { border: string; bg: string; fg: string }> =
-    {
-      amber: {
-        border: "border-category-amber-border",
-        bg: "bg-category-amber-bg",
-        fg: "text-category-amber-fg",
-      },
-      sage: {
-        border: "border-category-sage-border",
-        bg: "bg-category-sage-bg",
-        fg: "text-category-sage-fg",
-      },
-      slate: {
-        border: "border-category-slate-border",
-        bg: "bg-category-slate-bg",
-        fg: "text-category-slate-fg",
-      },
-      terracotta: {
-        border: "border-category-terracotta-border",
-        bg: "bg-category-terracotta-bg",
-        fg: "text-category-terracotta-fg",
-      },
-      plum: {
-        border: "border-category-plum-border",
-        bg: "bg-category-plum-bg",
-        fg: "text-category-plum-fg",
-      },
-      clay: {
-        border: "border-category-clay-border",
-        bg: "bg-category-clay-bg",
-        fg: "text-category-clay-fg",
-      },
-    };
+  const map: Record<
+    CategoryColor,
+    { border: string; bg: string; primary: string; fg: string }
+  > = {
+    amber: {
+      border: "border-category-amber-border",
+      bg: "bg-category-amber-bg",
+      primary: "bg-category-amber-dot",
+      fg: "text-category-amber-fg",
+    },
+    sage: {
+      border: "border-category-sage-border",
+      bg: "bg-category-sage-bg",
+      primary: "bg-category-sage-dot",
+      fg: "text-category-sage-fg",
+    },
+    slate: {
+      border: "border-category-slate-border",
+      bg: "bg-category-slate-bg",
+      primary: "bg-category-slate-dot",
+      fg: "text-category-slate-fg",
+    },
+    terracotta: {
+      border: "border-category-terracotta-border",
+      bg: "bg-category-terracotta-bg",
+      primary: "bg-category-terracotta-dot",
+      fg: "text-category-terracotta-fg",
+    },
+    plum: {
+      border: "border-category-plum-border",
+      bg: "bg-category-plum-bg",
+      primary: "bg-category-plum-dot",
+      fg: "text-category-plum-fg",
+    },
+    clay: {
+      border: "border-category-clay-border",
+      bg: "bg-category-clay-bg",
+      primary: "bg-category-clay-dot",
+      fg: "text-category-clay-fg",
+    },
+  };
 
   if (!color || !isCategoryColor(color)) {
     return map["clay"];

@@ -16,7 +16,9 @@ export const Route = createFileRoute(
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(invitationOptions.list()),
+      context.queryClient.ensureQueryData(
+        invitationOptions.list(context.organization.id)
+      ),
       context.queryClient.ensureQueryData(membersOptions.all()),
     ]);
   },

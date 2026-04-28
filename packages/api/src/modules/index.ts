@@ -12,3 +12,4 @@ export * from "./activity";
 export * from "./kiosk";
 export * from "./events";
 export * from "./boards";
+export * from "./chat";

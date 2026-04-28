@@ -1,3 +1,5 @@
+import { MessageResponseStatus } from "./enums";
+
 export interface FeedCursor {
   createdAt: string;
   id: string;
@@ -20,3 +22,11 @@ export interface GuardianPermissions {
     canEdit: boolean;
   };
 }
+
+export const TERMINAL_RESPONSE_STATUSES: ReadonlySet<MessageResponseStatus> =
+  new Set([
+    MessageResponseStatus.ACCEPTED,
+    MessageResponseStatus.DECLINED,
+    MessageResponseStatus.CANCELLED,
+    MessageResponseStatus.FAILED,
+  ]);

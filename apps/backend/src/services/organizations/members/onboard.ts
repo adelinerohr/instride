@@ -25,9 +25,9 @@ import { assertExists } from "@/shared/utils/validation";
 import { db } from "../db";
 import { invitationService } from "../invitations/invitation.service";
 import { toMember } from "../mappers";
-import { organizationService } from "../organization.service";
+import { organizationRepo } from "../organization.repo";
 import { RiderRow, TrainerRow } from "../schema";
-import { createMemberService } from "./member.service";
+import { createMemberRepo } from "./member.repo";
 
 interface OnboardMemberParams {
   organizationId: string;
@@ -58,9 +58,7 @@ export const onboardMember = api(
     const { userID } = requireAuth();
 
     const user = await authService.findOneUser(userID);
-    const organization = await organizationService.findOne(
-      params.organizationId
-    );
+    const organization = await organizationRepo.findOne(params.organizationId);
 
     const acceptedInvitation = await invitationService.findAcceptedForOrgEmail({
       organizationId: organization.authOrganizationId,
@@ -96,7 +94,7 @@ export const onboardMember = api(
     }
 
     const result = await db.transaction(async (tx) => {
-      const txMemberService = createMemberService(tx);
+      const txMemberService = createMemberRepo(tx);
       const txAuthService = createAuthService(tx);
 
       // 1. Update user profile

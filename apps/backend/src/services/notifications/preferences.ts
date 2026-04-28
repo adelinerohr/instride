@@ -8,7 +8,7 @@ import { api } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { toNotificationPreference } from "./mappers";
-import { notificationService } from "./notification.service";
+import { notificationRepo } from "./notification.repo";
 
 /**
  * Returns ALL preferences for a member (one row per notification type),
@@ -29,7 +29,7 @@ export const getPreferences = api(
   }): Promise<ListPreferencesResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await notificationService.findPreferencesForMember({
+    const rows = await notificationRepo.findPreferencesForMember({
       memberId,
       organizationId,
     });
@@ -50,7 +50,7 @@ export const updatePreferences = api(
   ): Promise<UpdatePreferencesResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const upserted = await notificationService.upsertPreferences(
+    const upserted = await notificationRepo.upsertPreferences(
       request.preferences.map((preference) => ({
         ...preference,
         organizationId,

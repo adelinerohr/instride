@@ -3,6 +3,7 @@ import { addDays, format, isSameDay } from "date-fns";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
+import { useRangeSwipe } from "@/features/calendar/hooks/use-range-swipe";
 import { HOURS, START_HOUR } from "@/features/calendar/lib/constants";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { cn } from "@/shared/lib/utils";
@@ -12,6 +13,9 @@ import { MultiDayRow } from "../fragments/multi-day-row";
 import { CalendarTimeline } from "../fragments/timeline";
 
 export function MultiDayView() {
+  const { swipeHandlers, swipeClassName, wheelTargetRef } = useRangeSwipe({
+    enabled: true,
+  });
   const {
     selectedDate,
     selectedTrainerIds,
@@ -38,7 +42,18 @@ export function MultiDayView() {
     }),
   }));
 
+  // Scroll to "now" on mount / selected date change
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  // Combined ref callback for both scrollRef and wheelTargetRef
+  const setViewportRef = React.useCallback(
+    (el: HTMLDivElement | null) => {
+      scrollRef.current = el;
+      wheelTargetRef.current = el;
+    },
+    [wheelTargetRef]
+  );
+
   React.useLayoutEffect(() => {
     const now = new Date();
     const targetHour = days.some((day) => isSameDay(day, now))
@@ -115,58 +130,67 @@ export function MultiDayView() {
           </div>
         </div>
 
-        <ScrollArea className="h-full" ref={scrollRef}>
-          <div className="flex relative">
-            {/* Hours column — unchanged */}
-            <div className="relative w-18 shrink-0">
-              {HOURS.map((hour, index) => (
-                <div
-                  key={hour}
-                  className="relative"
-                  style={{ height: `${slotHeight}px` }}
-                >
-                  <div className="absolute -top-3 right-2 flex h-6 items-center">
-                    {index !== 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date().setHours(hour, 0, 0, 0), "hh a")}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Grid: for each day, render all trainer columns */}
-            <div className="relative flex-1 flex">
-              {daysWithTrainers.map(({ day, trainers }, dayIdx) => (
-                <div
-                  key={day.toISOString()}
-                  className={cn(
-                    "relative flex-1 flex border-l",
-                    dayIdx !== 0 && "border-primary/30"
-                  )}
-                >
-                  {trainers.length > 0 ? (
-                    trainers.map((trainer, i) => (
-                      <div
-                        key={trainer.id}
-                        className={cn("relative flex-1", i !== 0 && "border-l")}
-                      >
-                        <DayColumn trainer={trainer} date={day} />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="relative flex-1 flex items-center justify-center text-xs italic text-muted-foreground">
-                      No trainers available
+        <div
+          className={cn("flex-1 min-h-0", swipeClassName)}
+          onPointerDownCapture={(e) => console.log("down", e.pointerType)}
+          {...swipeHandlers}
+        >
+          <ScrollArea className="h-full" ref={setViewportRef}>
+            <div className="flex relative">
+              {/* Hours column — unchanged */}
+              <div className="relative w-18 shrink-0">
+                {HOURS.map((hour, index) => (
+                  <div
+                    key={hour}
+                    className="relative"
+                    style={{ height: `${slotHeight}px` }}
+                  >
+                    <div className="absolute -top-3 right-2 flex h-6 items-center">
+                      {index !== 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date().setHours(hour, 0, 0, 0), "hh a")}
+                        </span>
+                      )}
                     </div>
-                  )}
+                  </div>
+                ))}
+              </div>
 
-                  {isSameDay(day, new Date()) && <CalendarTimeline />}
-                </div>
-              ))}
+              {/* Grid: for each day, render all trainer columns */}
+              <div className="relative flex-1 flex">
+                {daysWithTrainers.map(({ day, trainers }, dayIdx) => (
+                  <div
+                    key={day.toISOString()}
+                    className={cn(
+                      "relative flex-1 flex border-l",
+                      dayIdx !== 0 && "border-primary/30"
+                    )}
+                  >
+                    {trainers.length > 0 ? (
+                      trainers.map((trainer, i) => (
+                        <div
+                          key={trainer.id}
+                          className={cn(
+                            "relative flex-1",
+                            i !== 0 && "border-l"
+                          )}
+                        >
+                          <DayColumn trainer={trainer} date={day} />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="relative flex-1 flex items-center justify-center text-xs italic text-muted-foreground">
+                        No trainers available
+                      </div>
+                    )}
+
+                    {isSameDay(day, new Date()) && <CalendarTimeline />}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

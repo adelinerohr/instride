@@ -40,7 +40,11 @@ function RouteComponent() {
         {
           ...data,
           start: data.start,
-          levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
+          levelId: data.levelId
+            ? data.levelId.trim() === ""
+              ? null
+              : data.levelId
+            : null,
           riderIds,
         },
         {

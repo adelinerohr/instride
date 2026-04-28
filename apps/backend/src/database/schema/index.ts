@@ -11,3 +11,4 @@ export * from "@/services/notifications/schema";
 export * from "@/services/activity/schema";
 export * from "@/services/kiosk/schema";
 export * from "@/services/events/schema";
+export * from "@/services/chat/schema";

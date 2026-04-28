@@ -5,7 +5,7 @@ import type {
 import { KioskAction } from "@instride/shared";
 import { api } from "encore.dev/api";
 
-import { instanceEnrollmentService } from "@/services/lessons/enrollments/enrollment.service";
+import { instanceEnrollmentRepo } from "@/services/lessons/enrollments/enrollment.repo";
 import { toInstanceEnrollment } from "@/services/lessons/mappers";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
@@ -51,14 +51,14 @@ export const kioskMarkAttendance = api(
       targetMemberId: enrollment.rider.memberId,
     });
 
-    await instanceEnrollmentService.markAttendance(
+    await instanceEnrollmentRepo.markAttendance(
       request.enrollmentId,
       organizationId,
       { attended: request.attended, markedByMemberId: acting.actingMemberId }
     );
 
     // Re-fetch with rider for the contract response
-    const full = await instanceEnrollmentService.findOne(
+    const full = await instanceEnrollmentRepo.findOne(
       request.enrollmentId,
       organizationId
     );

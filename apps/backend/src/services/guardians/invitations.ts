@@ -19,7 +19,7 @@ import { getBaseUrl } from "@/shared/utils/url";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "./db";
-import { guardianService } from "./guardian.service";
+import { guardianRepo } from "./guardian.repo";
 import {
   toGuardianInvitation,
   toGuardianInvitationWithContext,
@@ -41,7 +41,7 @@ export const getPendingInvitation = api(
     const user = await db.query.authUsers.findFirst({ where: { id: userID } });
     if (!user) return { invitation: null };
 
-    const invitation = await guardianService.findPendingInvitationForEmail(
+    const invitation = await guardianRepo.findPendingInvitationForEmail(
       user.email
     );
 
@@ -70,7 +70,7 @@ export const getInvitationByToken = api(
   }: {
     token: string;
   }): Promise<GetGuardianInvitationResponse> => {
-    const invitation = await guardianService.findInvitationByToken(token);
+    const invitation = await guardianRepo.findInvitationByToken(token);
     assertExists(invitation, "Invitation not found");
 
     return { invitation: toGuardianInvitationWithContext(invitation) };
@@ -109,7 +109,7 @@ export const sendInvitation = api(
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + INVITATION_EXPIRY_DAYS);
 
-    const invitation = await guardianService.upsertInvitation({
+    const invitation = await guardianRepo.upsertInvitation({
       relationshipId: request.relationshipId,
       email: request.email,
       token,
@@ -156,7 +156,7 @@ export const acceptInvitation = api(
   async ({ token }: { token: string }): Promise<void> => {
     const { userID } = requireAuth();
 
-    const invitation = await guardianService.findInvitationScalar(token);
+    const invitation = await guardianRepo.findInvitationScalar(token);
     assertExists(invitation, "Invitation not found");
     assertExists(invitation.relationship, "Relationship not found");
 

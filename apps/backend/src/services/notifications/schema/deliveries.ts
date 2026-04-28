@@ -1,4 +1,7 @@
-import { NotificationChannel } from "@instride/shared";
+import {
+  NotificationChannel,
+  NotificationDeliveryStatus,
+} from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 
 import { notifications } from "./notifications";
@@ -6,6 +9,11 @@ import { notifications } from "./notifications";
 export const notificationChannelEnum = p.pgEnum(
   "notification_channel",
   NotificationChannel
+);
+
+export const notificationDeliveryStatusEnum = p.pgEnum(
+  "notification_delivery_status",
+  NotificationDeliveryStatus
 );
 
 // Track what was sent via which channel (for audit/debugging)
@@ -25,7 +33,7 @@ export const notificationDeliveries = p.pgTable(
     // External IDs for tracking
     externalId: p.text("external_id"), // Expo push ticket ID, email message ID, etc.
 
-    status: p.text("status").notNull(), // "sent", "failed", "delivered"
+    status: notificationDeliveryStatusEnum("status").notNull(),
     error: p.text("error"),
 
     sentAt: p

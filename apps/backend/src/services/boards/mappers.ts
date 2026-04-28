@@ -13,11 +13,12 @@ import { assertExists } from "@/shared/utils/validation";
 
 import {
   toLevel,
-  toMemberSummary,
   toRiderSummary,
   toTrainerSummary,
+  RiderSummaryRow,
+  TrainerSummaryRow,
 } from "../organizations/mappers";
-import { LevelRow, RiderRow, TrainerRow } from "../organizations/schema";
+import { LevelRow } from "../organizations/schema";
 import {
   BoardAssignmentRow,
   BoardRow,
@@ -26,8 +27,36 @@ import {
   ServiceTrainerAssignmentRow,
 } from "./schema";
 
+// ---------------------------------------------------------------------------
+// Augmented row types (row + relations as fetched via fragments)
+// ---------------------------------------------------------------------------
+
+export type BoardAssignmentSummaryRow = BoardAssignmentRow & {
+  board: BoardRow | null;
+};
+
+export type BoardAssignmentWithExpansionRow = BoardAssignmentRow & {
+  trainer: TrainerSummaryRow | null;
+  rider: RiderSummaryRow | null;
+};
+
+export type BoardWithExpansionRow = BoardRow & {
+  assignments: BoardAssignmentWithExpansionRow[] | null;
+  serviceBoardAssignments: ServiceBoardAssignmentRow[] | null;
+};
+
+export type ServiceWithExpansionRow = ServiceRow & {
+  restrictedToLevel: LevelRow | null;
+  boardAssignments: ServiceBoardAssignmentRow[];
+  trainerAssignments: ServiceTrainerAssignmentRow[];
+};
+
+// ---------------------------------------------------------------------------
+// Mappers
+// ---------------------------------------------------------------------------
+
 export function toBoardAssignmentSummary(
-  row: BoardAssignmentRow & { board: BoardRow | null }
+  row: BoardAssignmentSummaryRow
 ): BoardAssignmentSummary {
   assertExists(row.board, "Board assignment has no board");
 
@@ -45,12 +74,7 @@ export function toBoardSummary(row: BoardRow): BoardSummary {
   };
 }
 
-export function toBoard(
-  row: BoardRow & {
-    assignments: Parameters<typeof toBoardAssignment>[0][] | null;
-    serviceBoardAssignments: ServiceBoardAssignmentRow[] | null;
-  }
-): Board {
+export function toBoard(row: BoardWithExpansionRow): Board {
   assertExists(row.assignments, "Board has no assignments");
   assertExists(
     row.serviceBoardAssignments,
@@ -86,14 +110,7 @@ export function toServiceTrainerAssignment(
 }
 
 export function toBoardAssignment(
-  row: BoardAssignmentRow & {
-    trainer:
-      | (TrainerRow & { member: Parameters<typeof toMemberSummary>[0] | null })
-      | null;
-    rider:
-      | (RiderRow & { member: Parameters<typeof toMemberSummary>[0] | null })
-      | null;
-  }
+  row: BoardAssignmentWithExpansionRow
 ): BoardAssignment {
   const trainer = row.trainer ? toTrainerSummary(row.trainer) : null;
   const rider = row.rider ? toRiderSummary(row.rider) : null;

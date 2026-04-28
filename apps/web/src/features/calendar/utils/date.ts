@@ -2,12 +2,15 @@ import type { LessonInstance } from "@instride/api";
 import * as dateFns from "date-fns";
 import { parseISO } from "date-fns";
 
-import { useCalendar } from "../hooks/use-calendar";
 import { END_HOUR, START_HOUR } from "../lib/constants";
 import { CalendarView } from "../lib/types";
 
-export function rangeText() {
-  const { selectedView, selectedMultiDayCount, selectedDate } = useCalendar();
+export function rangeText(params: {
+  selectedView: CalendarView;
+  selectedDate: Date;
+  selectedMultiDayCount: number;
+}) {
+  const { selectedView, selectedDate, selectedMultiDayCount } = params;
   const formatString = "MMM d, yyyy";
   let start: Date;
   let end: Date;
@@ -34,9 +37,14 @@ export function rangeText() {
   return `${dateFns.format(start, formatString)} - ${dateFns.format(end, formatString)}`;
 }
 
-export function navigateDate(direction: "previous" | "next"): Date {
-  const { selectedView, selectedDate, selectedMultiDayCount } = useCalendar();
-
+export function navigateDate(params: {
+  direction: "previous" | "next";
+  selectedView: CalendarView;
+  selectedDate: Date;
+  selectedMultiDayCount: number;
+}): Date {
+  const { direction, selectedView, selectedDate, selectedMultiDayCount } =
+    params;
   switch (selectedView) {
     case CalendarView.AGENDA:
       return dateFns.addMonths(selectedDate, direction === "next" ? 1 : -1);

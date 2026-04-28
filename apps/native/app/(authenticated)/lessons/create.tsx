@@ -7,8 +7,8 @@ import {
   useTrainers,
 } from "@instride/api";
 import {
-  LessonSeriesInputSchema,
-  lessonSeriesInputSchema,
+  adminCreateLessonInputSchema,
+  AdminCreateLessonInputSchema,
 } from "@instride/shared";
 import { useRouter } from "expo-router";
 import { useToast } from "heroui-native";
@@ -52,9 +52,9 @@ export default function CreateLessonScreen() {
       lastPlannedUntil: null,
       notes: "",
       riderIds: [],
-    } as LessonSeriesInputSchema,
+    } as AdminCreateLessonInputSchema,
     validators: {
-      onSubmit: lessonSeriesInputSchema,
+      onSubmit: adminCreateLessonInputSchema,
     },
     onSubmit: ({ value }) => {
       const { riderIds, ...data } = value;
@@ -63,7 +63,6 @@ export default function CreateLessonScreen() {
         {
           ...value,
           start: data.start,
-          effectiveFrom: data.effectiveFrom?.toISOString() ?? null,
           levelId: data.levelId?.trim() === "" ? undefined : data.levelId,
           riderIds,
         },

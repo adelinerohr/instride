@@ -1,29 +1,28 @@
 import type { LessonInstance } from "@instride/api";
 import {
-  lessonSeriesInputSchema,
-  type LessonSeriesInputSchema,
+  adminCreateLessonInputSchema,
+  type AdminCreateLessonInputSchema,
 } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 
-const lessonDefaultValues: LessonSeriesInputSchema = {
+const lessonDefaultValues: AdminCreateLessonInputSchema = {
   name: "",
   boardId: "",
   start: new Date().toISOString(),
   trainerId: "",
-  levelId: "",
+  levelId: null,
   serviceId: "",
   duration: 0,
   maxRiders: 0,
   isRecurring: false,
   recurrenceFrequency: null,
-  effectiveFrom: null,
   notes: "",
   riderIds: [],
 };
 
 export const lessonFormOpts = formOptions({
   defaultValues: lessonDefaultValues,
-  validators: { onSubmit: lessonSeriesInputSchema },
+  validators: { onSubmit: adminCreateLessonInputSchema },
 });
 
 export function buildLessonDefaultValues(initialValues: {
@@ -31,7 +30,7 @@ export function buildLessonDefaultValues(initialValues: {
   start?: string;
   boardId?: string;
   trainerId?: string;
-}): LessonSeriesInputSchema {
+}): AdminCreateLessonInputSchema {
   if (initialValues.lesson) {
     const lesson = initialValues.lesson;
     const series = lesson.series;
@@ -45,7 +44,7 @@ export function buildLessonDefaultValues(initialValues: {
       boardId: lesson.boardId,
       trainerId: lesson.trainerId,
       serviceId: lesson.serviceId,
-      levelId: lesson.levelId ?? "",
+      levelId: lesson.levelId ?? null,
       notes: lesson.notes ?? "",
       maxRiders: lesson.maxRiders,
       start:

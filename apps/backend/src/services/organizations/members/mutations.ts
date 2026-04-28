@@ -15,20 +15,20 @@ import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "../db";
-import { organizationService } from "../organization.service";
-import { memberService } from "./member.service";
+import { organizationRepo } from "../organization.repo";
+import { memberRepo } from "./member.repo";
 
 export const createRider = api(
   { expose: true, method: "POST", path: "/riders", auth: true },
   async (request: CreateRiderRequest): Promise<GetRiderResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const created = await memberService.createRider({
+    const created = await memberRepo.createRider({
       ...request,
       organizationId,
     });
 
-    const rider = await memberService.findOneRider(created.id, organizationId);
+    const rider = await memberRepo.findOneRider(created.id, organizationId);
     return { rider: rider };
   }
 );
@@ -38,15 +38,12 @@ export const createTrainer = api(
   async (request: CreateTrainerRequest): Promise<GetTrainerResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const created = await memberService.createTrainer({
+    const created = await memberRepo.createTrainer({
       ...request,
       organizationId,
     });
 
-    const trainer = await memberService.findOneTrainer(
-      created.id,
-      organizationId
-    );
+    const trainer = await memberRepo.findOneTrainer(created.id, organizationId);
     return { trainer: trainer };
   }
 );
@@ -61,7 +58,7 @@ export const completeOnboarding = api(
   async ({ memberId }: { memberId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
 
-    await memberService.update(memberId, organizationId, {
+    await memberRepo.update(memberId, organizationId, {
       onboardingComplete: true,
     });
   }
@@ -72,11 +69,8 @@ export const changeRole = api(
   async (params: ChangeRoleRequest): Promise<void> => {
     const { token, organizationId } = requireOrganizationAuth();
 
-    const existing = await memberService.findOne(
-      params.memberId,
-      organizationId
-    );
-    const organization = await organizationService.findOne(organizationId);
+    const existing = await memberRepo.findOne(params.memberId, organizationId);
+    const organization = await organizationRepo.findOne(organizationId);
 
     const authMember = await db.query.authMembers.findFirst({
       where: { id: existing.authMemberId },
@@ -100,20 +94,12 @@ export const changeRole = api(
       },
     });
 
-    await memberService.update(params.memberId, organizationId, {
+    await memberRepo.update(params.memberId, organizationId, {
       roles: params.roles,
     });
 
-    await memberService.syncTrainer(
-      params.memberId,
-      organizationId,
-      params.roles
-    );
-    await memberService.syncRider(
-      params.memberId,
-      organizationId,
-      params.roles
-    );
+    await memberRepo.syncTrainer(params.memberId, organizationId, params.roles);
+    await memberRepo.syncRider(params.memberId, organizationId, params.roles);
   }
 );
 
@@ -123,9 +109,9 @@ export const updateRider = api(
     const { organizationId } = requireOrganizationAuth();
     const { riderId, ...data } = request;
 
-    await memberService.updateRider(riderId, organizationId, data);
+    await memberRepo.updateRider(riderId, organizationId, data);
 
-    const rider = await memberService.findOneRider(riderId, organizationId);
+    const rider = await memberRepo.findOneRider(riderId, organizationId);
     return { rider: rider };
   }
 );
@@ -136,12 +122,9 @@ export const updateTrainer = api(
     const { organizationId } = requireOrganizationAuth();
     const { trainerId, ...data } = request;
 
-    await memberService.updateTrainer(trainerId, organizationId, data);
+    await memberRepo.updateTrainer(trainerId, organizationId, data);
 
-    const trainer = await memberService.findOneTrainer(
-      trainerId,
-      organizationId
-    );
+    const trainer = await memberRepo.findOneTrainer(trainerId, organizationId);
     return { trainer: trainer };
   }
 );

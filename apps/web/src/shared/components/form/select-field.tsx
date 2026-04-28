@@ -34,6 +34,7 @@ type SelectFieldProps<T extends object> = Omit<
   /** Map stored form/API values to the same string shape as {@link itemToValue} (e.g. DB time → slot key). */
   matchValue?: (stored: string | null | undefined) => string;
   alignItemWithTrigger?: boolean;
+  disabled?: boolean;
 };
 
 export function SelectField<T extends object>({
@@ -50,6 +51,7 @@ export function SelectField<T extends object>({
   matchValue,
   alignItemWithTrigger = false,
   defaultHeight = false,
+  disabled = false,
 }: SelectFieldProps<T>) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -75,6 +77,7 @@ export function SelectField<T extends object>({
       <Select
         name={field.name}
         value={currentItem}
+        disabled={disabled}
         itemToStringValue={itemToValue}
         onValueChange={(value) => {
           if (onChange) {

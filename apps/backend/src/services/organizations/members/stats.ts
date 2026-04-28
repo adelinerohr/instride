@@ -4,7 +4,7 @@ import { api } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { levelService } from "../levels/level.service";
-import { memberService } from "./member.service";
+import { memberRepo } from "./member.repo";
 
 interface GetRiderStatsResponse {
   totalRiders: number;
@@ -27,7 +27,7 @@ export const getRiderStats = api(
   },
   async (): Promise<GetRiderStatsResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const riders = await memberService.findManyRiders(organizationId);
+    const riders = await memberRepo.findManyRiders(organizationId);
     const levels = await levelService.findMany(organizationId);
 
     const totalRiders = riders.length;

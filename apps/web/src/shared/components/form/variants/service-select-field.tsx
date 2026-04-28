@@ -1,6 +1,6 @@
-import type { types } from "@instride/api";
-import { AlertCircleIcon, CircleIcon } from "lucide-react";
+import type { Service } from "@instride/api";
 
+import { LevelBadge } from "@/features/organization/components/levels/level-badge";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import {
   Select,
@@ -12,10 +12,8 @@ import {
 import { useFieldContext } from "@/shared/hooks/use-form";
 import { cn } from "@/shared/lib/utils";
 
-import { Badge } from "../../ui/badge";
-
 interface BaseProps {
-  services: types.Service[];
+  services: Service[];
   placeholder?: string;
   className?: string;
   hideLabel?: boolean;
@@ -68,7 +66,7 @@ function SingleServiceSelectField({
         <SelectTrigger className="h-auto!">
           <SelectValue placeholder={placeholder ?? "Select a service"}>
             {currentItem
-              ? (value: types.Service | null) =>
+              ? (value: Service | null) =>
                   value != null ? renderValue(value) : null
               : undefined}
           </SelectValue>
@@ -119,7 +117,7 @@ function ClearableServiceSelectField({
         >
           <SelectValue placeholder={placeholder ?? "Select a service"}>
             {currentItem
-              ? (service: types.Service) => renderValue(service)
+              ? (service: Service) => renderValue(service)
               : undefined}
           </SelectValue>
         </SelectTrigger>
@@ -137,35 +135,22 @@ function ClearableServiceSelectField({
   );
 }
 
-const renderValue = (service: types.Service) => (
+const renderValue = (service: Service) => (
   <div className="flex items-center gap-2 p-1 w-full justify-between">
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col items-start">
       <span className="font-semibold">{service.name}</span>
-      <span className="text-sm text-muted-foreground">
-        {service.duration} minutes
-      </span>
-    </div>
-    <div className="flex items-center gap-2">
-      <Badge
-        className="ml-auto"
-        variant={service.restrictedToLevel ? "outline" : "secondary"}
-      >
-        {service.restrictedToLevel && (
-          <CircleIcon
-            fill={service.restrictedToLevel.color}
-            stroke={service.restrictedToLevel.color}
-          />
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">
+          {service.duration} min
+        </span>
+        {service.maxRiders === 1 && (
+          <>
+            <span className="text-xs text-muted-foreground">&middot;</span>
+            <span className="text-xs font-medium">Private</span>
+          </>
         )}
-        {service.restrictedToLevel
-          ? service.restrictedToLevel.name
-          : "All levels"}
-      </Badge>
-      {service.maxRiders === 1 && (
-        <Badge variant="outline">
-          <AlertCircleIcon />
-          Private
-        </Badge>
-      )}
+      </div>
     </div>
+    <LevelBadge level={service.restrictedToLevel} />
   </div>
 );

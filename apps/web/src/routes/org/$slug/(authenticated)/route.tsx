@@ -1,4 +1,4 @@
-import { authOptions, type types } from "@instride/api";
+import { authOptions, type AuthUser } from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { ImpersonationBanner } from "@/shared/components/auth/impersonation-banner";
@@ -29,8 +29,16 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       throw Route.redirect({ to: "/org/$slug/onboarding", params });
     }
 
-    const user: types.AuthUser = {
+    const user: AuthUser = {
       ...session.user,
+      image: session.user.image ?? null,
+      imageKey: session.user.imageKey ?? null,
+      phone: session.user.phone ?? null,
+      profilePictureUrl: session.user.profilePictureUrl ?? null,
+      role: session.user.role ?? null,
+      banned: session.user.banned ?? null,
+      banReason: session.user.banReason ?? null,
+      dateOfBirth: session.user.dateOfBirth ?? null,
       createdAt: session.user.createdAt.toISOString(),
       updatedAt: session.user.updatedAt.toISOString(),
       banExpires: session.user.banExpires?.toISOString() ?? null,

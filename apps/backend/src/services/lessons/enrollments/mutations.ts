@@ -15,17 +15,17 @@ import {
 import { api, APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 
-import { memberService } from "@/services/organizations/members/member.service";
+import { memberRepo } from "@/services/organizations/members/member.repo";
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { lessonInstanceService } from "../instances/instance.service";
+import { lessonInstanceRepo } from "../instances/instance.repo";
 import { publishRiderEnrolled } from "../instances/publish";
 import { toInstanceEnrollment } from "../mappers";
 import { lessonSeriesService } from "../series/series.service";
 import {
-  instanceEnrollmentService,
-  seriesEnrollmentService,
-} from "./enrollment.service";
+  instanceEnrollmentRepo,
+  seriesEnrollmentRepo,
+} from "./enrollment.repo";
 
 // ------------------------------------------------------------
 // Instance Enrollments
@@ -44,7 +44,7 @@ export async function enrollRidersInInstance(input: {
 }) {
   if (input.riderIds.length === 0) return [];
 
-  const instance = await lessonInstanceService.findOne(
+  const instance = await lessonInstanceRepo.findOne(
     input.instanceId,
     input.organizationId
   );
@@ -55,7 +55,7 @@ export async function enrollRidersInInstance(input: {
 
   const results = await Promise.all(
     input.riderIds.map((riderId) =>
-      instanceEnrollmentService.enroll({
+      instanceEnrollmentRepo.enroll({
         instanceId: instance.id,
         riderId,
         enrolledByMemberId: input.enrolledByMemberId,
@@ -67,11 +67,11 @@ export async function enrollRidersInInstance(input: {
   // Publish events for newly created enrollments only
   const created = results.filter((r) => r.wasCreated);
   for (const result of created) {
-    const rider = await memberService.findOneRider(
+    const rider = await memberRepo.findOneRider(
       result.enrollment.riderId,
       input.organizationId
     );
-    const trainer = await memberService.findOneTrainer(
+    const trainer = await memberRepo.findOneTrainer(
       result.instance.trainerId,
       input.organizationId
     );
@@ -123,10 +123,7 @@ export const enrollInInstance = api(
     // Re-fetch with rider relations for the response
     const fullEnrollments = await Promise.all(
       enrollments.map(async (e) => {
-        const full = await instanceEnrollmentService.findOne(
-          e.id,
-          organizationId
-        );
+        const full = await instanceEnrollmentRepo.findOne(e.id, organizationId);
         return toInstanceEnrollment(full);
       })
     );
@@ -146,7 +143,7 @@ export const unenrollFromInstance = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    await instanceEnrollmentService.unenroll({
+    await instanceEnrollmentRepo.unenroll({
       enrollmentId: request.enrollmentId,
       organizationId,
       unenrolledByMemberId: member.id,
@@ -186,7 +183,7 @@ export const enrollInSeries = api(
 
     const results = await Promise.allSettled(
       request.riderIds.map((riderId) =>
-        seriesEnrollmentService
+        seriesEnrollmentRepo
           .upsert({
             organizationId,
             seriesId: request.seriesId,
@@ -223,7 +220,7 @@ export const enrollInSeries = api(
     // response shape matches the contract.
     const enrolled =
       succeededIds.length > 0
-        ? await seriesEnrollmentService.findMany(
+        ? await seriesEnrollmentRepo.findMany(
             request.seriesId,
             organizationId,
             { succeededIds }
@@ -245,7 +242,7 @@ export const unenrollRiderFromSeries = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const enrollment = await seriesEnrollmentService.findOne(
+    const enrollment = await seriesEnrollmentRepo.findOne(
       request.seriesId,
       organizationId,
       request.riderId
@@ -257,7 +254,7 @@ export const unenrollRiderFromSeries = api(
       );
     }
 
-    await seriesEnrollmentService.cancel({
+    await seriesEnrollmentRepo.cancel({
       seriesId: request.seriesId,
       riderId: request.riderId,
       organizationId,

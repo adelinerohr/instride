@@ -10,14 +10,14 @@ import { api, APIError } from "encore.dev/api";
 
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 
-import { memberService } from "./member.service";
+import { memberRepo } from "./member.repo";
 
 export const listMembers = api(
   { method: "GET", path: "/members", expose: true, auth: true },
   async (): Promise<ListMembersResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await memberService.findMany(organizationId);
+    const rows = await memberRepo.findMany(organizationId);
 
     return { members: rows };
   }
@@ -28,7 +28,7 @@ export const listRiders = api(
   async (): Promise<ListRidersResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await memberService.findManyRiders(organizationId);
+    const rows = await memberRepo.findManyRiders(organizationId);
 
     return { riders: rows };
   }
@@ -39,7 +39,7 @@ export const listTrainers = api(
   async (): Promise<ListTrainersResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await memberService.findManyTrainers(organizationId);
+    const rows = await memberRepo.findManyTrainers(organizationId);
 
     return { trainers: rows };
   }
@@ -54,7 +54,7 @@ export const getMember = api(
       throw APIError.notFound("Member not found");
     }
 
-    const row = await memberService.findOneByUser(userID, organizationId);
+    const row = await memberRepo.findOneByUser(userID, organizationId);
     return { member: row };
   }
 );
@@ -63,7 +63,7 @@ export const getMemberById = api(
   { method: "GET", path: "/members/:id", expose: true, auth: true },
   async ({ id }: { id: string }): Promise<GetMemberResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const row = await memberService.findOne(id, organizationId);
+    const row = await memberRepo.findOne(id, organizationId);
     return { member: row };
   }
 );
@@ -72,7 +72,7 @@ export const getRider = api(
   { method: "GET", path: "/riders/:id", expose: true, auth: true },
   async ({ id }: { id: string }): Promise<GetRiderResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const row = await memberService.findOneRider(id, organizationId);
+    const row = await memberRepo.findOneRider(id, organizationId);
     return { rider: row };
   }
 );
@@ -81,7 +81,7 @@ export const getTrainer = api(
   { method: "GET", path: "/trainers/:id", expose: true, auth: true },
   async ({ id }: { id: string }): Promise<GetTrainerResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const row = await memberService.findOneTrainer(id, organizationId);
+    const row = await memberRepo.findOneTrainer(id, organizationId);
     return { trainer: row };
   }
 );

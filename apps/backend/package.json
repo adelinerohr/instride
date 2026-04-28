@@ -30,7 +30,8 @@
     "react-dom": "catalog:",
     "react-email": "^6.0.0",
     "resend": "^6.10.0",
-    "telnyx": "^6.41.0"
+    "telnyx": "^6.41.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/busboy": "^1.5.4",

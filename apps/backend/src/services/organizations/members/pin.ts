@@ -6,7 +6,7 @@ import { api, APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { memberService } from "./member.service";
+import { memberRepo } from "./member.repo";
 import { getMember } from "./queries";
 
 const scrypt = promisify(_scrypt);
@@ -30,10 +30,7 @@ export async function verifyKioskPin(input: {
   organizationId: string;
   memberId: string;
 }): Promise<{ ok: boolean; member: Member }> {
-  const member = await memberService.findOne(
-    input.memberId,
-    input.organizationId
-  );
+  const member = await memberRepo.findOne(input.memberId, input.organizationId);
 
   if (!member.kioskPin) {
     return { ok: false, member };
@@ -66,14 +63,11 @@ export const setKioskPin = api(
 
     const pinHash = await hashKioskPin(request.pin);
 
-    await memberService.update(currentMember.id, organizationId, {
+    await memberRepo.update(currentMember.id, organizationId, {
       kioskPin: pinHash,
     });
 
-    const member = await memberService.findOne(
-      currentMember.id,
-      organizationId
-    );
+    const member = await memberRepo.findOne(currentMember.id, organizationId);
     return { member };
   }
 );

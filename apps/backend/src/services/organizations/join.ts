@@ -8,8 +8,8 @@ import { api, APIError } from "encore.dev/api";
 import { auth } from "@/services/auth/auth";
 import { requireAuth } from "@/shared/auth";
 
-import { memberService } from "./members/member.service";
-import { organizationService } from "./organization.service";
+import { memberRepo } from "./members/member.repo";
+import { organizationRepo } from "./organization.repo";
 
 export const joinOrganization = api(
   {
@@ -30,7 +30,7 @@ export const joinOrganization = api(
       );
     }
 
-    const organization = await organizationService.findOne(organizationId);
+    const organization = await organizationRepo.findOne(organizationId);
 
     if (!organization.allowPublicJoin) {
       throw APIError.permissionDenied(
@@ -39,7 +39,7 @@ export const joinOrganization = api(
     }
 
     // Idempotent: if already a member, return existing
-    const existing = await memberService.findOneByUser(userID, organizationId);
+    const existing = await memberRepo.findOneByUser(userID, organizationId);
     if (existing) {
       return { member: existing };
     }
@@ -55,14 +55,14 @@ export const joinOrganization = api(
       throw APIError.internal("Failed to add member to auth");
     }
 
-    const created = await memberService.create({
+    const created = await memberRepo.create({
       userId: userID,
       organizationId: organization.id,
       authMemberId: authMemberRow.id,
       roles: roles ?? [MembershipRole.RIDER],
     });
 
-    const member = await memberService.findOne(created.id, organizationId);
+    const member = await memberRepo.findOne(created.id, organizationId);
     return { member };
   }
 );

@@ -8,7 +8,7 @@ import { api } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { toLessonInstance } from "../mappers";
-import { lessonInstanceService } from "./instance.service";
+import { lessonInstanceRepo } from "./instance.repo";
 
 export const listLessonInstances = api(
   { expose: true, method: "GET", path: "/lessons/instances", auth: true },
@@ -17,7 +17,7 @@ export const listLessonInstances = api(
   ): Promise<ListLessonInstancesResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await lessonInstanceService.findMany({
+    const rows = await lessonInstanceRepo.findMany({
       organizationId,
       filters: {
         range: {
@@ -43,7 +43,7 @@ export const getLessonInstance = api(
   },
   async ({ id }: { id: string }): Promise<GetLessonInstanceResponse> => {
     const { organizationId } = requireOrganizationAuth();
-    const instance = await lessonInstanceService.findOneExpanded(
+    const instance = await lessonInstanceRepo.findOneExpanded(
       id,
       organizationId
     );

@@ -21,7 +21,7 @@ interface CreateInstanceData extends Omit<
   end: Date;
 }
 
-export const createLessonInstanceService = (
+export const createLessonInstanceRepo = (
   client: Database | Transaction = db
 ) => ({
   /**
@@ -53,6 +53,12 @@ export const createLessonInstanceService = (
     });
     assertExists(instance, "Lesson instance not found");
     return instance;
+  },
+
+  findBySeries: async (seriesId: string, organizationId: string) => {
+    return await client.query.lessonInstances.findMany({
+      where: { seriesId, organizationId },
+    });
   },
 
   findOneExpanded: async (id: string, organizationId: string) => {
@@ -138,7 +144,7 @@ export const createLessonInstanceService = (
   },
 });
 
-export const lessonInstanceService = createLessonInstanceService();
+export const lessonInstanceRepo = createLessonInstanceRepo();
 
 /**
  * Create-or-fetch with pub/sub publish on first creation. Single entrypoint
@@ -160,7 +166,7 @@ export async function createInstanceWithPublish(input: {
   notes?: string | null;
 }) {
   const result = await db.transaction(async (tx) => {
-    return await createLessonInstanceService(tx).upsertByOccurrenceKey({
+    return await createLessonInstanceRepo(tx).upsertByOccurrenceKey({
       organizationId: input.organizationId,
       seriesId: input.seriesId,
       boardId: input.boardId,

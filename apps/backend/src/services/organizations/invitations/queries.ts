@@ -9,7 +9,7 @@ import { authService } from "@/services/auth/auth.service";
 import { requireAuth } from "@/shared/auth";
 
 import { toInvitation } from "../mappers";
-import { organizationService } from "../organization.service";
+import { organizationRepo } from "../organization.repo";
 import { invitationService } from "./invitation.service";
 
 export const listInvitations = api(
@@ -24,7 +24,7 @@ export const listInvitations = api(
   }: {
     organizationId: string;
   }): Promise<ListInvitationsResponse> => {
-    const organization = await organizationService.findOne(organizationId);
+    const organization = await organizationRepo.findOne(organizationId);
 
     const rows = await invitationService.findManyByOrg(
       organization.authOrganizationId
@@ -59,7 +59,7 @@ export const listMyInvitedRoles = api(
 
     const user = await authService.findOneUser(userID);
 
-    const organization = await organizationService.findOne(organizationId);
+    const organization = await organizationRepo.findOne(organizationId);
 
     const accepted = await invitationService.findAcceptedForOrgEmail({
       organizationId: organization.authOrganizationId,

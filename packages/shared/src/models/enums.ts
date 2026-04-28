@@ -222,19 +222,46 @@ export type ActivitySubjectType =
   (typeof ActivitySubjectType)[keyof typeof ActivitySubjectType];
 
 /**
+ * Notification entity types
+ */
+export const NotificationEntityType = {
+  LESSON: "lesson",
+  POST: "post",
+  PAYMENT: "payment",
+  CONVERSATION: "conversation",
+  MESSAGE: "message",
+  SYSTEM: "system",
+  OTHER: "other",
+} as const;
+
+export type NotificationEntityType =
+  (typeof NotificationEntityType)[keyof typeof NotificationEntityType];
+
+/**
  * Notifications
  */
 export const NotificationType = {
+  // Lessons
   ENROLLMENT_CREATED: "enrollment_created",
   LESSON_ENROLLED: "lesson_enrolled",
   LESSON_CANCELLED: "lesson_cancelled",
   LESSON_REMINDER: "lesson_reminder",
+  // Posts
   POST_CREATED: "post_created",
   COMMENT_ADDED: "comment_added",
+  // Profiles
   PROFILE_UPDATED: "profile_updated",
+  // Payments
   CREDIT_PACKAGE_PURCHASED: "credit_package_purchased",
   INVOICE_PAID: "invoice_paid",
+  // Users
   USER_UPDATED: "user_updated",
+  // Chats
+  CHAT_MESSAGE_RECEIVED: "chat_message_received",
+  CHAT_LESSON_INVITED: "chat_lesson_invited",
+  CHAT_LESSON_PROPOSED: "chat_lesson_proposed",
+  CHAT_LESSON_ACCEPTED: "chat_lesson_accepted",
+  CHAT_LESSON_DECLINED: "chat_lesson_declined",
 } as const;
 
 export type NotificationType =
@@ -252,6 +279,19 @@ export const NotificationChannel = {
 
 export type NotificationChannel =
   (typeof NotificationChannel)[keyof typeof NotificationChannel];
+
+/**
+ * Notification delivery statuses
+ */
+export const NotificationDeliveryStatus = {
+  PENDING: "pending",
+  SENT: "sent",
+  DELIVERED: "delivered",
+  FAILED: "failed",
+} as const;
+
+export type NotificationDeliveryStatus =
+  (typeof NotificationDeliveryStatus)[keyof typeof NotificationDeliveryStatus];
 
 /**
  * Kiosk scopes
@@ -279,3 +319,56 @@ export const KioskAction = {
 } as const;
 
 export type KioskAction = (typeof KioskAction)[keyof typeof KioskAction];
+
+/**
+ * Conversation types
+ */
+export const ConversationType = {
+  DIRECT: "direct",
+  GROUP: "group",
+} as const;
+
+export type ConversationType =
+  (typeof ConversationType)[keyof typeof ConversationType];
+
+/**
+ * Conversation participant roles
+ */
+export const ConversationParticipantRole = {
+  STAFF: "staff",
+  RIDER: "rider",
+  GUARDIAN: "guardian",
+} as const;
+
+export type ConversationParticipantRole =
+  (typeof ConversationParticipantRole)[keyof typeof ConversationParticipantRole];
+
+/**
+ * Message attachment types
+ */
+export const MessageAttachmentType = {
+  LESSON_REFERENCE: "lesson_reference",
+  LESSON_PROPOSAL: "lesson_proposal",
+} as const;
+
+export type MessageAttachmentType =
+  (typeof MessageAttachmentType)[keyof typeof MessageAttachmentType];
+
+/**
+ * Message response types
+ */
+export const MessageResponseStatus = {
+  PENDING: "pending",
+  // Intermediate state held during the accept saga to prevent double-accept.
+  PROCESSING: "processing",
+  ACCEPTED: "accepted",
+  DECLINED: "declined",
+  // Initiator withdrew the offer before it was responded to.
+  CANCELLED: "cancelled",
+  // Acceptance attempted but the underlying action (enroll / create lesson)
+  // was rejected by the target service. Terminal.
+  FAILED: "failed",
+} as const;
+
+export type MessageResponseStatus =
+  (typeof MessageResponseStatus)[keyof typeof MessageResponseStatus];

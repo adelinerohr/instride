@@ -1,3 +1,4 @@
+import { MessageResponseStatus } from "@instride/shared";
 import { defineRelationsPart } from "drizzle-orm/relations";
 
 import * as schema from "@/database/schema";
@@ -251,6 +252,13 @@ export const organizationsRelations = defineRelationsPart(schema, (r) => ({
     guardianRelationshipsAsDependent: r.many.guardianRelationships({
       from: r.riders.memberId,
       to: r.guardianRelationships.dependentMemberId,
+    }),
+    pendingResponses: r.many.messageResponses({
+      from: r.riders.id,
+      to: r.messageResponses.forRiderId,
+      where: {
+        status: MessageResponseStatus.PENDING,
+      },
     }),
   },
 

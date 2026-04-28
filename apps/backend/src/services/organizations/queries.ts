@@ -8,14 +8,15 @@ import { api } from "encore.dev/api";
 import { auth } from "@/services/auth/auth";
 import { requireAuth } from "@/shared/auth";
 
-import { memberService } from "./members/member.service";
-import { organizationService } from "./organization.service";
+import { toOrganization } from "./mappers";
+import { memberRepo } from "./members/member.repo";
+import { organizationRepo } from "./organization.repo";
 
 export const listOrganizations = api(
   { expose: true, method: "GET", path: "/organizations", auth: true },
   async (): Promise<ListOrganizationsResponse> => {
-    const organizations = await organizationService.findMany();
-    return { organizations };
+    const organizations = await organizationRepo.findMany();
+    return { organizations: organizations.map(toOrganization) };
   }
 );
 
@@ -24,9 +25,14 @@ export const listMyOrganizations = api(
   async (): Promise<ListMyOrganizationsResponse> => {
     const { userID } = requireAuth();
 
-    const memberships = await memberService.findManyByUser(userID);
+    const memberships = await memberRepo.findManyByUser(userID);
 
-    return { organizations: memberships };
+    return {
+      organizations: memberships.map((membership) => ({
+        organization: toOrganization(membership.organization),
+        roles: membership.roles,
+      })),
+    };
   }
 );
 
@@ -38,16 +44,16 @@ export const getBySlug = api(
     auth: false,
   },
   async ({ slug }: { slug: string }): Promise<GetOrganizationResponse> => {
-    const organization = await organizationService.findOneBySlug(slug);
-    return { organization };
+    const organization = await organizationRepo.findOneBySlug(slug);
+    return { organization: toOrganization(organization) };
   }
 );
 
 export const getById = api(
   { expose: true, method: "GET", path: "/organizations/:id", auth: false },
   async ({ id }: { id: string }): Promise<GetOrganizationResponse> => {
-    const organization = await organizationService.findOne(id);
-    return { organization };
+    const organization = await organizationRepo.findOne(id);
+    return { organization: toOrganization(organization) };
   }
 );
 
@@ -63,7 +69,7 @@ export const checkSlug = api(
     auth: false,
   },
   async ({ slug }: { slug: string }): Promise<CheckSlugResponse> => {
-    const existing = await organizationService.findOneBySlug(slug);
+    const existing = await organizationRepo.findOneBySlug(slug);
     if (existing) return { available: false };
 
     const result = await auth.api.checkOrganizationSlug({ body: { slug } });

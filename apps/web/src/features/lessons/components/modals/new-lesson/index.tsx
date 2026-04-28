@@ -10,7 +10,10 @@ import {
   useUpdateLessonSeries,
   type LessonInstance,
 } from "@instride/api";
-import { lessonSeriesInputSchema, RecurrenceFrequency } from "@instride/shared";
+import {
+  adminCreateLessonInputSchema,
+  RecurrenceFrequency,
+} from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useQueries } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
@@ -91,7 +94,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
     onSubmitInvalid: ({ formApi, value }) => {
       const formValues = value ?? formApi.state.values;
       // TanStack often stores issues as objects, not strings — use Zod for readable messages
-      const parsed = lessonSeriesInputSchema.safeParse(formValues);
+      const parsed = adminCreateLessonInputSchema.safeParse(formValues);
       if (!parsed.success) {
         const lines = parsed.error.issues.map((issue) => {
           const path = issue.path.length > 0 ? issue.path.join(".") : "(form)";
@@ -190,6 +193,11 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
             ...value,
             recurrenceFrequency: value.isRecurring
               ? (value.recurrenceFrequency ?? RecurrenceFrequency.WEEKLY)
+              : null,
+            levelId: value.levelId
+              ? value.levelId.trim() === ""
+                ? null
+                : value.levelId
               : null,
             overrideAvailability: initialValues.overrideBusinessHours,
           },

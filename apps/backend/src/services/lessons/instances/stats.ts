@@ -4,7 +4,7 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { lessonInstanceService } from "./instance.service";
+import { lessonInstanceRepo } from "./instance.repo";
 
 export const getLessonStats = api(
   {
@@ -23,11 +23,11 @@ export const getLessonStats = api(
     const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
     const [thisMonth, lastMonth] = await Promise.all([
-      lessonInstanceService.findMany({
+      lessonInstanceRepo.findMany({
         organizationId,
         filters: { range: { from: thisMonthStart, to: thisMonthEnd } },
       }),
-      lessonInstanceService.findMany({
+      lessonInstanceRepo.findMany({
         organizationId,
         filters: { range: { from: lastMonthStart, to: lastMonthEnd } },
       }),

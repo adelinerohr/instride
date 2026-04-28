@@ -23,7 +23,7 @@ import {
   trainers,
 } from "../schema";
 
-export const createMemberService = (client: Database | Transaction = db) => ({
+export const createMemberRepo = (client: Database | Transaction = db) => ({
   // ================================================================================
   // Members
   // ================================================================================
@@ -216,4 +216,4 @@ export const createMemberService = (client: Database | Transaction = db) => ({
   },
 });
 
-export const memberService = createMemberService();
+export const memberRepo = createMemberRepo();

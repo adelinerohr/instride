@@ -8,7 +8,7 @@ import { organizations } from "~encore/clients";
 import { requireOrganizationAuth } from "@/shared/auth";
 
 import { toInstanceEnrollment } from "../mappers";
-import { instanceEnrollmentService } from "./enrollment.service";
+import { instanceEnrollmentRepo } from "./enrollment.repo";
 
 export const markAttendance = api(
   {
@@ -23,7 +23,7 @@ export const markAttendance = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    await instanceEnrollmentService.markAttendance(
+    await instanceEnrollmentRepo.markAttendance(
       request.enrollmentId,
       organizationId,
       {
@@ -33,7 +33,7 @@ export const markAttendance = api(
     );
 
     // Re-fetch with rider so the response matches the contract
-    const full = await instanceEnrollmentService.findOne(
+    const full = await instanceEnrollmentRepo.findOne(
       request.enrollmentId,
       organizationId
     );

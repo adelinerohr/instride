@@ -1,4 +1,8 @@
-import type { NotificationChannel, NotificationType } from "@instride/shared";
+import type {
+  NotificationChannel,
+  NotificationEntityType,
+  NotificationType,
+} from "@instride/shared";
 
 // ============================================================================
 // Entities
@@ -11,9 +15,10 @@ export interface Notification {
   type: NotificationType;
   title: string;
   message: string;
-  entityType: string;
+  entityType: NotificationEntityType;
   entityId: string | null;
   deepLink: string | null;
+  sourceEventId: string | null;
   isRead: boolean;
   readAt: Date | string | null;
   createdAt: Date | string;
@@ -41,9 +46,10 @@ export interface CreateNotificationRequest {
   type: NotificationType;
   title: string;
   message: string;
-  entityType: string;
+  entityType: NotificationEntityType;
   entityId?: string | null;
   deepLink?: string | null;
+  sourceEventId?: string | null;
   channels?: NotificationChannel[];
 }
 

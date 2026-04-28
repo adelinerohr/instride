@@ -12,7 +12,7 @@ import { requireAuth, requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "./db";
-import { guardianService } from "./guardian.service";
+import { guardianRepo } from "./guardian.repo";
 import {
   toGuardianRelationshipWithGuardian,
   toGuardianRelationshipWithMembers,
@@ -33,7 +33,7 @@ export const getRelationshipById = api(
   }): Promise<GetGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const row = await guardianService.findRelationshipWithMembers(
+    const row = await guardianRepo.findRelationshipWithMembers(
       relationshipId,
       organizationId
     );
@@ -48,7 +48,7 @@ export const listAllRelationships = api(
     const { organizationId } = requireOrganizationAuth();
 
     const rows =
-      await guardianService.listRelationshipsWithMembers(organizationId);
+      await guardianRepo.listRelationshipsWithMembers(organizationId);
 
     return {
       relationships: rows.map(toGuardianRelationshipWithMembers),
@@ -67,7 +67,7 @@ export const listMyDependents = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const rows = await guardianService.listMyDependents({
+    const rows = await guardianRepo.listMyDependents({
       guardianMemberId: member.id,
       organizationId,
     });
@@ -87,7 +87,7 @@ export const listMyGuardians = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    const rows = await guardianService.listMyGuardians({
+    const rows = await guardianRepo.listMyGuardians({
       dependentMemberId: member.id,
       organizationId,
     });
@@ -131,7 +131,7 @@ export const canAccessOrganization = api(
     }
 
     if (member.rider.isRestricted) {
-      const relationship = await guardianService.findActiveForDependent({
+      const relationship = await guardianRepo.findActiveForDependent({
         dependentMemberId: member.id,
       });
 

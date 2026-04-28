@@ -1,8 +1,8 @@
 import { lessonCreated, lessonEnrolled } from "../topics";
-import { lessonInstanceService } from "./instance.service";
+import { lessonInstanceRepo } from "./instance.repo";
 
 export async function publishLessonCreated(
-  instance: Awaited<ReturnType<typeof lessonInstanceService.findOneExpanded>>
+  instance: Awaited<ReturnType<typeof lessonInstanceRepo.findOneExpanded>>
 ): Promise<void> {
   if (!instance) return;
 

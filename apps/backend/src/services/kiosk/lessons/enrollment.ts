@@ -6,14 +6,14 @@ import type {
 import { KioskAction } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 
-import { instanceEnrollmentService } from "@/services/lessons/enrollments/enrollment.service";
+import { instanceEnrollmentRepo } from "@/services/lessons/enrollments/enrollment.repo";
 import { enrollRidersInInstance } from "@/services/lessons/enrollments/mutations";
-import { lessonInstanceService } from "@/services/lessons/instances/instance.service";
+import { lessonInstanceRepo } from "@/services/lessons/instances/instance.repo";
 import {
   toInstanceEnrollment,
   toLessonInstance,
 } from "@/services/lessons/mappers";
-import { memberService } from "@/services/organizations/members/member.service";
+import { memberRepo } from "@/services/organizations/members/member.repo";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
@@ -47,7 +47,7 @@ export const kioskEnrollInInstance = api(
     assertActiveActing(acting);
 
     // Resolve target rider from member id
-    const rider = await memberService.findOneRider(
+    const rider = await memberRepo.findOneRider(
       request.riderMemberId,
       organizationId
     );
@@ -59,7 +59,7 @@ export const kioskEnrollInInstance = api(
       targetMemberId: request.riderMemberId,
     });
 
-    const instance = await lessonInstanceService
+    const instance = await lessonInstanceRepo
       .findOneExpanded(request.instanceId, organizationId)
       .then(toLessonInstance);
 
@@ -81,7 +81,7 @@ export const kioskEnrollInInstance = api(
       idempotent: false,
     });
 
-    const enrollments = await instanceEnrollmentService.findManyForRiders({
+    const enrollments = await instanceEnrollmentRepo.findManyForRiders({
       organizationId,
       riderIds: [rider.id],
     });
@@ -125,7 +125,7 @@ export const kioskUnenrollFromInstance = api(
       targetMemberId: enrollment.rider.memberId,
     });
 
-    await instanceEnrollmentService.unenroll({
+    await instanceEnrollmentRepo.unenroll({
       enrollmentId: enrollment.id,
       organizationId,
       unenrolledByMemberId: acting.actingMemberId,

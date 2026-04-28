@@ -19,7 +19,7 @@ import {
   type NewGuardianRelationshipRow,
 } from "./schema";
 
-export const createGuardianService = (client: Database | Transaction = db) => ({
+export const createGuardianRepo = (client: Database | Transaction = db) => ({
   // ============================================================================
   // Relationships
   // ============================================================================
@@ -31,6 +31,15 @@ export const createGuardianService = (client: Database | Transaction = db) => ({
       .returning();
     assertExists(relationship, "Failed to create guardian relationship");
     return relationship;
+  },
+
+  findRelationshipsByDependent: async (
+    dependentMemberId: string,
+    organizationId: string
+  ) => {
+    return await client.query.guardianRelationships.findMany({
+      where: { dependentMemberId, organizationId },
+    });
   },
 
   findRelationshipScalar: async (id: string, organizationId: string) => {
@@ -196,4 +205,4 @@ export const createGuardianService = (client: Database | Transaction = db) => ({
   },
 });
 
-export const guardianService = createGuardianService();
+export const guardianRepo = createGuardianRepo();

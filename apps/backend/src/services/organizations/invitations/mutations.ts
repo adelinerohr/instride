@@ -17,7 +17,7 @@ import { APP_NAME } from "@/shared/constants";
 import { getBaseUrl } from "@/shared/utils/url";
 
 import { db } from "../db";
-import { organizationService } from "../organization.service";
+import { organizationRepo } from "../organization.repo";
 import {
   createInvitationService,
   invitationService,
@@ -40,9 +40,7 @@ export const sendInvitation = api(
     // Block "admin"-as-self-elevation? No — assertAdmin already verifies
     // caller is admin in this org, and admins can grant any role.
 
-    const organization = await organizationService.findOne(
-      request.organizationId
-    );
+    const organization = await organizationRepo.findOne(request.organizationId);
 
     await assertAdmin(organization.id, userID);
 
@@ -196,7 +194,7 @@ export const cancelInvitation = api(
 
     const invitation = await invitationService.findOne(id);
     // Look up the org by authOrganizationId to feed assertAdmin.
-    const organization = await organizationService.findOne(
+    const organization = await organizationRepo.findOne(
       invitation.organizationId
     );
 

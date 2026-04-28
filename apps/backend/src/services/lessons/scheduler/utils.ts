@@ -8,7 +8,7 @@ import { addMinutes } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
 import { checkLessonAvailability } from "../../availability/scheduling/check-availability";
-import { createInstanceWithPublish } from "../instances/instance.service";
+import { createInstanceWithPublish } from "../instances/instance.repo";
 import { LessonInstanceRow, LessonSeriesRow } from "../schema";
 import { SkippedInstance } from "./generate";
 

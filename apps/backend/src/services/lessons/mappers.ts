@@ -5,21 +5,70 @@ import type {
   LessonSeries,
   LessonSeriesEnrollment,
   LessonSeriesSummary,
-  Level,
 } from "@instride/api/contracts";
 
-import { toBoard } from "@/services/boards/mappers";
+import {
+  BoardWithExpansionRow,
+  ServiceWithExpansionRow,
+  toBoard,
+} from "@/services/boards/mappers";
 import { toService } from "@/services/boards/mappers";
-import { toRider, toTrainer } from "@/services/organizations/mappers";
+import {
+  RiderWithExpansionRow,
+  toLevel,
+  toRider,
+  toTrainer,
+  TrainerWithExpansionRow,
+} from "@/services/organizations/mappers";
 import { toISO, toISOOrNull, toTimestamps } from "@/shared/utils/mappers";
 import { assertExists } from "@/shared/utils/validation";
 
+import { LevelRow } from "../organizations/schema";
 import type {
   LessonInstanceEnrollmentRow,
   LessonInstanceRow,
   LessonSeriesEnrollmentRow,
   LessonSeriesRow,
 } from "./schema";
+
+// ---------------------------------------------------------------------------
+// Augmented row types (row + relations as fetched via fragments)
+// ---------------------------------------------------------------------------
+
+export type LessonSeriesWithExpansionRow = LessonSeriesRow & {
+  level: LevelRow | null;
+  trainer: TrainerWithExpansionRow | null;
+  board: BoardWithExpansionRow | null;
+  service: ServiceWithExpansionRow | null;
+  enrollments: LessonSeriesEnrollmentWithExpansionRow[];
+};
+
+export type LessonInstanceWithExpansionRow = LessonInstanceRow & {
+  level: LevelRow | null;
+  trainer: TrainerWithExpansionRow | null;
+  board: BoardWithExpansionRow | null;
+  service: ServiceWithExpansionRow | null;
+  series: LessonSeriesRow | null;
+  enrollments: InstanceEnrollmentWithExpansionRow[];
+};
+
+export type LessonSeriesEnrollmentWithExpansionRow =
+  LessonSeriesEnrollmentRow & {
+    rider: RiderWithExpansionRow | null;
+  };
+
+export type InstanceEnrollmentWithExpansionRow = LessonInstanceEnrollmentRow & {
+  rider: RiderWithExpansionRow | null;
+};
+
+export type InstanceEnrollmentWithInstanceRow = LessonInstanceEnrollmentRow & {
+  rider: RiderWithExpansionRow | null;
+  instance: LessonInstanceWithExpansionRow | null;
+};
+
+// ---------------------------------------------------------------------------
+// Mappers
+// ---------------------------------------------------------------------------
 
 export function toLessonSeriesSummary(
   row: LessonSeriesRow
@@ -42,13 +91,7 @@ export function toLessonSeriesSummary(
 }
 
 export function toLessonSeries(
-  row: LessonSeriesRow & {
-    level: Level | null;
-    trainer: Parameters<typeof toTrainer>[0] | null;
-    board: Parameters<typeof toBoard>[0] | null;
-    service: Parameters<typeof toService>[0] | null;
-    enrollments: Array<Parameters<typeof toSeriesEnrollment>[0]>;
-  }
+  row: LessonSeriesWithExpansionRow
 ): LessonSeries {
   assertExists(row.trainer, "Series has no trainer");
   assertExists(row.board, "Series has no board");
@@ -61,7 +104,7 @@ export function toLessonSeries(
     recurrenceEnd: toISOOrNull(row.recurrenceEnd),
     effectiveFrom: toISOOrNull(row.effectiveFrom),
     lastPlannedUntil: toISOOrNull(row.lastPlannedUntil),
-    level: row.level,
+    level: row.level ? toLevel(row.level) : null,
     trainer: toTrainer(row.trainer),
     board: toBoard(row.board),
     service: toService(row.service),
@@ -70,14 +113,7 @@ export function toLessonSeries(
 }
 
 export function toLessonInstance(
-  row: LessonInstanceRow & {
-    level: LessonInstance["level"];
-    trainer: Parameters<typeof toTrainer>[0] | null;
-    board: Parameters<typeof toBoard>[0] | null;
-    service: Parameters<typeof toService>[0] | null;
-    series: LessonSeriesRow | null;
-    enrollments: Array<Parameters<typeof toInstanceEnrollment>[0]>;
-  }
+  row: LessonInstanceWithExpansionRow
 ): LessonInstance {
   assertExists(row.trainer, "Instance has no trainer");
   assertExists(row.board, "Instance has no board");
@@ -90,7 +126,7 @@ export function toLessonInstance(
     start: toISO(row.start),
     canceledAt: toISOOrNull(row.canceledAt),
     end: toISO(row.end),
-    level: row.level,
+    level: row.level ? toLevel(row.level) : null,
     trainer: toTrainer(row.trainer),
     board: toBoard(row.board),
     service: toService(row.service),
@@ -100,9 +136,7 @@ export function toLessonInstance(
 }
 
 export function toSeriesEnrollment(
-  row: LessonSeriesEnrollmentRow & {
-    rider: Parameters<typeof toRider>[0] | null;
-  }
+  row: LessonSeriesEnrollmentWithExpansionRow
 ): LessonSeriesEnrollment {
   assertExists(row.rider, "Series enrollment has no rider");
   return {
@@ -115,9 +149,7 @@ export function toSeriesEnrollment(
 }
 
 export function toInstanceEnrollment(
-  row: LessonInstanceEnrollmentRow & {
-    rider: Parameters<typeof toRider>[0] | null;
-  }
+  row: InstanceEnrollmentWithExpansionRow
 ): LessonInstanceEnrollment {
   assertExists(row.rider, "Instance enrollment has no rider");
   return {

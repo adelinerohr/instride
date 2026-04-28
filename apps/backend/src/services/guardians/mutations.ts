@@ -10,7 +10,7 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { guardianService } from "./guardian.service";
+import { guardianRepo } from "./guardian.repo";
 import { toGuardianRelationship } from "./mappers";
 
 function mergePermissions(
@@ -33,14 +33,14 @@ export const createGuardianRelationship = api(
     const permissions = mergePermissions(request.permissions);
 
     // Re-activate or update existing relationship if one already exists
-    const existing = await guardianService.findRelationshipBetween({
+    const existing = await guardianRepo.findRelationshipBetween({
       guardianMemberId: request.guardianMemberId,
       dependentMemberId: request.dependentMemberId,
       organizationId,
     });
 
     if (existing) {
-      const updated = await guardianService.updateRelationship(
+      const updated = await guardianRepo.updateRelationship(
         existing.id,
         organizationId,
         {
@@ -54,7 +54,7 @@ export const createGuardianRelationship = api(
       return { relationship: toGuardianRelationship(updated) };
     }
 
-    const created = await guardianService.createRelationship({
+    const created = await guardianRepo.createRelationship({
       organizationId,
       guardianMemberId: request.guardianMemberId,
       dependentMemberId: request.dependentMemberId,
@@ -82,12 +82,12 @@ export const updateGuardianRelationship = api(
     const { organizationId } = requireOrganizationAuth();
 
     // Verify existence + tenant scope
-    await guardianService.findRelationshipScalar(
+    await guardianRepo.findRelationshipScalar(
       request.relationshipId,
       organizationId
     );
 
-    const updated = await guardianService.updateRelationship(
+    const updated = await guardianRepo.updateRelationship(
       request.relationshipId,
       organizationId,
       {
@@ -125,12 +125,9 @@ export const revokeRelationship = api(
     const { organizationId } = requireOrganizationAuth();
 
     // Tenant scope check
-    await guardianService.findRelationshipScalar(
-      relationshipId,
-      organizationId
-    );
+    await guardianRepo.findRelationshipScalar(relationshipId, organizationId);
 
-    const updated = await guardianService.updateRelationship(
+    const updated = await guardianRepo.updateRelationship(
       relationshipId,
       organizationId,
       {
@@ -157,12 +154,9 @@ export const acceptRelationship = api(
   }): Promise<MutateGuardianRelationshipResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    await guardianService.findRelationshipScalar(
-      relationshipId,
-      organizationId
-    );
+    await guardianRepo.findRelationshipScalar(relationshipId, organizationId);
 
-    const updated = await guardianService.updateRelationship(
+    const updated = await guardianRepo.updateRelationship(
       relationshipId,
       organizationId,
       {

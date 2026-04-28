@@ -8,12 +8,9 @@ import { organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { instanceEnrollmentService } from "../enrollments/enrollment.service";
+import { instanceEnrollmentRepo } from "../enrollments/enrollment.repo";
 import { toLessonInstance } from "../mappers";
-import {
-  createInstanceWithPublish,
-  lessonInstanceService,
-} from "./instance.service";
+import { createInstanceWithPublish, lessonInstanceRepo } from "./instance.repo";
 
 export const createLessonInstance = api(
   { expose: true, method: "POST", path: "/lessons/instances", auth: true },
@@ -47,14 +44,14 @@ export const updateLessonInstance = api(
     const { member } = await organizations.getMember();
     const { instanceId, ...rest } = request;
 
-    await lessonInstanceService.update(instanceId, organizationId, {
+    await lessonInstanceRepo.update(instanceId, organizationId, {
       ...rest,
       start: rest.start ? new Date(rest.start) : undefined,
       end: rest.end ? new Date(rest.end) : undefined,
     });
 
     if (request.riderIds) {
-      const enrollments = await instanceEnrollmentService.findManyByInstance({
+      const enrollments = await instanceEnrollmentRepo.findManyByInstance({
         instanceId,
         organizationId,
       });
@@ -75,7 +72,7 @@ export const updateLessonInstance = api(
 
       await Promise.all([
         ...newRiderIds.map((riderId) =>
-          instanceEnrollmentService.enroll({
+          instanceEnrollmentRepo.enroll({
             instanceId,
             riderId,
             enrolledByMemberId: member.id,
@@ -83,7 +80,7 @@ export const updateLessonInstance = api(
           })
         ),
         ...removedEnrollments.map((enrollment) =>
-          instanceEnrollmentService.unenroll({
+          instanceEnrollmentRepo.unenroll({
             enrollmentId: enrollment.id,
             organizationId,
             unenrolledByMemberId: member.id,
@@ -92,7 +89,7 @@ export const updateLessonInstance = api(
       ]);
     }
 
-    const updatedInstance = await lessonInstanceService.findOneExpanded(
+    const updatedInstance = await lessonInstanceRepo.findOneExpanded(
       instanceId,
       organizationId
     );
@@ -119,12 +116,12 @@ export const cancelLessonInstance = api(
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
 
-    await lessonInstanceService.cancel(request.instanceId, organizationId, {
+    await lessonInstanceRepo.cancel(request.instanceId, organizationId, {
       canceledByMemberId: member.id,
       reason: request.reason ?? null,
     });
 
-    const updatedInstance = await lessonInstanceService.findOneExpanded(
+    const updatedInstance = await lessonInstanceRepo.findOneExpanded(
       request.instanceId,
       organizationId
     );

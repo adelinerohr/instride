@@ -8,8 +8,8 @@ import { APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { memberService } from "../organizations/members/member.service";
-import { guardianService } from "./guardian.service";
+import { memberRepo } from "../organizations/members/member.repo";
+import { guardianRepo } from "./guardian.repo";
 
 export async function requireGuardianPermissions(input: {
   targetMemberId: string;
@@ -21,11 +21,8 @@ export async function requireGuardianPermissions(input: {
 }> {
   const { organizationId, userID } = requireOrganizationAuth();
 
-  const actingMember = await memberService.findOneByUser(
-    userID,
-    organizationId
-  );
-  const targetMember = await memberService.findOne(
+  const actingMember = await memberRepo.findOneByUser(userID, organizationId);
+  const targetMember = await memberRepo.findOne(
     input.targetMemberId,
     organizationId
   );
@@ -38,7 +35,7 @@ export async function requireGuardianPermissions(input: {
     return { actingMember, targetMember, requiresApproval: false };
   }
 
-  const relationship = await guardianService.findRelationshipBetween({
+  const relationship = await guardianRepo.findRelationshipBetween({
     guardianMemberId: actingMember.id,
     dependentMemberId: targetMember.id,
     organizationId,

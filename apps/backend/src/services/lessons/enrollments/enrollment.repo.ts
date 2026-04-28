@@ -24,7 +24,7 @@ import {
 // Instance Enrollments
 // ================================================================================================================
 
-export const createInstanceEnrollmentService = (
+export const createInstanceEnrollmentRepo = (
   client: Database | Transaction = db
 ) => ({
   /**
@@ -217,13 +217,13 @@ export const createInstanceEnrollmentService = (
   },
 });
 
-export const instanceEnrollmentService = createInstanceEnrollmentService();
+export const instanceEnrollmentRepo = createInstanceEnrollmentRepo();
 
 // ================================================================================================================
 // Series Enrollments
 // ================================================================================================================
 
-export const createSeriesEnrollmentService = (
+export const createSeriesEnrollmentRepo = (
   client: Database | Transaction = db
 ) => ({
   upsert: async (data: NewLessonSeriesEnrollmentRow) => {
@@ -311,4 +311,4 @@ export const createSeriesEnrollmentService = (
   },
 });
 
-export const seriesEnrollmentService = createSeriesEnrollmentService();
+export const seriesEnrollmentRepo = createSeriesEnrollmentRepo();

@@ -10,22 +10,49 @@ import { useCalendar } from "../../hooks/use-calendar";
 import { navigateDate, rangeText } from "../../utils/date";
 
 export function DateNavigator() {
-  const { selectedDate, setSelectedDate, lessons, type } = useCalendar();
+  const {
+    selectedDate,
+    setSelectedDate,
+    lessons,
+    type,
+    selectedView,
+    selectedMultiDayCount,
+  } = useCalendar();
 
   const month = formatDate(selectedDate, "MMMM");
   const year = selectedDate.getFullYear();
 
   const lessonCount = React.useMemo(() => lessons.length, [lessons]);
 
-  const handlePrevious = React.useCallback(
-    () => setSelectedDate(navigateDate("previous")),
-    [setSelectedDate]
-  );
+  const handlePrevious = React.useCallback(() => {
+    setSelectedDate(
+      navigateDate({
+        direction: "previous",
+        selectedView,
+        selectedDate,
+        selectedMultiDayCount,
+      })
+    );
+  }, [setSelectedDate, selectedView, selectedDate, selectedMultiDayCount]);
 
   const handleNext = React.useCallback(
-    () => setSelectedDate(navigateDate("next")),
-    [setSelectedDate]
+    () =>
+      setSelectedDate(
+        navigateDate({
+          direction: "next",
+          selectedView,
+          selectedDate,
+          selectedMultiDayCount,
+        })
+      ),
+    [setSelectedDate, selectedView, selectedDate, selectedMultiDayCount]
   );
+
+  const label = rangeText({
+    selectedView,
+    selectedDate,
+    selectedMultiDayCount,
+  });
 
   if (type === "kiosk") {
     return (
@@ -78,7 +105,7 @@ export function DateNavigator() {
           >
             <ChevronLeftIcon />
           </Button>
-          <span className="text-sm text-muted-foreground">{rangeText()}</span>
+          <span className="text-sm text-muted-foreground">{label}</span>
           <Button
             variant="outline"
             size="icon"

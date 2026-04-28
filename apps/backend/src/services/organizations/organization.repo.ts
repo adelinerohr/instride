@@ -1,12 +1,14 @@
 import { eq } from "drizzle-orm";
 
-import { Database } from "@/shared/utils/schema";
+import { Database, Transaction } from "@/shared/utils/schema";
 import { assertExists } from "@/shared/utils/validation";
 
 import { db } from "./db";
 import { NewOrganizationRow, OrganizationRow, organizations } from "./schema";
 
-export const createOrganizationService = (client: Database = db) => ({
+export const createOrganizationRepo = (
+  client: Database | Transaction = db
+) => ({
   create: async (data: NewOrganizationRow) => {
     const [organization] = await client
       .insert(organizations)
@@ -48,4 +50,4 @@ export const createOrganizationService = (client: Database = db) => ({
   },
 });
 
-export const organizationService = createOrganizationService();
+export const organizationRepo = createOrganizationRepo();

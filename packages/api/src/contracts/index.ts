@@ -11,3 +11,4 @@ export * from "./activity";
 export * from "./guardians";
 export * from "./notifications";
 export * from "./kiosks";
+export * from "./chat";
