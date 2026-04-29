@@ -1,16 +1,25 @@
 import { linkOptions } from "@tanstack/react-router";
 
+import { applyOrgPathOutputRewrite } from "./subdomain-rewrite";
+
 /**
  * Full page navigation to an app-internal path after sign-in / sign-up.
  * Avoids stale TanStack Router context and React Query cache (session appears
  * only after reload otherwise in some flows).
+ *
+ * In production on org subdomains, rewrites `/org/{slug}/…` to the canonical
+ * browser URL (see `applyOrgPathOutputRewrite`, used by the router in `main.tsx`).
  */
 export function hardNavigateToInternalPath(
   path: string,
   fallback: string
 ): void {
   const safe = path.startsWith("/") && !path.startsWith("//") ? path : fallback;
-  window.location.assign(safe);
+  const url = new URL(safe, window.location.href);
+  if (import.meta.env.PROD) {
+    applyOrgPathOutputRewrite(url);
+  }
+  window.location.assign(url.href);
 }
 
 export const getLoginLink = (orgSlug?: string) => {

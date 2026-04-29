@@ -8,6 +8,7 @@ import { routeTree } from "./routeTree.gen";
 import { DefaultCatchBoundary } from "./shared/components/default-catch-boundary";
 import { DefaultNotFound } from "./shared/components/default-not-found";
 import Loader from "./shared/components/loader";
+import { applyOrgPathOutputRewrite } from "./shared/lib/navigation/subdomain-rewrite";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,14 +69,7 @@ const router = createRouter({
         return url;
       },
       output: ({ url }) => {
-        const match = url.pathname.match(/^\/org\/([^/]+)(.*)$/);
-        if (match) {
-          const [, slug, rest] = match;
-          // Keep the same domain, just change subdomain
-          const currentDomain = url.hostname.split(".").slice(-2).join(".");
-          url.hostname = `${slug}.${currentDomain}`;
-          url.pathname = rest || "/";
-        }
+        applyOrgPathOutputRewrite(url);
         return url;
       },
     },
