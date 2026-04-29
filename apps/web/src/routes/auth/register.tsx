@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { RegisterForm } from "@/shared/components/auth/register-form";
+import { hardNavigateToInternalPath } from "@/shared/lib/navigation/links";
 
 const registerSearchSchema = z.object({
   redirect: z.string().optional(),
@@ -14,12 +15,11 @@ export const Route = createFileRoute("/auth/register")({
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
   const search = Route.useSearch();
   const returnTo = search.redirect || "/dashboard";
 
   const handleSuccess = () => {
-    navigate({ to: returnTo });
+    hardNavigateToInternalPath(returnTo, "/dashboard");
   };
 
   return (

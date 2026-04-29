@@ -1,5 +1,18 @@
 import { linkOptions } from "@tanstack/react-router";
 
+/**
+ * Full page navigation to an app-internal path after sign-in / sign-up.
+ * Avoids stale TanStack Router context and React Query cache (session appears
+ * only after reload otherwise in some flows).
+ */
+export function hardNavigateToInternalPath(
+  path: string,
+  fallback: string
+): void {
+  const safe = path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+  window.location.assign(safe);
+}
+
 export const getLoginLink = (orgSlug?: string) => {
   if (orgSlug) {
     return linkOptions({

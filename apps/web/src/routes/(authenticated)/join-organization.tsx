@@ -1,17 +1,14 @@
 import { organizationOptions } from "@instride/api";
-import { ROLE_VARIANTS } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 
 import { OrganizationLogo } from "@/shared/components/fragments/org-logo";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
   Item,
   ItemActions,
   ItemContent,
-  ItemDescription,
   ItemMedia,
   ItemTitle,
 } from "@/shared/components/ui/item";
@@ -19,18 +16,12 @@ import {
 export const Route = createFileRoute("/(authenticated)/join-organization")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      organizationOptions.listByUser(context.user.id)
-    );
+    await context.queryClient.ensureQueryData(organizationOptions.all());
   },
 });
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext();
-
-  const { data: organizations } = useSuspenseQuery(
-    organizationOptions.listByUser(user.id)
-  );
+  const { data: organizations } = useSuspenseQuery(organizationOptions.all());
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background relative">
@@ -47,10 +38,10 @@ function RouteComponent() {
         <div className="flex flex-col gap-3">
           {organizations.length === 0 ? (
             <div className="rounded-lg border bg-card p-6 text-center text-sm text-muted-foreground">
-              You don&apos;t have access to any organizations yet.
+              No organizations found.
             </div>
           ) : (
-            organizations.map(({ organization, roles }) => (
+            organizations.map((organization) => (
               <Item
                 variant="outline"
                 className="bg-card"
@@ -64,13 +55,6 @@ function RouteComponent() {
                 </ItemMedia>
                 <ItemContent>
                   <ItemTitle>{organization.name}</ItemTitle>
-                  <ItemDescription className="flex flex-wrap gap-2">
-                    {roles.map((role) => (
-                      <Badge key={role} variant={ROLE_VARIANTS[role]}>
-                        {role}
-                      </Badge>
-                    ))}
-                  </ItemDescription>
                 </ItemContent>
                 <ItemActions>
                   <Button

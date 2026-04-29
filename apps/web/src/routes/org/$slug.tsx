@@ -45,18 +45,24 @@ export const Route = createFileRoute("/org/$slug")({
       return { organization, isPortal: false, member: null };
     }
 
-    // If the org context is changing, cancel any in-flight queries and drop org-
-    // scoped cache entries before publishing the new context.
+    // If we're switching from one org to another, cancel in-flight queries and drop
+    // org-scoped cache entries before publishing the new context.
+    //
+    // When `previousOrganizationId` is null (e.g. user came from `/org/.../auth/*`,
+    // which never sets org context), skip `cancelQueries()`. Cancelling every query
+    // here can abort the session refetch that just finished after sign-in and leave
+    // `ensureQueryData(session)` empty on the next route — bouncing the user back to
+    // login with a `redirect` search param.
     const previousOrganizationId = getOrganizationContext();
-    if (previousOrganizationId !== organization.id) {
+    if (
+      previousOrganizationId !== null &&
+      previousOrganizationId !== organization.id
+    ) {
       await context.queryClient.cancelQueries();
 
-      // Drop everything except auth queries
-      if (previousOrganizationId !== null) {
-        context.queryClient.removeQueries({
-          predicate: (query) => query.queryKey[0] !== "auth",
-        });
-      }
+      context.queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== "auth",
+      });
     }
 
     setOrganizationContext(organization.id);
