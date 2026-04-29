@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -26,10 +25,7 @@ export function GuardianInvitationModal() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={guardianInvitationModalHandler.close}>
-              I understand
-            </AlertDialogAction>
+            <AlertDialogCancel>I understand</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialogPortal>
