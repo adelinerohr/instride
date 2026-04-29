@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "guardian_inv_relationship_email_uq" ON "guardian_invitations" ("relationship_id","email");

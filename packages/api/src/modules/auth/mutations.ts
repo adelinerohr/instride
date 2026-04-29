@@ -139,9 +139,9 @@ export function useSignUpEmail({
 
   return useWrappedAuthMutation(authClient.signUp.email, {
     ...config,
-    onSuccess: (result, ...args) => {
+    onSuccess: async (result, ...args) => {
       clearOrganizationContext();
-      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session });
       onSuccess?.(result, ...args);
     },
   });
@@ -155,9 +155,9 @@ export function useSignInEmail({
 
   return useWrappedAuthMutation(authClient.signIn.email, {
     ...config,
-    onSuccess: (result, ...args) => {
+    onSuccess: async (result, ...args) => {
       clearOrganizationContext();
-      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session });
       onSuccess?.(result, ...args);
     },
   });
@@ -171,9 +171,9 @@ export function useSignInSocial({
 
   return useWrappedAuthMutation(authClient.signIn.social, {
     ...config,
-    onSuccess: (result, ...args) => {
+    onSuccess: async (result, ...args) => {
       clearOrganizationContext();
-      queryClient.invalidateQueries({ queryKey: authKeys.session });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session });
       onSuccess?.(result, ...args);
     },
   });

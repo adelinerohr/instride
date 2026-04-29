@@ -1,3 +1,4 @@
+import { KioskScope } from "@instride/shared";
 import { Link, useRouteContext, useSearch } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { LogOutIcon, UserIcon } from "lucide-react";
@@ -10,7 +11,6 @@ import { DialogTrigger } from "@/shared/components/ui/dialog";
 
 import { useKiosk } from "../hooks/use-kiosk";
 import { useExpiryCountdown } from "../hooks/use-kiosk-expiry";
-import { KioskScope } from "../lib/types";
 import { actAsModalHandler } from "./act-as-modal";
 
 export function KioskHeader() {

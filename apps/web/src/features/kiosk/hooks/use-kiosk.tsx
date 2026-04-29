@@ -3,14 +3,11 @@ import {
   useKioskSession,
   useVerifyKioskIdentity,
 } from "@instride/api";
+import { KioskScope } from "@instride/shared";
 import * as React from "react";
 
 import { buildKioskPermissions } from "../lib/permissions";
-import {
-  KioskScope,
-  type KioskActingContext,
-  type KioskPermissionSet,
-} from "../lib/types";
+import { type KioskActingContext, type KioskPermissionSet } from "../lib/types";
 import { useKioskExpiry, useKioskIdleTimeout } from "./use-kiosk-expiry";
 
 interface KioskContextValue {

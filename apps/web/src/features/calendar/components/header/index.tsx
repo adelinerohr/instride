@@ -1,3 +1,4 @@
+import { KioskScope } from "@instride/shared";
 import { Link, useParams, useRouteContext } from "@tanstack/react-router";
 import {
   CalendarPlusIcon,
@@ -6,7 +7,6 @@ import {
   PlusIcon,
 } from "lucide-react";
 
-import { KioskScope } from "@/features/kiosk/lib/types";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {

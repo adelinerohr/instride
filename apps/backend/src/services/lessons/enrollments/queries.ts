@@ -8,7 +8,6 @@ import { api } from "encore.dev/api";
 import { guardians, organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
 
 import {
   toInstanceEnrollment,
@@ -71,12 +70,22 @@ export const listMyEnrollments = api(
   }: ListMyEnrollmentsRequest): Promise<ListMyEnrollmentsResponse> => {
     const { organizationId } = requireOrganizationAuth();
     const { member } = await organizations.getMember();
-    assertExists(member.rider, "Current member is not a rider");
 
-    const { relationships } = await guardians.getMyDependents();
-    const dependentRiderIds = relationships.map((r) => r.dependent.riderId);
+    const { relationships } = await guardians.listMyDependents();
+    const dependentRiderIds = relationships.map((r) => r.rider.id);
 
-    const riderIds = [member.rider.id, ...dependentRiderIds];
+    const ownRiderId = member.rider?.id;
+    const riderIds = [
+      ...new Set(
+        ownRiderId !== undefined
+          ? [ownRiderId, ...dependentRiderIds]
+          : dependentRiderIds
+      ),
+    ];
+
+    if (riderIds.length === 0) {
+      return { enrollments: [] };
+    }
 
     const enrollments = await instanceEnrollmentRepo.findManyForRiders({
       organizationId,

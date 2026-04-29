@@ -1,3 +1,4 @@
+import { KioskScope } from "@instride/shared";
 import { AlertTriangleIcon, LogOutIcon } from "lucide-react";
 
 import {
@@ -10,7 +11,6 @@ import { Button } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 
 import { useKiosk } from "../hooks/use-kiosk";
-import { KioskScope } from "../lib/types";
 import { actAsModalHandler } from "./act-as-modal";
 
 export function ActingBanner() {

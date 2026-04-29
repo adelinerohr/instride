@@ -5,6 +5,7 @@ import { apiClient } from "#client";
 import {
   CreateGuardianRelationshipRequest,
   CreatePlaceholderRelationshipRequest,
+  SendDependentInvitationRequest,
   UpdateGuardianRelationshipRequest,
 } from "#contracts";
 import { memberKeys } from "#modules/members/keys";
@@ -38,6 +39,17 @@ export const guardianMutations = {
         request
       );
     return relationship;
+  },
+
+  sendInvitation: async ({
+    relationshipId,
+    ...request
+  }: SendDependentInvitationRequest) => {
+    const { invitation } = await apiClient.guardians.sendInvitation(
+      relationshipId,
+      request
+    );
+    return invitation;
   },
 
   acceptInvitation: async (token: string) => {
@@ -90,6 +102,23 @@ export function useCreatePlaceholderRelationship({
       });
       queryClient.invalidateQueries({
         queryKey: guardianKeys.myDependents(),
+      });
+      onSuccess?.(result, ...args);
+    },
+  });
+}
+
+export function useSendDependentInvitation({
+  mutationConfig,
+}: MutationHookOptions<typeof guardianMutations.sendInvitation> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(guardianMutations.sendInvitation, {
+    ...config,
+    onSuccess: (result, ...args) => {
+      queryClient.invalidateQueries({
+        queryKey: guardianKeys.invitationByToken(result.token),
       });
       onSuccess?.(result, ...args);
     },

@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import { z } from "zod";
 
 import { LoginForm } from "@/shared/components/auth/login-form";
@@ -15,11 +19,13 @@ export const Route = createFileRoute("/auth/login")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const router = useRouter();
   const search = Route.useSearch();
   const returnTo = search.redirect || "/";
 
-  const handleSuccess = () => {
-    navigate({ to: returnTo });
+  const handleSuccess = async () => {
+    await router.invalidate();
+    await navigate({ to: returnTo });
   };
 
   return (

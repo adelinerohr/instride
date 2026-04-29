@@ -33,6 +33,10 @@ import {
   EditDependentProfileModal,
   editDependentProfileModalHandler,
 } from "@/features/organization/components/guardians/dependent-profile-modal";
+import {
+  InviteDependentModal,
+  inviteDependentModalHandler,
+} from "@/features/organization/components/guardians/invite-dependent-modal";
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import {
   AnnotatedLayout,
@@ -72,6 +76,11 @@ import {
 } from "@/shared/components/ui/item";
 import { Separator } from "@/shared/components/ui/separator";
 import { Switch } from "@/shared/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/settings/account/guardian"
@@ -199,6 +208,9 @@ function RouteComponent() {
                     const dependentUser = getUser({
                       rider: relationship.rider,
                     });
+                    const inviteEligible = canInviteDependent(
+                      dependentUser.dateOfBirth!
+                    );
 
                     return (
                       <Item variant="outline" key={relationship.id}>
@@ -238,16 +250,29 @@ function RouteComponent() {
                                 Edit Controls
                               </DialogTrigger>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                disabled={
-                                  !canInviteDependent(
-                                    dependentUser.dateOfBirth!
-                                  )
-                                }
-                              >
-                                <SendIcon />
-                                Invite Dependent
-                              </DropdownMenuItem>
+                              <Tooltip disabled={inviteEligible}>
+                                <TooltipTrigger
+                                  render={
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        inviteDependentModalHandler.openWithPayload(
+                                          {
+                                            relationshipId: relationship.id,
+                                            dependentName: dependentUser.name,
+                                          }
+                                        )
+                                      }
+                                      disabled={!inviteEligible}
+                                    />
+                                  }
+                                >
+                                  <SendIcon />
+                                  Invite Dependent
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Can't invite dependent's under 12 years old.
+                                </TooltipContent>
+                              </Tooltip>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </ItemActions>
@@ -286,6 +311,7 @@ function RouteComponent() {
       </AnnotatedLayout>
       <GuardianControlsModal />
       <EditDependentProfileModal />
+      <InviteDependentModal />
       <AddDependentModal key={addDependentKey} />
     </div>
   );

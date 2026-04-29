@@ -73,6 +73,7 @@ export function BusinessHoursTabs({
     ? (availability.boardOverrides[selectedBoard.id] ?? [])
     : [];
   const hasOverride = boardHours.length > 0;
+
   const effectiveHours = isDefaults
     ? availability.defaults
     : hasOverride

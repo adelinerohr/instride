@@ -97,7 +97,7 @@ function RouteComponent() {
     )
   );
 
-  const showDependentAlert = isGuardian && dependents?.length === 0;
+  const guardianHasNoDependents = isGuardian && dependents?.length === 0;
 
   const renderGreeting = () => {
     if (!isGuardian) {
@@ -159,7 +159,7 @@ function RouteComponent() {
           Create Lesson
         </Link>
       </PageHeader>
-      {showDependentAlert && (
+      {guardianHasNoDependents && (
         <Alert variant="destructive" className="w-full">
           <AlertTriangleIcon />
           <AlertTitle>No dependents</AlertTitle>
@@ -182,7 +182,7 @@ function RouteComponent() {
       <PageBody
         className={cn(
           "space-y-4",
-          isOnlyGuardian && "opacity-50 pointer-events-none"
+          guardianHasNoDependents && "opacity-50 pointer-events-none"
         )}
       >
         {!hasPin && (

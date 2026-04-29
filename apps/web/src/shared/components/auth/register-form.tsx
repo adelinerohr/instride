@@ -2,6 +2,7 @@ import { registerSchema } from "@instride/shared";
 import {
   Link,
   linkOptions,
+  useNavigate,
   useParams,
   useSearch,
 } from "@tanstack/react-router";
@@ -17,6 +18,7 @@ import {
 import { useAppForm } from "@/shared/hooks/use-form";
 import { authClient } from "@/shared/lib/auth/client";
 import { oAuthProviders } from "@/shared/lib/auth/oauth-providers";
+import { getRootLink } from "@/shared/lib/navigation/links";
 
 import {
   Card,
@@ -39,6 +41,7 @@ export function RegisterForm({
 }: RegisterFormProps) {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
+  const navigate = useNavigate();
   const orgSlug = params.slug;
 
   const form = useAppForm({
@@ -58,7 +61,8 @@ export function RegisterForm({
         },
         {
           onSuccess: () => {
-            toast.warning("Please check your email for verification");
+            toast.success("Account created successfully");
+            navigate(getRootLink(orgSlug));
           },
           onError: (error) => {
             toast.error(

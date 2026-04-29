@@ -1,4 +1,5 @@
 import { APIError, useSetPin } from "@instride/api";
+import { useRouter } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { toast } from "sonner";
 import z from "zod";
@@ -26,6 +27,7 @@ export const setPinDialogHandler = DialogHandler.createHandle();
 
 export function SetPinDialog() {
   const setPin = useSetPin();
+  const router = useRouter();
 
   const form = useAppForm({
     defaultValues: {
@@ -45,8 +47,9 @@ export function SetPinDialog() {
     },
     onSubmit: async ({ value }) => {
       await setPin.mutateAsync(value.pin, {
-        onSuccess: () => {
+        onSuccess: async () => {
           toast.success("Kiosk PIN set successfully");
+          await router.invalidate();
           setPinDialogHandler.close();
         },
         onError: (error) => {

@@ -19,14 +19,6 @@ const dependentPersonalSchema = updateUserSchema
   .extend({
     imageFile: z.file().nullable(),
     removeImage: z.boolean(),
-    email: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
-        "Enter a valid email address"
-      ),
   });
 
 export const dependentOnboardingSchema = z.object({
@@ -46,7 +38,6 @@ export const defaultDependentOnboardingValues: DependentOnboardingFormValues = {
   section: DependentOnboardingStep.PersonalDetails,
   personalDetails: {
     name: "",
-    email: "",
     phone: null,
     dateOfBirth: "",
     image: null,

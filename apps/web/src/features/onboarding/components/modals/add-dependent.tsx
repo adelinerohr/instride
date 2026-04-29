@@ -70,12 +70,9 @@ export function AddDependentModal() {
       return;
     }
 
-    const emailTrimmed = value.personalDetails.email?.trim();
-
     await createPlaceholder.mutateAsync({
       placeholderProfile: {
         name: value.personalDetails.name,
-        ...(emailTrimmed ? { email: emailTrimmed } : {}),
         phone: value.personalDetails.phone,
         image: value.personalDetails.removeImage
           ? null

@@ -94,9 +94,10 @@ export const createPlaceholderRelationship = api(
     };
 
     const now = new Date();
-    const placeholderEmail =
-      params.placeholderProfile.email ??
-      `dependent+${crypto.randomUUID()}@placeholder.instride.local`;
+    // Never store the guardian-supplied contact email on auth_users: that row
+    // must stay unique and the dependent will create their own auth user at
+    // signup. The invite stores the real email; acceptInvitation matches it.
+    const placeholderEmail = `dependent+${crypto.randomUUID()}@placeholder.instride.local`;
 
     const relationship = await db.transaction(async (tx) => {
       const [authUser] = await tx

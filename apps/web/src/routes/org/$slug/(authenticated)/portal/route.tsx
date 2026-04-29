@@ -6,11 +6,17 @@ import {
   type Rider,
 } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 import { AlertCircleIcon } from "lucide-react";
 
 import { AppLayout } from "@/shared/components/layout/app-layout";
 import { Page, PageBody } from "@/shared/components/layout/page";
+import { buttonVariants } from "@/shared/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -96,12 +102,10 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
       return assignments.some((a) => a.length > 0);
     };
 
-    if (
-      isGuardian &&
-      dependentRelationships &&
-      dependentRelationships.length > 0
-    ) {
-      // Guardian-only: no rider profile of their own
+    if (isGuardian && dependentRelationships) {
+      // Guardian-only: no rider profile of their own.
+      // If they have no dependents yet, we still allow the portal route to load
+      // so the layout can show an empty state prompting them to add one.
       if (!rider) {
         const effectiveRiderIds = dependentRelationships.map(
           (dependent) => dependent.rider.id
@@ -111,24 +115,26 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
           isOnlyGuardian: true,
           dependents: dependentRelationships,
           effectiveRiderIds,
-          hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
+          hasAssignedBoards:
+            effectiveRiderIds.length === 0
+              ? false
+              : await getHasAssignedBoards(effectiveRiderIds),
         };
       }
+
       // Guardian who also has their own rider profile
-      if (rider) {
-        const effectiveRiderIds = [
-          rider.id,
-          ...dependentRelationships.map((dependent) => dependent.rider.id),
-        ];
-        return {
-          isGuardian: true,
-          isOnlyGuardian: false,
-          rider,
-          dependents: dependentRelationships,
-          effectiveRiderIds,
-          hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
-        };
-      }
+      const effectiveRiderIds = [
+        rider.id,
+        ...dependentRelationships.map((dependent) => dependent.rider.id),
+      ];
+      return {
+        isGuardian: true,
+        isOnlyGuardian: false,
+        rider,
+        dependents: dependentRelationships,
+        effectiveRiderIds,
+        hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
+      };
     }
 
     // From here: !isGuardian, so rider must be non-null (the !rider && !isGuardian
@@ -168,6 +174,42 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
 
 function RouteComponent() {
   const { hasAssignedBoards, effectiveRiderIds } = Route.useRouteContext();
+  const routeContext = Route.useRouteContext();
+  const { slug } = Route.useParams();
+
+  if (
+    routeContext.isGuardian &&
+    routeContext.isOnlyGuardian &&
+    routeContext.dependents.length === 0
+  ) {
+    return (
+      <AppLayout type="portal" isAdmin={false}>
+        <Page className="min-h-0 flex-1">
+          <PageBody className="flex flex-1 items-center justify-center">
+            <Empty className="border border-dashed">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <AlertCircleIcon />
+                </EmptyMedia>
+                <EmptyTitle>No dependents</EmptyTitle>
+                <EmptyDescription>
+                  You don&apos;t have any dependents yet. Add a dependent to use
+                  the portal.
+                </EmptyDescription>
+              </EmptyHeader>
+              <Link
+                to="/org/$slug/settings/account/guardian"
+                params={{ slug }}
+                className={buttonVariants({ variant: "default" })}
+              >
+                Manage Dependents
+              </Link>
+            </Empty>
+          </PageBody>
+        </Page>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout type="portal" isAdmin={false}>

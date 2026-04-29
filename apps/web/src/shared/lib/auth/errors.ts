@@ -3,6 +3,7 @@ import type { authClient } from "./client";
 export type AuthClientErrorCodes = typeof authClient.$ERROR_CODES & {
   INVALID_INVITATION: string;
   USER_BANNED: string;
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: string;
 };
 
 /**
@@ -31,6 +32,8 @@ export const authErrorMessages: { [K in keyof AuthClientErrorCodes]?: string } =
     SOCIAL_ACCOUNT_ALREADY_LINKED: "This account is already linked to a user.",
     USER_EMAIL_NOT_FOUND: "Email not found.",
     USER_ALREADY_EXISTS: "Email address is already taken.",
+    USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL:
+      "That email is already in use. Sign in instead, or use a different email.",
     INVALID_INVITATION: "The invitation is invalid or expired.",
     SESSION_EXPIRED: "The session has expired.",
     FAILED_TO_UNLINK_LAST_ACCOUNT: "Failed to unlink account",

@@ -34,6 +34,18 @@ export const getPortalSettingsNavItems = (slug: string, isTrainer: boolean) => {
           to: "/org/$slug/settings/account/profile",
           params: { slug },
         },
+        {
+          title: "Security",
+          icon: ShieldIcon,
+          to: "/org/$slug/settings/account/security",
+          params: { slug },
+        },
+        {
+          title: "Guardian",
+          icon: ShieldUserIcon,
+          to: "/org/$slug/settings/account/guardian",
+          params: { slug },
+        },
         ...(isTrainer
           ? [
               {

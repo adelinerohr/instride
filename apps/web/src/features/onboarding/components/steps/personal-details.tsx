@@ -81,22 +81,19 @@ export const PersonalDetailsStep = withFieldGroup({
           )}
         />
 
-        <group.AppField
-          name="email"
-          children={(field) => (
-            <field.TextField
-              label="Email"
-              disabled={!isDependent}
-              placeholder="john.doe@example.com"
-              type="email"
-              description={
-                isDependent
-                  ? "Optional. Used to invite this dependent to the portal"
-                  : undefined
-              }
-            />
-          )}
-        />
+        {!isDependent ? (
+          <group.AppField
+            name="email"
+            children={(field) => (
+              <field.TextField
+                label="Email"
+                disabled
+                placeholder="john.doe@example.com"
+                type="email"
+              />
+            )}
+          />
+        ) : null}
 
         <div className="grid grid-cols-2 gap-4">
           <group.AppField

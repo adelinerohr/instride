@@ -5,10 +5,14 @@ import { EventScope } from "../models/enums";
 export const eventInputSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().nullable(),
-  startDate: z.string(),
-  endDate: z.string(),
-  startTime: z.string().nullable(),
-  endTime: z.string().nullable(),
+  start: z.object({
+    date: z.string(),
+    time: z.string().nullable(),
+  }),
+  end: z.object({
+    date: z.string(),
+    time: z.string().nullable(),
+  }),
   scope: z.enum(EventScope),
   boardIds: z.array(z.string()),
   trainerIds: z.array(z.string()),

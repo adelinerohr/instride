@@ -93,6 +93,7 @@ export const auth = betterAuth({
   /** Authentication providers */
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
     sendResetPassword: async ({ user, url }) => {
       const component = PasswordResetEmail({
         appName: "Instride",
@@ -114,8 +115,6 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       const component = VerifyEmailAddressEmail({
         name: user.name,

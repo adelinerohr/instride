@@ -8,7 +8,7 @@ import {
   type Event,
 } from "@instride/api";
 import { eventInputSchema, EventScope } from "@instride/shared";
-import * as React from "react";
+import { useStore } from "@tanstack/react-store";
 import { toast } from "sonner";
 
 import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";
@@ -29,7 +29,9 @@ import {
   FieldSeparator,
 } from "@/shared/components/ui/field";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useAppForm } from "@/shared/hooks/use-form";
+import { useAppForm, withFieldGroup } from "@/shared/hooks/use-form";
+
+import { buildDefaultEventValues, eventFormOpts } from "../../lib/event.form";
 
 export const eventModalHandler = DialogHandler.createHandle<Event | null>();
 
@@ -45,12 +47,7 @@ export function EventModal() {
   );
 }
 
-export function EventModalForm(props?: Partial<Event>) {
-  const [startFullDay, setStartFullDay] = React.useState(
-    props?.startTime === null
-  );
-  const [endFullDay, setEndFullDay] = React.useState(props?.endTime === null);
-
+function EventModalForm(props?: Partial<Event>) {
   const { data: boards, isPending: isBoardsPending } = useBoards();
   const { data: trainers, isPending: isTrainersPending } = useTrainers();
 
@@ -58,21 +55,8 @@ export function EventModalForm(props?: Partial<Event>) {
   const updateEvent = useUpdateEvent();
 
   const form = useAppForm({
-    defaultValues: {
-      title: props?.title ?? "",
-      description: props?.description ?? null,
-      startDate: props?.startDate ?? "",
-      endDate: props?.endDate ?? "",
-      startTime: props?.startTime ?? null,
-      endTime: props?.endTime ?? null,
-      scope: props?.scope ?? EventScope.ORGANIZATION,
-      boardIds: props?.boardIds ?? [],
-      trainerIds: props?.trainerIds ?? [],
-      blockScheduling: props?.blockScheduling ?? false,
-    },
-    validators: {
-      onSubmit: eventInputSchema,
-    },
+    ...eventFormOpts,
+    defaultValues: buildDefaultEventValues(props),
     onSubmitInvalid: ({ value }) => {
       const parsed = eventInputSchema.safeParse(value);
       if (!parsed.success) {
@@ -80,52 +64,28 @@ export function EventModalForm(props?: Partial<Event>) {
       }
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
-      if (props?.id) {
-        updateEvent.mutateAsync(
-          {
-            id: props.id,
-            request: {
-              ...value,
-              boardIds: value.boardIds.length > 0 ? value.boardIds : null,
-              trainerIds: value.trainerIds.length > 0 ? value.trainerIds : null,
-            },
-          },
-          {
-            onSuccess: () => {
-              toast.success("Event updated successfully");
-              eventModalHandler.close();
-            },
-            onError: (error) => {
-              toast.error(
-                error instanceof APIError
-                  ? error.message
-                  : "Failed to update event"
-              );
-            },
-          }
-        );
-      } else {
-        createEvent.mutateAsync(
-          {
-            ...value,
-            boardIds: value.boardIds.length > 0 ? value.boardIds : null,
-            trainerIds: value.trainerIds.length > 0 ? value.trainerIds : null,
-          },
-          {
-            onSuccess: () => {
-              toast.success("Event created successfully");
-              eventModalHandler.close();
-            },
-            onError: (error) => {
-              toast.error(
-                error instanceof APIError
-                  ? error.message
-                  : "Failed to create event"
-              );
-            },
-          }
-        );
+      const payload = {
+        ...value,
+        startDate: value.start.date,
+        endDate: value.end.date,
+        startTime: value.start.time,
+        endTime: value.end.time,
+        boardIds: value.boardIds.length > 0 ? value.boardIds : null,
+        trainerIds: value.trainerIds.length > 0 ? value.trainerIds : null,
+      };
+
+      try {
+        if (props?.id) {
+          await updateEvent.mutateAsync({ id: props.id, request: payload });
+          toast.success("Event updated successfully");
+        } else {
+          await createEvent.mutateAsync(payload);
+          toast.success("Event created successfully");
+        }
+      } catch (error) {
+        const message =
+          error instanceof APIError ? error.message : "Request failed";
+        toast.error(message);
       }
     },
   });
@@ -169,6 +129,9 @@ export function EventModalForm(props?: Partial<Event>) {
                   form.setFieldValue("boardIds", []);
                 } else if (value === EventScope.BOARD) {
                   form.setFieldValue("trainerIds", []);
+                } else {
+                  form.setFieldValue("boardIds", []);
+                  form.setFieldValue("trainerIds", []);
                 }
               },
             }}
@@ -185,44 +148,45 @@ export function EventModalForm(props?: Partial<Event>) {
             )}
           />
           <form.Subscribe selector={(state) => state.values.scope}>
-            {(scope) =>
-              scope === EventScope.BOARD && (
-                <form.AppField
-                  name="boardIds"
-                  children={(field) => (
-                    <field.MultiSelectField
-                      label="Board"
-                      placeholder="Select a board"
-                      items={boards}
-                      itemToValue={(board) => board.id}
-                      itemToLabel={(board) => board.name}
-                      renderValue={(board) => board.name}
-                    />
-                  )}
-                />
-              )
-            }
-          </form.Subscribe>
-          <form.Subscribe selector={(state) => state.values.scope}>
-            {(scope) =>
-              scope === EventScope.TRAINER && (
-                <form.AppField
-                  name="trainerIds"
-                  children={(field) => (
-                    <field.MultiSelectField
-                      label="Trainers"
-                      placeholder="Select a trainer"
-                      items={trainers}
-                      itemToValue={(trainer) => trainer.id}
-                      itemToLabel={(trainer) => getUser({ trainer }).name}
-                      renderValue={(trainer) => (
-                        <UserAvatarItem user={getUser({ trainer })} />
-                      )}
-                    />
-                  )}
-                />
-              )
-            }
+            {(scope) => {
+              if (scope === EventScope.BOARD) {
+                return (
+                  <form.AppField
+                    name="boardIds"
+                    children={(field) => (
+                      <field.MultiSelectField
+                        label="Board"
+                        placeholder="Select a board"
+                        items={boards}
+                        itemToValue={(board) => board.id}
+                        itemToLabel={(board) => board.name}
+                        renderValue={(board) => board.name}
+                      />
+                    )}
+                  />
+                );
+              }
+              if (scope === EventScope.TRAINER) {
+                return (
+                  <form.AppField
+                    name="trainerIds"
+                    children={(field) => (
+                      <field.MultiSelectField
+                        label="Trainers"
+                        placeholder="Select a trainer"
+                        items={trainers}
+                        itemToValue={(trainer) => trainer.id}
+                        itemToLabel={(trainer) => getUser({ trainer }).name}
+                        renderValue={(trainer) => (
+                          <UserAvatarItem user={getUser({ trainer })} />
+                        )}
+                      />
+                    )}
+                  />
+                );
+              }
+              return null;
+            }}
           </form.Subscribe>
           <form.AppField
             name="blockScheduling"
@@ -231,64 +195,19 @@ export function EventModalForm(props?: Partial<Event>) {
             )}
           />
           <FieldSeparator />
-
-          <Field className="w-fit" orientation="horizontal">
-            <Checkbox
-              checked={startFullDay}
-              onCheckedChange={setStartFullDay}
-            />
-            <FieldLabel className="w-fit whitespace-nowrap">
-              Full Day?
-            </FieldLabel>
-          </Field>
-          <div className="flex items-start gap-4">
-            <form.AppField
-              name="startDate"
-              children={(field) => (
-                <field.DateField label="Start Date" className="w-full" />
-              )}
-            />
-            <form.AppField
-              name="startTime"
-              listeners={{
-                onChange: () => {
-                  if (startFullDay) form.setFieldValue("startTime", null);
-                },
-              }}
-              children={(field) =>
-                !startFullDay && (
-                  <field.TextField type="time" label="Start Time" />
-                )
-              }
-            />
-          </div>
+          <DateTimeFieldGroup
+            form={form}
+            fields="start"
+            label="Start Date"
+            timeLabel="Start Time"
+          />
           <FieldSeparator />
-          <Field className="w-fit" orientation="horizontal">
-            <Checkbox checked={endFullDay} onCheckedChange={setEndFullDay} />
-            <FieldLabel className="w-fit whitespace-nowrap">
-              Full Day?
-            </FieldLabel>
-          </Field>
-          <div className="flex items-start gap-4">
-            <form.AppField
-              name="endDate"
-              children={(field) => (
-                <field.DateField label="End Date" className="w-full" />
-              )}
-            />
-
-            <form.AppField
-              name="endTime"
-              listeners={{
-                onChange: () => {
-                  if (endFullDay) form.setFieldValue("endTime", null);
-                },
-              }}
-              children={(field) =>
-                !endFullDay && <field.TextField type="time" label="End Time" />
-              }
-            />
-          </div>
+          <DateTimeFieldGroup
+            form={form}
+            fields="end"
+            label="End Date"
+            timeLabel="End Time"
+          />
         </FieldGroup>
         <DialogFooter>
           <form.AppForm>
@@ -299,3 +218,48 @@ export function EventModalForm(props?: Partial<Event>) {
     </DialogContent>
   );
 }
+
+const DateTimeFieldGroup = withFieldGroup({
+  defaultValues: {
+    date: "",
+    time: null as string | null,
+  },
+  props: {
+    label: "Date" as string,
+    timeLabel: "Time" as string,
+  },
+  render: function Render({ group, label, timeLabel }) {
+    const time = useStore(group.store, (s) => s.values.time);
+    const isFullDay = time === null;
+
+    return (
+      <>
+        <Field className="w-fit" orientation="horizontal">
+          <Checkbox
+            checked={isFullDay}
+            onCheckedChange={(checked) => {
+              group.setFieldValue("time", checked ? null : "");
+            }}
+          />
+          <FieldLabel className="w-fit whitespace-nowrap">Full Day?</FieldLabel>
+        </Field>
+        <div className="flex items-start gap-4">
+          <group.AppField
+            name="date"
+            children={(field) => (
+              <field.DateField label={label} className="w-full" />
+            )}
+          />
+          {!isFullDay && (
+            <group.AppField
+              name="time"
+              children={(field) => (
+                <field.TextField type="time" label={timeLabel} />
+              )}
+            />
+          )}
+        </div>
+      </>
+    );
+  },
+});

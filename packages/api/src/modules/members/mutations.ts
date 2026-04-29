@@ -96,6 +96,7 @@ export function useSetPin({
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: memberKeys.list() });
+      queryClient.invalidateQueries({ queryKey: memberKeys.me() });
       onSuccess?.(...args);
     },
   });

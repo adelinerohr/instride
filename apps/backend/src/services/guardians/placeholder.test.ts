@@ -171,7 +171,7 @@ describe("createPlaceholderRelationship", () => {
       expect(riders).toHaveLength(2);
     });
 
-    it("uses the provided placeholder email when given", async () => {
+    it("uses a synthetic auth email when a contact email is given so the dependent can sign up later", async () => {
       const org = await seedOrganization();
       const { user: guardian } = await seedMember(
         org.id,
@@ -193,7 +193,9 @@ describe("createPlaceholderRelationship", () => {
         where: { id: relationship.dependentMemberId },
         with: { authUser: true },
       });
-      expect(dependent?.authUser?.email).toBe("alex@example.com");
+      expect(dependent?.authUser?.email).toMatch(
+        /^dependent\+.+@placeholder\.instride\.local$/
+      );
     });
   });
 });

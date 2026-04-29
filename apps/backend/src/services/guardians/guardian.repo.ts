@@ -150,15 +150,17 @@ export const createGuardianRepo = (client: Database | Transaction = db) => ({
   // ============================================================================
 
   upsertInvitation: async (data: NewGuardianInvitationRow) => {
+    const normalizedEmail = data.email.toLowerCase();
     const [invitation] = await client
       .insert(guardianInvitations)
-      .values(data)
+      .values({ ...data, email: normalizedEmail })
       .onConflictDoUpdate({
         target: [guardianInvitations.relationshipId, guardianInvitations.email],
         set: {
           token: data.token,
           expiresAt: data.expiresAt,
           status: InvitationStatus.PENDING,
+          email: normalizedEmail,
         },
       })
       .returning();
@@ -169,7 +171,7 @@ export const createGuardianRepo = (client: Database | Transaction = db) => ({
   findPendingInvitationForEmail: async (email: string) => {
     return await client.query.guardianInvitations.findFirst({
       where: {
-        email,
+        email: email.toLowerCase(),
         status: InvitationStatus.PENDING,
       },
       with: {

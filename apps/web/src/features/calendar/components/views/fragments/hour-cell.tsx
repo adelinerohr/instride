@@ -1,8 +1,8 @@
+import { KioskScope } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { actAsModalHandler } from "@/features/kiosk/components/act-as-modal";
-import { KioskScope } from "@/features/kiosk/lib/types";
 import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
 import { cn } from "@/shared/lib/utils";
 

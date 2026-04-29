@@ -1,7 +1,7 @@
 import {
   QuestionnaireQuestionOperator,
   QuestionnaireQuestionType,
-} from "@instride/shared/src/models/enums";
+} from "@instride/shared";
 
 // ================================================================================================================
 // Entities

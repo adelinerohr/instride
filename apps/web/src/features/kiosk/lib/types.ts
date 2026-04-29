@@ -1,10 +1,4 @@
-export const KioskScope = {
-  DEFAULT: "default",
-  SELF: "self",
-  STAFF: "staff",
-} as const;
-
-export type KioskScope = (typeof KioskScope)[keyof typeof KioskScope];
+import type { KioskScope } from "@instride/shared";
 
 export interface KioskActingContext {
   actingMemberId: string | null;

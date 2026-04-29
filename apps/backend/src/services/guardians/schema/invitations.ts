@@ -40,6 +40,9 @@ export const guardianInvitations = p.pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
+    p
+      .uniqueIndex("guardian_inv_relationship_email_uq")
+      .on(table.relationshipId, table.email),
     p.index("guardian_inv_relationship_idx").on(table.relationshipId),
     p.index("guardian_inv_token_idx").on(table.token),
     p.index("guardian_inv_email_status_idx").on(table.email, table.status),
