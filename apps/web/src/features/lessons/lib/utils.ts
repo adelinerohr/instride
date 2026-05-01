@@ -1,8 +1,11 @@
-import type {
-  LessonInstance,
-  LessonInstanceEnrollmentWithInstance,
+import {
+  type LessonInstance,
+  type LessonInstanceEnrollmentWithInstance,
+  type Rider,
 } from "@instride/api";
 import { isBefore, setHours, startOfDay } from "date-fns";
+
+import type { PortalRouteContext } from "@/routes/org/$slug/(authenticated)/portal/route";
 
 export function getPhaseOfDay(now: Date) {
   if (isBefore(now, setHours(now, 12))) return "morning";
@@ -76,4 +79,18 @@ export function findNearestLesson(lessons: LessonInstance[], now: Date) {
   }
 
   return nearest;
+}
+
+export function resolveRiderOptions(context: PortalRouteContext): Rider[] {
+  if (context.isGuardian && context.isOnlyGuardian) {
+    return context.dependents.map((d) => d.rider);
+  }
+  if (context.isGuardian && !context.isOnlyGuardian) {
+    return [context.rider, ...context.dependents.map((d) => d.rider)];
+  }
+  if (context.isDependent) {
+    return [context.rider];
+  }
+  // context is narrowed to RiderContext here — TS knows it
+  return [context.rider];
 }

@@ -5,6 +5,7 @@ import type {
 import { KioskScope } from "@instride/shared";
 
 import type { BoardRow } from "@/services/boards/schema";
+import { toISO, toISOOrNull } from "@/shared/utils/mappers";
 
 import type { KioskSessionRow } from "./schema";
 
@@ -21,8 +22,8 @@ export function toKioskSession(row: KioskSessionWithBoard): KioskSession {
     locationName: row.locationName,
     actingMemberId: row.actingMemberId,
     scope: row.scope,
-    expiresAt: row.expiresAt,
-    createdAt: row.createdAt,
+    expiresAt: toISOOrNull(row.expiresAt),
+    createdAt: toISO(row.createdAt),
   };
 }
 

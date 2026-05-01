@@ -20,8 +20,21 @@ export const lessonInputSchema = z.object({
 
 export type LessonInputSchema = z.infer<typeof lessonInputSchema>;
 
-export const adminCreateLessonInputSchema = lessonInputSchema.omit({
-  effectiveFrom: true,
+export const adminCreateLessonInputSchema = z.object({
+  name: z.string().nullable(),
+  duration: z.number().positive(),
+  boardId: z.string().min(1, "Select a board"),
+  maxRiders: z.number().int().positive(),
+  serviceId: z.string().min(1, "Select a service"),
+  trainerId: z.string().min(1, "Select a trainer"),
+  levelId: z.string().nullable(),
+  notes: z.string().nullable(),
+  start: z.object({
+    date: z.string().trim().min(1, "Select a date"),
+    time: z.string().trim().min(1, "Select a time"),
+  }),
+  isRecurring: z.boolean(),
+  riderIds: z.array(z.string()),
 });
 
 export type AdminCreateLessonInputSchema = z.infer<
@@ -33,6 +46,31 @@ export const adminUpdateLessonInputSchema = lessonInputSchema;
 export type AdminUpdateLessonInputSchema = z.infer<
   typeof adminUpdateLessonInputSchema
 >;
+
+export const riderCreateLessonSchema = z
+  .object({
+    trainerId: z.string().min(1, "Select a trainer"),
+    boardId: z.string().min(1, "Select a board"),
+    serviceId: z.string().min(1, "Select a service"),
+    start: z.object({
+      date: z.string().trim().min(1, "Select a date"),
+      time: z.string().trim().min(1, "Select a time"),
+    }),
+    isServiceGroup: z.boolean(),
+    acknowledgePrivateLesson: z.boolean().nullable(),
+    riderId: z.string().min(1, "Select a rider"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.isServiceGroup && data.acknowledgePrivateLesson !== true) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["acknowledgePrivateLesson"],
+        message: "You must acknowledge that the lesson may become private",
+      });
+    }
+  });
+
+export type RiderCreateLessonSchema = z.infer<typeof riderCreateLessonSchema>;
 
 export const riderCreateLessonInputSchema = lessonInputSchema
   .pick({
@@ -49,3 +87,41 @@ export const riderCreateLessonInputSchema = lessonInputSchema
 export type RiderCreateLessonInputSchema = z.infer<
   typeof riderCreateLessonInputSchema
 >;
+
+export const quickCreateLessonSchema = z
+  .object({
+    type: z.enum(["rider", "admin"]),
+    trainerId: z.string().min(1, "Select a trainer"),
+    boardId: z.string().min(1, "Select a board"),
+    serviceId: z.string().min(1, "Select a service"),
+    start: z.object({
+      date: z.string().trim().min(1, "Select a date"),
+      time: z.string().trim().min(1, "Select a time"),
+    }),
+    isServiceGroup: z.boolean(),
+    acknowledgePrivateLesson: z.boolean().nullable(),
+    riderIds: z.array(z.string()),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "rider" && data.riderIds.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["riderIds"],
+        message: "You must select at least one rider",
+      });
+    }
+
+    if (
+      data.isServiceGroup &&
+      data.acknowledgePrivateLesson !== true &&
+      data.riderIds.length === 1
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["acknowledgePrivateLesson"],
+        message: "You must acknowledge that the lesson may become private",
+      });
+    }
+  });
+
+export type QuickCreateLessonSchema = z.infer<typeof quickCreateLessonSchema>;

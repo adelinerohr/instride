@@ -6,7 +6,7 @@
 //   ["availability", orgId, "org"]                             ← org availability windows
 //   ["availability", orgId, "trainer", trainerId]              ← trainer availability windows
 
-import type { availability } from "#client";
+import { AvailableSlotsRequest } from "#contracts";
 
 const availableSlotsRootKey = ["available-slots"] as const;
 
@@ -36,6 +36,6 @@ export const availabilityKeys = {
     [...BLOCKS_ROOT, "list", "trainer", trainerId] as const,
   timeBlockById: (id: string) => [...BLOCKS_ROOT, "detail", id] as const,
 
-  availableSlots: (params: availability.AvailableSlotsParams) =>
+  availableSlots: (params: AvailableSlotsRequest) =>
     [...availableSlotsRootKey, params] as const,
 };

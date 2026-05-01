@@ -6,7 +6,7 @@ import { api, APIError, ErrCode } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { boardService } from "../boards/board.service";
+import { boardRepo } from "../boards/board.repo";
 import { memberRepo } from "../organizations/members/member.repo";
 import { questionnaireService } from "./questionnaire.service";
 import {
@@ -69,7 +69,7 @@ export const submitResponse = api(
         continue;
       }
       try {
-        await boardService.createAssignment({
+        await boardRepo.createAssignment({
           organizationId,
           boardId,
           riderId: subjectMember.rider.id,

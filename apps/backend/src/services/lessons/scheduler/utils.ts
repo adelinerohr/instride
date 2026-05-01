@@ -1,11 +1,6 @@
-import {
-  addDaysToYmd,
-  getDOWInTimeZone,
-  getLocalParts,
-  makeUTCDateFromLocalParts,
-} from "@instride/shared";
-import { addMinutes } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { getDOWInTimeZone } from "@instride/shared";
+import { addDays, addMinutes } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 import { checkLessonAvailability } from "../../availability/scheduling/check-availability";
 import { createInstanceWithPublish } from "../instances/instance.repo";
@@ -73,18 +68,12 @@ export async function generateRecurringInstances(
   const effectiveUntil =
     recurrenceEnd && recurrenceEnd < input.until ? recurrenceEnd : input.until;
 
-  const startParts = getLocalParts({
-    date: seriesStart,
-    timeZone: input.timezone,
-  });
-  const targetDay = getDOWInTimeZone({
+  const localTimeOfDay = formatInTimeZone(seriesStart, input.timezone, "HH:mm");
+  const targetDOW = getDOWInTimeZone({
     date: seriesStart,
     timeZone: input.timezone,
   });
 
-  // Start walking from whichever is later: the series anchor, or the day
-  // after our last planned run. Taking max() with `now` lets us safely
-  // shrink the generation window without re-walking past dates.
   const lastPlanned = input.series.lastPlannedUntil
     ? new Date(input.series.lastPlannedUntil)
     : null;
@@ -92,29 +81,23 @@ export async function generateRecurringInstances(
     ? new Date(Math.max(seriesStart.getTime(), lastPlanned.getTime() + 60_000))
     : seriesStart;
 
-  const cursorDay = getDOWInTimeZone({
+  const cursorDOW = getDOWInTimeZone({
     date: cursorBase,
     timeZone: input.timezone,
   });
-  const daysUntilTarget = (targetDay - cursorDay + 7) % 7;
+  const daysUntilTarget = (targetDOW - cursorDOW + 7) % 7;
 
-  let currentYmd = addDaysToYmd({
-    ...getLocalParts({ date: cursorBase, timeZone: input.timezone }),
-    daysToAdd: daysUntilTarget,
-  });
+  let cursor = addDays(cursorBase, daysUntilTarget);
 
   const instances: LessonInstanceRow[] = [];
   const skipped: SkippedInstance[] = [];
 
   while (true) {
-    const instanceStart = makeUTCDateFromLocalParts({
-      parts: {
-        ...currentYmd,
-        ...startParts,
-        second: 0,
-      },
-      timeZone: input.timezone,
-    });
+    const ymd = formatInTimeZone(cursor, input.timezone, "yyyy-MM-dd");
+    const instanceStart = fromZonedTime(
+      `${ymd}T${localTimeOfDay}:00`,
+      input.timezone
+    );
 
     if (instanceStart > effectiveUntil) break;
 
@@ -133,7 +116,7 @@ export async function generateRecurringInstances(
       // "exists" is a silent no-op — don't count it as created.
     }
 
-    currentYmd = addDaysToYmd({ ...currentYmd, daysToAdd: 7 });
+    cursor = addDays(cursor, 7);
   }
 
   return { instances, skipped, plannedUntil: effectiveUntil };

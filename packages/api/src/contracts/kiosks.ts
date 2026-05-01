@@ -1,4 +1,11 @@
-import type { KioskScope } from "@instride/shared";
+import type {
+  KioskActingState,
+  KioskActionContext,
+  KioskScope,
+} from "@instride/shared";
+
+import { CreateLessonSeriesRequest } from "./lessons";
+import { Member, Rider } from "./organizations";
 
 // ============================================================================
 // Entities
@@ -12,14 +19,8 @@ export interface KioskSession {
   locationName: string;
   actingMemberId: string | null;
   scope: KioskScope;
-  expiresAt: Date | string | null;
-  createdAt: Date | string;
-}
-
-export interface KioskActingState {
-  actingMemberId: string | null;
-  scope: KioskScope;
   expiresAt: string | null;
+  createdAt: string;
 }
 
 export interface KioskSessionListItem {
@@ -57,23 +58,54 @@ export interface ClearKioskIdentityRequest {
   sessionId: string;
 }
 
+export interface CheckKioskPermissionRequest {
+  sessionId: string;
+  verification: { memberId: string; pin: string };
+  context: KioskActionContext;
+}
+
 // Lesson actions
 
 export interface KioskEnrollInInstanceRequest {
   sessionId: string;
   instanceId: string;
   riderMemberId: string;
+  verification?: { memberId: string; pin: string };
 }
 
 export interface KioskUnenrollFromInstanceRequest {
   sessionId: string;
   enrollmentId: string;
+  verification?: { memberId: string; pin: string };
+}
+
+export interface KioskCancelLessonInstanceRequest {
+  sessionId: string;
+  instanceId: string;
+  reason: string;
+  verification?: { memberId: string; pin: string };
 }
 
 export interface KioskMarkAttendanceRequest {
   sessionId: string;
   enrollmentId: string;
+  riderMemberId: string;
   attended: boolean;
+  verification?: { memberId: string; pin: string };
+}
+
+export interface KioskCreateLessonInstanceRequest {
+  sessionId: string;
+  // Target rider memberId — used for permission resolution and as the
+  // automatic enrollee for SELF-scope creations. STAFF can omit auto-enroll
+  // (handled inside the mutation).
+  riderMemberId: string;
+  boardId: string;
+  isRecurring: boolean;
+  // The full lesson input payload — service, trainer, start, end, etc.
+  // Same shape as the existing non-kiosk create endpoint.
+  input: CreateLessonSeriesRequest;
+  verification?: { memberId: string; pin: string };
 }
 
 // ============================================================================
@@ -99,4 +131,9 @@ export interface ListKioskSessionsResponse {
 export interface GetKioskSessionResponse {
   session: KioskSession;
   acting: KioskActingState;
+}
+
+export interface CheckKioskPermissionResponse {
+  member: Member;
+  riderOptions: Rider[];
 }

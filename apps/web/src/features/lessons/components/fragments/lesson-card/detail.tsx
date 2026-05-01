@@ -19,9 +19,10 @@ import { Separator } from "@/shared/components/ui/separator";
 import { Tag, TagGroup } from "@/shared/components/ui/tag";
 
 import type { LessonCardVariantProps } from ".";
-import { viewLessonModalHandler } from "../../modals/view-lesson";
+import { ViewLessonSheet } from "../../modals/view/sheet";
 
 export function LessonCardDetail({ data }: LessonCardVariantProps) {
+  const viewLessonSheet = ViewLessonSheet.useModal();
   const {
     lesson,
     startTime,
@@ -143,7 +144,7 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
         ) : (
           <Button
             variant="ghost"
-            onClick={() => viewLessonModalHandler.openWithPayload({ lesson })}
+            onClick={() => viewLessonSheet.open({ lesson })}
           >
             <EditIcon />
             Edit

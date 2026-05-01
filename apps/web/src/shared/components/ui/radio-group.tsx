@@ -1,5 +1,6 @@
 import { Radio as RadioPrimitive } from "@base-ui/react/radio";
 import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
+import { CheckIcon } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/shared/lib/utils";
@@ -66,7 +67,10 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
         data-slot="radio-group-indicator"
         className="flex size-4 items-center justify-center"
       >
-        <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
+        <CheckIcon
+          className="absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 text-primary-foreground"
+          strokeWidth={3}
+        />
       </RadioPrimitive.Indicator>
     </RadioPrimitive.Root>
   );

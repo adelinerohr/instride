@@ -1,8 +1,8 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 
 import { STALE } from "#_internal/constants";
 import { apiClient } from "#client";
-import { ListBoardsRequest } from "#contracts";
+import { ListBoardsForRiderRequest, ListBoardsRequest } from "#contracts";
 
 import { boardAssignmentKeys, boardKeys } from "./keys";
 
@@ -15,6 +15,19 @@ export const boardsOptions = {
         return boards;
       },
       staleTime: STALE.MINUTES.FIVE,
+    }),
+  forRider: (params: ListBoardsForRiderRequest) =>
+    queryOptions({
+      queryKey: boardKeys.forRider(params),
+      queryFn: params
+        ? async () => {
+            const { boards } = await apiClient.boards.listBoardsForRider(
+              params.riderId,
+              { canRiderAdd: params.canRiderAdd }
+            );
+            return boards;
+          }
+        : skipToken,
     }),
   byId: (boardId: string) =>
     queryOptions({
@@ -29,7 +42,7 @@ export const boardsOptions = {
 export const boardAssignmentsOptions = {
   byBoard: (boardId: string, type?: "trainer" | "rider") =>
     queryOptions({
-      queryKey: [...boardAssignmentKeys.byBoard(boardId), type] as const,
+      queryKey: [...boardAssignmentKeys.forBoard(boardId), type] as const,
       queryFn: async () => {
         const { assignments } = await apiClient.boards.listBoardAssignments(
           boardId,
@@ -40,7 +53,7 @@ export const boardAssignmentsOptions = {
     }),
   byTrainer: (trainerId: string) =>
     queryOptions({
-      queryKey: boardAssignmentKeys.byTrainer(trainerId),
+      queryKey: boardAssignmentKeys.forTrainer(trainerId),
       queryFn: async () => {
         const { assignments } = await apiClient.boards.listBoardAssignments(
           trainerId,
@@ -51,7 +64,7 @@ export const boardAssignmentsOptions = {
     }),
   byRider: (riderId: string) =>
     queryOptions({
-      queryKey: boardAssignmentKeys.byRider(riderId),
+      queryKey: boardAssignmentKeys.forRider(riderId),
       queryFn: async () => {
         const { assignments } = await apiClient.boards.listBoardAssignments(
           riderId,
@@ -68,6 +81,10 @@ export function useBoards() {
 
 export function useBoard(boardId: string) {
   return useQuery(boardsOptions.byId(boardId));
+}
+
+export function useBoardsForRider(params: ListBoardsForRiderRequest) {
+  return useQuery(boardsOptions.forRider(params));
 }
 
 export function useRiderAssignments(riderId: string) {

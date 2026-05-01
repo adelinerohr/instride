@@ -36,10 +36,16 @@ export function CalendarFilters({
   } = useCalendar();
   const isMobile = useIsMobile();
   const { kioskSession } = useRouteContext({ strict: false });
+  const previousBoardIdRef = React.useRef<string | undefined>(undefined);
 
   React.useEffect(() => {
     if (!trainers || trainers.length === 0) return;
-    if (selectedTrainerIds.length > 0) return;
+    const boardChanged = previousBoardIdRef.current !== selectedBoardId;
+    previousBoardIdRef.current = selectedBoardId;
+
+    // Preserve the user's selection within the same board.
+    // When switching boards, reset the selection to match the new board.
+    if (!boardChanged && selectedTrainerIds.length > 0) return;
 
     if (isMobile) {
       // Single trainer on mobile
@@ -48,7 +54,13 @@ export function CalendarFilters({
       // All trainers on desktop
       setSelectedTrainerIds(trainers.map((t) => t.id));
     }
-  }, [trainers, selectedTrainerIds, setSelectedTrainerIds, isMobile]);
+  }, [
+    trainers,
+    selectedTrainerIds.length,
+    setSelectedTrainerIds,
+    isMobile,
+    selectedBoardId,
+  ]);
 
   if (!trainers) return null;
 
@@ -134,9 +146,10 @@ export function CalendarFilters({
                   );
                 }
 
-                const selectedTrainers = value.map((id) =>
-                  trainers.find((trainer) => trainer.id === id)
-                );
+                const selectedTrainers = value.flatMap((id) => {
+                  const trainer = trainers.find((t) => t.id === id);
+                  return trainer ? [trainer] : [];
+                });
 
                 return (
                   <Item size="xs" className="w-full p-0 flex-nowrap">
@@ -146,14 +159,12 @@ export function CalendarFilters({
                           <UserAvatar
                             size="sm"
                             user={getUser({ trainer })}
-                            key={trainer?.id}
+                            key={trainer.id}
                           />
                         ))}
                       </AvatarGroup>
                     </ItemMedia>
-                    <ItemContent>
-                      {selectedTrainers.length} trainers selected
-                    </ItemContent>
+                    <ItemContent>{value.length} trainers selected</ItemContent>
                   </Item>
                 );
               }}

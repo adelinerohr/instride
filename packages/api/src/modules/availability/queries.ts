@@ -1,11 +1,12 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { apiClient, type availability } from "#client";
+import { apiClient } from "#client";
+import { AvailableSlotsRequest } from "#contracts";
 
 import { availabilityKeys } from "./keys";
 
 export const availabilityOptions = {
-  availableSlots: (params: availability.AvailableSlotsParams) =>
+  availableSlots: (params: AvailableSlotsRequest) =>
     queryOptions({
       queryKey: availabilityKeys.availableSlots(params),
       queryFn: async () => {
@@ -16,6 +17,6 @@ export const availabilityOptions = {
     }),
 };
 
-export function useAvailableSlots(params: availability.AvailableSlotsParams) {
+export function useAvailableSlots(params: AvailableSlotsRequest) {
   return useQuery(availabilityOptions.availableSlots(params));
 }

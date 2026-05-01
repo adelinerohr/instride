@@ -29,7 +29,7 @@ type OnlyGuardianContext = {
   isGuardian: true;
   isOnlyGuardian: true;
   dependents: MyDependent[];
-  effectiveRiderIds: string[];
+  effectiveRiders: Rider[];
   hasAssignedBoards: boolean;
 };
 
@@ -38,7 +38,7 @@ type GuardianContext = {
   isOnlyGuardian: false;
   rider: Rider;
   dependents: MyDependent[];
-  effectiveRiderIds: string[];
+  effectiveRiders: Rider[];
   hasAssignedBoards: boolean;
 };
 
@@ -46,7 +46,7 @@ type RiderContext = {
   isGuardian: false;
   isDependent: false;
   rider: Rider;
-  effectiveRiderIds: string[];
+  effectiveRiders: Rider[];
   hasAssignedBoards: boolean;
 };
 
@@ -55,11 +55,11 @@ type DependentContext = {
   isDependent: true;
   rider: Rider;
   permissions: GuardianPermissions;
-  effectiveRiderIds: string[];
+  effectiveRiders: Rider[];
   hasAssignedBoards: boolean;
 };
 
-export type PortalContext =
+export type PortalRouteContext =
   | OnlyGuardianContext
   | GuardianContext
   | RiderContext
@@ -89,13 +89,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
     ]);
 
     const getHasAssignedBoards = async (
-      effectiveRiderIds: string[]
+      effectiveRiders: Rider[]
     ): Promise<boolean> => {
-      if (effectiveRiderIds.length === 0) return false;
+      if (effectiveRiders.length === 0) return false;
       const assignments = await Promise.all(
-        effectiveRiderIds.map(async (riderId) =>
+        effectiveRiders.map(async (rider) =>
           context.queryClient.ensureQueryData(
-            boardAssignmentsOptions.byRider(riderId)
+            boardAssignmentsOptions.byRider(rider.id)
           )
         )
       );
@@ -107,34 +107,34 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
       // If they have no dependents yet, we still allow the portal route to load
       // so the layout can show an empty state prompting them to add one.
       if (!rider) {
-        const effectiveRiderIds = dependentRelationships.map(
-          (dependent) => dependent.rider.id
+        const effectiveRiders = dependentRelationships.map(
+          (dependent) => dependent.rider
         );
         return {
           isGuardian: true,
           isOnlyGuardian: true,
           dependents: dependentRelationships,
-          effectiveRiderIds,
+          effectiveRiders,
           hasAssignedBoards:
-            effectiveRiderIds.length === 0
+            effectiveRiders.length === 0
               ? false
-              : await getHasAssignedBoards(effectiveRiderIds),
-        };
+              : await getHasAssignedBoards(effectiveRiders),
+        } satisfies OnlyGuardianContext;
       }
 
       // Guardian who also has their own rider profile
-      const effectiveRiderIds = [
-        rider.id,
-        ...dependentRelationships.map((dependent) => dependent.rider.id),
+      const effectiveRiders = [
+        rider,
+        ...dependentRelationships.map((dependent) => dependent.rider),
       ];
       return {
         isGuardian: true,
         isOnlyGuardian: false,
         rider,
         dependents: dependentRelationships,
-        effectiveRiderIds,
-        hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
-      };
+        effectiveRiders,
+        hasAssignedBoards: await getHasAssignedBoards(effectiveRiders),
+      } satisfies GuardianContext;
     }
 
     // From here: !isGuardian, so rider must be non-null (the !rider && !isGuardian
@@ -149,31 +149,31 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/portal")({
       guardianRelationship &&
       guardianRelationship.relationships?.length > 0
     ) {
-      const effectiveRiderIds = [rider.id];
+      const effectiveRiders = [rider];
       return {
         isGuardian: false,
         isDependent: true,
         rider,
         permissions: guardianRelationship.relationships[0].permissions,
-        effectiveRiderIds,
-        hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
-      };
+        effectiveRiders,
+        hasAssignedBoards: await getHasAssignedBoards(effectiveRiders),
+      } satisfies DependentContext;
     }
 
     // Plain rider
-    const effectiveRiderIds = [rider.id];
+    const effectiveRiders = [rider];
     return {
       isGuardian: false,
       isDependent: false,
       rider,
-      effectiveRiderIds,
-      hasAssignedBoards: await getHasAssignedBoards(effectiveRiderIds),
-    };
+      effectiveRiders,
+      hasAssignedBoards: await getHasAssignedBoards(effectiveRiders),
+    } satisfies RiderContext;
   },
 });
 
 function RouteComponent() {
-  const { hasAssignedBoards, effectiveRiderIds } = Route.useRouteContext();
+  const { hasAssignedBoards, effectiveRiders } = Route.useRouteContext();
   const routeContext = Route.useRouteContext();
   const { slug } = Route.useParams();
 
@@ -213,7 +213,7 @@ function RouteComponent() {
 
   return (
     <AppLayout type="portal" isAdmin={false}>
-      {!hasAssignedBoards && effectiveRiderIds.length > 0 ? (
+      {!hasAssignedBoards && effectiveRiders.length > 0 ? (
         <Page className="min-h-0 flex-1">
           <PageBody className="flex flex-1 items-center justify-center">
             <Empty className="max-w-lg">

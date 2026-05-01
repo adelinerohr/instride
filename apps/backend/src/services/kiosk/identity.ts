@@ -10,7 +10,7 @@ import { api, APIError } from "encore.dev/api";
 import { verifyKioskPin } from "@/services/organizations/members/pin";
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { kioskService } from "./kiosk.service";
+import { kioskRepo } from "./kiosk.repo";
 
 const KIOSK_SESSION_DURATION_HOURS = 1;
 
@@ -22,7 +22,7 @@ export const verifyKioskIdentity = api(
     const { organizationId } = requireOrganizationAuth();
 
     // Confirm session exists and belongs to this org
-    await kioskService.findOneScalar(request.sessionId, organizationId);
+    await kioskRepo.findOneScalar(request.sessionId, organizationId);
 
     const verification = await verifyKioskPin({
       pin: request.pin,
@@ -34,7 +34,7 @@ export const verifyKioskIdentity = api(
       throw APIError.failedPrecondition("Member has not set a PIN");
     }
     if (!verification.ok) {
-      throw APIError.permissionDenied("Invalid PIN");
+      throw APIError.unauthenticated("Invalid PIN");
     }
 
     const member = verification.member;
@@ -48,7 +48,7 @@ export const verifyKioskIdentity = api(
     // Without this, sessions silently never expire and expiry checks always fail.
     const expiresAt = addHours(new Date(), KIOSK_SESSION_DURATION_HOURS);
 
-    const updated = await kioskService.setActing({
+    const updated = await kioskRepo.setActing({
       id: request.sessionId,
       organizationId,
       actingMemberId: member.id,
@@ -70,6 +70,6 @@ export const clearKioskIdentity = api(
   { method: "POST", path: "/kiosk/clear", expose: true, auth: true },
   async (request: ClearKioskIdentityRequest): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-    await kioskService.clearActing(request.sessionId, organizationId);
+    await kioskRepo.clearActing(request.sessionId, organizationId);
   }
 );

@@ -7,7 +7,7 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { boardService, createBoardService } from "./board.service";
+import { boardRepo, createBoardRepo } from "./board.repo";
 import { db } from "./db";
 import { toBoard } from "./mappers";
 import { createServiceService } from "./services/service.service";
@@ -18,7 +18,7 @@ export const createBoard = api(
     const { organizationId } = requireOrganizationAuth();
 
     const boardId = await db.transaction(async (tx) => {
-      const txBoardService = createBoardService(tx);
+      const txBoardService = createBoardRepo(tx);
       const txServiceService = createServiceService(tx);
 
       const board = await txBoardService.create({
@@ -60,7 +60,7 @@ export const createBoard = api(
       return board.id;
     });
 
-    const board = await boardService.findOne(boardId, organizationId);
+    const board = await boardRepo.findOne(boardId, organizationId);
     return { board: toBoard(board) };
   }
 );
@@ -72,7 +72,7 @@ export const updateBoard = api(
     const { boardId, trainerIds, riderIds, serviceIds, ...scalars } = request;
 
     await db.transaction(async (tx) => {
-      const txBoardService = createBoardService(tx);
+      const txBoardService = createBoardRepo(tx);
       const txServiceService = createServiceService(tx);
 
       if (Object.keys(scalars).length > 0) {
@@ -131,7 +131,7 @@ export const updateBoard = api(
       }
     });
 
-    const board = await boardService.findOne(boardId, organizationId);
+    const board = await boardRepo.findOne(boardId, organizationId);
     return { board: toBoard(board) };
   }
 );
@@ -140,6 +140,6 @@ export const deleteBoard = api(
   { method: "DELETE", path: "/boards/:boardId", expose: true, auth: true },
   async ({ boardId }: { boardId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-    await boardService.delete(boardId, organizationId);
+    await boardRepo.delete(boardId, organizationId);
   }
 );

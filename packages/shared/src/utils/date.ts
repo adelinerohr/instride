@@ -162,6 +162,16 @@ export function buildEmptyWeek(): DayHours[] {
   }));
 }
 
+export const JS_WEEKDAY_TO_DAY_OF_WEEK: DayOfWeek[] = [
+  DayOfWeek.SUN,
+  DayOfWeek.MON,
+  DayOfWeek.TUE,
+  DayOfWeek.WED,
+  DayOfWeek.THU,
+  DayOfWeek.FRI,
+  DayOfWeek.SAT,
+];
+
 /**
  * Convert a date to a day of week
  * @param date - The date to convert to a day of week
@@ -169,47 +179,7 @@ export function buildEmptyWeek(): DayHours[] {
  */
 export function getDayOfWeek(date: Date): DayOfWeek {
   const jsDay = date.getDay();
-
-  switch (jsDay) {
-    case 0:
-      return DayOfWeek.SUN;
-    case 1:
-      return DayOfWeek.MON;
-    case 2:
-      return DayOfWeek.TUE;
-    case 3:
-      return DayOfWeek.WED;
-    case 4:
-      return DayOfWeek.THU;
-    case 5:
-      return DayOfWeek.FRI;
-    case 6:
-      return DayOfWeek.SAT;
-    default:
-      throw Error("Invalid date");
-  }
-}
-
-/**
- * Add days to a year, month, and day
- * @param input - The year, month, and day to add days to
- * @returns The year, month, and day after adding the days
- */
-export function addDaysToYmd(input: {
-  year: number;
-  month: number;
-  day: number;
-  daysToAdd: number;
-}): { year: number; month: number; day: number } {
-  const utc = new Date(
-    Date.UTC(input.year, input.month - 1, input.day + input.daysToAdd)
-  );
-
-  return {
-    year: utc.getUTCFullYear(),
-    month: utc.getUTCMonth() + 1,
-    day: utc.getUTCDate(),
-  };
+  return JS_WEEKDAY_TO_DAY_OF_WEEK[jsDay];
 }
 
 /**
@@ -221,67 +191,7 @@ export function getDOWInTimeZone(input: {
   date: Date;
   timeZone: string;
 }): number {
-  const dayName = formatInTimeZone(input.date, input.timeZone, "EEE");
-  const map: Record<string, number> = {
-    Sun: 0,
-    Mon: 1,
-    Tue: 2,
-    Wed: 3,
-    Thu: 4,
-    Fri: 5,
-    Sat: 6,
-  };
-
-  if (!(dayName in map)) {
-    throw Error("Invalid date");
-  }
-
-  return map[dayName];
-}
-
-/**
- * Get the local parts of a date in a given time zone
- * @param input - The date and time zone to get the local parts for
- * @returns The local parts of the date
- */
-export function getLocalParts(input: {
-  date: Date;
-  timeZone: string;
-}): LocalParts {
-  return {
-    year: Number(formatInTimeZone(input.date, input.timeZone, "yyyy")),
-    month: Number(formatInTimeZone(input.date, input.timeZone, "M")),
-    day: Number(formatInTimeZone(input.date, input.timeZone, "d")),
-    hour: Number(formatInTimeZone(input.date, input.timeZone, "H")),
-    minute: Number(formatInTimeZone(input.date, input.timeZone, "m")),
-    second: Number(formatInTimeZone(input.date, input.timeZone, "s")),
-  };
-}
-
-/**
- * Make a UTC date from local parts
- * @param input - The local parts and time zone to make a UTC date from
- * @returns The UTC date
- */
-export function makeUTCDateFromLocalParts(input: {
-  parts: LocalParts;
-  timeZone: string;
-}): Date {
-  const isoLocal = `${input.parts.year.toString().padStart(4, "0")}-${input.parts.month
-    .toString()
-    .padStart(
-      2,
-      "0"
-    )}-${input.parts.day.toString().padStart(2, "0")}T${input.parts.hour
-    .toString()
-    .padStart(2, "0")}:${input.parts.minute
-    .toString()
-    .padStart(
-      2,
-      "0"
-    )}:${(input.parts.second ?? 0).toString().padStart(2, "0")}`;
-
-  return fromZonedTime(isoLocal, input.timeZone);
+  return Number(formatInTimeZone(input.date, input.timeZone, "i")) % 7;
 }
 
 /**
@@ -297,4 +207,18 @@ export function minutesToHourMinute(minutes: number): {
     hour: Math.floor(minutes / 60),
     minute: minutes % 60,
   };
+}
+
+export function isoToFormParts(iso: string, tz: string) {
+  return {
+    date: formatInTimeZone(iso, tz, "yyyy-MM-dd"),
+    time: formatInTimeZone(iso, tz, "HH:mm"),
+  };
+}
+
+export function formPartsToIso(
+  parts: { date: string; time: string },
+  tz: string
+) {
+  return fromZonedTime(`${parts.date}T${parts.time}:00`, tz).toISOString();
 }

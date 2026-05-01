@@ -10,7 +10,7 @@ import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
-import { kioskService } from "./kiosk.service";
+import { kioskRepo } from "./kiosk.repo";
 import { toKioskSession, toKioskSessionListItem } from "./mappers";
 
 export const createKioskSession = api(
@@ -20,7 +20,7 @@ export const createKioskSession = api(
   ): Promise<UpsertKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await kioskService.create({
+    const session = await kioskRepo.create({
       organizationId,
       boardId: request.boardId ?? null,
       locationName: request.locationName,
@@ -49,14 +49,10 @@ export const updateKioskSession = api(
   ): Promise<UpsertKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await kioskService.update(
-      request.sessionId,
-      organizationId,
-      {
-        locationName: request.locationName,
-        boardId: request.boardId ?? null,
-      }
-    );
+    const session = await kioskRepo.update(request.sessionId, organizationId, {
+      locationName: request.locationName,
+      boardId: request.boardId ?? null,
+    });
 
     return {
       session: {
@@ -73,7 +69,7 @@ export const listKioskSessions = api(
   async (): Promise<ListKioskSessionsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const rows = await kioskService.findMany(organizationId);
+    const rows = await kioskRepo.findMany(organizationId);
 
     return { sessions: rows.map(toKioskSessionListItem) };
   }
@@ -93,7 +89,7 @@ export const getKioskSession = api(
   }): Promise<GetKioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await kioskService.findOne(sessionId, organizationId);
+    const session = await kioskRepo.findOne(sessionId, organizationId);
 
     // Auto-clear expired acting state. Do the side-effect via the service
     // (no HTTP call) and return the cleared state to the caller.
@@ -101,7 +97,7 @@ export const getKioskSession = api(
       session.expiresAt && new Date(session.expiresAt) < new Date();
 
     if (isExpired && session.actingMemberId) {
-      await kioskService.clearActing(sessionId, organizationId);
+      await kioskRepo.clearActing(sessionId, organizationId);
 
       return {
         session: toKioskSession({
@@ -142,6 +138,6 @@ export const deleteKioskSession = api(
   },
   async ({ sessionId }: { sessionId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
-    await kioskService.delete(sessionId, organizationId);
+    await kioskRepo.delete(sessionId, organizationId);
   }
 );

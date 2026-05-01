@@ -82,8 +82,8 @@ export interface Member {
   createdAt: string;
   updatedAt: string;
   authUser: AuthUser;
-  rider: RiderProfile | null;
-  trainer: TrainerProfile | null;
+  rider: Rider | null;
+  trainer: Trainer | null;
 }
 
 // A rider profile as it appears under a Member — scalar-only, no relations.

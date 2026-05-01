@@ -9,12 +9,10 @@ export interface LevelBadgeProps {
 }
 
 export function LevelBadge({ level }: LevelBadgeProps) {
-  const levelClass = level?.color
-    ? categoryBadgeClasses(level.color)
-    : undefined;
+  const levelClass = categoryBadgeClasses(level?.color);
 
   return (
-    <Badge variant={level ? "outline" : "secondary"} className={levelClass}>
+    <Badge variant="outline" className={levelClass}>
       <CategoryDot size="sm" color={level?.color ?? "unrestricted"} />
       {level?.name ?? "Unrestricted"}
     </Badge>

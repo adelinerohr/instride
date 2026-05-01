@@ -8,7 +8,11 @@ import type {
 } from "@instride/api/contracts";
 
 import { AuthUserRow } from "@/services/auth/schema";
-import { toMemberSummary, toRider } from "@/services/organizations/mappers";
+import {
+  RiderWithExpansionRow,
+  toMemberSummary,
+  toRider,
+} from "@/services/organizations/mappers";
 import { MemberRow } from "@/services/organizations/schema";
 import { OrganizationRow } from "@/services/organizations/schema";
 import { assertExists } from "@/shared/utils/validation";
@@ -63,15 +67,11 @@ export function toGuardianRelationshipWithGuardian(
 
 export function toMyDependent(
   row: GuardianRelationshipRow & {
-    dependent:
-      | (MemberWithAuth & {
-          rider: Parameters<typeof toRider>[0] | null;
-        })
-      | null;
+    dependent: (MemberRow & { rider: RiderWithExpansionRow | null }) | null;
   }
 ): MyDependent {
   assertExists(row.dependent, "Relationship has no dependent");
-  assertExists(row.dependent.rider, "Dependent member has no rider profile");
+  assertExists(row.dependent.rider, "Dependent has no rider");
 
   return {
     id: row.id,

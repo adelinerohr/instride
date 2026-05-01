@@ -133,7 +133,8 @@ export function UserDropdown() {
         </DropdownMenuItem>
       )}
 
-      <DropdownMenuSeparator />
+      {isAdminOrTrainer && isPortal && <DropdownMenuSeparator />}
+
       <DropdownMenuItem onClick={() => signOut.mutate({})}>
         <LogOutIcon />
         Sign Out

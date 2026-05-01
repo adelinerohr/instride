@@ -14,7 +14,7 @@ import {
 type Variant = "default" | "email" | "password";
 
 type TextFieldProps = React.ComponentProps<"input"> & {
-  label: string;
+  label?: string;
   placeholder?: string;
   description?: string;
   inputGroup?: boolean;
@@ -47,7 +47,7 @@ export function TextField({
 
   return (
     <Field data-invalid={isInvalid} className={className}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <InputGroup>
         <InputGroupInput
           id={field.name}
@@ -57,7 +57,7 @@ export function TextField({
           onChange={handleChange}
           aria-invalid={isInvalid}
           placeholder={placeholder ?? label}
-          step={type === "time" ? 1 : props.step}
+          step={type === "time" ? 60 : props.step}
           type={type}
           className={cn(
             type === "time" &&

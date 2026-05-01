@@ -20,7 +20,7 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import {
   DetailAvatarItem,
   DetailCard,
@@ -31,7 +31,6 @@ import {
 } from "@/shared/components/layout/detail-layout";
 import { Page, PageHeader } from "@/shared/components/layout/page";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +57,7 @@ function RouteComponent() {
   const { data: trainers } = useSuspenseQuery(membersOptions.trainers());
 
   const deleteService = useDeleteService();
+  const confirmationModal = ConfirmationModal.useModal();
 
   const assignedBoards = boards.filter((board) =>
     service.boardAssignments?.some(
@@ -100,21 +100,21 @@ function RouteComponent() {
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <DialogTrigger
-                handle={confirmationModalHandler}
-                payload={{
-                  title: `Delete service: ${service.name}`,
-                  description: `Are you sure you want to delete this board? This action cannot be undone.`,
-                  confirmLabel: "Delete",
-                  cancelLabel: "Cancel",
-                  onConfirm: () => deleteService.mutateAsync(service.id),
-                }}
-                render={<DropdownMenuItem variant="destructive" />}
-                nativeButton={false}
+              <DropdownMenuItem
+                onClick={() =>
+                  confirmationModal.open({
+                    title: `Delete service: ${service.name}`,
+                    description: `Are you sure you want to delete this board? This action cannot be undone.`,
+                    confirmLabel: "Delete",
+                    cancelLabel: "Cancel",
+                    onConfirm: () => deleteService.mutateAsync(service.id),
+                  })
+                }
+                variant="destructive"
               >
                 <TrashIcon />
                 Delete
-              </DialogTrigger>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -66,12 +66,6 @@ export function useRangeSwipe(options: SwipeOptions = {}) {
       startXRef.current = e.clientX;
       startYRef.current = e.clientY;
       decisionRef.current = "undecided";
-
-      console.log("[swipe] down", {
-        type: e.pointerType,
-        x: e.clientX,
-        y: e.clientY,
-      });
     },
     [enabled]
   );
@@ -89,12 +83,10 @@ export function useRangeSwipe(options: SwipeOptions = {}) {
 
       if (Math.abs(dy) > Math.abs(dx) * horizontalDominance) {
         decisionRef.current = "vertical";
-        console.log("[swipe] decided vertical", { dx, dy });
         return;
       }
 
       decisionRef.current = "horizontal";
-      console.log("[swipe] decided horizontal", { dx, dy });
     },
     [enabled, horizontalDominance]
   );
@@ -106,13 +98,6 @@ export function useRangeSwipe(options: SwipeOptions = {}) {
 
       const dx = e.clientX - startXRef.current;
       const dy = e.clientY - startYRef.current;
-
-      console.log("[swipe] up", {
-        dx,
-        dy,
-        decision: decisionRef.current,
-        threshold: swipeThresholdPx,
-      });
 
       if (
         decisionRef.current === "horizontal" &&
@@ -137,7 +122,6 @@ export function useRangeSwipe(options: SwipeOptions = {}) {
     (e: React.PointerEvent) => {
       if (!enabled) return;
       if (pointerIdRef.current !== e.pointerId) return;
-      console.log("[swipe] cancel");
       resetPointerTracking();
     },
     [enabled, resetPointerTracking]

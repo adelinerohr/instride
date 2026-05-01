@@ -4,7 +4,6 @@ import {
   Clipboard,
   HelpCircle,
   LayoutDashboard,
-  MessageCircle,
   Newspaper,
   Settings,
   Ticket,
@@ -24,12 +23,6 @@ export const getPortalNavItems = (slug: string) =>
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/portal/calendar",
-      params: { slug },
-    },
-    {
-      title: "Messages",
-      icon: MessageCircle,
-      to: "/org/$slug/portal/messages",
       params: { slug },
     },
     {
@@ -60,12 +53,6 @@ export const getAdminNavItems = (slug: string) => ({
       title: "Calendar",
       icon: CalendarClock,
       to: "/org/$slug/admin/calendar",
-      params: { slug },
-    },
-    {
-      title: "Messages",
-      icon: MessageCircle,
-      to: "/org/$slug/admin/messages",
       params: { slug },
     },
     {

@@ -58,7 +58,10 @@ export function AgendaView() {
           const hasPassed = isBefore(dayGroup.date, new Date());
 
           return (
-            <div className={cn("space-y-4", hasPassed && "opacity-50")}>
+            <div
+              className={cn("space-y-4", hasPassed && "opacity-50")}
+              key={dayGroup.date.toISOString()}
+            >
               <div className="sticky top-0 flex items-center gap-2 bg-background">
                 <span className="text-2xl font-display leading-none font-semibold">
                   {format(dayGroup.date, "dd")}

@@ -9,7 +9,7 @@ import { generateId } from "better-auth";
 import { api, APIError } from "encore.dev/api";
 
 import { authService, createAuthService } from "@/services/auth/auth.service";
-import { createBoardService } from "@/services/boards/board.service";
+import { createBoardRepo } from "@/services/boards/board.repo";
 import {
   createQuestionnaireService,
   questionnaireService,
@@ -151,7 +151,7 @@ export const onboardMember = api(
           });
 
           if (assignedBoardIds.length > 0) {
-            await createBoardService(tx).bulkCreateAssignments(
+            await createBoardRepo(tx).bulkCreateAssignments(
               assignedBoardIds.map((boardId) => ({
                 organizationId: organization.id,
                 boardId,

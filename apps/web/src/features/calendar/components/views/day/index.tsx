@@ -63,7 +63,7 @@ export function DayView() {
           <MultiDayRow />
           <div className="relative z-20 flex border-b">
             <div className="w-18"></div>
-            {selectedTrainers.map((trainer) => (
+            {availableTrainers.map((trainer) => (
               <span
                 key={trainer.id}
                 className="flex-1 border-l py-2 text-center text-xs font-medium text-muted-foreground"
@@ -76,7 +76,6 @@ export function DayView() {
 
         <div
           className={cn("flex-1 min-h-0", swipeClassName)}
-          onPointerDownCapture={(e) => console.log("down", e.pointerType)}
           {...swipeHandlers}
         >
           <ScrollArea className="h-full" ref={setViewportRef}>

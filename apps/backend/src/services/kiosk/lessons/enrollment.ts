@@ -3,7 +3,7 @@ import type {
   KioskEnrollInInstanceRequest,
   KioskUnenrollFromInstanceRequest,
 } from "@instride/api/contracts";
-import { KioskAction } from "@instride/shared";
+import { KioskActions } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 
 import { instanceEnrollmentRepo } from "@/services/lessons/enrollments/enrollment.repo";
@@ -17,9 +17,8 @@ import { memberRepo } from "@/services/organizations/members/member.repo";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
+import { resolveKioskActor } from "../actor";
 import { db } from "../db";
-import { kioskService } from "../kiosk.service";
-import { assertActiveActing, assertKioskActionAllowed } from "../permissions";
 import { assertKioskBookingRules } from "./validation";
 
 export const kioskEnrollInInstance = api(
@@ -34,31 +33,20 @@ export const kioskEnrollInInstance = api(
   ): Promise<EnrollInInstanceResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await kioskService.findOne(
-      request.sessionId,
-      organizationId
-    );
+    const actor = await resolveKioskActor({
+      sessionId: request.sessionId,
+      organizationId,
+      verification: request.verification,
+      context: {
+        action: KioskActions.ENROLL,
+        targetMemberId: request.riderMemberId,
+      },
+    });
 
-    const acting = {
-      actingMemberId: session.actingMemberId,
-      scope: session.scope,
-      expiresAt: session.expiresAt,
-    };
-    assertActiveActing(acting);
-
-    // Resolve target rider from member id
     const rider = await memberRepo.findOneRider(
       request.riderMemberId,
       organizationId
     );
-
-    assertKioskActionAllowed({
-      action: KioskAction.ENROLL,
-      actingMemberId: acting.actingMemberId,
-      scope: acting.scope,
-      targetMemberId: request.riderMemberId,
-    });
-
     const instance = await lessonInstanceRepo
       .findOneExpanded(request.instanceId, organizationId)
       .then(toLessonInstance);
@@ -66,18 +54,17 @@ export const kioskEnrollInInstance = api(
     const { canBook, reason } = await assertKioskBookingRules({
       rider,
       instance,
-      scope: acting.scope,
+      scope: actor.scope,
     });
     if (!canBook) {
       throw APIError.permissionDenied(reason?.message || "Cannot book lesson");
     }
 
-    // Direct call into the lessons service — no HTTP round-trip
     await enrollRidersInInstance({
       organizationId,
       instanceId: request.instanceId,
       riderIds: [rider.id],
-      enrolledByMemberId: acting.actingMemberId,
+      enrolledByMemberId: actor.memberId,
       idempotent: false,
     });
 
@@ -100,17 +87,8 @@ export const kioskUnenrollFromInstance = api(
   async (request: KioskUnenrollFromInstanceRequest): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const session = await kioskService.findOne(
-      request.sessionId,
-      organizationId
-    );
-    const acting = {
-      actingMemberId: session.actingMemberId,
-      scope: session.scope,
-      expiresAt: session.expiresAt,
-    };
-    assertActiveActing(acting);
-
+    // Load enrollment first — we need its rider's memberId for the
+    // permission context.
     const enrollment = await db.query.lessonInstanceEnrollments.findFirst({
       where: { id: request.enrollmentId, organizationId },
       with: { rider: true },
@@ -118,17 +96,20 @@ export const kioskUnenrollFromInstance = api(
     assertExists(enrollment, "Enrollment not found");
     assertExists(enrollment.rider, "Enrollment has no rider");
 
-    assertKioskActionAllowed({
-      action: KioskAction.UNENROLL,
-      actingMemberId: acting.actingMemberId,
-      scope: acting.scope,
-      targetMemberId: enrollment.rider.memberId,
+    const actor = await resolveKioskActor({
+      sessionId: request.sessionId,
+      organizationId,
+      verification: request.verification,
+      context: {
+        action: KioskActions.UNENROLL,
+        targetMemberId: enrollment.rider.memberId,
+      },
     });
 
     await instanceEnrollmentRepo.unenroll({
       enrollmentId: enrollment.id,
       organizationId,
-      unenrolledByMemberId: acting.actingMemberId,
+      unenrolledByMemberId: actor.memberId,
     });
   }
 );

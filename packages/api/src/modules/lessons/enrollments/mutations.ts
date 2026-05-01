@@ -6,6 +6,7 @@ import {
   EnrollRidersInInstanceRequest,
   EnrollRidersInSeriesRequest,
   MarkAttendanceRequest,
+  UnenrollFromInstanceRequest,
   UnenrollRiderFromSeriesRequest,
 } from "#contracts";
 
@@ -30,8 +31,10 @@ export const enrollmentsMutations = {
   }: EnrollRidersInInstanceRequest) => {
     return await apiClient.lessons.enrollInInstance(instanceId, request);
   },
-  unenrollFromInstance: async (instanceId: string) => {
-    await apiClient.lessons.unenrollFromInstance(instanceId);
+  unenrollFromInstance: async ({
+    enrollmentId,
+  }: UnenrollFromInstanceRequest) => {
+    await apiClient.lessons.unenrollFromInstance(enrollmentId);
   },
   markAttendance: async ({
     enrollmentId,

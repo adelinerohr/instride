@@ -23,23 +23,21 @@ export const timeBlockOptions = {
   inRange: (from: Date, to: Date) =>
     queryOptions({
       queryKey: availabilityKeys.timeBlocksInRange(from, to),
-      queryFn: async () => {
-        const { timeBlocks } = await apiClient.availability.listTimeBlocks({
+      queryFn: async () =>
+        await apiClient.availability.listTimeBlocks({
           from: from.toISOString(),
           to: to.toISOString(),
-        });
-        return timeBlocks;
-      },
+        }),
+      select: (data) => data.timeBlocks,
     }),
   forTrainer: (trainerId: string) =>
     queryOptions({
       queryKey: availabilityKeys.timeBlocksForTrainer(trainerId),
-      queryFn: async () => {
-        const { timeBlocks } = await apiClient.availability.listTimeBlocks({
+      queryFn: async () =>
+        await apiClient.availability.listTimeBlocks({
           trainerId: trainerId,
-        });
-        return timeBlocks;
-      },
+        }),
+      select: (data) => data.timeBlocks,
     }),
 };
 

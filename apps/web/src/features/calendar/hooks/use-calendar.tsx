@@ -17,18 +17,16 @@ import { getRouteApi } from "@tanstack/react-router";
 import { addDays, startOfWeek } from "date-fns";
 import * as React from "react";
 
-import {
-  lessonModalHandler,
-  type LessonModalPayload,
-} from "@/features/lessons/components/modals/new-lesson";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 import { CalendarView } from "../lib/types";
 import { useSlotHeight } from "./use-slot-height";
 
+type CalendarContextType = "portal" | "admin" | "kiosk";
+
 interface CalendarContext {
   selectedDate: Date;
-  type: "portal" | "admin" | "kiosk";
+  type: CalendarContextType;
   setSelectedDate: (date: Date | undefined) => void;
   selectedTrainerIds: string[];
   setSelectedTrainerIds: (trainerIds: string[]) => void;
@@ -44,12 +42,12 @@ interface CalendarContext {
   setSelectedView: (view: CalendarView) => void;
   selectedBoardId: string | undefined;
   setSelectedBoardId: (boardId: string | undefined) => void;
-  createLesson: (payload: LessonModalPayload) => void;
+  createLesson: () => void;
   selectedMultiDayCount: number;
   setSelectedMultiDayCount: (count: number) => void;
   visibleDays: Date[];
   slotHeight: number;
-  quarterHeight: number;
+  halfHeight: number;
   totalHeight: number;
 }
 
@@ -58,7 +56,7 @@ const CalendarContext = React.createContext<CalendarContext | undefined>(
 );
 
 interface CalendarProviderProps {
-  type: "portal" | "admin" | "kiosk";
+  type: CalendarContextType;
   trainers: Trainer[];
   boards: Board[];
   lessons: LessonInstance[];
@@ -105,7 +103,7 @@ export function CalendarProvider({
 
   const navigate = routeApi.useNavigate();
 
-  const { slotHeight, quarterHeight, totalHeight } = useSlotHeight();
+  const { slotHeight, halfHeight, totalHeight } = useSlotHeight();
 
   // Enforce single-trainer selection on mobile
   React.useEffect(() => {
@@ -176,6 +174,18 @@ export function CalendarProvider({
     });
   }, [events, selectedBoardId, selectedTrainerIds]);
 
+  const filteredTrainers = React.useMemo(() => {
+    return trainers.filter((trainer) => {
+      if (
+        selectedBoardId &&
+        !trainer.boardAssignments?.some((a) => a.boardId === selectedBoardId)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [trainers, selectedBoardId]);
+
   const filteredLessons = React.useMemo(() => {
     return lessons.filter((lesson) => {
       if (
@@ -199,7 +209,11 @@ export function CalendarProvider({
       ) {
         return false;
       }
-      if (selectedBoardId && timeBlock.boardId !== selectedBoardId) {
+      if (
+        selectedBoardId &&
+        timeBlock.boardId &&
+        timeBlock.boardId !== selectedBoardId
+      ) {
         return false;
       }
       return true;
@@ -209,9 +223,9 @@ export function CalendarProvider({
   const trainerIdsToFetch = React.useMemo(
     () =>
       selectedTrainerIds.filter((id) =>
-        trainers.some((trainer) => trainer.id === id)
+        filteredTrainers.some((trainer) => trainer.id === id)
       ),
-    [selectedTrainerIds, trainers]
+    [selectedTrainerIds, filteredTrainers]
   );
 
   const trainerBusinessHoursQueries = useQueries({
@@ -279,18 +293,16 @@ export function CalendarProvider({
     [navigate]
   );
 
-  const createLesson = React.useCallback(
-    (payload: LessonModalPayload) => {
-      if (type === "admin") {
-        lessonModalHandler.openWithPayload(payload);
-      } else {
-        navigate({
-          to: "/org/$slug/portal/lessons/create",
-        });
-      }
-    },
-    [type, navigate]
-  );
+  const createLesson = React.useCallback(() => {
+    if (type === "admin") {
+      navigate({ to: "/org/$slug/admin/calendar/new" });
+      return;
+    }
+    if (type === "portal") {
+      navigate({ to: "/org/$slug/portal/lessons/create" });
+      return;
+    }
+  }, [type, navigate]);
 
   return (
     <CalendarContext.Provider
@@ -304,7 +316,7 @@ export function CalendarProvider({
         setSelectedBoardId,
         selectedView,
         setSelectedView,
-        trainers,
+        trainers: filteredTrainers,
         boards,
         organizationEvents,
         events: filteredEvents,
@@ -317,7 +329,7 @@ export function CalendarProvider({
         setSelectedMultiDayCount,
         visibleDays,
         slotHeight,
-        quarterHeight,
+        halfHeight,
         totalHeight,
       }}
     >

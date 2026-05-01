@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { useFieldContext } from "@/shared/hooks/use-form";
+import { cn } from "@/shared/lib/utils";
 
 import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
 import { Textarea } from "../ui/textarea";
@@ -9,6 +10,7 @@ type TextareaFieldProps = React.ComponentProps<"textarea"> & {
   label: string;
   placeholder?: string;
   description?: string;
+  optional?: boolean;
 };
 
 export function TextareaField({
@@ -16,6 +18,7 @@ export function TextareaField({
   placeholder,
   description,
   className,
+  optional = false,
   ...props
 }: TextareaFieldProps) {
   const field = useFieldContext<string>();
@@ -24,7 +27,17 @@ export function TextareaField({
 
   return (
     <Field data-invalid={isInvalid} className={className}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <FieldLabel
+        htmlFor={field.name}
+        className={cn(optional && "justify-between")}
+      >
+        {label}
+        {optional && (
+          <span className="text-muted-foreground font-normal text-xs">
+            Optional
+          </span>
+        )}
+      </FieldLabel>
       <Textarea
         id={field.name}
         name={field.name}

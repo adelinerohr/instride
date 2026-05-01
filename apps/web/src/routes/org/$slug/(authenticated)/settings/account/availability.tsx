@@ -7,8 +7,8 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { BusinessHoursForm } from "@/features/organization/components/business-hours/form";
-import { BusinessHoursTabs } from "@/features/organization/components/business-hours/tabs";
+import { BusinessHoursForm } from "@/features/organization/components/availability/business-hours/form";
+import { BusinessHoursTabs } from "@/features/organization/components/availability/business-hours/tabs";
 import {
   AnnotatedLayout,
   AnnotatedSection,

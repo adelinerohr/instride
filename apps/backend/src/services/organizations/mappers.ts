@@ -38,8 +38,8 @@ import {
 export type MemberSummaryRow = MemberRow & { authUser: AuthUserRow | null };
 
 export type MemberWithAuthAndRolesRow = MemberSummaryRow & {
-  rider: RiderRow | null;
-  trainer: TrainerRow | null;
+  rider: RiderWithExpansionRow | null;
+  trainer: TrainerWithExpansionRow | null;
 };
 
 export type RiderSummaryRow = RiderRow & {
@@ -88,8 +88,8 @@ export function toMember(row: MemberWithAuthAndRolesRow): Member {
 
   return {
     ...row,
-    rider: row.rider ? toRiderProfile(row.rider) : null,
-    trainer: row.trainer ? toTrainerProfile(row.trainer) : null,
+    rider: row.rider ? toRider(row.rider) : null,
+    trainer: row.trainer ? toTrainer(row.trainer) : null,
     authUser: toAuthUser(row.authUser),
     deletedAt: toISOOrNull(row.deletedAt),
     ...toTimestamps(row.createdAt, row.updatedAt),

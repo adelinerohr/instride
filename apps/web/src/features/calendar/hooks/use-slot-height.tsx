@@ -40,7 +40,7 @@ export function useSlotHeight() {
     const slotHeight = Math.round(Math.max(min, Math.min(max, ideal)));
     return {
       slotHeight,
-      quarterHeight: slotHeight / 4,
+      halfHeight: slotHeight / 2,
       totalHeight: slotHeight * HOUR_COUNT,
     };
   }, [viewportHeight, isMobile]);

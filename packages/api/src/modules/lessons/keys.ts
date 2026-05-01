@@ -1,42 +1,33 @@
-/**
- * Key Hierarchy:
- *   ["lessons"]                                      ← nuke everything
- *   ["lessons", "series"]                            ← all series
- *   ["lessons", "series", seriesId]                  ← one series
- *   ["lessons", "series", seriesId, "riders"]        ← series riders
- *   ["lessons", "instances"]                         ← all instances
- *   ["lessons", "instances", instanceId]             ← one instance
- *   ["lessons", "enrollments"]                       ← all enrollments
- *   ["lessons", "enrollments", "my"]                 ← current user's enrollments
- */
-
-const getLessonRootKey = ["lessons"] as const;
+const root = ["lessons"] as const;
 
 export const lessonKeys = {
-  list: () => getLessonRootKey,
+  all: () => root,
 
-  // Lesson Series
-  series: () => [...getLessonRootKey, "series"] as const,
+  // Series
+  series: () => [...root, "series"] as const,
   seriesById: (seriesId: string) => [...lessonKeys.series(), seriesId] as const,
-  seriesRides: (seriesId: string) =>
+  seriesRiders: (seriesId: string) =>
     [...lessonKeys.series(), seriesId, "riders"] as const,
 
-  // Instances — scoped by date range since that's always how the calendar fetches
-  instances: () => [...getLessonRootKey, "instances"] as const,
-  instanceLists: () => [...getLessonRootKey, "instances", "list"] as const,
+  // Instances (list + detail share this prefix; invalidate here to cascade)
+  instances: () => [...root, "instances"] as const,
+  instanceLists: () => [...lessonKeys.instances(), "list"] as const,
   instancesInRange: (from: string, to: string) =>
-    [...getLessonRootKey, "instances", "list", "range", { from, to }] as const,
+    [...lessonKeys.instanceLists(), "range", { from, to }] as const,
   instanceById: (id: string) =>
-    [...getLessonRootKey, "instances", "detail", id] as const,
-  stats: () => [...getLessonRootKey, "instances", "stats"] as const,
+    [...lessonKeys.instances(), "detail", id] as const,
+
+  // Stats — sibling of instances so enrollment invalidation doesn't refetch it
+  // (move under instances if stats should refetch on enrollment changes)
+  instanceStats: () => [...root, "stats"] as const,
 
   // Enrollments
-  enrollments: () => [...getLessonRootKey, "enrollments"] as const,
+  enrollments: () => [...root, "enrollments"] as const,
   seriesEnrollments: (seriesId: string) =>
     [...lessonKeys.enrollments(), "series", seriesId] as const,
   instanceEnrollments: (instanceId: string) =>
     [...lessonKeys.enrollments(), "instances", instanceId] as const,
   myEnrollments: () => [...lessonKeys.enrollments(), "my"] as const,
   myEnrollmentsInRange: (from: string, to: string) =>
-    [...lessonKeys.enrollments(), "my", "range", { from, to }] as const,
+    [...lessonKeys.myEnrollments(), "range", { from, to }] as const,
 };

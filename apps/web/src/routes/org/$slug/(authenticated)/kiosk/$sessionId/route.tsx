@@ -1,10 +1,12 @@
 import { kioskOptions } from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { ActAsModal } from "@/features/kiosk/components/act-as-modal";
 import { KioskHeader } from "@/features/kiosk/components/header";
+import { ActAsModal } from "@/features/kiosk/components/modals/act-as-modal";
+import { PinAuthModal } from "@/features/kiosk/components/modals/pin-auth/modal";
 import { KioskProvider } from "@/features/kiosk/hooks/use-kiosk";
 import { buildKioskPermissions } from "@/features/kiosk/lib/permissions";
+import { ModalScope } from "@/shared/lib/stores/modal.store";
 
 export const Route = createFileRoute(
   "/org/$slug/(authenticated)/kiosk/$sessionId"
@@ -19,7 +21,10 @@ export const Route = createFileRoute(
       throw Route.redirect({ to: "/org/$slug/kiosk", replace: true });
     }
 
-    const permissions = buildKioskPermissions(session.acting);
+    const permissions = buildKioskPermissions(
+      session.acting,
+      !!session.acting.actingMemberId
+    );
 
     return {
       kioskSession: session.session,
@@ -36,12 +41,14 @@ function RouteComponent() {
 
   return (
     <KioskProvider sessionId={sessionId}>
-      <main className="flex h-full min-h-0 flex-col">
-        <KioskHeader />
-        <div className="min-h-0 flex-1">
-          <Outlet />
-        </div>
-      </main>
+      <ModalScope modals={[PinAuthModal]}>
+        <main className="flex h-full min-h-0 flex-col">
+          <KioskHeader />
+          <div className="min-h-0 flex-1">
+            <Outlet />
+          </div>
+        </main>
+      </ModalScope>
       <ActAsModal />
     </KioskProvider>
   );

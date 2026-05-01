@@ -79,7 +79,19 @@ export function SettingsPage({
     );
   }
 
+  // At `/settings` no nav link prefix matches until a child route loads. The
+  // index route redirects desktop to profile, but it only runs if the Outlet
+  // renders — so we must not return null here when sitting on the settings root.
   if (!currentNavItem) {
+    if (isAtIndex) {
+      return (
+        <div className={cn("flex h-full flex-col", className)} {...props}>
+          <div className="grow overflow-hidden">
+            <ScrollArea className="h-full">{children}</ScrollArea>
+          </div>
+        </div>
+      );
+    }
     return null;
   }
 

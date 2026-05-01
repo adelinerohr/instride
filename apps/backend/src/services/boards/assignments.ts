@@ -9,7 +9,7 @@ import { api, APIError } from "encore.dev/api";
 import { requireOrganizationAuth } from "@/shared/auth";
 import { assertExists } from "@/shared/utils/validation";
 
-import { boardService } from "./board.service";
+import { boardRepo } from "./board.repo";
 import { toBoardAssignment } from "./mappers";
 
 export const listBoardAssignments = api(
@@ -24,7 +24,7 @@ export const listBoardAssignments = api(
   ): Promise<ListBoardAssignmentsResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const assignments = await boardService.findManyAssignments(
+    const assignments = await boardRepo.findManyAssignments(
       organizationId,
       request.role
     );
@@ -51,14 +51,14 @@ export const assignToBoard = api(
       );
     }
 
-    const created = await boardService.createAssignment({
+    const created = await boardRepo.createAssignment({
       organizationId,
       boardId: request.boardId,
       trainerId: request.trainerId ?? null,
       riderId: request.riderId ?? null,
     });
 
-    const assignment = await boardService.findOneAssignment(
+    const assignment = await boardRepo.findOneAssignment(
       created.id,
       organizationId
     );
@@ -78,6 +78,6 @@ export const removeFromBoard = api(
   async ({ assignmentId }: { assignmentId: string }): Promise<void> => {
     const { organizationId } = requireOrganizationAuth();
 
-    await boardService.deleteAssignment(assignmentId, organizationId);
+    await boardRepo.deleteAssignmentById(assignmentId, organizationId);
   }
 );

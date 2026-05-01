@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import { DataTableColumnHeader } from "@/shared/components/data-table/column-header";
 import {
   Avatar,
@@ -328,83 +328,86 @@ export const usersTableColumns: ColumnDef<types.AuthUser>[] = [
   {
     id: "actions",
     enableSorting: false,
-    cell: ({ row }) => (
-      <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-                size="icon"
-                variant="ghost"
-              />
-            }
-          >
-            <MoreHorizontalIcon className="shrink-0" />
-            <span className="sr-only">Open menu</span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={() =>
-                impersonateUser(row.original.id, {
-                  name: row.original.name ?? "",
-                })
-              }
-              disabled={row.original.role === "admin"}
-              title={
-                row.original.role === "admin"
-                  ? "Cannot impersonate other admins"
-                  : undefined
+    cell: ({ row }) => {
+      const confirmationModal = ConfirmationModal.useModal();
+      return (
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+                  size="icon"
+                  variant="ghost"
+                />
               }
             >
-              Impersonate
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              disabled={row.original.emailVerified}
-              onClick={() => resendVerificationMail(row.original.email)}
-            >
-              Resend verification
-            </DropdownMenuItem>
-            {row.original.role !== "admin" ? (
+              <MoreHorizontalIcon className="shrink-0" />
+              <span className="sr-only">Open menu</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
-                onClick={() => assignAdminRole(row.original.id)}
-                disabled={row.original.banned ?? false}
+                onClick={() =>
+                  impersonateUser(row.original.id, {
+                    name: row.original.name ?? "",
+                  })
+                }
+                disabled={row.original.role === "admin"}
+                title={
+                  row.original.role === "admin"
+                    ? "Cannot impersonate other admins"
+                    : undefined
+                }
               >
-                Make admin
+                Impersonate
               </DropdownMenuItem>
-            ) : (
               <DropdownMenuItem
-                onClick={() => removeAdminRole(row.original.id)}
+                disabled={row.original.emailVerified}
+                onClick={() => resendVerificationMail(row.original.email)}
               >
-                Remove admin
+                Resend verification
               </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            {!(row.original.banned ?? false) ? (
-              <DropdownMenuItem>Ban user</DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => unbanUser(row.original.id)}>
-                Unban user
+              {row.original.role !== "admin" ? (
+                <DropdownMenuItem
+                  onClick={() => assignAdminRole(row.original.id)}
+                  disabled={row.original.banned ?? false}
+                >
+                  Make admin
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  onClick={() => removeAdminRole(row.original.id)}
+                >
+                  Remove admin
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              {!(row.original.banned ?? false) ? (
+                <DropdownMenuItem>Ban user</DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => unbanUser(row.original.id)}>
+                  Unban user
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  confirmationModal.open({
+                    title: "Delete user?",
+                    description:
+                      "Are you sure you want to delete this user? This action cannot be undone.",
+                    confirmLabel: "Delete",
+                    onConfirm: () => deleteUser(row.original.id),
+                  });
+                }}
+                variant="destructive"
+              >
+                Delete
               </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                confirmationModalHandler.openWithPayload({
-                  title: "Delete user?",
-                  description:
-                    "Are you sure you want to delete this user? This action cannot be undone.",
-                  confirmLabel: "Delete",
-                  onConfirm: () => deleteUser(row.original.id),
-                });
-              }}
-              variant="destructive"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
   },
 ];

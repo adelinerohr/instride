@@ -3,8 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWrappedMutation, type MutationHookOptions } from "#_internal";
 import { apiClient } from "#client";
 import {
+  CheckKioskPermissionRequest,
   ClearKioskIdentityRequest,
   CreateKioskSessionRequest,
+  KioskCancelLessonInstanceRequest,
+  KioskCreateLessonInstanceRequest,
   KioskEnrollInInstanceRequest,
   KioskMarkAttendanceRequest,
   KioskUnenrollFromInstanceRequest,
@@ -34,12 +37,17 @@ export const kioskMutations = {
   deleteSession: async (sessionId: string) =>
     await apiClient.kiosk.deleteKioskSession(sessionId),
 
-  /** Acting state identity */
+  /** Acting state identity (persistent "start acting" flow) */
   verifyIdentity: async (request: VerifyKioskIdentityRequest) => {
     return await apiClient.kiosk.verifyKioskIdentity(request);
   },
   clearIdentity: async (request: ClearKioskIdentityRequest) =>
     await apiClient.kiosk.clearKioskIdentity(request),
+
+  /** Permission check (used by one-shot PIN auth dialog) */
+  checkPermission: async (request: CheckKioskPermissionRequest) => {
+    return await apiClient.kiosk.checkKioskPermission(request);
+  },
 
   /** Actions */
   markAttendance: async ({
@@ -58,6 +66,13 @@ export const kioskMutations = {
     ...request
   }: KioskUnenrollFromInstanceRequest) =>
     await apiClient.kiosk.kioskUnenrollFromInstance(enrollmentId, request),
+  cancelLessonInstance: async ({
+    instanceId,
+    ...request
+  }: KioskCancelLessonInstanceRequest) =>
+    await apiClient.kiosk.kioskCancelLessonInstance(instanceId, request),
+  createLessonInstance: async (request: KioskCreateLessonInstanceRequest) =>
+    await apiClient.kiosk.kioskCreateLessonInstance(request),
 };
 
 export function useCreateKioskSession({
@@ -135,6 +150,26 @@ export function useClearKioskIdentity({
   });
 }
 
+/**
+ * Permission check for one-shot PIN-gated actions. Does not mutate any
+ * server state — verifies a PIN and confirms the action is allowed for
+ * that member, returning the verified member on success.
+ *
+ * Despite being a "check" rather than a mutation, it uses
+ * useWrappedMutation because the call is imperative (triggered by form
+ * submit, not by component mount) and we want the mutation lifecycle
+ * (isPending, error handling).
+ *
+ * No cache invalidation — this is a read-only verification.
+ */
+export function useCheckKioskPermission({
+  mutationConfig,
+}: MutationHookOptions<typeof kioskMutations.checkPermission> = {}) {
+  return useWrappedMutation(kioskMutations.checkPermission, {
+    ...mutationConfig,
+  });
+}
+
 export function useKioskMarkAttendance({
   mutationConfig,
 }: MutationHookOptions<typeof kioskMutations.markAttendance> = {}) {
@@ -174,6 +209,40 @@ export function useKioskUnenrollFromInstance({
   const { onSuccess, ...config } = mutationConfig || {};
 
   return useWrappedMutation(kioskMutations.unenrollFromInstance, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: lessonKeys.series() });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.instances() });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.enrollments() });
+      onSuccess?.(...args);
+    },
+  });
+}
+
+export function useKioskCancelLessonInstance({
+  mutationConfig,
+}: MutationHookOptions<typeof kioskMutations.cancelLessonInstance> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(kioskMutations.cancelLessonInstance, {
+    ...config,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: lessonKeys.series() });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.instances() });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.enrollments() });
+      onSuccess?.(...args);
+    },
+  });
+}
+
+export function useKioskCreateLessonInstance({
+  mutationConfig,
+}: MutationHookOptions<typeof kioskMutations.createLessonInstance> = {}) {
+  const queryClient = useQueryClient();
+  const { onSuccess, ...config } = mutationConfig || {};
+
+  return useWrappedMutation(kioskMutations.createLessonInstance, {
     ...config,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.series() });

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { waiverModalHandler } from "@/features/organization/components/waivers/waiver-modal";
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import { PageHeader } from "@/shared/components/layout/page";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -44,6 +44,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { organization } = Route.useRouteContext();
+  const confirmationModal = ConfirmationModal.useModal();
   const { data: waivers, isLoading } = useSuspenseQuery(
     waiverOptions.list(organization.id)
   );
@@ -147,25 +148,23 @@ function RouteComponent() {
                               Edit waiver
                             </DialogTrigger>
                             <DropdownMenuSeparator />
-                            <DialogTrigger
-                              nativeButton={false}
-                              handle={confirmationModalHandler}
-                              payload={{
-                                title: "Archive waiver?",
-                                description:
-                                  "Archiving this waiver will prevent new signatures. Existing signatures will remain valid.",
-                                confirmLabel: "Archive waiver",
-                                cancelLabel: "Cancel",
-                                onConfirm: () =>
-                                  archiveWaiver.mutateAsync(waiver.id),
-                              }}
-                              render={
-                                <DropdownMenuItem variant="destructive" />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() =>
+                                confirmationModal.open({
+                                  title: "Archive waiver?",
+                                  description:
+                                    "Archiving this waiver will prevent new signatures. Existing signatures will remain valid.",
+                                  confirmLabel: "Archive waiver",
+                                  cancelLabel: "Cancel",
+                                  onConfirm: () =>
+                                    archiveWaiver.mutateAsync(waiver.id),
+                                })
                               }
                             >
                               <ArchiveIcon />
                               Archive
-                            </DialogTrigger>
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>

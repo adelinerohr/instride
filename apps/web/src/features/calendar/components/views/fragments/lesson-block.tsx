@@ -5,9 +5,8 @@ import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";
 import * as React from "react";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
-import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { Badge } from "@/shared/components/ui/badge";
-import { SheetTrigger } from "@/shared/components/ui/sheet";
 import { getTrainerColor } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
@@ -68,6 +67,7 @@ interface LessonBlockProps
 
 export function LessonBlock({ lesson, className }: LessonBlockProps) {
   const { slotHeight } = useCalendar();
+  const viewLessonSheet = ViewLessonSheet.useModal();
 
   const start = parseISO(lesson.start);
   const end = parseISO(lesson.end);
@@ -107,85 +107,58 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
       : abbreviateName(trainer.name)
     : null;
 
-  // Comfortable & compact: full row-based layout
-  if (density === "comfortable" || density === "compact") {
-    const showTime = size.width >= TIGHT_WIDTH;
-    const showTrainer = trainer && size.width >= TIGHT_WIDTH;
-    const showEnrollment = !isPrivate && density === "comfortable";
+  const handleClick = () => {
+    viewLessonSheet.open({ instanceId: lesson.id });
+  };
 
-    return (
-      <SheetTrigger
-        handle={viewLessonModalHandler}
-        payload={{ lesson }}
-        nativeButton={false}
-        render={
-          <div
-            ref={blockRef}
-            role="button"
-            tabIndex={0}
-            className={cn(
-              lessonBlockVariants({ color, density, className }),
-              "cursor-pointer"
+  return (
+    <div
+      ref={blockRef}
+      role="button"
+      tabIndex={0}
+      className={cn(
+        lessonBlockVariants({ color, density, className }),
+        "cursor-pointer"
+      )}
+      style={{ height: `${heightInPixels}px` }}
+      onClick={handleClick}
+    >
+      {density === "comfortable" || density === "compact" ? (
+        <>
+          <div className="flex items-center gap-1.5 truncate">
+            <p className="truncate font-semibold">{lesson.service?.name}</p>
+            {isPrivate && density === "comfortable" && (
+              <Badge variant="outline">Private</Badge>
             )}
-            style={{ height: `${heightInPixels}px` }}
-          />
-        }
-      >
-        <div className="flex items-center gap-1.5 truncate">
-          <p className="truncate font-semibold">{lesson.service?.name}</p>
-          {isPrivate && density === "comfortable" && (
-            <Badge variant="outline">Private</Badge>
+          </div>
+
+          {size.width >= TIGHT_WIDTH && (
+            <div className="flex items-center gap-1.5">
+              <ClockIcon className="size-3 shrink-0" />
+              <p className="truncate">
+                {format(start, "h:mm")} - {format(end, "h:mm a")}
+              </p>
+            </div>
           )}
-        </div>
 
-        {showTime && (
-          <div className="flex items-center gap-1.5">
-            <ClockIcon className="size-3 shrink-0" />
-            <p className="truncate">
-              {format(start, "h:mm")} - {format(end, "h:mm a")}
-            </p>
-          </div>
-        )}
+          {trainer && size.width >= TIGHT_WIDTH && trainerDisplayName && (
+            <div className="flex items-center gap-1.5">
+              <UserIcon className="size-3 shrink-0" />
+              <p className="truncate">{trainerDisplayName}</p>
+            </div>
+          )}
 
-        {showTrainer && trainerDisplayName && (
-          <div className="flex items-center gap-1.5">
-            <UserIcon className="size-3 shrink-0" />
-            <p className="truncate">{trainerDisplayName}</p>
-          </div>
-        )}
-
-        {showEnrollment && (
-          <div className="flex items-center gap-1.5">
-            <ClipboardListIcon className="size-3 shrink-0" />
-            <p className="truncate">
-              {lesson.enrollments?.length} / {lesson.service?.maxRiders} riders
-            </p>
-          </div>
-        )}
-      </SheetTrigger>
-    );
-  }
-
-  // Tight: single centered row → "{Trainer} — {Group|Private}"
-  if (density === "tight") {
-    return (
-      <SheetTrigger
-        handle={viewLessonModalHandler}
-        payload={{ lesson }}
-        nativeButton={false}
-        render={
-          <div
-            ref={blockRef}
-            role="button"
-            tabIndex={0}
-            className={cn(
-              lessonBlockVariants({ color, density, className }),
-              "cursor-pointer"
-            )}
-            style={{ height: `${heightInPixels}px` }}
-          />
-        }
-      >
+          {!isPrivate && density === "comfortable" && (
+            <div className="flex items-center gap-1.5">
+              <ClipboardListIcon className="size-3 shrink-0" />
+              <p className="truncate">
+                {lesson.enrollments?.length} / {lesson.service?.maxRiders}{" "}
+                riders
+              </p>
+            </div>
+          )}
+        </>
+      ) : density === "tight" ? (
         <p className="truncate font-medium">
           {trainerDisplayName ? (
             <>
@@ -197,34 +170,13 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
             lessonTypeLabel
           )}
         </p>
-      </SheetTrigger>
-    );
-  }
-
-  // Minimal: just type label (or abbreviated trainer if it fits)
-  return (
-    <SheetTrigger
-      handle={viewLessonModalHandler}
-      payload={{ lesson }}
-      nativeButton={false}
-      render={
-        <div
-          ref={blockRef}
-          role="button"
-          tabIndex={0}
-          className={cn(
-            lessonBlockVariants({ color, density, className }),
-            "cursor-pointer"
-          )}
-          style={{ height: `${heightInPixels}px` }}
-        />
-      }
-    >
-      <p className="truncate font-medium text-center">
-        {size.width >= TIGHT_WIDTH && trainerDisplayName
-          ? `${trainerDisplayName} — ${lessonTypeLabel}`
-          : lessonTypeLabel}
-      </p>
-    </SheetTrigger>
+      ) : (
+        <p className="truncate font-medium text-center">
+          {size.width >= TIGHT_WIDTH && trainerDisplayName
+            ? `${trainerDisplayName} — ${lessonTypeLabel}`
+            : lessonTypeLabel}
+        </p>
+      )}
+    </div>
   );
 }

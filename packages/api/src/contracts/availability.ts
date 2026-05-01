@@ -17,8 +17,8 @@ export interface BusinessHours {
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
   slots: AvailabilitySlot[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface BoardBusinessHours extends BusinessHours {
@@ -30,8 +30,20 @@ export interface AvailabilitySlot {
   availabilityId: string;
   openTime: string;
   closeTime: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AvailableSlot {
+  start: string;
+  end: string;
+  dayOfWeek: string;
+  service: {
+    id: string;
+    name: string;
+    duration: number;
+    price: number;
+  };
 }
 
 export interface TimeBlock {
@@ -39,11 +51,11 @@ export interface TimeBlock {
   organizationId: string;
   trainerId: string;
   boardId: string | null;
-  start: Date | string;
-  end: Date | string;
+  start: string;
+  end: string;
   reason: string | null;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ============================================================================
@@ -83,6 +95,19 @@ export interface ListTrainerBusinessHoursParams {
 export interface ListBusinessHoursResponse {
   defaults: BusinessHours[];
   boardOverrides: Record<string, BoardBusinessHours[]>;
+}
+
+export interface AvailableSlotsRequest {
+  boardId: string;
+  trainerId: string;
+  serviceId: string;
+  riderId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface AvailableSlotsResponse {
+  slots: AvailableSlot[];
 }
 
 // ============================================================================

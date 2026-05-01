@@ -5,6 +5,8 @@ import type {
   TimeBlock,
 } from "@instride/api/contracts";
 
+import { toISO, toTimestamps } from "@/shared/utils/mappers";
+
 import type {
   OrganizationAvailabilitySlotRow,
   TrainerAvailabilitySlotRow,
@@ -36,8 +38,7 @@ export function toBusinessHours(row: AvailabilityDayRow): BusinessHours {
     dayOfWeek: row.dayOfWeek,
     isOpen: row.isOpen,
     slots: row.slots.map(toAvailabilitySlot),
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    ...toTimestamps(row.createdAt, row.updatedAt),
   };
 }
 
@@ -56,8 +57,7 @@ export function toAvailabilitySlot(row: AvailabilitySlotRow) {
     availabilityId: row.availabilityId,
     openTime: row.openTime,
     closeTime: row.closeTime,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    ...toTimestamps(row.createdAt, row.updatedAt),
   };
 }
 
@@ -82,10 +82,9 @@ export function toTimeBlock(row: TimeBlockRow): TimeBlock {
     organizationId: row.organizationId,
     trainerId: row.trainerId,
     boardId: row.boardId,
-    start: row.start,
-    end: row.end,
+    start: toISO(row.start),
+    end: toISO(row.end),
     reason: row.reason,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    ...toTimestamps(row.createdAt, row.updatedAt),
   };
 }

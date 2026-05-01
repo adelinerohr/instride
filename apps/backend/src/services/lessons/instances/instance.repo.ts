@@ -1,4 +1,7 @@
-import { LessonInstanceStatus } from "@instride/shared";
+import {
+  LessonInstanceEnrollmentStatus,
+  LessonInstanceStatus,
+} from "@instride/shared";
 import { and, eq } from "drizzle-orm";
 
 import { Database, Transaction } from "@/shared/utils/schema";
@@ -55,6 +58,19 @@ export const createLessonInstanceRepo = (
     return instance;
   },
 
+  findStandaloneBySeries: async (seriesId: string, organizationId: string) => {
+    const instance = await client.query.lessonInstances.findFirst({
+      where: {
+        seriesId,
+        organizationId,
+        occurrenceKey: `standalone:${seriesId}`,
+      },
+      with: lessonInstanceExpansion,
+    });
+    assertExists(instance, "Lesson instance not found");
+    return instance;
+  },
+
   findBySeries: async (seriesId: string, organizationId: string) => {
     return await client.query.lessonInstances.findMany({
       where: { seriesId, organizationId },
@@ -64,7 +80,15 @@ export const createLessonInstanceRepo = (
   findOneExpanded: async (id: string, organizationId: string) => {
     const instance = await client.query.lessonInstances.findFirst({
       where: { id, organizationId },
-      with: lessonInstanceExpansion,
+      with: {
+        ...lessonInstanceExpansion,
+        enrollments: {
+          ...lessonInstanceExpansion.enrollments,
+          where: {
+            status: LessonInstanceEnrollmentStatus.ENROLLED,
+          },
+        },
+      },
     });
     assertExists(instance, "Lesson instance not found");
     return instance;
@@ -94,7 +118,15 @@ export const createLessonInstanceRepo = (
         ...(filters?.status && { status: filters.status }),
       },
       orderBy: { start: "asc" },
-      with: lessonInstanceExpansion,
+      with: {
+        ...lessonInstanceExpansion,
+        enrollments: {
+          ...lessonInstanceExpansion.enrollments,
+          where: {
+            status: LessonInstanceEnrollmentStatus.ENROLLED,
+          },
+        },
+      },
     });
     assertExists(instances, "Failed to load instances");
     return instances;

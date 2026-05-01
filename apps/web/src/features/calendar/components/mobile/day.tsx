@@ -8,9 +8,10 @@ import { cn } from "@/shared/lib/utils";
 import { useCalendar } from "../../hooks/use-calendar";
 import { useRangeSwipe } from "../../hooks/use-range-swipe";
 import { HOURS, SLOT_HEIGHT, START_HOUR } from "../../lib/constants";
-import { getLessonBlockStyle, groupLessons } from "../../utils/lesson";
+import { getBlockStyle, groupEvents } from "../../utils/lesson";
 import { HourCell } from "../views/fragments/hour-cell";
 import { LessonBlock } from "../views/fragments/lesson-block";
+import { TimeBlock } from "../views/fragments/time-block";
 import { CalendarTimeline } from "../views/fragments/timeline";
 
 export function MobileDayView() {
@@ -19,6 +20,7 @@ export function MobileDayView() {
   });
   const {
     selectedDate,
+    timeBlocks,
     lessons,
     selectedTrainerIds,
     trainerBusinessHours,
@@ -28,9 +30,13 @@ export function MobileDayView() {
   const currentTrainerBusinessHours =
     trainerBusinessHours[selectedTrainerIds[0]];
 
-  const groupedLessons = groupLessons(
-    lessons.filter((lesson) => lesson.trainer?.id === selectedTrainerIds[0])
+  const dayTimeBlocks = timeBlocks.filter((timeBlock) =>
+    isSameDay(parseISO(timeBlock.start), selectedDate)
   );
+  const dayLessons = lessons.filter((lesson) =>
+    isSameDay(parseISO(lesson.start), selectedDate)
+  );
+  const groupedEvents = groupEvents(dayLessons, dayTimeBlocks);
 
   // Scroll to "now" on mount / selected date change
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -94,31 +100,33 @@ export function MobileDayView() {
                   index={index}
                   day={selectedDate}
                   hour={hour}
+                  trainerId={selectedTrainerIds[0]}
                 />
               );
             })}
 
-            {groupedLessons.map((group, groupIndex) =>
-              group.map((lesson) => {
-                let style = getLessonBlockStyle(
-                  lesson,
-                  selectedDate,
+            {groupedEvents.map((group, groupIndex) =>
+              group.map((event) => {
+                let style = getBlockStyle({
+                  start: event.start,
+                  end: event.end,
+                  day: selectedDate,
                   groupIndex,
-                  groupedLessons.length,
-                  slotHeight
-                );
-                const hasOverlap = groupedLessons.some(
+                  groupSize: groupedEvents.length,
+                  slotHeight,
+                });
+                const hasOverlap = groupedEvents.some(
                   (otherGroup, otherIndex) =>
                     otherIndex !== groupIndex &&
-                    otherGroup.some((otherLesson) =>
+                    otherGroup.some((otherEvent) =>
                       areIntervalsOverlapping(
                         {
-                          start: parseISO(lesson.start),
-                          end: parseISO(lesson.end),
+                          start: parseISO(event.start),
+                          end: parseISO(event.end),
                         },
                         {
-                          start: parseISO(otherLesson.start),
-                          end: parseISO(otherLesson.end),
+                          start: parseISO(otherEvent.start),
+                          end: parseISO(otherEvent.end),
                         }
                       )
                     )
@@ -127,9 +135,17 @@ export function MobileDayView() {
                 if (!hasOverlap)
                   style = { ...style, width: "100%", left: "0%" };
 
+                if ("reason" in event) {
+                  return (
+                    <div key={event.id} className="absolute p-1" style={style}>
+                      <TimeBlock timeBlock={event} />
+                    </div>
+                  );
+                }
+
                 return (
-                  <div key={lesson.id} className="absolute p-1" style={style}>
-                    <LessonBlock lesson={lesson} />
+                  <div key={event.id} className="absolute p-1" style={style}>
+                    <LessonBlock lesson={event} />
                   </div>
                 );
               })

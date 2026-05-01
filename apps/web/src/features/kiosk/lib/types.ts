@@ -8,9 +8,9 @@ export interface KioskActingContext {
 
 export interface KioskPermissionSet {
   canViewCalendar: boolean;
-  canCheckIn: boolean;
   canCreateLesson: boolean;
   canEditLesson: boolean;
+  canCancelLesson: boolean;
   canCreateTimeBlock: boolean;
   canEditTimeBlock: boolean;
   canEnroll: boolean;

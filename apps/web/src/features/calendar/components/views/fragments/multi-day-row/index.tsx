@@ -18,11 +18,12 @@ import {
   layoutDays,
   layoutTotalColumns,
 } from "@/features/calendar/utils/multi-day";
+import { EventModal } from "@/features/organization/components/availability/events/modal";
 
-import { eventModalHandler } from "../../../modals/event-modal";
 import { MultiDayRowItem } from "./item";
 
 export function MultiDayRow() {
+  const eventModal = EventModal.useModal();
   const {
     visibleDays,
     organizationEvents,
@@ -156,7 +157,7 @@ export function MultiDayRow() {
   const onEventClick = (event: Event) => {
     const fullEvent = events.find((e) => e.id === event.id);
     if (fullEvent) {
-      eventModalHandler.openWithPayload(fullEvent);
+      eventModal.open({ event: fullEvent });
     }
   };
 

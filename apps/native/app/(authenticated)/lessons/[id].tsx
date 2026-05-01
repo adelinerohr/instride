@@ -1,4 +1,4 @@
-import { types, useGetLessonInstance } from "@instride/api";
+import { LessonInstanceEnrollment, useLessonInstance } from "@instride/api";
 import {
   LessonInstanceEnrollmentStatus,
   LessonInstanceStatus,
@@ -28,7 +28,7 @@ const ENROLLMENT_STATUS_MAP = {
 
 export default function LessonDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: lesson, isPending, isError } = useGetLessonInstance(id);
+  const { data: lesson, isPending, isError } = useLessonInstance(id);
 
   if (isPending) {
     return (
@@ -49,8 +49,7 @@ export default function LessonDetailScreen() {
   }
 
   const enrollments =
-    (lesson as { enrollments?: types.LessonInstanceEnrollment[] })
-      .enrollments ?? [];
+    (lesson as { enrollments?: LessonInstanceEnrollment[] }).enrollments ?? [];
 
   const isCancelled = lesson.status === LessonInstanceStatus.CANCELLED;
   const isCompleted = lesson.status === LessonInstanceStatus.COMPLETED;

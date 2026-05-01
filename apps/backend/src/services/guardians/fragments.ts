@@ -16,7 +16,6 @@ export const relationshipWithGuardianExpansion = {
 export const myDependentExpansion = {
   dependent: {
     with: {
-      authUser: true,
       rider: { with: riderExpansion },
     },
   },

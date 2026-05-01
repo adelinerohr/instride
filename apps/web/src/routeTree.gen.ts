@@ -56,11 +56,13 @@ import { Route as OrgSlugauthenticatedSettingsOrganizationBusinessHoursRouteImpo
 import { Route as OrgSlugauthenticatedSettingsAccountGuardianRouteImport } from './routes/org/$slug/(authenticated)/settings/account/guardian'
 import { Route as OrgSlugauthenticatedSettingsAccountAvailabilityRouteImport } from './routes/org/$slug/(authenticated)/settings/account/availability'
 import { Route as OrgSlugauthenticatedPortalMessagesConversationIdRouteImport } from './routes/org/$slug/(authenticated)/portal/messages/$conversationId'
+import { Route as OrgSlugauthenticatedPortalLessonsNewRouteImport } from './routes/org/$slug/(authenticated)/portal/lessons/new'
 import { Route as OrgSlugauthenticatedPortalLessonsCreateRouteImport } from './routes/org/$slug/(authenticated)/portal/lessons/create'
 import { Route as OrgSlugauthenticatedKioskSessionIdCalendarRouteImport } from './routes/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
 import { Route as OrgSlugauthenticatedAdminServicesNewRouteImport } from './routes/org/$slug/(authenticated)/admin/services/new'
 import { Route as OrgSlugauthenticatedAdminMessagesConversationIdRouteImport } from './routes/org/$slug/(authenticated)/admin/messages/$conversationId'
 import { Route as OrgSlugauthenticatedAdminLessonsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/new'
+import { Route as OrgSlugauthenticatedAdminLessonsCreateRouteImport } from './routes/org/$slug/(authenticated)/admin/lessons/create'
 import { Route as OrgSlugauthenticatedAdminCalendarNewRouteImport } from './routes/org/$slug/(authenticated)/admin/calendar/new'
 import { Route as OrgSlugauthenticatedAdminBoardsNewRouteImport } from './routes/org/$slug/(authenticated)/admin/boards/new'
 import { Route as OrgSlugauthenticatedSettingsOrganizationWaiversIndexRouteImport } from './routes/org/$slug/(authenticated)/settings/organization/waivers/index'
@@ -348,6 +350,12 @@ const OrgSlugauthenticatedPortalMessagesConversationIdRoute =
     path: '/$conversationId',
     getParentRoute: () => OrgSlugauthenticatedPortalMessagesRouteRoute,
   } as any)
+const OrgSlugauthenticatedPortalLessonsNewRoute =
+  OrgSlugauthenticatedPortalLessonsNewRouteImport.update({
+    id: '/lessons/new',
+    path: '/lessons/new',
+    getParentRoute: () => OrgSlugauthenticatedPortalRouteRoute,
+  } as any)
 const OrgSlugauthenticatedPortalLessonsCreateRoute =
   OrgSlugauthenticatedPortalLessonsCreateRouteImport.update({
     id: '/lessons/create',
@@ -376,6 +384,12 @@ const OrgSlugauthenticatedAdminLessonsNewRoute =
   OrgSlugauthenticatedAdminLessonsNewRouteImport.update({
     id: '/lessons/new',
     path: '/lessons/new',
+    getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
+  } as any)
+const OrgSlugauthenticatedAdminLessonsCreateRoute =
+  OrgSlugauthenticatedAdminLessonsCreateRouteImport.update({
+    id: '/lessons/create',
+    path: '/lessons/create',
     getParentRoute: () => OrgSlugauthenticatedAdminRouteRoute,
   } as any)
 const OrgSlugauthenticatedAdminCalendarNewRoute =
@@ -543,11 +557,13 @@ export interface FileRoutesByFullPath {
   '/org/$slug/settings/': typeof OrgSlugauthenticatedSettingsIndexRoute
   '/org/$slug/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
   '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
+  '/org/$slug/admin/lessons/create': typeof OrgSlugauthenticatedAdminLessonsCreateRoute
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/messages/$conversationId': typeof OrgSlugauthenticatedAdminMessagesConversationIdRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
   '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
+  '/org/$slug/portal/lessons/new': typeof OrgSlugauthenticatedPortalLessonsNewRoute
   '/org/$slug/portal/messages/$conversationId': typeof OrgSlugauthenticatedPortalMessagesConversationIdRoute
   '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
@@ -609,11 +625,13 @@ export interface FileRoutesByTo {
   '/org/$slug/settings': typeof OrgSlugauthenticatedSettingsIndexRoute
   '/org/$slug/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
   '/org/$slug/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
+  '/org/$slug/admin/lessons/create': typeof OrgSlugauthenticatedAdminLessonsCreateRoute
   '/org/$slug/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/admin/messages/$conversationId': typeof OrgSlugauthenticatedAdminMessagesConversationIdRoute
   '/org/$slug/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
   '/org/$slug/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
+  '/org/$slug/portal/lessons/new': typeof OrgSlugauthenticatedPortalLessonsNewRoute
   '/org/$slug/portal/messages/$conversationId': typeof OrgSlugauthenticatedPortalMessagesConversationIdRoute
   '/org/$slug/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
@@ -684,11 +702,13 @@ export interface FileRoutesById {
   '/org/$slug/(authenticated)/settings/': typeof OrgSlugauthenticatedSettingsIndexRoute
   '/org/$slug/(authenticated)/admin/boards/new': typeof OrgSlugauthenticatedAdminBoardsNewRoute
   '/org/$slug/(authenticated)/admin/calendar/new': typeof OrgSlugauthenticatedAdminCalendarNewRoute
+  '/org/$slug/(authenticated)/admin/lessons/create': typeof OrgSlugauthenticatedAdminLessonsCreateRoute
   '/org/$slug/(authenticated)/admin/lessons/new': typeof OrgSlugauthenticatedAdminLessonsNewRoute
   '/org/$slug/(authenticated)/admin/messages/$conversationId': typeof OrgSlugauthenticatedAdminMessagesConversationIdRoute
   '/org/$slug/(authenticated)/admin/services/new': typeof OrgSlugauthenticatedAdminServicesNewRoute
   '/org/$slug/(authenticated)/kiosk/$sessionId/calendar': typeof OrgSlugauthenticatedKioskSessionIdCalendarRoute
   '/org/$slug/(authenticated)/portal/lessons/create': typeof OrgSlugauthenticatedPortalLessonsCreateRoute
+  '/org/$slug/(authenticated)/portal/lessons/new': typeof OrgSlugauthenticatedPortalLessonsNewRoute
   '/org/$slug/(authenticated)/portal/messages/$conversationId': typeof OrgSlugauthenticatedPortalMessagesConversationIdRoute
   '/org/$slug/(authenticated)/settings/account/availability': typeof OrgSlugauthenticatedSettingsAccountAvailabilityRoute
   '/org/$slug/(authenticated)/settings/account/guardian': typeof OrgSlugauthenticatedSettingsAccountGuardianRoute
@@ -758,11 +778,13 @@ export interface FileRouteTypes {
     | '/org/$slug/settings/'
     | '/org/$slug/admin/boards/new'
     | '/org/$slug/admin/calendar/new'
+    | '/org/$slug/admin/lessons/create'
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/messages/$conversationId'
     | '/org/$slug/admin/services/new'
     | '/org/$slug/kiosk/$sessionId/calendar'
     | '/org/$slug/portal/lessons/create'
+    | '/org/$slug/portal/lessons/new'
     | '/org/$slug/portal/messages/$conversationId'
     | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
@@ -824,11 +846,13 @@ export interface FileRouteTypes {
     | '/org/$slug/settings'
     | '/org/$slug/admin/boards/new'
     | '/org/$slug/admin/calendar/new'
+    | '/org/$slug/admin/lessons/create'
     | '/org/$slug/admin/lessons/new'
     | '/org/$slug/admin/messages/$conversationId'
     | '/org/$slug/admin/services/new'
     | '/org/$slug/kiosk/$sessionId/calendar'
     | '/org/$slug/portal/lessons/create'
+    | '/org/$slug/portal/lessons/new'
     | '/org/$slug/portal/messages/$conversationId'
     | '/org/$slug/settings/account/availability'
     | '/org/$slug/settings/account/guardian'
@@ -898,11 +922,13 @@ export interface FileRouteTypes {
     | '/org/$slug/(authenticated)/settings/'
     | '/org/$slug/(authenticated)/admin/boards/new'
     | '/org/$slug/(authenticated)/admin/calendar/new'
+    | '/org/$slug/(authenticated)/admin/lessons/create'
     | '/org/$slug/(authenticated)/admin/lessons/new'
     | '/org/$slug/(authenticated)/admin/messages/$conversationId'
     | '/org/$slug/(authenticated)/admin/services/new'
     | '/org/$slug/(authenticated)/kiosk/$sessionId/calendar'
     | '/org/$slug/(authenticated)/portal/lessons/create'
+    | '/org/$slug/(authenticated)/portal/lessons/new'
     | '/org/$slug/(authenticated)/portal/messages/$conversationId'
     | '/org/$slug/(authenticated)/settings/account/availability'
     | '/org/$slug/(authenticated)/settings/account/guardian'
@@ -1274,6 +1300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSlugauthenticatedPortalMessagesConversationIdRouteImport
       parentRoute: typeof OrgSlugauthenticatedPortalMessagesRouteRoute
     }
+    '/org/$slug/(authenticated)/portal/lessons/new': {
+      id: '/org/$slug/(authenticated)/portal/lessons/new'
+      path: '/lessons/new'
+      fullPath: '/org/$slug/portal/lessons/new'
+      preLoaderRoute: typeof OrgSlugauthenticatedPortalLessonsNewRouteImport
+      parentRoute: typeof OrgSlugauthenticatedPortalRouteRoute
+    }
     '/org/$slug/(authenticated)/portal/lessons/create': {
       id: '/org/$slug/(authenticated)/portal/lessons/create'
       path: '/lessons/create'
@@ -1307,6 +1340,13 @@ declare module '@tanstack/react-router' {
       path: '/lessons/new'
       fullPath: '/org/$slug/admin/lessons/new'
       preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsNewRouteImport
+      parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
+    }
+    '/org/$slug/(authenticated)/admin/lessons/create': {
+      id: '/org/$slug/(authenticated)/admin/lessons/create'
+      path: '/lessons/create'
+      fullPath: '/org/$slug/admin/lessons/create'
+      preLoaderRoute: typeof OrgSlugauthenticatedAdminLessonsCreateRouteImport
       parentRoute: typeof OrgSlugauthenticatedAdminRouteRoute
     }
     '/org/$slug/(authenticated)/admin/calendar/new': {
@@ -1538,6 +1578,7 @@ interface OrgSlugauthenticatedAdminRouteRouteChildren {
   OrgSlugauthenticatedAdminIndexRoute: typeof OrgSlugauthenticatedAdminIndexRoute
   OrgSlugauthenticatedAdminBoardsNewRoute: typeof OrgSlugauthenticatedAdminBoardsNewRoute
   OrgSlugauthenticatedAdminCalendarNewRoute: typeof OrgSlugauthenticatedAdminCalendarNewRoute
+  OrgSlugauthenticatedAdminLessonsCreateRoute: typeof OrgSlugauthenticatedAdminLessonsCreateRoute
   OrgSlugauthenticatedAdminLessonsNewRoute: typeof OrgSlugauthenticatedAdminLessonsNewRoute
   OrgSlugauthenticatedAdminServicesNewRoute: typeof OrgSlugauthenticatedAdminServicesNewRoute
   OrgSlugauthenticatedAdminBoardsIndexRoute: typeof OrgSlugauthenticatedAdminBoardsIndexRoute
@@ -1566,6 +1607,8 @@ const OrgSlugauthenticatedAdminRouteRouteChildren: OrgSlugauthenticatedAdminRout
       OrgSlugauthenticatedAdminBoardsNewRoute,
     OrgSlugauthenticatedAdminCalendarNewRoute:
       OrgSlugauthenticatedAdminCalendarNewRoute,
+    OrgSlugauthenticatedAdminLessonsCreateRoute:
+      OrgSlugauthenticatedAdminLessonsCreateRoute,
     OrgSlugauthenticatedAdminLessonsNewRoute:
       OrgSlugauthenticatedAdminLessonsNewRoute,
     OrgSlugauthenticatedAdminServicesNewRoute:
@@ -1628,6 +1671,7 @@ interface OrgSlugauthenticatedPortalRouteRouteChildren {
   OrgSlugauthenticatedPortalFeedRoute: typeof OrgSlugauthenticatedPortalFeedRoute
   OrgSlugauthenticatedPortalIndexRoute: typeof OrgSlugauthenticatedPortalIndexRoute
   OrgSlugauthenticatedPortalLessonsCreateRoute: typeof OrgSlugauthenticatedPortalLessonsCreateRoute
+  OrgSlugauthenticatedPortalLessonsNewRoute: typeof OrgSlugauthenticatedPortalLessonsNewRoute
   OrgSlugauthenticatedPortalCalendarIndexRoute: typeof OrgSlugauthenticatedPortalCalendarIndexRoute
 }
 
@@ -1639,6 +1683,8 @@ const OrgSlugauthenticatedPortalRouteRouteChildren: OrgSlugauthenticatedPortalRo
     OrgSlugauthenticatedPortalIndexRoute: OrgSlugauthenticatedPortalIndexRoute,
     OrgSlugauthenticatedPortalLessonsCreateRoute:
       OrgSlugauthenticatedPortalLessonsCreateRoute,
+    OrgSlugauthenticatedPortalLessonsNewRoute:
+      OrgSlugauthenticatedPortalLessonsNewRoute,
     OrgSlugauthenticatedPortalCalendarIndexRoute:
       OrgSlugauthenticatedPortalCalendarIndexRoute,
   }

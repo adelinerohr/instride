@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
+import * as React from "react";
 
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -19,15 +20,26 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/settings/")({
 });
 
 function RouteComponent() {
+  const { slug } = Route.useParams();
   const { organization, user, isAdmin, isTrainer } = Route.useRouteContext();
   const isMobile = useIsMobile();
+  const navigate = Route.useNavigate();
+
+  React.useLayoutEffect(() => {
+    if (!isMobile) {
+      void navigate({
+        to: "/org/$slug/settings/account/profile",
+        params: { slug },
+        replace: true,
+      });
+    }
+  }, [isMobile, navigate, slug]);
 
   if (!isMobile) {
-    throw Route.redirect({ to: "/org/$slug/settings/account/profile" });
+    return null;
   }
 
   const sections = getSettingsNavItems(organization.slug, isAdmin, isTrainer);
-  console.log(sections);
 
   return (
     <div className="px-4 pb-20 space-y-4 pt-4">

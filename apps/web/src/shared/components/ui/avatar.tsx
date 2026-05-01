@@ -21,6 +21,8 @@ const avatarVariants = cva(
         lg: "size-10 *:data-[slot=avatar-fallback]:text-base",
         xl: "size-16 *:data-[slot=avatar-fallback]:text-3xl",
         "2xl": "size-24 *:data-[slot=avatar-fallback]:text-5xl",
+        responsive:
+          "h-full w-auto aspect-square [container-type:inline-size] *:data-[slot=avatar-fallback]:text-[clamp(0.75rem,40cqi,2.5rem)]",
       },
     },
     defaultVariants: {

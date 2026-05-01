@@ -24,7 +24,7 @@ import {
   buildLessonDefaultValues,
   lessonFormOpts,
 } from "@/features/lessons/lib/new-lesson.form";
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
@@ -76,6 +76,7 @@ export function LessonModal() {
 }
 
 export function LessonModalForm(initialValues: LessonModalPayload) {
+  const confirmationModal = ConfirmationModal.useModal();
   const createLessonSeries = useCreateLessonSeries();
   const updateLessonSeries = useUpdateLessonSeries();
   const updateLessonInstance = useUpdateLessonInstance();
@@ -214,7 +215,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
     if (!initialValues.lesson) return;
     const lesson = initialValues.lesson;
 
-    confirmationModalHandler.openWithPayload({
+    confirmationModal.open({
       title: "Cancel Lesson?",
       description:
         "Are you sure you want to cancel this lesson? This action cannot be undone. All enrolled riders will be removed.",
@@ -244,7 +245,7 @@ export function LessonModalForm(initialValues: LessonModalPayload) {
     if (!initialValues.lesson) return;
     const lesson = initialValues.lesson;
 
-    confirmationModalHandler.openWithPayload({
+    confirmationModal.open({
       title: "Cancel Lesson Series?",
       description:
         "Are you sure you want to cancel this lesson series? This action cannot be undone. All lessons in the series will be cancelled.",

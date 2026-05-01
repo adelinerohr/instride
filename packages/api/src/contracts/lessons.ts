@@ -152,6 +152,7 @@ export interface CreateLessonSeriesRequest {
   recurrenceByDay?: DayOfWeek[] | null;
   recurrenceEnd?: string | null;
   riderIds?: string[];
+  createdByMemberId?: string;
   overrideAvailability?: boolean;
 }
 
@@ -288,6 +289,7 @@ export interface UpdateLessonSeriesResponse {
 
 export interface CancelLessonInstanceRequest {
   instanceId: string;
+  canceledByMemberId?: string;
   reason?: string;
 }
 

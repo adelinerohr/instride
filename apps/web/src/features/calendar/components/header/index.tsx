@@ -1,4 +1,5 @@
-import { KioskScope } from "@instride/shared";
+import { hasOnlyRole } from "@instride/api";
+import { KioskScope, MembershipRole } from "@instride/shared";
 import { Link, useParams, useRouteContext } from "@tanstack/react-router";
 import {
   CalendarPlusIcon,
@@ -7,8 +8,9 @@ import {
   PlusIcon,
 } from "lucide-react";
 
+import { EventModal } from "@/features/organization/components/availability/events/modal";
+import { CreateTimeBlockModal } from "@/features/organization/components/availability/time-blocks/modal";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -18,17 +20,24 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 
 import { useCalendar } from "../../hooks/use-calendar";
-import { eventModalHandler } from "../modals/event-modal";
-import { timeBlockModalHandler } from "../modals/time-block-form";
 import { DateNavigator } from "./date-navigator";
 import { CalendarFilters } from "./filters";
 import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
   const { slug } = useParams({ strict: false });
-  const { kioskSession, kioskPermissions } = useRouteContext({ strict: false });
-  const { selectedTrainerIds, selectedBoardId, createLesson, type } =
-    useCalendar();
+  const createTimeBlockModal = CreateTimeBlockModal.useModal();
+  const eventModal = EventModal.useModal();
+  const { kioskSession, kioskPermissions, member } = useRouteContext({
+    strict: false,
+  });
+  const { type } = useCalendar();
+
+  if (!member) {
+    throw new Error("Member not found");
+  }
+
+  const isOnlyTrainer = hasOnlyRole(member, MembershipRole.TRAINER);
 
   const getVisibility = () => {
     if (type === "admin") {
@@ -69,36 +78,27 @@ export function CalendarHeader() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-fit">
                 <DropdownMenuGroup>
-                  <DialogTrigger
-                    handle={eventModalHandler}
-                    nativeButton={false}
-                    render={<DropdownMenuItem />}
-                  >
+                  <DropdownMenuItem onClick={() => eventModal.open({})}>
                     <PartyPopperIcon />
                     <span>Add new event</span>
-                  </DialogTrigger>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      createLesson({
-                        boardId: selectedBoardId ?? "",
-                        trainerId: selectedTrainerIds[0] ?? "",
-                      })
-                    }
-                  >
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
                     <CalendarPlusIcon />
                     <span>Add new lesson</span>
                   </DropdownMenuItem>
-                  <DialogTrigger
-                    handle={timeBlockModalHandler}
-                    nativeButton={false}
-                    payload={{
-                      defaultTrainerId: selectedTrainerIds[0] ?? undefined,
-                    }}
-                    render={<DropdownMenuItem />}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      createTimeBlockModal.open({
+                        isOnlyTrainer,
+                        trainerId: isOnlyTrainer
+                          ? member.trainer?.id
+                          : undefined,
+                      })
+                    }
                   >
                     <ClockIcon />
                     <span>Add new time block</span>
-                  </DialogTrigger>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

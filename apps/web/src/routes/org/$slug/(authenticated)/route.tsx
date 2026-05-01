@@ -1,7 +1,10 @@
 import { authOptions, type AuthUser } from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { ImpersonationBanner } from "@/shared/components/auth/impersonation-banner";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
+import { ModalScope } from "@/shared/lib/stores/modal.store";
 
 /**
  * Path: /org/[slug]/(authenticated)
@@ -27,11 +30,13 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
       });
     }
 
-    if (!context.member) {
+    const member = context.member;
+
+    if (!member) {
       throw Route.redirect({ to: "/org/$slug/onboarding", params });
     }
 
-    if (!context.member.onboardingComplete) {
+    if (!member.onboardingComplete) {
       throw Route.redirect({ to: "/org/$slug/onboarding", params });
     }
 
@@ -55,7 +60,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
     return {
       user,
       session: session.session,
-      member: context.member, // narrowed to Member (non-null)
+      member, // narrowed to Member (non-null)
       isPortal,
     };
   },
@@ -63,9 +68,9 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
 
 function RouteComponent() {
   return (
-    <>
+    <ModalScope modals={[ViewLessonSheet, ConfirmationModal]}>
       <ImpersonationBanner />
       <Outlet />
-    </>
+    </ModalScope>
   );
 }

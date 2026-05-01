@@ -11,7 +11,7 @@ import { Button } from "@/shared/components/ui/button";
 import { DialogTrigger } from "@/shared/components/ui/dialog";
 
 import { useKiosk } from "../hooks/use-kiosk";
-import { actAsModalHandler } from "./act-as-modal";
+import { actAsModalHandler } from "./modals/act-as-modal";
 
 export function ActingBanner() {
   const { acting, stopActing } = useKiosk();

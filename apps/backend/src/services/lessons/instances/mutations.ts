@@ -1,4 +1,5 @@
 import type {
+  CancelLessonInstanceRequest,
   CreateLessonInstanceRequest,
   GetLessonInstanceResponse,
   UpdateLessonInstanceRequest,
@@ -98,11 +99,6 @@ export const updateLessonInstance = api(
   }
 );
 
-interface CancelLessonInstanceRequest {
-  instanceId: string;
-  reason?: string;
-}
-
 export const cancelLessonInstance = api(
   {
     expose: true,
@@ -117,7 +113,7 @@ export const cancelLessonInstance = api(
     const { member } = await organizations.getMember();
 
     await lessonInstanceRepo.cancel(request.instanceId, organizationId, {
-      canceledByMemberId: member.id,
+      canceledByMemberId: request.canceledByMemberId ?? member.id,
       reason: request.reason ?? null,
     });
 

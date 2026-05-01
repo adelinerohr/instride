@@ -8,9 +8,10 @@ import { categoryColorClasses } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
 import type { LessonCardVariantProps } from ".";
-import { viewLessonModalHandler } from "../../modals/view-lesson";
+import { ViewLessonSheet } from "../../modals/view/sheet";
 
 export function LessonCardDateChip({ data }: LessonCardVariantProps) {
+  const viewLessonSheet = ViewLessonSheet.useModal();
   const {
     lesson,
     startTime,
@@ -56,7 +57,7 @@ export function LessonCardDateChip({ data }: LessonCardVariantProps) {
         <Button
           variant="ghost"
           size={riderUser ? "sm" : "icon-sm"}
-          onClick={() => viewLessonModalHandler.openWithPayload({ lesson })}
+          onClick={() => viewLessonSheet.open({ lesson })}
         >
           {riderUser && "Details"}
           <ChevronRightIcon />

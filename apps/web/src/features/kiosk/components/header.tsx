@@ -11,7 +11,7 @@ import { DialogTrigger } from "@/shared/components/ui/dialog";
 
 import { useKiosk } from "../hooks/use-kiosk";
 import { useExpiryCountdown } from "../hooks/use-kiosk-expiry";
-import { actAsModalHandler } from "./act-as-modal";
+import { actAsModalHandler } from "./modals/act-as-modal";
 
 export function KioskHeader() {
   const { organization, kioskSession } = useRouteContext({

@@ -1,4 +1,4 @@
-import { getUser, type types } from "@instride/api";
+import { getUser, type Trainer } from "@instride/api";
 import * as React from "react";
 
 import {
@@ -32,7 +32,7 @@ import {
 } from "../../ui/combobox";
 
 interface BaseProps {
-  trainers: types.Trainer[];
+  trainers: Trainer[];
   placeholder?: string;
   className?: string;
   hideLabel?: boolean;
@@ -62,7 +62,7 @@ type Props =
   | SingleSelectFieldProps
   | MultiSelectFieldProps;
 
-const renderValue = (trainer: types.Trainer) => {
+const renderValue = (trainer: Trainer) => {
   const trainerUser = getUser({ trainer });
   return <UserAvatarItem user={trainerUser} />;
 };
@@ -112,7 +112,7 @@ function SingleSelectField({
         <SelectTrigger className="h-auto!">
           <SelectValue placeholder={placeholder ?? "Select a trainer"}>
             {currentItem
-              ? (value: types.Trainer | null) =>
+              ? (value: Trainer | null) =>
                   value != null ? renderValue(value) : null
               : undefined}
           </SelectValue>
@@ -153,7 +153,7 @@ function MultiSelectField({
       <Combobox
         value={currentItems}
         onValueChange={(value) => {
-          field.handleChange((value as types.Trainer[]).map((v) => v.id));
+          field.handleChange((value as Trainer[]).map((v) => v.id));
         }}
         multiple
         autoHighlight
@@ -163,7 +163,7 @@ function MultiSelectField({
           <ComboboxValue>
             {(values) => (
               <React.Fragment>
-                {values.map((value: types.Trainer) => (
+                {values.map((value: Trainer) => (
                   <ComboboxChip key={value.id}>
                     {getUser({ trainer: value }).name}
                   </ComboboxChip>
@@ -181,7 +181,7 @@ function MultiSelectField({
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty>No trainers found</ComboboxEmpty>
           <ComboboxList>
-            {(trainer: types.Trainer) => (
+            {(trainer: Trainer) => (
               <ComboboxItem key={trainer.id} value={trainer}>
                 {renderValue(trainer)}
               </ComboboxItem>
@@ -231,7 +231,7 @@ function ClearableSingleSelectField({
         >
           <SelectValue placeholder={placeholder ?? "Select a trainer"}>
             {currentItem
-              ? (trainer: types.Trainer) => renderValue(trainer)
+              ? (trainer: Trainer) => renderValue(trainer)
               : undefined}
           </SelectValue>
         </SelectTrigger>

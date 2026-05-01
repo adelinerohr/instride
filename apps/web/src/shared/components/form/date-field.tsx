@@ -18,10 +18,11 @@ interface DateFieldProps extends Omit<
   React.ComponentProps<typeof Calendar>,
   "mode" | "selected" | "onSelect"
 > {
-  label: string;
+  label?: string;
   valueFormat?: string;
   placeholder?: string;
   className?: string;
+  fieldClassName?: string;
   icon?: LucideIcon;
 }
 
@@ -31,14 +32,15 @@ export function DateField({
   placeholder = "Select date",
   className,
   icon: Icon,
+  fieldClassName,
   ...props
 }: DateFieldProps) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
-    <Field data-invalid={isInvalid}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+    <Field data-invalid={isInvalid} className={fieldClassName}>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Popover>
         <PopoverTrigger
           render={

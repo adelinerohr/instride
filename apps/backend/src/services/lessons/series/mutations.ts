@@ -83,7 +83,7 @@ export const createLessonSeries = api(
         recurrenceEnd: request.recurrenceEnd
           ? new Date(request.recurrenceEnd)
           : null,
-        createdByMemberId: member.id,
+        createdByMemberId: request.createdByMemberId ?? member.id,
       });
 
       if (request.riderIds && request.riderIds.length > 0) {
@@ -106,7 +106,7 @@ export const createLessonSeries = api(
     const generation = await generateInstancesForSeries({
       seriesId,
       until: addWeeks(new Date(), getWindowWeeks()),
-      createdByMemberId: member.id,
+      createdByMemberId: request.createdByMemberId ?? member.id,
     });
 
     const series = await lessonSeriesService.findOneFull(

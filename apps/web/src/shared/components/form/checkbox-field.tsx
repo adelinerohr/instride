@@ -46,7 +46,7 @@ export function CheckboxField({
       <FieldContent>
         <FieldLabel
           htmlFor={field.name}
-          className={cn(!description ? "font-normal" : "", labelClassName)}
+          className={cn(!description && "font-normal", labelClassName)}
         >
           {label}
         </FieldLabel>

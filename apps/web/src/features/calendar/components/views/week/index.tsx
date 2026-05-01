@@ -13,24 +13,27 @@ import * as React from "react";
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { useRangeSwipe } from "@/features/calendar/hooks/use-range-swipe";
 import { HOURS, START_HOUR } from "@/features/calendar/lib/constants";
-import {
-  getLessonBlockStyle,
-  groupLessons,
-} from "@/features/calendar/utils/lesson";
+import { getBlockStyle, groupEvents } from "@/features/calendar/utils/lesson";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { cn } from "@/shared/lib/utils";
 
 import { HourCell } from "../fragments/hour-cell";
 import { LessonBlock } from "../fragments/lesson-block";
 import { MultiDayRow } from "../fragments/multi-day-row";
+import { TimeBlock } from "../fragments/time-block";
 import { CalendarTimeline } from "../fragments/timeline";
 
 export function WeekView() {
   const { swipeHandlers, swipeClassName, wheelTargetRef } = useRangeSwipe({
     enabled: true,
   });
-  const { selectedDate, organizationBusinessHours, lessons, slotHeight } =
-    useCalendar();
+  const {
+    selectedDate,
+    organizationBusinessHours,
+    lessons,
+    timeBlocks,
+    slotHeight,
+  } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -88,12 +91,8 @@ export function WeekView() {
         </div>
       </div>
 
-      <div
-        className={cn("flex-1 min-h-0", swipeClassName)}
-        onPointerDownCapture={(e) => console.log("down", e.pointerType)}
-        {...swipeHandlers}
-      >
-        <ScrollArea className="flex-1 min-h-0" ref={setViewportRef}>
+      <div className={cn("flex-1 min-h-0", swipeClassName)} {...swipeHandlers}>
+        <ScrollArea className="flex-1 min-h-0 h-full" ref={setViewportRef}>
           <div className="flex overflow-hidden">
             {/* Hours column */}
             <div className="relative w-18 shrink-0">
@@ -121,7 +120,10 @@ export function WeekView() {
                   const dayLessons = lessons.filter((lesson) =>
                     isSameDay(new Date(lesson.start), day)
                   );
-                  const groupedLessons = groupLessons(dayLessons);
+                  const dayTimeBlocks = timeBlocks.filter((timeBlock) =>
+                    isSameDay(new Date(timeBlock.start), day)
+                  );
+                  const groupedEvents = groupEvents(dayLessons, dayTimeBlocks);
 
                   return (
                     <div key={dayIndex} className="relative">
@@ -143,28 +145,29 @@ export function WeekView() {
                         );
                       })}
 
-                      {groupedLessons.map((group, groupIndex) =>
-                        group.map((lesson) => {
-                          let style = getLessonBlockStyle(
-                            lesson,
+                      {groupedEvents.map((group, groupIndex) =>
+                        group.map((event) => {
+                          let style = getBlockStyle({
+                            start: event.start,
+                            end: event.end,
                             day,
                             groupIndex,
-                            groupedLessons.length,
-                            slotHeight
-                          );
+                            groupSize: groupedEvents.length,
+                            slotHeight,
+                          });
 
-                          const hasOverlap = groupedLessons.some(
+                          const hasOverlap = groupedEvents.some(
                             (otherGroup, otherIndex) =>
                               otherIndex !== groupIndex &&
-                              otherGroup.some((otherLesson) =>
+                              otherGroup.some((otherEvent) =>
                                 areIntervalsOverlapping(
                                   {
-                                    start: parseISO(lesson.start),
-                                    end: parseISO(lesson.end),
+                                    start: parseISO(event.start),
+                                    end: parseISO(event.end),
                                   },
                                   {
-                                    start: parseISO(otherLesson.start),
-                                    end: parseISO(otherLesson.end),
+                                    start: parseISO(otherEvent.start),
+                                    end: parseISO(otherEvent.end),
                                   }
                                 )
                               )
@@ -173,13 +176,25 @@ export function WeekView() {
                           if (!hasOverlap)
                             style = { ...style, width: "100%", left: "0%" };
 
+                          if ("reason" in event) {
+                            return (
+                              <div
+                                key={event.id}
+                                className="absolute p-1"
+                                style={style}
+                              >
+                                <TimeBlock timeBlock={event} />
+                              </div>
+                            );
+                          }
+
                           return (
                             <div
-                              key={lesson.id}
+                              key={event.id}
                               className="absolute p-1"
                               style={style}
                             >
-                              <LessonBlock lesson={lesson} />
+                              <LessonBlock lesson={event} />
                             </div>
                           );
                         })

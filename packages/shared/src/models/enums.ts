@@ -307,10 +307,11 @@ export type KioskScope = (typeof KioskScope)[keyof typeof KioskScope];
 /**
  * Kiosk actions
  */
-export const KioskAction = {
+export const KioskActions = {
   LESSON_CHECK_IN: "lesson_check_in",
   LESSON_CREATE: "lesson_create",
   LESSON_EDIT: "lesson_edit",
+  LESSON_CANCEL: "lesson_cancel",
   TIME_BLOCK_CREATE: "time_block_create",
   TIME_BLOCK_EDIT: "time_block_edit",
   ENROLL: "enroll",
@@ -318,7 +319,7 @@ export const KioskAction = {
   MARK_ATTENDANCE: "mark_attendance",
 } as const;
 
-export type KioskAction = (typeof KioskAction)[keyof typeof KioskAction];
+export type KioskAction = (typeof KioskActions)[keyof typeof KioskActions];
 
 /**
  * Conversation types

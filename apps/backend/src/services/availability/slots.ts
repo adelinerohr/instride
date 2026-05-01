@@ -1,50 +1,230 @@
-import { DayOfWeek, getDOWInTimeZone, timeToMinutes } from "@instride/shared";
+import {
+  AvailableSlotsRequest,
+  AvailableSlotsResponse,
+} from "@instride/api/contracts";
+import { JS_WEEKDAY_TO_DAY_OF_WEEK, timeToMinutes } from "@instride/shared";
 import { LessonInstanceStatus } from "@instride/shared/models/enums";
-import { isSameDay } from "date-fns";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
-import { api } from "encore.dev/api";
-import { APIError } from "encore.dev/api";
+import { addMinutes, eachDayOfInterval, parseISO } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
+import { api, APIError } from "encore.dev/api";
 import { availability, boards, lessons, organizations } from "~encore/clients";
 
 import { requireOrganizationAuth } from "@/shared/auth";
 
+import { memberRepo } from "../organizations/members/member.repo";
 import { resolveEffectiveBusinessHours } from "./business-hours/utils";
 
-interface AvailableSlotsParams {
-  boardId: string;
-  trainerId: string;
+interface Window {
+  start: number; // minutes from local midnight
+  end: number;
+}
+
+interface Interval {
+  start: Date;
+  end: Date;
+}
+
+const SLOT_STEP_MINUTES = 30;
+
+export const getAvailableSlots = api(
+  {
+    expose: true,
+    method: "GET",
+    path: "/lessons/available-slots",
+    auth: true,
+  },
+  async (request: AvailableSlotsRequest): Promise<AvailableSlotsResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    assertValidDateRange(request.startDate, request.endDate);
+
+    const ctx = await loadAvailabilityContext({ ...request, organizationId });
+    if (!ctx) return { slots: [] };
+
+    const slots = ctx.days.flatMap((day) =>
+      generateSlotsForDay({
+        ymd: day.ymd,
+        dayOfWeek: day.dayOfWeek,
+        bookableWindows: day.bookableWindows,
+        service: ctx.service,
+        timezone: ctx.timezone,
+        now: ctx.now,
+        busyIntervals: ctx.busyIntervals,
+      })
+    );
+
+    return {
+      slots: slots.map((slot) => ({
+        ...slot,
+        service: {
+          id: ctx.service.id,
+          name: ctx.service.name,
+          duration: ctx.service.duration,
+          price: ctx.service.price,
+        },
+      })),
+    };
+  }
+);
+
+// ----------------------------------------------------------------------------
+// Stage 1: load and validate everything we need to compute slots.
+// Returns null when no slots are possible (level mismatch, can't self-add, etc.)
+// so the caller can short-circuit to an empty response.
+// ----------------------------------------------------------------------------
+
+async function loadAvailabilityContext(input: {
+  organizationId: string;
   serviceId: string;
   riderId: string;
-  startDate: string; // ISO date string
-  endDate: string; // ISO date string
+  trainerId: string;
+  boardId: string;
+  startDate: string;
+  endDate: string;
+}) {
+  const { service } = await boards.getService({ id: input.serviceId });
+  if (!service || service.organizationId !== input.organizationId) {
+    throw APIError.notFound("Service not found");
+  }
+  if (!service.canRiderAdd) return null;
+
+  const rider = await memberRepo.findOneRider(
+    input.riderId,
+    input.organizationId
+  );
+  if (
+    service.restrictedToLevelId &&
+    rider.ridingLevelId &&
+    service.restrictedToLevelId !== rider.ridingLevelId
+  ) {
+    return null;
+  }
+
+  const trainer = await memberRepo.findOneTrainer(
+    input.trainerId,
+    input.organizationId
+  );
+
+  const { organization } = await organizations.getById({
+    id: input.organizationId,
+  });
+  const timezone = organization.timezone;
+
+  const [orgBusinessHours, trainerBusinessHours, lessonInstances, timeBlocks] =
+    await Promise.all([
+      availability.listOrganizationBusinessHours(),
+      availability.listTrainerBusinessHours({ trainerId: input.trainerId }),
+      lessons
+        .listLessonInstances({
+          from: input.startDate,
+          to: input.endDate,
+          boardId: input.boardId,
+          trainerId: input.trainerId,
+        })
+        .then((r) => r.instances),
+      availability
+        .listTimeBlocks({ trainerId: input.trainerId })
+        .then((r) => r.timeBlocks),
+    ]);
+
+  const effectiveOrgHours = resolveEffectiveBusinessHours(
+    orgBusinessHours,
+    input.boardId
+  );
+  const effectiveTrainerHours = resolveEffectiveBusinessHours(
+    trainerBusinessHours,
+    input.boardId
+  );
+
+  const now = new Date();
+  const todayYmd = formatInTimeZone(now, timezone, "yyyy-MM-dd");
+
+  // Pre-compute the per-day shape: bookable windows after intersecting
+  // org hours with trainer hours. Days where either is closed are dropped.
+  const days = eachDayOfInterval({
+    start: parseISO(input.startDate),
+    end: parseISO(input.endDate),
+  })
+    .map((date) => {
+      const ymd = formatInTimeZone(date, timezone, "yyyy-MM-dd");
+      const jsWeekday = Number(formatInTimeZone(date, timezone, "i")) % 7;
+      const dayOfWeek = JS_WEEKDAY_TO_DAY_OF_WEEK[jsWeekday];
+
+      const isToday = ymd === todayYmd;
+      if (isToday && !trainer.allowSameDayBookings) return null;
+
+      const orgDay = effectiveOrgHours[dayOfWeek];
+      const trainerDay = effectiveTrainerHours[dayOfWeek];
+      if (!orgDay?.isOpen || !trainerDay?.isOpen) return null;
+
+      const bookableWindows = intersectWindows(
+        orgDay.slots.map(toMinuteWindow),
+        trainerDay.slots.map(toMinuteWindow)
+      );
+      if (bookableWindows.length === 0) return null;
+
+      return { ymd, dayOfWeek, bookableWindows };
+    })
+    .filter((d): d is NonNullable<typeof d> => d !== null);
+
+  // Pre-compute busy intervals as Date pairs once. Saves re-parsing per slot.
+  const busyIntervals: Interval[] = [
+    ...lessonInstances
+      .filter((i) => i.status === LessonInstanceStatus.SCHEDULED)
+      .map((i) => ({ start: new Date(i.start), end: new Date(i.end) })),
+    ...timeBlocks.map((b) => ({
+      start: new Date(b.start),
+      end: new Date(b.end),
+    })),
+  ];
+
+  return { service, timezone, now, days, busyIntervals };
 }
 
-interface AvailableSlot {
-  start: string;
-  end: string;
+// ----------------------------------------------------------------------------
+// Stage 2: walk a single day's bookable windows in 30-min steps,
+// emit slots that fit the service duration and don't conflict.
+// ----------------------------------------------------------------------------
+
+function generateSlotsForDay(input: {
+  ymd: string;
   dayOfWeek: string;
-  service: {
-    id: string;
-    name: string;
-    duration: number;
-    price: number;
-  };
+  bookableWindows: Window[];
+  service: { duration: number };
+  timezone: string;
+  now: Date;
+  busyIntervals: Interval[];
+}) {
+  const slots: Array<{ start: string; end: string; dayOfWeek: string }> = [];
+
+  for (const window of input.bookableWindows) {
+    for (
+      let minute = roundUpToStep(window.start);
+      minute + input.service.duration <= window.end;
+      minute += SLOT_STEP_MINUTES
+    ) {
+      const start = fromZonedTime(
+        `${input.ymd}T${minutesToHHMM(minute)}:00`,
+        input.timezone
+      );
+      const end = addMinutes(start, input.service.duration);
+
+      if (start <= input.now) continue;
+      if (overlapsAny({ start, end }, input.busyIntervals)) continue;
+
+      slots.push({
+        start: start.toISOString(),
+        end: end.toISOString(),
+        dayOfWeek: input.dayOfWeek,
+      });
+    }
+  }
+
+  return slots;
 }
 
-interface AvailableSlotResponse {
-  slots: AvailableSlot[];
-}
-
-/** JavaScript weekday from `getDOWInTimeZone` (Sun=0 … Sat=6) → app `DayOfWeek` */
-const JS_WEEKDAY_TO_DAY_OF_WEEK: DayOfWeek[] = [
-  DayOfWeek.SUN,
-  DayOfWeek.MON,
-  DayOfWeek.TUE,
-  DayOfWeek.WED,
-  DayOfWeek.THU,
-  DayOfWeek.FRI,
-  DayOfWeek.SAT,
-];
+// ----------------------------------------------------------------------------
+// Helpers
+// ----------------------------------------------------------------------------
 
 function assertValidDateRange(startDate: string, endDate: string) {
   if (
@@ -53,7 +233,6 @@ function assertValidDateRange(startDate: string, endDate: string) {
   ) {
     throw APIError.invalidArgument("startDate and endDate must be YYYY-MM-DD");
   }
-
   if (startDate > endDate) {
     throw APIError.invalidArgument(
       "startDate must be before or equal to endDate"
@@ -61,15 +240,8 @@ function assertValidDateRange(startDate: string, endDate: string) {
   }
 }
 
-/**
- * Intersect two lists of open windows (expressed in minutes-since-midnight)
- * and return the resulting list of windows where BOTH are open.
- */
-function intersectWindows(
-  a: Array<{ start: number; end: number }>,
-  b: Array<{ start: number; end: number }>
-): Array<{ start: number; end: number }> {
-  const result: Array<{ start: number; end: number }> = [];
+function intersectWindows(a: Window[], b: Window[]): Window[] {
+  const result: Window[] = [];
   for (const aw of a) {
     for (const bw of b) {
       const start = Math.max(aw.start, bw.start);
@@ -80,236 +252,25 @@ function intersectWindows(
   return result;
 }
 
-/**
- * Get available time slots for booking a lesson
- *
- * Generates time slots based on:
- * - Organization business hours (multi-slot per day supported)
- * - Trainer business hours (multi-slot per day supported)
- * - Service duration
- * - Date range
- *
- * Filters out:
- * - Times that conflict with existing lessons
- * - Trainer time blocks (unavailability)
- * - Past time slots
- * - Slots restricted by rider level
- */
-export const getAvailableSlots = api(
-  {
-    expose: true,
-    method: "GET",
-    path: "/lessons/available-slots",
-    auth: true,
-  },
-  async (params: AvailableSlotsParams): Promise<AvailableSlotResponse> => {
-    const { organizationId } = requireOrganizationAuth();
+function toMinuteWindow(slot: { openTime: string; closeTime: string }): Window {
+  return {
+    start: timeToMinutes(slot.openTime),
+    end: timeToMinutes(slot.closeTime),
+  };
+}
 
-    assertValidDateRange(params.startDate, params.endDate);
+function overlapsAny(slot: Interval, busy: Interval[]): boolean {
+  return busy.some((b) => slot.start < b.end && slot.end > b.start);
+}
 
-    // Get the service
-    const { service } = await boards.getService({ id: params.serviceId });
-    if (!service || service.organizationId !== organizationId) {
-      throw APIError.notFound("Service not found");
-    }
+function roundUpToStep(minute: number): number {
+  return Math.ceil(minute / SLOT_STEP_MINUTES) * SLOT_STEP_MINUTES;
+}
 
-    // Check if service allows rider to add lessons
-    if (!service.canRiderAdd) {
-      return { slots: [] };
-    }
-
-    // Get rider's member profile to check level restrictions
-    const { rider } = await organizations.getRider({ riderId: params.riderId });
-
-    // Check if rider meets level requirements
-    if (service.restrictedToLevelId && rider.ridingLevelId) {
-      if (service.restrictedToLevelId !== rider.ridingLevelId) {
-        return { slots: [] };
-      }
-    }
-
-    // Get trainer's member profile to check same-day booking setting
-    const { trainer } = await organizations.getTrainer({
-      trainerId: params.trainerId,
-    });
-
-    const allowSameDayBookings = trainer.allowSameDayBookings;
-
-    // Get organization for timezone
-    const { organization } = await organizations.getById({
-      id: organizationId,
-    });
-
-    const timezone = organization.timezone;
-
-    // Get business hours for organization and trainer
-    const orgBusinessHours = await availability.listOrganizationBusinessHours();
-    const effectiveOrgBusinessHours = resolveEffectiveBusinessHours(
-      orgBusinessHours,
-      params.boardId
-    );
-    const trainerBusinessHours = await availability.listTrainerBusinessHours({
-      trainerId: params.trainerId,
-    });
-    const effectiveTrainerBusinessHours = resolveEffectiveBusinessHours(
-      trainerBusinessHours,
-      params.boardId
-    );
-
-    // Get all existing lessons for this trainer on this board in the date range
-    const { instances: lessonInstances } = await lessons.listLessonInstances({
-      from: params.startDate,
-      to: params.endDate,
-      boardId: params.boardId,
-      trainerId: params.trainerId,
-    });
-    const existingLessons = lessonInstances.filter(
-      (instance) => instance.status === LessonInstanceStatus.SCHEDULED
-    );
-
-    // Get trainer's time blocks (unavailability)
-    const { timeBlocks } = await availability.listTimeBlocks({
-      trainerId: params.trainerId,
-    });
-
-    // Generate available time slots
-    const slots: Array<{
-      start: string;
-      end: string;
-      dayOfWeek: string;
-    }> = [];
-
-    // Get current time to filter out past slots
-    const now = new Date();
-
-    // Round current time up to nearest 30 minutes
-    const nowInTz = toZonedTime(now, timezone);
-    const currentMinutesInDay = nowInTz.getHours() * 60 + nowInTz.getMinutes();
-    const roundedUpMinutes = Math.ceil(currentMinutesInDay / 30) * 30;
-
-    // Iterate through each day in the range
-    const startDate = new Date(params.startDate);
-    const endDate = new Date(params.endDate);
-    const currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-      const localDate = toZonedTime(currentDate, timezone);
-      const jsWeekday = getDOWInTimeZone({
-        date: localDate,
-        timeZone: timezone,
-      });
-      const dayOfWeek = JS_WEEKDAY_TO_DAY_OF_WEEK[jsWeekday];
-
-      // Check if this is today
-      const isToday = isSameDay(localDate, nowInTz);
-
-      if (isToday && !allowSameDayBookings) {
-        currentDate.setDate(currentDate.getDate() + 1);
-        continue;
-      }
-
-      // Get business hours for this day
-      const orgHoursForDay = effectiveOrgBusinessHours[dayOfWeek];
-      const trainerHoursForDay = effectiveTrainerBusinessHours[dayOfWeek];
-
-      // If either org or trainer doesn't work this day, skip
-      if (
-        !orgHoursForDay?.isOpen ||
-        !trainerHoursForDay?.isOpen ||
-        orgHoursForDay.slots.length === 0 ||
-        trainerHoursForDay.slots.length === 0
-      ) {
-        currentDate.setDate(currentDate.getDate() + 1);
-        continue;
-      }
-
-      // Intersect org and trainer slots to get effective bookable windows
-      const orgWindows = orgHoursForDay.slots.map((s) => ({
-        start: timeToMinutes(s.openTime),
-        end: timeToMinutes(s.closeTime),
-      }));
-      const trainerWindows = trainerHoursForDay.slots.map((s) => ({
-        start: timeToMinutes(s.openTime),
-        end: timeToMinutes(s.closeTime),
-      }));
-      const bookableWindows = intersectWindows(orgWindows, trainerWindows);
-
-      for (const window of bookableWindows) {
-        // For today, start from rounded-up current time; otherwise from window start
-        let currentMinutes = isToday
-          ? Math.max(window.start, roundedUpMinutes)
-          : window.start;
-
-        // Round up to the nearest 30-minute interval
-        currentMinutes = Math.ceil(currentMinutes / 30) * 30;
-
-        while (currentMinutes + service.duration <= window.end) {
-          const localHours = Math.floor(currentMinutes / 60);
-          const localMinutes = currentMinutes % 60;
-
-          const slotDateInLocalTZ = new Date(localDate);
-          slotDateInLocalTZ.setHours(localHours, localMinutes, 0, 0);
-
-          // Convert from local timezone to UTC
-          const slotDateUTC = fromZonedTime(slotDateInLocalTZ, timezone);
-
-          const slotStartISO = slotDateUTC.toISOString();
-          const slotEndDate = new Date(
-            slotDateUTC.getTime() + service.duration * 60000
-          );
-          const slotEndISO = slotEndDate.toISOString();
-
-          // Skip slots that are in the past
-          if (slotDateUTC.getTime() <= now.getTime()) {
-            currentMinutes += 30;
-            continue;
-          }
-
-          // Check if this slot conflicts with existing lessons or time blocks
-          const hasConflict =
-            existingLessons.some((lesson) => {
-              const lessonStart = new Date(lesson.start).getTime();
-              const lessonEnd = new Date(lesson.end).getTime();
-              const slotStartTime = slotDateUTC.getTime();
-              const slotEndTime = slotEndDate.getTime();
-              return slotStartTime < lessonEnd && slotEndTime > lessonStart;
-            }) ||
-            timeBlocks.some((block) => {
-              const blockStart = new Date(block.start).getTime();
-              const blockEnd = new Date(block.end).getTime();
-              const slotStartTime = slotDateUTC.getTime();
-              const slotEndTime = slotEndDate.getTime();
-              return slotStartTime < blockEnd && slotEndTime > blockStart;
-            });
-
-          if (!hasConflict) {
-            slots.push({
-              start: slotStartISO,
-              end: slotEndISO,
-              dayOfWeek,
-            });
-          }
-
-          currentMinutes += 30;
-        }
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    // Return slots with service metadata
-    const result = slots.map((slot) => ({
-      start: slot.start,
-      end: slot.end,
-      dayOfWeek: slot.dayOfWeek,
-      service: {
-        id: service.id,
-        name: service.name,
-        duration: service.duration,
-        price: service.price,
-      },
-    }));
-
-    return { slots: result };
-  }
-);
+function minutesToHHMM(minute: number): string {
+  const h = Math.floor(minute / 60)
+    .toString()
+    .padStart(2, "0");
+  const m = (minute % 60).toString().padStart(2, "0");
+  return `${h}:${m}`;
+}

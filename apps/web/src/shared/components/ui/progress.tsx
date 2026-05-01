@@ -1,13 +1,19 @@
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 
+import {
+  categoryColorClasses,
+  type CategoryColor,
+} from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
 
 function Progress({
   className,
   children,
   value,
+  color,
   ...props
-}: ProgressPrimitive.Root.Props) {
+}: ProgressPrimitive.Root.Props & { color?: CategoryColor }) {
+  const colorClass = color ? categoryColorClasses(color) : undefined;
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -17,7 +23,7 @@ function Progress({
     >
       {children}
       <ProgressTrack>
-        <ProgressIndicator />
+        <ProgressIndicator className={colorClass?.primary} />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );

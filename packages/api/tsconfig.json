@@ -29,7 +29,9 @@
       "#contracts/*": ["./src/contracts/*.ts"],
       "#_internal": ["./src/_internal/index.ts"],
       "#_internal/*": ["./src/_internal/*.ts"],
-      "#modules/*": ["./src/modules/*.ts"]
+      "#modules/*": ["./src/modules/*.ts"],
+      "#utils": ["./src/utils/index.ts"],
+      "#utils/*": ["./src/utils/*.ts"]
     }
   },
   "include": ["src"],

@@ -1,4 +1,4 @@
-import { availability, availabilityOptions } from "@instride/api";
+import { availabilityOptions, type AvailableSlot } from "@instride/api";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -96,7 +96,7 @@ export const BookingCalendar = withForm({
             return null;
           }
 
-          const slotsByDay = new Map<string, availability.AvailableSlot[]>();
+          const slotsByDay = new Map<string, AvailableSlot[]>();
           if (availableSlots) {
             availableSlots.forEach((slot) => {
               const slotDate = parseISO(slot.start);

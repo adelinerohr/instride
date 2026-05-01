@@ -132,7 +132,6 @@ export function MultiDayView() {
 
         <div
           className={cn("flex-1 min-h-0", swipeClassName)}
-          onPointerDownCapture={(e) => console.log("down", e.pointerType)}
           {...swipeHandlers}
         >
           <ScrollArea className="h-full" ref={setViewportRef}>

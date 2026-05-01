@@ -5,7 +5,7 @@ import {
   useCreateKioskSession,
   useDeleteKioskSession,
   useUpdateKioskSession,
-  type types,
+  type KioskSession,
 } from "@instride/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -13,7 +13,7 @@ import { ComputerIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
 
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import {
   AnnotatedLayout,
   AnnotatedSection,
@@ -68,6 +68,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { data: sessions } = useSuspenseQuery(kioskOptions.sessions());
+  const confirmationModal = ConfirmationModal.useModal();
 
   const deleteSession = useDeleteKioskSession();
 
@@ -141,7 +142,7 @@ function RouteComponent() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => {
-                            confirmationModalHandler.openWithPayload({
+                            confirmationModal.open({
                               title: `Delete Kiosk: ${session.locationName}`,
                               description:
                                 "Are you sure you want to delete this session? This action cannot be undone.",
@@ -153,7 +154,7 @@ function RouteComponent() {
                                     toast.success(
                                       "Session deleted successfully"
                                     );
-                                    confirmationModalHandler.close();
+                                    confirmationModal.close();
                                   },
                                   onError: (error) => {
                                     toast.error(
@@ -184,7 +185,7 @@ function RouteComponent() {
 }
 
 interface KioskSessionDialogPayload {
-  session?: types.KioskSession;
+  session?: KioskSession;
 }
 export const kioskSessionHandler =
   DialogHandler.createHandle<KioskSessionDialogPayload | null>();
@@ -223,10 +224,8 @@ function KioskSessionForm({ session }: KioskSessionDialogPayload) {
         await updateSession.mutateAsync(
           {
             sessionId: session.id,
-            request: {
-              locationName: value.locationName,
-              boardId: value.boardId,
-            },
+            locationName: value.locationName,
+            boardId: value.boardId,
           },
           {
             onSuccess: () => {

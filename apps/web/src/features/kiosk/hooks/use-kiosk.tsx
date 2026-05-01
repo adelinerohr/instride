@@ -1,7 +1,9 @@
 import {
   useClearKioskIdentity,
   useKioskSession,
+  useMembers,
   useVerifyKioskIdentity,
+  type Member,
 } from "@instride/api";
 import { KioskScope } from "@instride/shared";
 import * as React from "react";
@@ -13,6 +15,8 @@ import { useKioskExpiry, useKioskIdleTimeout } from "./use-kiosk-expiry";
 interface KioskContextValue {
   sessionId: string;
   acting: KioskActingContext;
+  /** The member currently acting, or null if in DEFAULT scope. */
+  actingMember: Member | null;
   permissions: KioskPermissionSet;
   startActing: (input: { memberId: string; pin: string }) => Promise<void>;
   stopActing: () => Promise<void>;
@@ -33,6 +37,7 @@ interface KioskProviderProps {
 
 export function KioskProvider({ sessionId, children }: KioskProviderProps) {
   const { data: session } = useKioskSession(sessionId);
+  const { data: members } = useMembers();
 
   const acting: KioskActingContext = session?.acting ?? DEFAULT_ACTING;
 
@@ -47,12 +52,17 @@ export function KioskProvider({ sessionId, children }: KioskProviderProps) {
   useKioskIdleTimeout(
     acting.scope !== KioskScope.DEFAULT,
     clearIdentity,
-    3 * 60 * 1000 // 3 minutes
+    3 * 60 * 1000
   );
 
+  const actingMember = React.useMemo(() => {
+    if (!acting.actingMemberId || !members) return null;
+    return members.find((m) => m.id === acting.actingMemberId) ?? null;
+  }, [acting.actingMemberId, members]);
+
   const permissions = React.useMemo(
-    () => buildKioskPermissions(acting),
-    [acting]
+    () => buildKioskPermissions(acting, !!actingMember),
+    [acting, actingMember]
   );
 
   const startActing = React.useCallback(
@@ -70,11 +80,12 @@ export function KioskProvider({ sessionId, children }: KioskProviderProps) {
     () => ({
       sessionId,
       acting,
+      actingMember,
       permissions,
       startActing,
       stopActing,
     }),
-    [sessionId, acting, permissions, startActing, stopActing]
+    [sessionId, acting, actingMember, permissions, startActing, stopActing]
   );
 
   return (
@@ -88,4 +99,13 @@ export function useKiosk() {
     throw new Error("useKiosk must be used within a KioskProvider");
   }
   return context;
+}
+
+/**
+ * Variant of `useKiosk` that returns null instead of throwing when used
+ * outside a `KioskProvider`. For components that render in both kiosk and
+ * non-kiosk contexts (lesson view, calendar) and need to branch behavior.
+ */
+export function useKioskOptional(): KioskContextValue | null {
+  return React.useContext(KioskContext);
 }

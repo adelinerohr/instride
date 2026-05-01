@@ -1,4 +1,5 @@
-import { getLocalParts } from "@instride/shared/utils/date";
+import { addMinutes } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { APIError } from "encore.dev/api";
 
 import { AvailabilityWindow } from "./check-availability";
@@ -14,22 +15,15 @@ export function buildAvailabilityWindow(input: {
   if (Number.isNaN(startDate.getTime())) {
     throw APIError.invalidArgument("Invalid start date");
   }
-  const endDate = new Date(startDate.getTime() + input.duration * 60_000);
-
-  const startParts = getLocalParts({
-    date: startDate,
-    timeZone: input.timeZone,
-  });
-  const endParts = getLocalParts({ date: endDate, timeZone: input.timeZone });
-  const pad = (n: number) => n.toString().padStart(2, "0");
+  const endDate = addMinutes(startDate, input.duration);
 
   return {
     startDate,
     endDate,
     window: {
-      date: `${startParts.year}-${pad(startParts.month)}-${pad(startParts.day)}`,
-      startTime: `${pad(startParts.hour)}:${pad(startParts.minute)}`,
-      endTime: `${pad(endParts.hour)}:${pad(endParts.minute)}`,
+      date: formatInTimeZone(startDate, input.timeZone, "yyyy-MM-dd"),
+      startTime: formatInTimeZone(startDate, input.timeZone, "HH:mm"),
+      endTime: formatInTimeZone(endDate, input.timeZone, "HH:mm"),
       trainerId: input.trainerId,
       boardId: input.boardId,
     },

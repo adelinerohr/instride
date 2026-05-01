@@ -1,13 +1,17 @@
 import type {
   GetBoardResponse,
+  ListBoardsForRiderRequest,
+  ListBoardsForRiderResponse,
+  ListBoardsForTrainerRequest,
+  ListBoardsForTrainerResponse,
   ListBoardsRequest,
   ListBoardsResponse,
 } from "@instride/api/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";
-import { assertExists } from "@/shared/utils/validation";
 
+import { boardRepo } from "./board.repo";
 import { db } from "./db";
 import { boardExpansion } from "./fragments";
 import { toBoard } from "./mappers";
@@ -40,51 +44,53 @@ export const getBoard = api(
   async ({ boardId }: { boardId: string }): Promise<GetBoardResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    const row = await db.query.boards.findFirst({
-      where: { id: boardId, organizationId },
-      with: boardExpansion, // ← same expansion as listBoards now
-    });
+    const row = await boardRepo.findOne(boardId, organizationId);
 
-    assertExists(row, "Board not found");
     return { board: toBoard(row) };
   }
 );
 
-export const getBoardsForTrainer = api(
+export const listBoardsForRider = api(
+  {
+    method: "GET",
+    path: "/boards/rider/:riderId",
+    expose: true,
+    auth: true,
+  },
+  async (
+    request: ListBoardsForRiderRequest
+  ): Promise<ListBoardsForRiderResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    const boards = await boardRepo.findMany({
+      organizationId,
+      filter: {
+        type: "rider",
+        id: request.riderId,
+      },
+      canRiderAdd: request.canRiderAdd,
+    });
+    return { boards: boards.map(toBoard) };
+  }
+);
+
+export const listBoardsForTrainer = api(
   {
     method: "GET",
     path: "/boards/trainer/:trainerId",
     expose: true,
     auth: true,
   },
-  async ({ trainerId }: { trainerId: string }): Promise<ListBoardsResponse> => {
-    const { organizationId } = requireOrganizationAuth(); // ← added org scoping
-
-    const rows = await db.query.boards.findMany({
-      where: {
-        organizationId,
-        assignments: { trainerId },
+  async (
+    request: ListBoardsForTrainerRequest
+  ): Promise<ListBoardsForTrainerResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    const boards = await boardRepo.findMany({
+      organizationId,
+      filter: {
+        type: "trainer",
+        id: request.trainerId,
       },
-      with: boardExpansion, // ← load full expansion, matches contract
     });
-
-    return { boards: rows.map(toBoard) };
-  }
-);
-
-export const getBoardsForRider = api(
-  { method: "GET", path: "/boards/rider/:riderId", expose: true, auth: true },
-  async ({ riderId }: { riderId: string }): Promise<ListBoardsResponse> => {
-    const { organizationId } = requireOrganizationAuth(); // ← added org scoping
-
-    const rows = await db.query.boards.findMany({
-      where: {
-        organizationId,
-        assignments: { riderId },
-      },
-      with: boardExpansion, // ← load full expansion
-    });
-
-    return { boards: rows.map(toBoard) };
+    return { boards: boards.map(toBoard) };
   }
 );

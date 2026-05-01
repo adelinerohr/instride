@@ -46,7 +46,7 @@ export const Route = createFileRoute(
     riderId: z.string().optional(),
   }),
   beforeLoad: async ({ context }) => {
-    if (context.effectiveRiderIds.length === 0) {
+    if (context.effectiveRiders.length === 0) {
       throw Route.redirect({
         to: "/org/$slug/portal",
       });
@@ -66,7 +66,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { effectiveRiderIds, ...context } = Route.useRouteContext();
+  const { effectiveRiders, ...context } = Route.useRouteContext();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
@@ -87,11 +87,11 @@ function RouteComponent() {
   const dependentPermissions =
     !context.isGuardian && context.isDependent ? context.permissions : null;
   const onlyOneDependent =
-    isGuardian && !ownRider && effectiveRiderIds.length === 1;
+    isGuardian && !ownRider && effectiveRiders.length === 1;
 
   const getInitialRiderId = () => {
-    if (effectiveRiderIds.length === 1) {
-      return effectiveRiderIds[0];
+    if (effectiveRiders.length === 1) {
+      return effectiveRiders[0].id;
     }
     if (search.riderId) {
       return search.riderId;
@@ -179,15 +179,7 @@ function RouteComponent() {
     },
   });
 
-  const filteredBoards = boards.filter((board) =>
-    board.serviceBoardAssignments?.some(
-      (assignment) => assignment.service?.canRiderAdd === true
-    )
-  );
-
-  const riderOptions = riders.filter((rider) =>
-    effectiveRiderIds.includes(rider.id)
-  );
+  const filteredBoards = boards.filter((board) => board.canRiderAdd);
 
   if (filteredBoards.length === 0) {
     return (
@@ -230,7 +222,7 @@ function RouteComponent() {
           </form.AppForm>
         </PageHeader>
         <PageBody className="space-y-4">
-          {effectiveRiderIds.length > 1 && (
+          {effectiveRiders.length > 1 && (
             <Card>
               <CardHeader>
                 <CardTitle>Rider</CardTitle>
@@ -249,7 +241,7 @@ function RouteComponent() {
                   }}
                   children={(field) => (
                     <field.RiderSelectField
-                      riders={riderOptions}
+                      riders={effectiveRiders}
                       disabled={onlyOneDependent}
                       hideLabel
                       placeholder="Select a rider"

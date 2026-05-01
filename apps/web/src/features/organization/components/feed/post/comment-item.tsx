@@ -10,7 +10,7 @@ import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import {
   Avatar,
   AvatarFallback,
@@ -139,6 +139,7 @@ interface CommentBodyProps {
 }
 
 function CommentBody({ comment, member }: CommentBodyProps) {
+  const confirmationModal = ConfirmationModal.useModal();
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedText, setEditedText] = React.useState(comment.text);
   const updateComment = useUpdateComment();
@@ -161,7 +162,7 @@ function CommentBody({ comment, member }: CommentBodyProps) {
   };
 
   const handleDelete = () => {
-    confirmationModalHandler.openWithPayload({
+    confirmationModal.open({
       title: "Delete comment",
       description: "Are you sure you want to delete this comment?",
       onConfirm: () => {

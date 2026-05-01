@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -5,55 +7,71 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogHandler,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { Button } from "@/shared/components/ui/button";
 
-export const confirmationModalHandler = AlertDialogHandler.createHandle<{
+import { defineModal } from "../lib/stores/modal.store";
+import { Spinner } from "./ui/spinner";
+
+export interface ConfirmationModalPayload<T = unknown> {
   title: string;
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  discardLabel?: string;
-  onConfirm: () => void;
-  onDiscard?: () => void;
-}>();
+  onConfirm: () => T | Promise<T>;
+}
 
-export function ConfirmationModal() {
+export function ConfirmationModalComponent() {
+  const { isOpen, payload, onOpenChange } = ConfirmationModal.useModal();
+  const [isPending, setIsPending] = React.useState(false);
+
+  const handleConfirm = async (e: React.MouseEvent) => {
+    if (!payload) return;
+
+    e.preventDefault();
+
+    try {
+      setIsPending(true);
+      await payload.onConfirm();
+      onOpenChange(false);
+    } catch {
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (isPending) return;
+    onOpenChange(open);
+  };
+
   return (
-    <AlertDialog handle={confirmationModalHandler}>
-      {({ payload }) => {
-        if (!payload) return null;
-
-        const hasDiscard =
-          payload.discardLabel !== undefined && payload.onDiscard !== undefined;
-
-        return (
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{payload.title}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {payload.description}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {payload.cancelLabel ?? "Cancel"}
-              </AlertDialogCancel>
-              {hasDiscard && (
-                <Button variant="outline" onClick={payload.onDiscard}>
-                  {payload.discardLabel ?? "Discard"}
-                </Button>
-              )}
-              <AlertDialogAction onClick={payload.onConfirm}>
-                {payload.confirmLabel ?? "Confirm"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        );
-      }}
+    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
+      {payload && (
+        <AlertDialogContent className="z-999">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{payload.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {payload.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {payload.cancelLabel ?? "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm} disabled={isPending}>
+              {payload.confirmLabel ?? "Confirm"}
+              {isPending && <Spinner />}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      )}
     </AlertDialog>
   );
 }
+
+export const ConfirmationModal = defineModal<ConfirmationModalPayload>({
+  id: "confirmation-modal",
+  component: ConfirmationModalComponent,
+});

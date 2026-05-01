@@ -36,12 +36,11 @@ export function useCancelLessonInstance({
   return useWrappedMutation(instanceMutations.cancel, {
     ...config,
     onSuccess: (instance, ...args) => {
-      queryClient.removeQueries({
-        queryKey: lessonKeys.instanceById(instance.id),
+      queryClient.setQueryData(lessonKeys.instanceById(instance.id), {
+        instance,
       });
-      queryClient.invalidateQueries({
-        queryKey: lessonKeys.instances(),
-      });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.instances() });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.enrollments() });
       onSuccess?.(instance, ...args);
     },
   });
@@ -58,11 +57,9 @@ export function useUpdateLessonInstance({
     onSuccess: (instance, ...args) => {
       queryClient.setQueryData(lessonKeys.instanceById(instance.id), instance);
       queryClient.invalidateQueries({
-        queryKey: lessonKeys.instanceById(instance.id),
-      });
-      queryClient.invalidateQueries({
         queryKey: lessonKeys.instances(),
       });
+      queryClient.invalidateQueries({ queryKey: lessonKeys.enrollments() });
       onSuccess?.(instance, ...args);
     },
   });

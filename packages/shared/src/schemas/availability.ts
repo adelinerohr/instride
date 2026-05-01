@@ -86,3 +86,18 @@ export const availabilityDaysFormSchema = z.object({
 export type AvailabilityDaysFormValues = z.infer<
   typeof availabilityDaysFormSchema
 >;
+
+export const createTimeBlockSchema = z.object({
+  trainerId: z.string().min(1, "Please select a trainer."),
+  start: z.object({
+    date: z.string().min(1, "Please enter a valid date."),
+    time: z.string().min(1, "Please enter a valid time."),
+  }),
+  end: z.object({
+    date: z.string().min(1, "Please enter a valid date."),
+    time: z.string().min(1, "Please enter a valid time."),
+  }),
+  reason: z.string().nullable(),
+});
+
+export type CreateTimeBlockSchema = z.infer<typeof createTimeBlockSchema>;

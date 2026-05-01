@@ -4,7 +4,7 @@ import { ChartAreaIcon, MoreHorizontalIcon, SearchIcon } from "lucide-react";
 import * as React from "react";
 
 import { levelModalHandler } from "@/features/organization/components/levels/modal";
-import { confirmationModalHandler } from "@/shared/components/confirmation-modal";
+import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import { CategoryDot } from "@/shared/components/fragments/category-dot";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
@@ -31,6 +31,7 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
 export function OrganizationLevelsCard() {
   const { data: levels, isLoading } = useSuspenseQuery(levelOptions.list());
+  const confirmationModal = ConfirmationModal.useModal();
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const deleteLevel = useDeleteLevel();
 
@@ -111,20 +112,19 @@ export function OrganizationLevelsCard() {
                       >
                         Edit
                       </DialogTrigger>
-                      <DialogTrigger
-                        handle={confirmationModalHandler}
-                        payload={{
-                          title: `Delete level: ${level?.name}`,
-                          description: `Are you sure you want to delete this level? This action cannot be undone.`,
-                          confirmLabel: "Delete",
-                          cancelLabel: "Cancel",
-                          onConfirm: () => deleteLevel.mutateAsync(level.id),
-                        }}
-                        nativeButton={false}
-                        render={<DropdownMenuItem />}
+                      <DropdownMenuItem
+                        onClick={() =>
+                          confirmationModal.open({
+                            title: `Delete level: ${level?.name}`,
+                            description: `Are you sure you want to delete this level? This action cannot be undone.`,
+                            confirmLabel: "Delete",
+                            cancelLabel: "Cancel",
+                            onConfirm: () => deleteLevel.mutateAsync(level.id),
+                          })
+                        }
                       >
                         Delete
-                      </DialogTrigger>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </li>

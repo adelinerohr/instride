@@ -117,6 +117,23 @@ export interface GetBoardResponse {
   board: Board;
 }
 
+export interface ListBoardsForRiderRequest {
+  riderId: string;
+  canRiderAdd?: boolean;
+}
+
+export interface ListBoardsForRiderResponse {
+  boards: Board[];
+}
+
+export interface ListBoardsForTrainerRequest {
+  trainerId: string;
+}
+
+export interface ListBoardsForTrainerResponse {
+  boards: Board[];
+}
+
 // ============================================================================
 // Board assignment requests + responses
 // ============================================================================

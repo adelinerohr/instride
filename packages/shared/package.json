@@ -19,6 +19,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "zod": "catalog:"
   },

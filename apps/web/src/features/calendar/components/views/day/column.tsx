@@ -4,13 +4,11 @@ import { areIntervalsOverlapping, isSameDay, parseISO } from "date-fns";
 
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { HOURS } from "@/features/calendar/lib/constants";
-import {
-  getLessonBlockStyle,
-  groupLessons,
-} from "@/features/calendar/utils/lesson";
+import { getBlockStyle, groupEvents } from "@/features/calendar/utils/lesson";
 
 import { HourCell } from "../fragments/hour-cell";
 import { LessonBlock } from "../fragments/lesson-block";
+import { TimeBlock } from "../fragments/time-block";
 
 interface DayColumnProps {
   trainer: Trainer;
@@ -18,17 +16,22 @@ interface DayColumnProps {
 }
 
 export function DayColumn({ trainer, date }: DayColumnProps) {
-  const { trainerBusinessHours, lessons, slotHeight } = useCalendar();
+  const { trainerBusinessHours, lessons, timeBlocks, slotHeight } =
+    useCalendar();
   const currentTrainerBusinessHours = trainerBusinessHours[trainer.id];
 
-  // Filter lessons to this specific day AND this trainer
-  const groupedLessons = groupLessons(
-    lessons.filter(
-      (lesson) =>
-        lesson.trainer?.id === trainer.id &&
-        isSameDay(parseISO(lesson.start), date)
-    )
+  const dayLessons = lessons.filter(
+    (lesson) =>
+      lesson.trainer?.id === trainer.id &&
+      isSameDay(parseISO(lesson.start), date)
   );
+  const dayTimeBlocks = timeBlocks.filter(
+    (timeBlock) =>
+      timeBlock.trainerId === trainer.id &&
+      isSameDay(parseISO(timeBlock.start), date)
+  );
+
+  const groupedEvents = groupEvents(dayLessons, dayTimeBlocks);
 
   return (
     <div className="relative flex-1">
@@ -45,31 +48,33 @@ export function DayColumn({ trainer, date }: DayColumnProps) {
             index={index}
             day={date}
             hour={hour}
+            trainerId={trainer.id}
           />
         );
       })}
 
-      {groupedLessons.map((group, groupIndex) =>
-        group.map((lesson) => {
-          let style = getLessonBlockStyle(
-            lesson,
-            date,
+      {groupedEvents.map((group, groupIndex) =>
+        group.map((event) => {
+          let style = getBlockStyle({
+            start: event.start,
+            end: event.end,
+            day: date,
             groupIndex,
-            groupedLessons.length,
-            slotHeight
-          );
-          const hasOverlap = groupedLessons.some(
+            groupSize: groupedEvents.length,
+            slotHeight,
+          });
+          const hasOverlap = groupedEvents.some(
             (otherGroup, otherIndex) =>
               otherIndex !== groupIndex &&
-              otherGroup.some((otherLesson) =>
+              otherGroup.some((otherEvent) =>
                 areIntervalsOverlapping(
                   {
-                    start: parseISO(lesson.start),
-                    end: parseISO(lesson.end),
+                    start: parseISO(event.start),
+                    end: parseISO(event.end),
                   },
                   {
-                    start: parseISO(otherLesson.start),
-                    end: parseISO(otherLesson.end),
+                    start: parseISO(otherEvent.start),
+                    end: parseISO(otherEvent.end),
                   }
                 )
               )
@@ -77,9 +82,17 @@ export function DayColumn({ trainer, date }: DayColumnProps) {
 
           if (!hasOverlap) style = { ...style, width: "100%", left: "0%" };
 
+          if ("reason" in event) {
+            return (
+              <div key={event.id} className="absolute p-1" style={style}>
+                <TimeBlock timeBlock={event} />
+              </div>
+            );
+          }
+
           return (
-            <div key={lesson.id} className="absolute p-1" style={style}>
-              <LessonBlock lesson={lesson} />
+            <div key={event.id} className="absolute p-1" style={style}>
+              <LessonBlock lesson={event} />
             </div>
           );
         })

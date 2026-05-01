@@ -1,13 +1,13 @@
 import {
   getUser,
-  useGetLessonInstance,
+  useLessonInstance,
   useMember,
   type Activity,
 } from "@instride/api";
 import { useLoaderData } from "@tanstack/react-router";
 import { format } from "date-fns";
 
-import { viewLessonModalHandler } from "@/features/lessons/components/modals/view-lesson";
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import {
   Item,
@@ -35,6 +35,7 @@ interface ActivityMetadata {
 }
 
 export function EnrollmentActivity({ activity }: EnrollmentActivityProps) {
+  const viewLessonSheet = ViewLessonSheet.useModal();
   const { rider } = useLoaderData({
     from: "/org/$slug/(authenticated)/admin/members/riders/$riderId",
   });
@@ -46,7 +47,7 @@ export function EnrollmentActivity({ activity }: EnrollmentActivityProps) {
   }
 
   const { data: trainer, isPending } = useMember(metadata.trainerMemberId);
-  const { data: lesson, isPending: isLessonPending } = useGetLessonInstance(
+  const { data: lesson, isPending: isLessonPending } = useLessonInstance(
     metadata.instanceId
   );
 
@@ -78,8 +79,8 @@ export function EnrollmentActivity({ activity }: EnrollmentActivityProps) {
         variant="outline"
         className="cursor-pointer mt-2"
         onClick={() => {
-          viewLessonModalHandler.openWithPayload({
-            lesson,
+          viewLessonSheet.open({
+            instanceId: lesson.id,
           });
         }}
       >
