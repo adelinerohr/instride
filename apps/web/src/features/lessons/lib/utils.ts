@@ -16,15 +16,23 @@ export function getPhaseOfDay(now: Date) {
 export function groupEnrollmentsByDay(
   enrollments: LessonInstanceEnrollmentWithInstance[]
 ) {
-  const lessons = enrollments
-    .map((enrollment) => enrollment.instance)
-    .filter((lesson): lesson is LessonInstance => lesson !== undefined);
-  const grouped = groupByDay(lessons);
-  return grouped.map((group) => ({
-    day: group.day,
-    enrollments: group.lessons.map((lesson) =>
-      enrollments.find((enrollment) => enrollment.instance?.id === lesson.id)
-    ),
+  const sorted = [...enrollments].sort(
+    (a, b) =>
+      new Date(a.instance.start).getTime() -
+      new Date(b.instance.start).getTime()
+  );
+
+  const groups = new Map<string, LessonInstanceEnrollmentWithInstance[]>();
+  for (const enrollment of sorted) {
+    const key = startOfDay(new Date(enrollment.instance.start)).toISOString();
+    const existing = groups.get(key) ?? [];
+    existing.push(enrollment);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups, ([dayKey, enrollments]) => ({
+    day: new Date(dayKey),
+    enrollments,
   }));
 }
 

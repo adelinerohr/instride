@@ -1,5 +1,6 @@
 import {
   boardsOptions,
+  type Board,
   type BoardBusinessHours,
   type BusinessHours,
 } from "@instride/api";
@@ -108,19 +109,35 @@ export function BusinessHoursTabs({
       <Card>
         <CardHeader className="gap-3">
           <Select
-            value={activeTab}
-            onValueChange={(value) => setActiveTab(value as string)}
+            value={selectedBoard ?? null}
+            onValueChange={(value) => setActiveTab(value?.id ?? "defaults")}
+            itemToStringLabel={(board) => board?.name ?? defaultsLabel}
           >
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>
+                {selectedBoard ? (
+                  (board: Board) => (
+                    <span>
+                      {board.name}
+                      {availability.boardOverrides[board.id]?.length > 0 && (
+                        <Badge variant="secondary" className="ml-1.5 text-xs">
+                          Custom
+                        </Badge>
+                      )}
+                    </span>
+                  )
+                ) : (
+                  <span>{defaultsLabel}</span>
+                )}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent alignItemWithTrigger={false}>
               <SelectItem value="defaults">{defaultsLabel}</SelectItem>
               {boards.map((board) => {
                 const boardHasOverride =
                   (availability.boardOverrides[board.id]?.length ?? 0) > 0;
                 return (
-                  <SelectItem key={board.id} value={board.id}>
+                  <SelectItem key={board.id} value={board}>
                     <span className="flex items-center gap-2">
                       {board.name}
                       {boardHasOverride && (

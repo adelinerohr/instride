@@ -50,8 +50,11 @@ export const DayRow = withFieldGroup({
                 name="isOpen"
                 listeners={{
                   onChange: ({ value }) => {
-                    if (value && slots.length === 0) {
+                    const currentSlots = group.state.values.slots;
+                    if (value && currentSlots.length === 0) {
                       group.setFieldValue("slots", [DEFAULT_SLOT]);
+                    } else if (!value && currentSlots.length > 0) {
+                      group.setFieldValue("slots", []);
                     }
                   },
                 }}

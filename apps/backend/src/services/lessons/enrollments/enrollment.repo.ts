@@ -2,7 +2,7 @@ import {
   LessonInstanceEnrollmentStatus,
   LessonSeriesEnrollmentStatus,
 } from "@instride/shared";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, lte, gte, inArray, sql } from "drizzle-orm";
 import { APIError } from "encore.dev/api";
 
 import { riderExpansion } from "@/services/organizations/fragments";
@@ -150,21 +150,47 @@ export const createInstanceEnrollmentRepo = (
     riderIds: string[];
     range?: { from: Date; to: Date };
   }) => {
-    return await client.query.lessonInstanceEnrollments.findMany({
+    const rows = await client
+      .select()
+      .from(lessonInstanceEnrollments)
+      .innerJoin(
+        lessonInstances,
+        eq(lessonInstanceEnrollments.instanceId, lessonInstances.id)
+      )
+      .where(
+        and(
+          eq(lessonInstanceEnrollments.organizationId, params.organizationId),
+          inArray(lessonInstanceEnrollments.riderId, params.riderIds),
+          params.range
+            ? and(
+                gte(lessonInstances.start, params.range.from),
+                lte(lessonInstances.start, params.range.to)
+              )
+            : undefined
+        )
+      );
+    console.log({ rows: rows.map((row) => row.lesson_instance_enrollments) });
+    const enrollmentIds = rows
+      .map((row) => row.lesson_instance_enrollments.id)
+      .filter(Boolean);
+
+    const enrollments = await client.query.lessonInstanceEnrollments.findMany({
       where: {
-        organizationId: params.organizationId,
-        riderId: { in: params.riderIds },
-        ...(params.range && {
-          instance: {
-            start: { gte: params.range.from, lte: params.range.to },
-          },
-        }),
+        id: {
+          in: enrollmentIds,
+        },
       },
       with: {
         rider: { with: riderExpansion },
-        instance: { with: lessonInstanceExpansion },
+        instance: {
+          with: lessonInstanceExpansion,
+        },
       },
     });
+    console.log({
+      enrollments: enrollments.map((enrollment) => enrollment.id),
+    });
+    return enrollments;
   },
 
   unenroll: async (params: {

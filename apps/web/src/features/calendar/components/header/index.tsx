@@ -1,4 +1,4 @@
-import { hasOnlyRole } from "@instride/api";
+import { hasOnlyRole, type Member } from "@instride/api";
 import { KioskScope, MembershipRole } from "@instride/shared";
 import { Link, useParams, useRouteContext } from "@tanstack/react-router";
 import {
@@ -26,8 +26,6 @@ import { ViewSwitcher } from "./view-switcher";
 
 export function CalendarHeader() {
   const { slug } = useParams({ strict: false });
-  const createTimeBlockModal = CreateTimeBlockModal.useModal();
-  const eventModal = EventModal.useModal();
   const { kioskSession, kioskPermissions, member } = useRouteContext({
     strict: false,
   });
@@ -72,36 +70,7 @@ export function CalendarHeader() {
           <CalendarFilters />
 
           {visibility === "dropdown" ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button />}>
-                <PlusIcon />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-fit">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => eventModal.open({})}>
-                    <PartyPopperIcon />
-                    <span>Add new event</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CalendarPlusIcon />
-                    <span>Add new lesson</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      createTimeBlockModal.open({
-                        isOnlyTrainer,
-                        trainerId: isOnlyTrainer
-                          ? member.trainer?.id
-                          : undefined,
-                      })
-                    }
-                  >
-                    <ClockIcon />
-                    <span>Add new time block</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <AdminDropdown isOnlyTrainer={isOnlyTrainer} member={member} />
           ) : visibility === "link" ? (
             <Link
               to="/org/$slug/portal/lessons/create"
@@ -114,5 +83,43 @@ export function CalendarHeader() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AdminDropdown(props: { isOnlyTrainer: boolean; member: Member }) {
+  const createTimeBlockModal = CreateTimeBlockModal.useModal();
+  const eventModal = EventModal.useModal();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button />}>
+        <PlusIcon />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-fit">
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => eventModal.open({})}>
+            <PartyPopperIcon />
+            <span>Add new event</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CalendarPlusIcon />
+            <span>Add new lesson</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              createTimeBlockModal.open({
+                isOnlyTrainer: props.isOnlyTrainer,
+                trainerId: props.isOnlyTrainer
+                  ? props.member.trainer?.id
+                  : undefined,
+              })
+            }
+          >
+            <ClockIcon />
+            <span>Add new time block</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

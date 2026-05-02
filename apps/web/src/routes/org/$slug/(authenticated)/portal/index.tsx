@@ -25,6 +25,7 @@ import {
   LessonCard,
   LessonCardVariant,
 } from "@/features/lessons/components/fragments/lesson-card";
+import { DateChip } from "@/features/lessons/components/fragments/lesson-card/date-chip";
 import {
   findNearestEnrollment,
   groupEnrollmentsByDay,
@@ -53,7 +54,6 @@ import {
   EmptyHeader,
   EmptyDescription,
 } from "@/shared/components/ui/empty";
-import { ItemGroup } from "@/shared/components/ui/item";
 import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/org/$slug/(authenticated)/portal/")({
@@ -96,6 +96,31 @@ function RouteComponent() {
       endOfWeek(now, { weekStartsOn: 1 }).toISOString()
     )
   );
+
+  console.log({
+    todayQuery: {
+      start: startOfDay(now).toISOString(),
+      end: endOfDay(now).toISOString(),
+    },
+    weekQuery: {
+      start: startOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+      end: endOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+    },
+    enrollmentsToday: enrollmentsToday.map((e) => ({
+      id: e.id,
+      startTime: e.instance?.start,
+      parsedLocal: e.instance?.start
+        ? format(new Date(e.instance.start), "yyyy-MM-dd HH:mm zzz")
+        : null,
+    })),
+    enrollmentsThisWeek: enrollmentsThisWeek.map((e) => ({
+      id: e.id,
+      startTime: e.instance?.start,
+      parsedLocal: e.instance?.start
+        ? format(new Date(e.instance.start), "yyyy-MM-dd HH:mm zzz")
+        : null,
+    })),
+  });
 
   const guardianHasNoDependents = isGuardian && dependents?.length === 0;
 
@@ -240,12 +265,53 @@ function RouteComponent() {
             </Empty>
           ) : (
             <>
-              {nearestEnrollment && (
+              {nearestEnrollment ? (
                 <LessonCard
                   variant={LessonCardVariant.DETAIL}
                   lesson={nearestEnrollment.instance!}
                   rider={nearestEnrollment.rider ?? undefined}
                 />
+              ) : (
+                <Empty className="border border-dashed w-full">
+                  <EmptyHeader>
+                    <EmptyTitle>All lessons have passed</EmptyTitle>
+                    <EmptyDescription>
+                      All of your lessons for today have already passed.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              )}
+              {enrollmentsToday.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="font-medium font-display uppercase text-muted-foreground text-xs">
+                    Also today
+                  </h2>
+                  {enrollmentsToday
+                    .filter(
+                      (enrollment) => enrollment.id !== nearestEnrollment?.id
+                    )
+                    .map((enrollment) => {
+                      const isPassed = isBefore(
+                        new Date(enrollment.instance?.start),
+                        now
+                      );
+                      return (
+                        <div
+                          className={cn(
+                            "bg-card rounded-lg p-2 border",
+                            isPassed && "opacity-50"
+                          )}
+                          key={enrollment.id}
+                        >
+                          <LessonCard
+                            variant={LessonCardVariant.DATE_CHIP}
+                            lesson={enrollment.instance!}
+                            rider={enrollment.rider ?? undefined}
+                          />
+                        </div>
+                      );
+                    })}
+                </div>
               )}
             </>
           )}
@@ -272,8 +338,8 @@ function RouteComponent() {
               </Link>
             </CardAction>
           </CardHeader>
-          <CardContent>
-            {enrollmentsThisWeek.length === 0 ? (
+          <CardContent className="space-y-4">
+            {enrollmentsByDay.length === 0 ? (
               <Empty className="border border-dashed w-full">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
@@ -286,19 +352,41 @@ function RouteComponent() {
                 </EmptyHeader>
               </Empty>
             ) : (
-              <ItemGroup>
-                {enrollmentsThisWeek.map(
-                  (enrollment) =>
-                    enrollment.instance && (
+              enrollmentsByDay.map(({ day, enrollments }) => (
+                <div
+                  key={day.toISOString()}
+                  className="flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-6"
+                >
+                  {/* Date chip as section header, col-span-1 */}
+                  <div className="col-span-1 hidden sm:flex items-start justify-center">
+                    <DateChip day={day} />
+                  </div>
+                  <span className="block sm:hidden text-lg font-medium font-display">
+                    {format(day, "EEEE")}
+                  </span>
+                  {/* Lessons stacked, col-span-9 */}
+                  <div className="hidden sm:col-span-11 sm:flex flex-col gap-4 w-full justify-center">
+                    {enrollments.map((enrollment) => (
                       <LessonCard
                         key={enrollment.id}
                         variant={LessonCardVariant.DATE_CHIP}
-                        lesson={enrollment.instance}
+                        lesson={enrollment.instance!}
                         rider={enrollment.rider ?? undefined}
                       />
-                    )
-                )}
-              </ItemGroup>
+                    ))}
+                  </div>
+                  <div className="sm:hidden flex flex-col gap-4 w-full">
+                    {enrollments.map((enrollment) => (
+                      <LessonCard
+                        key={enrollment.id}
+                        variant={LessonCardVariant.AGENDA}
+                        lesson={enrollment.instance!}
+                        rider={enrollment.rider ?? undefined}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
             )}
           </CardContent>
         </Card>

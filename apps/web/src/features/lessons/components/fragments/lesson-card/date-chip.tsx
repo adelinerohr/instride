@@ -69,7 +69,7 @@ export function LessonCardDateChip({ data }: LessonCardVariantProps) {
 
 export function DateChip({ day }: { day: Date }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-muted py-2 px-3 rounded-md">
+    <div className="flex flex-col items-center justify-center bg-muted py-2 px-3 rounded-md w-full">
       <span className="text-xs leading-none uppercase text-muted-foreground">
         {format(day, "EEE")}
       </span>
