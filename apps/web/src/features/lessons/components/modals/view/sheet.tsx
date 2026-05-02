@@ -5,6 +5,7 @@ import { ViewLessonContent } from "./content";
 
 export interface ViewLessonSheetPayload {
   instanceId: string;
+  isKiosk?: boolean;
 }
 
 export function ViewLessonSheetComponent() {

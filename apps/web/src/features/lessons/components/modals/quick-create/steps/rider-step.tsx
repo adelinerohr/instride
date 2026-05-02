@@ -1,4 +1,5 @@
-import type { Rider } from "@instride/api";
+import type { Rider, Trainer } from "@instride/api";
+import { useStore } from "@tanstack/react-form";
 import { UsersIcon } from "lucide-react";
 
 import { quickCreateLessonFormOpts } from "@/features/lessons/lib/quick-create.form";
@@ -19,13 +20,30 @@ import { cn } from "@/shared/lib/utils";
 interface Props {
   resolvedRiders: Rider[];
   eligibleRiders: Rider[];
+  selectedTrainer?: Trainer;
   boardName: string;
 }
 
 export const RiderStep = withForm({
   ...quickCreateLessonFormOpts,
   props: {} as Props,
-  render: ({ form, resolvedRiders, eligibleRiders, boardName }) => {
+  render: ({
+    form,
+    resolvedRiders,
+    eligibleRiders,
+    boardName,
+    selectedTrainer,
+  }) => {
+    const type = useStore(form.store, (state) => state.values.type);
+
+    const riderOptions = selectedTrainer
+      ? resolvedRiders.filter(
+          (rider) => rider.memberId !== selectedTrainer.memberId
+        )
+      : resolvedRiders;
+
+    if (type === "admin") return null;
+
     return (
       <div className="space-y-3">
         <p className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -46,7 +64,7 @@ export const RiderStep = withForm({
                   value={field.state.value[0]}
                   onValueChange={(value) => field.handleChange([value])}
                 >
-                  {resolvedRiders.map((rider) => {
+                  {riderOptions.map((rider) => {
                     const isEligible = eligibleRiders.some(
                       (r) => r.id === rider.id
                     );

@@ -19,6 +19,15 @@ export const kioskOptions = {
       enabled: !!sessionId,
       refetchInterval: 10_000, // Poll every 10s to keep acting state fresh
     }),
+
+  actingRiderOptions: (sessionId: string) =>
+    queryOptions({
+      queryKey: kioskKeys.actingRiderOptions(sessionId),
+      queryFn: async () =>
+        await apiClient.kiosk.getKioskActingRiderOptions(sessionId),
+      select: (data) => data.riderOptions,
+      enabled: !!sessionId,
+    }),
 };
 
 export const useKioskSessions = () => {
@@ -29,5 +38,15 @@ export const useKioskSession = (sessionId: string | null) => {
   return useQuery({
     ...kioskOptions.session(sessionId!),
     enabled: !!sessionId,
+  });
+};
+
+export const useKioskActingRiderOptions = (
+  sessionId: string | null,
+  opts?: { enabled?: boolean }
+) => {
+  return useQuery({
+    ...kioskOptions.actingRiderOptions(sessionId ?? ""),
+    enabled: !!sessionId && (opts?.enabled ?? true),
   });
 };

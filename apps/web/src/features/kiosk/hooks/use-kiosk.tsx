@@ -1,9 +1,11 @@
 import {
   useClearKioskIdentity,
+  useKioskActingRiderOptions,
   useKioskSession,
   useMembers,
   useVerifyKioskIdentity,
   type Member,
+  type Rider,
 } from "@instride/api";
 import { KioskScope } from "@instride/shared";
 import * as React from "react";
@@ -17,6 +19,12 @@ interface KioskContextValue {
   acting: KioskActingContext;
   /** The member currently acting, or null if in DEFAULT scope. */
   actingMember: Member | null;
+  /**
+   * Riders the acting member can act on, scoped to the kiosk's board.
+   * Empty array in DEFAULT scope or while loading. See
+   * getKioskActingRiderOptions endpoint.
+   */
+  actingRiderOptions: Rider[];
   permissions: KioskPermissionSet;
   startActing: (input: { memberId: string; pin: string }) => Promise<void>;
   stopActing: () => Promise<void>;
@@ -44,6 +52,13 @@ export function KioskProvider({ sessionId, children }: KioskProviderProps) {
   const verifyKioskIdentity = useVerifyKioskIdentity();
   const clearKioskIdentity = useClearKioskIdentity();
 
+  // Only fetched when there's an active acting member; query is skipped
+  // otherwise via its own `enabled` flag.
+  const { data: actingRiderOptionsData } = useKioskActingRiderOptions(
+    sessionId,
+    { enabled: acting.scope !== KioskScope.DEFAULT }
+  );
+
   const clearIdentity = React.useCallback(() => {
     void clearKioskIdentity.mutateAsync({ sessionId });
   }, [sessionId, clearKioskIdentity]);
@@ -59,6 +74,8 @@ export function KioskProvider({ sessionId, children }: KioskProviderProps) {
     if (!acting.actingMemberId || !members) return null;
     return members.find((m) => m.id === acting.actingMemberId) ?? null;
   }, [acting.actingMemberId, members]);
+
+  const actingRiderOptions = actingRiderOptionsData ?? [];
 
   const permissions = React.useMemo(
     () => buildKioskPermissions(acting, !!actingMember),
@@ -76,16 +93,25 @@ export function KioskProvider({ sessionId, children }: KioskProviderProps) {
     await clearKioskIdentity.mutateAsync({ sessionId });
   }, [sessionId, clearKioskIdentity]);
 
-  const value = React.useMemo(
+  const value = React.useMemo<KioskContextValue>(
     () => ({
       sessionId,
       acting,
       actingMember,
+      actingRiderOptions,
       permissions,
       startActing,
       stopActing,
     }),
-    [sessionId, acting, actingMember, permissions, startActing, stopActing]
+    [
+      sessionId,
+      acting,
+      actingMember,
+      actingRiderOptions,
+      permissions,
+      startActing,
+      stopActing,
+    ]
   );
 
   return (

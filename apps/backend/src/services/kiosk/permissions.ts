@@ -54,6 +54,19 @@ export async function assertKioskActionAllowed(input: {
 
   switch (input.context.action) {
     case KioskActions.ENROLL:
+      const eligible = await getEligibleTargetMemberIds({
+        organizationId: input.organizationId,
+        actingMemberId: input.actingMemberId,
+        permissionKey: "canBookLessons",
+      });
+
+      if (eligible.size === 0) {
+        throw APIError.permissionDenied(
+          "You are not eligible to perform this action"
+        );
+      }
+
+      return;
     case KioskActions.MARK_ATTENDANCE:
     case KioskActions.LESSON_CHECK_IN: {
       await assertSelfOrAuthorizedGuardian({

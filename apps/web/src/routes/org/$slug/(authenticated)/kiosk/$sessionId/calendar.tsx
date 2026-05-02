@@ -22,7 +22,7 @@ import {
 } from "@/features/calendar/lib/range";
 import { calendarSearchSchema } from "@/features/calendar/lib/search-params";
 import { AdminCreateLessonModal } from "@/features/lessons/components/modals/quick-create/admin/modal";
-import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/modal";
+import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/rider/modal";
 import { EventModal } from "@/features/organization/components/availability/events/modal";
 import { CreateTimeBlockModal } from "@/features/organization/components/availability/time-blocks/modal";
 import { ModalScope } from "@/shared/lib/stores/modal.store";

@@ -97,7 +97,14 @@ export function ClearableSelectField<T extends object>({
   return (
     <Field data-invalid={isInvalid} className={fieldClassName}>
       <FieldContent>
-        {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+        {label && (
+          <FieldLabel htmlFor={field.name} className="w-full justify-between">
+            {label}
+            <span className="text-muted-foreground font-normal text-xs">
+              Optional
+            </span>
+          </FieldLabel>
+        )}
         {description && <FieldDescription>{description}</FieldDescription>}
       </FieldContent>
       {disabled && disabledHint ? (

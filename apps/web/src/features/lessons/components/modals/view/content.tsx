@@ -15,12 +15,20 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet";
 
+import {
+  AdminEnrolledRiderAction,
+  KioskEnrolledRiderAction,
+} from "./enrollments";
 import { ViewLessonFooter } from "./footer";
+import { KioskViewLessonFooter } from "./kiosk-footer";
 import type { ViewLessonSheetPayload } from "./sheet";
 
-export function ViewLessonContent({ instanceId }: ViewLessonSheetPayload) {
+export function ViewLessonContent({
+  instanceId,
+  isKiosk = false,
+}: ViewLessonSheetPayload) {
   const { data: lesson } = useLessonInstance(instanceId);
-  const { organization } = useRouteContext({
+  const { organization, isPortal } = useRouteContext({
     from: "/org/$slug/(authenticated)",
   });
 
@@ -51,6 +59,8 @@ export function ViewLessonContent({ instanceId }: ViewLessonSheetPayload) {
     );
     return `${date} · ${startTime} - ${endTime}`;
   };
+
+  const showUnenrollButton = !isPortal || isKiosk;
 
   return (
     <SheetContent className="sm:max-w-lg! border-l-0!">
@@ -114,6 +124,22 @@ export function ViewLessonContent({ instanceId }: ViewLessonSheetPayload) {
                 >
                   <UserAvatar user={riderUser} />
                   <span className="font-medium">{riderUser.name}</span>
+                  {showUnenrollButton && (
+                    <div className="ml-auto">
+                      {isKiosk && (
+                        <KioskEnrolledRiderAction
+                          enrollment={enrollment}
+                          lesson={lesson}
+                        />
+                      )}
+                      {!isKiosk && (
+                        <AdminEnrolledRiderAction
+                          enrollment={enrollment}
+                          lesson={lesson}
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -136,7 +162,11 @@ export function ViewLessonContent({ instanceId }: ViewLessonSheetPayload) {
           </div>
         </SheetItem>
       </div>
-      <ViewLessonFooter lesson={lesson} lessonName={lessonName} />
+      {isKiosk ? (
+        <KioskViewLessonFooter lesson={lesson} />
+      ) : (
+        <ViewLessonFooter lesson={lesson} lessonName={lessonName} />
+      )}
     </SheetContent>
   );
 }

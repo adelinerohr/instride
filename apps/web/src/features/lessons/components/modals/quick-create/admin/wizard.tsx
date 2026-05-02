@@ -1,4 +1,10 @@
-import { useCreateLessonSeries, useRiders, useServices } from "@instride/api";
+import {
+  useCreateLessonSeries,
+  useRiders,
+  useServices,
+  type CreateLessonSeriesRequest,
+} from "@instride/api";
+import { returnStringOrNull } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useRouteContext } from "@tanstack/react-router";
 import { parseISO } from "date-fns";
@@ -27,7 +33,8 @@ import { useWizard, type WizardStepConfig } from "@/shared/hooks/use-wizard";
 import { ContextPills } from "../../fragments/context-pills";
 import { StepIndicator } from "../../fragments/step-indicator";
 import { ConfirmStep } from "../steps/confirm-step";
-import { RiderStep } from "../steps/rider-step";
+import { DetailsStep } from "../steps/details-step";
+import { RidersStep } from "../steps/riders-step";
 import { ServiceStep } from "../steps/service-step";
 import { TrainerStep } from "../steps/trainer-step";
 import {
@@ -35,7 +42,7 @@ import {
   type AdminCreateLessonModalPayload,
 } from "./modal";
 
-type StepKey = "rider" | "trainer" | "service" | "confirm";
+type StepKey = "riders" | "trainer" | "service" | "details" | "confirm";
 
 export function AdminCreateLessonModalWizard({
   initialValues,
@@ -92,26 +99,26 @@ export function AdminCreateLessonModalWizard({
         throw new Error("Service not found");
       }
 
-      await createLesson.mutateAsync(
-        {
-          boardId: value.boardId,
-          serviceId: value.serviceId,
-          trainerId: value.trainerId,
-          start: startDate.toISOString(),
-          riderIds: value.riderIds,
-          duration: service.duration,
-          maxRiders: service.maxRiders,
+      const payload: CreateLessonSeriesRequest = {
+        ...value,
+        start: startDate.toISOString(),
+        duration: service.duration,
+        maxRiders: service.maxRiders,
+        name: returnStringOrNull(value.details?.name),
+        levelId: returnStringOrNull(value.details?.levelId),
+        notes: returnStringOrNull(value.details?.notes),
+        isRecurring: value.details?.isRecurring ?? false,
+      };
+
+      await createLesson.mutateAsync(payload, {
+        onSuccess: () => {
+          toast.success("Lesson created successfully");
+          modal.close();
         },
-        {
-          onSuccess: () => {
-            toast.success("Lesson created successfully");
-            modal.close();
-          },
-          onError: (error) => {
-            toast.error(error.message);
-          },
-        }
-      );
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
     },
   });
 
@@ -133,8 +140,12 @@ export function AdminCreateLessonModalWizard({
       fields: ["serviceId", "acknowledgePrivateLesson"],
     });
     steps.push({
-      id: "rider",
+      id: "riders",
       fields: ["riderIds"],
+    });
+    steps.push({
+      id: "details",
+      fields: ["details"],
     });
     steps.push({ id: "confirm" });
     return steps;
@@ -158,7 +169,8 @@ export function AdminCreateLessonModalWizard({
   const nextLabel = wizard.match({
     trainer: () => "Pick a service",
     service: () => "Add riders",
-    rider: () => "Review lesson",
+    riders: () => "Add details",
+    details: () => "Review lesson",
     confirm: () => "Create lesson",
   });
 
@@ -175,7 +187,6 @@ export function AdminCreateLessonModalWizard({
               wizard.next();
             }
           }}
-          className="space-y-4"
         >
           <DialogHeader>
             <div className="flex items-start gap-3">
@@ -201,12 +212,12 @@ export function AdminCreateLessonModalWizard({
 
             <div className="min-h-[260px]">
               {wizard.match({
-                rider: () => (
-                  <RiderStep
+                riders: () => (
+                  <RidersStep
                     form={form}
-                    resolvedRiders={riders}
-                    eligibleRiders={eligibleRiders}
+                    riders={eligibleRiders}
                     boardName={selectedBoard?.name ?? ""}
+                    selectedTrainer={resolvedTrainer}
                   />
                 ),
                 trainer: () => (
@@ -229,6 +240,9 @@ export function AdminCreateLessonModalWizard({
                     calendarCtx={calendarContext}
                   />
                 ),
+                details: () => (
+                  <DetailsStep form={form} services={services ?? []} />
+                ),
                 confirm: () => (
                   <ConfirmStep
                     form={form}
@@ -237,7 +251,7 @@ export function AdminCreateLessonModalWizard({
                     services={services ?? []}
                     timezone={organization.timezone}
                     startDate={startDate}
-                    showRiderRow={wizard.steps.some((s) => s.id === "rider")}
+                    showRiderRow={wizard.steps.some((s) => s.id === "riders")}
                   />
                 ),
               })}

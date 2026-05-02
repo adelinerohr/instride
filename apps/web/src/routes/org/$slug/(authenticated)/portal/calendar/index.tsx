@@ -20,7 +20,7 @@ import {
   getVisibleRange,
 } from "@/features/calendar/lib/range";
 import { calendarSearchSchema } from "@/features/calendar/lib/search-params";
-import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/modal";
+import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/rider/modal";
 import { ModalScope } from "@/shared/lib/stores/modal.store";
 
 export const Route = createFileRoute(

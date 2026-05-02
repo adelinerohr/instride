@@ -21,7 +21,7 @@ export function ContextPills({
   trainerPending,
 }: ContextPillsProps) {
   return (
-    <div className="grid grid-cols-[0.8fr_0.8fr_1fr] gap-2 rounded-md border bg-muted divide-x">
+    <div className="grid grid-cols-2 sm:grid-cols-[0.8fr_0.8fr_1fr] rounded-md border bg-muted divide-y divide-x sm:divide-y-0">
       <Pill
         icon={<CalendarIcon className="size-4 text-muted-foreground" />}
         label={formatInTimeZone(
@@ -45,6 +45,7 @@ export function ContextPills({
         label="TRAINER"
         value={trainer?.member.authUser.name ?? "—"}
         muted={trainerPending}
+        className="col-span-2 sm:col-span-1"
       />
     </div>
   );
@@ -55,14 +56,22 @@ function Pill({
   label,
   value,
   muted,
+  className,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   muted?: boolean;
+  className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-2 p-3", muted && "opacity-60")}>
+    <div
+      className={cn(
+        "flex items-center gap-2 p-3 px-4",
+        muted && "opacity-60",
+        className
+      )}
+    >
       {icon}
       <div className="min-w-0">
         <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">

@@ -113,10 +113,30 @@ export const createMemberRepo = (client: Database | Transaction = db) => ({
     return toRider(rider);
   },
 
-  findManyRiders: async (organizationId: string) => {
+  findOneRiderByMember: async (memberId: string, organizationId: string) => {
+    const rider = await client.query.riders.findFirst({
+      where: { memberId, organizationId },
+      with: riderExpansion,
+    });
+    assertExists(rider, "Rider not found");
+    return toRider(rider);
+  },
+
+  findManyRiders: async (
+    organizationId: string,
+    filter?: { boardId?: string }
+  ) => {
     const riders = await client.query.riders.findMany({
       where: { organizationId },
-      with: riderExpansion,
+      with: {
+        ...riderExpansion,
+        boardAssignments: {
+          ...riderExpansion.boardAssignments,
+          where: {
+            ...(filter?.boardId ? { boardId: filter.boardId } : undefined),
+          },
+        },
+      },
     });
     return riders.map(toRider);
   },

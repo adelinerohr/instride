@@ -128,30 +128,32 @@ export const ServiceStep = withForm({
 
     return (
       <div className="space-y-3">
-        <p className="flex items-center gap-1 text-sm text-muted-foreground">
-          <TicketIcon className="size-4" />
-          Pick a service for the time
-          <span className="font-medium text-foreground">
-            {formatInTimeZone(startDate, timezone, "h:mm a")}.
-          </span>
-          Duration must fit the trainer&apos;s window.
-        </p>
+        <div className="flex items-start sm:items-center gap-2 text-sm text-muted-foreground">
+          <TicketIcon className="size-4 mt-0.5 sm:mt-0" />
+          <p className="text-sm text-muted-foreground">
+            Pick a service for the time{" "}
+            <span className="font-medium text-foreground">
+              {formatInTimeZone(startDate, timezone, "h:mm a")}.
+            </span>{" "}
+            Duration must fit the trainer&apos;s window.
+          </p>
+        </div>
 
         <form.Field
           name="serviceId"
           listeners={{
             onChange: ({ value }) => {
-              if (type !== "rider") return;
-
               const service = services.find((s) => s.id === value);
               if (!service) return;
 
-              const isGroup = !service.isPrivate && service.maxRiders > 1;
-              form.setFieldValue("isServiceGroup", isGroup);
-              form.setFieldValue(
-                "acknowledgePrivateLesson",
-                isGroup ? null : false
-              );
+              if (type === "rider") {
+                const isGroup = !service.isPrivate && service.maxRiders > 1;
+                form.setFieldValue("isServiceGroup", isGroup);
+                form.setFieldValue(
+                  "acknowledgePrivateLesson",
+                  isGroup ? null : false
+                );
+              }
             },
           }}
         >

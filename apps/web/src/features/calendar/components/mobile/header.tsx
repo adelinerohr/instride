@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { FilterIcon, PlusIcon, SearchIcon } from "lucide-react";
+import { FilterIcon, PlusIcon } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -24,12 +24,7 @@ export function MobileHeader() {
   const activeFilterCount =
     (selectedBoardId ? 1 : 0) + (selectedTrainerIds.length > 0 ? 1 : 0);
 
-  const handleCreate = () => {
-    createLesson({
-      boardId: selectedBoardId ?? "",
-      trainerId: selectedTrainerIds[0] ?? "",
-    });
-  };
+  const handleCreate = () => {};
 
   return (
     <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2 text-primary-foreground">
@@ -40,15 +35,6 @@ export function MobileHeader() {
         <span className="text-2xl font-bold">{dayName}</span>
       </div>
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-9 rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
-          aria-label="Search"
-          // TODO: wire up search — deferred
-        >
-          <SearchIcon className="size-4" />
-        </Button>
         <Sheet>
           <SheetTrigger
             render={

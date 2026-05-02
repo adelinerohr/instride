@@ -2,6 +2,7 @@ import { hasAnyRole, hasOnlyRole } from "@instride/api";
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { EventModal } from "@/features/organization/components/availability/events/modal";
 import { CreateTimeBlockModal } from "@/features/organization/components/availability/time-blocks/modal";
 import { AppLayout } from "@/shared/components/layout/app-layout";
@@ -64,7 +65,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin")({
 
 function RouteComponent() {
   return (
-    <ModalScope modals={[CreateTimeBlockModal, EventModal]}>
+    <ModalScope modals={[CreateTimeBlockModal, EventModal, ViewLessonSheet]}>
       <AppLayout type="admin" isAdmin={true}>
         <Outlet />
       </AppLayout>

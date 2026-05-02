@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/utils";
 
 import { useCalendar } from "../../hooks/use-calendar";
 import { useRangeSwipe } from "../../hooks/use-range-swipe";
-import { HOURS, SLOT_HEIGHT, START_HOUR } from "../../lib/constants";
+import { HOURS, START_HOUR } from "../../lib/constants";
 import { getBlockStyle, groupEvents } from "../../utils/lesson";
 import { HourCell } from "../views/fragments/hour-cell";
 import { LessonBlock } from "../views/fragments/lesson-block";
@@ -61,11 +61,10 @@ export function MobileDayView() {
 
   return (
     <div
-      className={cn("flex-1 min-h-0", swipeClassName)}
-      onPointerDownCapture={(e) => console.log("down", e.pointerType)}
+      className={cn("h-full min-h-0 overflow-hidden", swipeClassName)}
       {...swipeHandlers}
     >
-      <ScrollArea className="h-full" ref={setViewportRef}>
+      <ScrollArea className="h-full min-h-0" ref={setViewportRef}>
         <div className="relative flex">
           {/* Hour labels */}
           <div className="w-14 shrink-0">
@@ -73,7 +72,7 @@ export function MobileDayView() {
               <div
                 key={hour}
                 className="relative"
-                style={{ height: `${SLOT_HEIGHT}px` }}
+                style={{ height: `${slotHeight}px` }}
               >
                 {index !== 0 && (
                   <span className="absolute -top-2 right-2 text-xs text-muted-foreground">

@@ -8,3 +8,12 @@ export function checkIfValidStrings(values: string[]): boolean {
   }
   return true;
 }
+
+export function returnStringOrNull(
+  value: string | null | undefined
+): string | null {
+  if (value && checkIfValidString(value)) {
+    return value;
+  }
+  return null;
+}

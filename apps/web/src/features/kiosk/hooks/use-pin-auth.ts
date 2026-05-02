@@ -1,12 +1,32 @@
+// apps/web/src/features/kiosk/hooks/use-pin-auth.ts
 import { type Member, type Rider } from "@instride/api";
 import { KioskScope, type KioskActionContext } from "@instride/shared";
 import * as React from "react";
+import { toast } from "sonner";
 
 import {
   PinAuthModal,
   type PinAuthModalPayload,
 } from "../components/modals/pin-auth/modal";
+import { RiderSelectModal } from "../components/modals/rider-select";
 import { useKiosk } from "./use-kiosk";
+
+export interface PinAuthResult {
+  member: Member;
+  riderOptions: Rider[];
+  /**
+   * Verification used during the PIN flow. Pass to action mutations within
+   * the same logical flow. Undefined when the actor is already in an active
+   * acting session (mutations fall back to session acting state).
+   */
+  verification: { memberId: string; pin: string } | undefined;
+}
+
+export interface PinAuthWithRiderResult {
+  member: Member;
+  rider: Rider;
+  verification: { memberId: string; pin: string } | undefined;
+}
 
 export interface RequestPinAuthInput {
   context: KioskActionContext;
@@ -14,41 +34,56 @@ export interface RequestPinAuthInput {
   title?: string;
   description?: string;
   deniedMessage?: string;
-  onAuthorized: (result: { member: Member; riderOptions: Rider[] }) => void;
+  onAuthorized: (result: PinAuthResult) => void;
   /**
    * Called when acting state is active and the action is denied client-side
-   * (so no PIN dialog opens, just an alert). Defaults to a toast with
-   * `deniedMessage` or a generic message.
+   * (so no PIN dialog opens, just an alert).
    */
   onDeniedWhileActing?: (reason: string) => void;
+}
+
+export interface RequestPinAuthAndRiderInput extends Omit<
+  RequestPinAuthInput,
+  "onAuthorized"
+> {
+  /**
+   * Client-side filter on rider options. Use this to enforce action-specific
+   * permission rules (e.g., for ENROLL, filter out riders already enrolled
+   * in the lesson).
+   */
+  filterRiderOptions?: (options: Rider[], member: Member) => Rider[];
+  riderSelectTitle?: string;
+  riderSelectDescription?: string;
+  noRidersMessage?: string;
+  onAuthorized: (result: PinAuthWithRiderResult) => void;
 }
 
 /**
  * Imperative entry point for PIN-gated actions.
  *
- * - In default scope: opens the PIN dialog.
- * - In acting scope: short-circuits — checks permissions client-side from
- *   `useKiosk().permissions` and either calls `onAuthorized` immediately
- *   (with the acting member) or fires `onDeniedWhileActing`.
+ *   - DEFAULT scope: opens the PIN dialog.
+ *   - Active acting scope: short-circuits — uses cached client-side
+ *     permissions and the cached acting member's rider options.
  */
 export function usePinAuth() {
-  const { acting, permissions, actingMember } = useKiosk();
+  const { acting, permissions, actingMember, actingRiderOptions } = useKiosk();
   const pinAuthModal = PinAuthModal.useModal();
+  const riderSelectModal = RiderSelectModal.useModal();
 
   const request = React.useCallback(
     (input: RequestPinAuthInput) => {
       if (acting.scope !== KioskScope.DEFAULT) {
+        // Acting member data may not be loaded yet on first paint — treat
+        // as transient and bail rather than denying. The user can click
+        // again once the queries settle.
+        if (!actingMember) return;
+
         const allowed = isActionAllowedClientSide(input.context, permissions);
-        if (allowed && actingMember) {
-          // Acting state short-circuit. We don't have riderOptions cached
-          // here — for the actions that need them, the acting member is
-          // implicitly the only relevant rider (self-scope), or a separate
-          // picker could be added later. For now, return the acting
-          // member's own rider as the sole option if present.
-          const ownRider = actingMember.rider ? [actingMember.rider] : [];
+        if (allowed) {
           input.onAuthorized({
             member: actingMember,
-            riderOptions: ownRider,
+            riderOptions: actingRiderOptions,
+            verification: undefined,
           });
         } else {
           const reason =
@@ -68,13 +103,55 @@ export function usePinAuth() {
       };
       pinAuthModal.open(payload);
     },
-    [acting.scope, permissions, actingMember]
+    [acting.scope, permissions, actingMember, actingRiderOptions, pinAuthModal]
   );
 
-  return { request };
+  const requestWithRider = React.useCallback(
+    (input: RequestPinAuthAndRiderInput) => {
+      request({
+        context: input.context,
+        preselectedMemberId: input.preselectedMemberId,
+        title: input.title,
+        description: input.description,
+        deniedMessage: input.deniedMessage,
+        onDeniedWhileActing: input.onDeniedWhileActing,
+        onAuthorized: ({ member, riderOptions, verification }) => {
+          const filtered =
+            input.filterRiderOptions?.(riderOptions, member) ?? riderOptions;
+
+          if (filtered.length === 0) {
+            toast.error(
+              input.noRidersMessage ??
+                "No eligible riders to perform this action"
+            );
+            return;
+          }
+
+          if (filtered.length === 1) {
+            input.onAuthorized({
+              member,
+              rider: filtered[0],
+              verification,
+            });
+            return;
+          }
+
+          riderSelectModal.open({
+            title: input.riderSelectTitle,
+            description: input.riderSelectDescription,
+            riderOptions: filtered,
+            onSelected: (rider) =>
+              input.onAuthorized({ member, rider, verification }),
+          });
+        },
+      });
+    },
+    [request, riderSelectModal]
+  );
+
+  return { request, requestWithRider };
 }
 
-/** Map a permission context to the appropriate `KioskPermissionSet` flag. */
 function isActionAllowedClientSide(
   context: KioskActionContext,
   permissions: ReturnType<typeof useKiosk>["permissions"]

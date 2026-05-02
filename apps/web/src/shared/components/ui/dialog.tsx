@@ -80,16 +80,18 @@ function DialogPortal(props: DialogPrimitive.Portal.Props) {
 
 function DialogOverlay({
   className,
+  zIndex = 50,
   ...props
-}: DialogPrimitive.Backdrop.Props) {
+}: DialogPrimitive.Backdrop.Props & { zIndex?: number }) {
   const { isMobile } = useDialogContext();
   if (isMobile) return null;
 
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
+      style={{ zIndex }}
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}
@@ -103,9 +105,11 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  zIndex = 50,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
+  zIndex?: number;
 }) {
   const { isMobile } = useDialogContext();
 
@@ -125,11 +129,12 @@ function DialogContent({
 
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay zIndex={zIndex} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
+        style={{ zIndex }}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}

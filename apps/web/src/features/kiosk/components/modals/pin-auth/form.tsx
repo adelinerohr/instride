@@ -55,6 +55,7 @@ export function PinAuthModalForm(props: PinAuthModalPayload) {
         props.onAuthorized({
           member: result.member,
           riderOptions: result.riderOptions,
+          verification: { memberId: value.memberId, pin: value.pin },
         });
       } catch (error) {
         if (error instanceof APIError) {
@@ -102,7 +103,7 @@ export function PinAuthModalForm(props: PinAuthModalPayload) {
   });
 
   return (
-    <DialogContent>
+    <DialogContent zIndex={900}>
       <form
         onSubmit={(e) => {
           e.preventDefault();

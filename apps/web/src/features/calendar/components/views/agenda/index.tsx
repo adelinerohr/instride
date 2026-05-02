@@ -55,7 +55,7 @@ export function AgendaView() {
             (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
           );
 
-          const hasPassed = isBefore(dayGroup.date, new Date());
+          const hasPassed = isBefore(dayGroup.date, startOfDay(new Date()));
 
           return (
             <div

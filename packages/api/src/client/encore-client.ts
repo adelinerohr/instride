@@ -1022,6 +1022,7 @@ export namespace kiosk {
             this.clearKioskIdentity = this.clearKioskIdentity.bind(this)
             this.createKioskSession = this.createKioskSession.bind(this)
             this.deleteKioskSession = this.deleteKioskSession.bind(this)
+            this.getKioskActingRiderOptions = this.getKioskActingRiderOptions.bind(this)
             this.getKioskSession = this.getKioskSession.bind(this)
             this.kioskCancelLessonInstance = this.kioskCancelLessonInstance.bind(this)
             this.kioskCreateLessonInstance = this.kioskCreateLessonInstance.bind(this)
@@ -1051,6 +1052,12 @@ export namespace kiosk {
 
         public async deleteKioskSession(sessionId: string): Promise<void> {
             await this.baseClient.callTypedAPI("DELETE", `/kiosk/sessions/${encodeURIComponent(sessionId)}`)
+        }
+
+        public async getKioskActingRiderOptions(sessionId: string): Promise<contracts.GetKioskActingRiderOptionsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/kiosk/sessions/${encodeURIComponent(sessionId)}/acting-rider-options`)
+            return await resp.json() as contracts.GetKioskActingRiderOptionsResponse
         }
 
         public async getKioskSession(sessionId: string): Promise<contracts.GetKioskSessionResponse> {
@@ -2630,6 +2637,10 @@ export namespace contracts {
         invitation: Invitation
     }
 
+    export interface GetKioskActingRiderOptionsResponse {
+        riderOptions: Rider[]
+    }
+
     export interface GetKioskSessionResponse {
         session: KioskSession
         acting: models.KioskActingState
@@ -4000,7 +4011,6 @@ export namespace models {
 
     export type KioskActionContext = {
         action: "enroll"
-        targetMemberId: string
     } | {
         action: "unenroll"
         targetMemberId: string

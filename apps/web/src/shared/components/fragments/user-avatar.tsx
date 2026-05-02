@@ -1,4 +1,5 @@
 import type { AuthUser } from "@instride/api";
+import { XIcon } from "lucide-react";
 
 import { categoryColorClasses, getUserColor } from "@/shared/lib/config/colors";
 import { cn } from "@/shared/lib/utils";
@@ -69,4 +70,40 @@ function UserAvatarItem({
   );
 }
 
-export { UserAvatar, UserAvatarItem };
+function UserAvatarBadge({
+  user,
+  clearable = false,
+  onClear,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & {
+  user: AuthUser;
+  clearable?: boolean;
+  onClear?: () => void;
+}) {
+  const color = user ? getUserColor(user.id) : "clay";
+  const classes = categoryColorClasses(color);
+
+  return (
+    <div
+      className={cn(
+        "rounded-full p-1 border flex items-center gap-1 pr-2",
+        className,
+        classes.bg,
+        classes.border
+      )}
+      {...props}
+    >
+      <UserAvatar user={user} size="xs" />
+      <span className={cn(classes.fg, "text-xs font-medium")}>{user.name}</span>
+      {clearable && (
+        <XIcon
+          className={cn(classes.fg, "size-3 cursor-pointer")}
+          onClick={onClear}
+        />
+      )}
+    </div>
+  );
+}
+
+export { UserAvatar, UserAvatarItem, UserAvatarBadge };

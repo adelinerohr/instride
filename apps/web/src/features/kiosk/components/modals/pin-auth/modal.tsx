@@ -1,6 +1,6 @@
-import type { Member, Rider } from "@instride/api";
 import type { KioskActionContext } from "@instride/shared";
 
+import type { PinAuthResult } from "@/features/kiosk/hooks/use-pin-auth";
 import { Dialog, DialogPortal } from "@/shared/components/ui/dialog";
 import { defineModal } from "@/shared/lib/stores/modal.store";
 
@@ -12,7 +12,7 @@ export interface PinAuthModalPayload {
   title?: string;
   description?: string;
   deniedMessage?: string;
-  onAuthorized: (result: { member: Member; riderOptions: Rider[] }) => void;
+  onAuthorized: (result: PinAuthResult) => void;
 }
 
 export function PinAuthModalComponent() {

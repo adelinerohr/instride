@@ -19,6 +19,7 @@ type TextFieldProps = React.ComponentProps<"input"> & {
   description?: string;
   inputGroup?: boolean;
   variant?: Variant;
+  optional?: boolean;
 };
 
 export function TextField({
@@ -30,6 +31,7 @@ export function TextField({
   className,
   type = "text",
   variant = "default",
+  optional = false,
   ...props
 }: TextFieldProps) {
   const field = useFieldContext<string | number | undefined | null>();
@@ -47,7 +49,19 @@ export function TextField({
 
   return (
     <Field data-invalid={isInvalid} className={className}>
-      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      {label && (
+        <FieldLabel
+          htmlFor={field.name}
+          className={cn(optional && "justify-between")}
+        >
+          {label}
+          {optional && (
+            <span className="text-muted-foreground font-normal text-xs">
+              Optional
+            </span>
+          )}
+        </FieldLabel>
+      )}
       <InputGroup>
         <InputGroupInput
           id={field.name}

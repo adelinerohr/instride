@@ -2,8 +2,12 @@ import * as React from "react";
 
 import { navigateDate } from "../utils/date";
 import { useCalendar } from "./use-calendar";
+import {
+  useHorizontalSwipeNavigate,
+  type SwipeDirection,
+} from "./use-horizontal-swipe-navigate";
 
-export type Direction = "previous" | "next";
+export type Direction = SwipeDirection;
 
 export type SwipeOptions = {
   enabled?: boolean;
@@ -43,130 +47,12 @@ export function useRangeSwipe(options: SwipeOptions = {}) {
     [setSelectedDate, selectedView, selectedDate, selectedMultiDayCount]
   );
 
-  const pointerIdRef = React.useRef<number | null>(null);
-  const startXRef = React.useRef(0);
-  const startYRef = React.useRef(0);
-  const decisionRef = React.useRef<"undecided" | "horizontal" | "vertical">(
-    "undecided"
-  );
-  const lastWheelNavAtRef = React.useRef(0);
-  const wheelTargetRef = React.useRef<HTMLElement | null>(null);
-
-  const resetPointerTracking = React.useCallback(() => {
-    pointerIdRef.current = null;
-    decisionRef.current = "undecided";
-  }, []);
-
-  const onPointerDown = React.useCallback(
-    (e: React.PointerEvent) => {
-      if (!enabled) return;
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-
-      pointerIdRef.current = e.pointerId;
-      startXRef.current = e.clientX;
-      startYRef.current = e.clientY;
-      decisionRef.current = "undecided";
-    },
-    [enabled]
-  );
-
-  const onPointerMove = React.useCallback(
-    (e: React.PointerEvent) => {
-      if (!enabled) return;
-      if (pointerIdRef.current !== e.pointerId) return;
-      if (decisionRef.current !== "undecided") return;
-
-      const dx = e.clientX - startXRef.current;
-      const dy = e.clientY - startYRef.current;
-
-      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-
-      if (Math.abs(dy) > Math.abs(dx) * horizontalDominance) {
-        decisionRef.current = "vertical";
-        return;
-      }
-
-      decisionRef.current = "horizontal";
-    },
-    [enabled, horizontalDominance]
-  );
-
-  const onPointerUp = React.useCallback(
-    (e: React.PointerEvent) => {
-      if (!enabled) return;
-      if (pointerIdRef.current !== e.pointerId) return;
-
-      const dx = e.clientX - startXRef.current;
-      const dy = e.clientY - startYRef.current;
-
-      if (
-        decisionRef.current === "horizontal" &&
-        Math.abs(dx) >= swipeThresholdPx &&
-        Math.abs(dy) <= Math.abs(dx) * horizontalDominance
-      ) {
-        navigate(dx < 0 ? "next" : "previous");
-      }
-
-      resetPointerTracking();
-    },
-    [
-      enabled,
-      horizontalDominance,
-      navigate,
-      resetPointerTracking,
-      swipeThresholdPx,
-    ]
-  );
-
-  const onPointerCancel = React.useCallback(
-    (e: React.PointerEvent) => {
-      if (!enabled) return;
-      if (pointerIdRef.current !== e.pointerId) return;
-      resetPointerTracking();
-    },
-    [enabled, resetPointerTracking]
-  );
-
-  // Native non-passive wheel listener on the viewport.
-  // React's synthetic onWheel is passive and can't preventDefault, plus
-  // the scroll container often consumes the event before it bubbles.
-  React.useEffect(() => {
-    const el = wheelTargetRef.current;
-    if (!el || !enabled) return;
-
-    const handler = (e: WheelEvent) => {
-      const absX = Math.abs(e.deltaX);
-      const absY = Math.abs(e.deltaY);
-
-      if (absX < absY * horizontalDominance) return;
-      if (absX < wheelThresholdPx) return;
-
-      const now = performance.now();
-      if (now - lastWheelNavAtRef.current < wheelCooldownMs) return;
-      lastWheelNavAtRef.current = now;
-
-      e.preventDefault();
-      navigate(e.deltaX > 0 ? "next" : "previous");
-    };
-
-    el.addEventListener("wheel", handler, { passive: false });
-    return () => el.removeEventListener("wheel", handler);
-  }, [
+  return useHorizontalSwipeNavigate({
     enabled,
+    swipeThresholdPx,
     horizontalDominance,
-    navigate,
-    wheelCooldownMs,
     wheelThresholdPx,
-  ]);
-
-  return {
-    swipeHandlers: {
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerCancel,
-    } satisfies React.HTMLAttributes<HTMLElement>,
-    wheelTargetRef,
-    swipeClassName: "touch-pan-y overscroll-x-contain",
-  };
+    wheelCooldownMs,
+    onNavigate: navigate,
+  });
 }

@@ -39,11 +39,17 @@ export const ConfirmStep = withForm({
                 values.riderIds.includes(r.id)
               );
               if (riders.length > 0) {
+                const names = riders.map((r) => getUser({ rider: r }).name);
+                const visible = names.slice(0, 2).join(", ");
+                const remaining = names.length - 2;
+                const value =
+                  remaining > 0
+                    ? `${visible}, + ${remaining} ${remaining === 1 ? "rider" : "riders"}`
+                    : visible;
+
                 rows.push({
                   label: "Riders",
-                  value: riders
-                    .map((r) => getUser({ rider: r }).name)
-                    .join(", "),
+                  value,
                 });
               }
             }

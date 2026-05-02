@@ -3,7 +3,7 @@ import type {
   KioskEnrollInInstanceRequest,
   KioskUnenrollFromInstanceRequest,
 } from "@instride/api/contracts";
-import { KioskActions } from "@instride/shared";
+import { KioskActions, KioskScope } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 
 import { instanceEnrollmentRepo } from "@/services/lessons/enrollments/enrollment.repo";
@@ -19,6 +19,7 @@ import { assertExists } from "@/shared/utils/validation";
 
 import { resolveKioskActor } from "../actor";
 import { db } from "../db";
+import { assertSelfOrAuthorizedGuardian } from "../permissions";
 import { assertKioskBookingRules } from "./validation";
 
 export const kioskEnrollInInstance = api(
@@ -33,20 +34,33 @@ export const kioskEnrollInInstance = api(
   ): Promise<EnrollInInstanceResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
+    // Gate-time check: actor exists and (for SELF) has authority over at
+    // least one rider. Per-rider check follows below.
     const actor = await resolveKioskActor({
       sessionId: request.sessionId,
       organizationId,
       verification: request.verification,
       context: {
         action: KioskActions.ENROLL,
-        targetMemberId: request.riderMemberId,
       },
     });
 
-    const rider = await memberRepo.findOneRider(
+    // Per-rider check: confirm the actor can act on *this* rider. Staff
+    // skip; SELF must be self or an authorized guardian of the target.
+    if (actor.scope === KioskScope.SELF) {
+      await assertSelfOrAuthorizedGuardian({
+        organizationId,
+        actingMemberId: actor.memberId,
+        targetMemberId: request.riderMemberId,
+        permissionKey: "canBookLessons",
+      });
+    }
+
+    const rider = await memberRepo.findOneRiderByMember(
       request.riderMemberId,
       organizationId
     );
+
     const instance = await lessonInstanceRepo
       .findOneExpanded(request.instanceId, organizationId)
       .then(toLessonInstance);

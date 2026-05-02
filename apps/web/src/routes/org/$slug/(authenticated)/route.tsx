@@ -1,7 +1,6 @@
 import { authOptions, type AuthUser } from "@instride/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { ImpersonationBanner } from "@/shared/components/auth/impersonation-banner";
 import { ConfirmationModal } from "@/shared/components/confirmation-modal";
 import { ModalScope } from "@/shared/lib/stores/modal.store";
@@ -68,7 +67,7 @@ export const Route = createFileRoute("/org/$slug/(authenticated)")({
 
 function RouteComponent() {
   return (
-    <ModalScope modals={[ViewLessonSheet, ConfirmationModal]}>
+    <ModalScope modals={[ConfirmationModal]}>
       <ImpersonationBanner />
       <Outlet />
     </ModalScope>

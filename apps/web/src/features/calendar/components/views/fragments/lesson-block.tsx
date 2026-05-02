@@ -66,7 +66,7 @@ interface LessonBlockProps
 }
 
 export function LessonBlock({ lesson, className }: LessonBlockProps) {
-  const { slotHeight } = useCalendar();
+  const { slotHeight, type } = useCalendar();
   const viewLessonSheet = ViewLessonSheet.useModal();
 
   const start = parseISO(lesson.start);
@@ -108,7 +108,10 @@ export function LessonBlock({ lesson, className }: LessonBlockProps) {
     : null;
 
   const handleClick = () => {
-    viewLessonSheet.open({ instanceId: lesson.id });
+    viewLessonSheet.open({
+      instanceId: lesson.id,
+      isKiosk: type === "kiosk" ? true : false,
+    });
   };
 
   return (

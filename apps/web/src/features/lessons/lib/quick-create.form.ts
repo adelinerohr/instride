@@ -16,6 +16,7 @@ const quickCreateLessonDefaultValues: QuickCreateLessonSchema = {
   },
   isServiceGroup: false,
   acknowledgePrivateLesson: null,
+  details: null,
   riderIds: [],
 };
 
@@ -43,5 +44,14 @@ export function buildQuickCreateLessonDefaultValues(input: {
     boardId: input.initialValues.boardId ?? "",
     trainerId: input.initialValues.trainerId ?? "",
     riderIds: input.initialValues.riderId ? [input.initialValues.riderId] : [],
+    details:
+      input.type === "admin"
+        ? {
+            name: null,
+            levelId: null,
+            notes: null,
+            isRecurring: null,
+          }
+        : null,
   };
 }

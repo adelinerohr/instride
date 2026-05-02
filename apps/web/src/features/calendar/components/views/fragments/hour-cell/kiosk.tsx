@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useCalendar } from "@/features/calendar/hooks/use-calendar";
 import { usePinAuth } from "@/features/kiosk/hooks/use-pin-auth";
 import { AdminCreateLessonModal } from "@/features/lessons/components/modals/quick-create/admin/modal";
-import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/modal";
+import { RiderCreateLessonModal } from "@/features/lessons/components/modals/quick-create/rider/modal";
 
 import type { HourCellProps } from ".";
 import { HourCellShell } from "./shell";

@@ -1,4 +1,8 @@
-import { EventScope, LessonInstanceStatus } from "@instride/shared";
+import {
+  EventScope,
+  LessonInstanceStatus,
+  timeToMinutes,
+} from "@instride/shared";
 import { getDayOfWeek } from "@instride/shared";
 
 import { resolveEffectiveWeekHours } from "@/services/availability/business-hours/utils";
@@ -73,11 +77,14 @@ export async function checkBusinessHours(
     };
   }
 
+  const startMin = timeToMinutes(input.window.startTime);
+  const endMin = timeToMinutes(input.window.endTime);
+
   // Lesson must fit entirely inside at least one slot
   const fitsInSomeSlot = hours.slots.some(
     (slot) =>
-      input.window.startTime >= slot.openTime &&
-      input.window.endTime <= slot.closeTime
+      startMin >= timeToMinutes(slot.openTime) &&
+      endMin <= timeToMinutes(slot.closeTime)
   );
 
   if (!fitsInSomeSlot) {

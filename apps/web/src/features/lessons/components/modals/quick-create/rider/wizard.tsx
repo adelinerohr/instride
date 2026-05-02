@@ -24,16 +24,16 @@ import { WizardProvider } from "@/shared/contexts/wizard-context";
 import { useAppForm } from "@/shared/hooks/use-form";
 import { useWizard, type WizardStepConfig } from "@/shared/hooks/use-wizard";
 
-import { ContextPills } from "../fragments/context-pills";
-import { StepIndicator } from "../fragments/step-indicator";
+import { ContextPills } from "../../fragments/context-pills";
+import { StepIndicator } from "../../fragments/step-indicator";
+import { ConfirmStep } from "../steps/confirm-step";
+import { RiderStep } from "../steps/rider-step";
+import { ServiceStep } from "../steps/service-step";
+import { TrainerStep } from "../steps/trainer-step";
 import {
   RiderCreateLessonModal,
   type RiderCreateLessonModalPayload,
 } from "./modal";
-import { ConfirmStep } from "./steps/confirm-step";
-import { RiderStep } from "./steps/rider-step";
-import { ServiceStep } from "./steps/service-step";
-import { TrainerStep } from "./steps/trainer-step";
 
 type StepKey = "rider" | "trainer" | "service" | "confirm";
 
@@ -213,6 +213,7 @@ export function RiderCreateLessonModalWizard({
                     resolvedRiders={riders}
                     eligibleRiders={eligibleRiders}
                     boardName={selectedBoard?.name ?? ""}
+                    selectedTrainer={resolvedTrainer}
                   />
                 ),
                 trainer: () => (

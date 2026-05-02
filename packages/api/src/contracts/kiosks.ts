@@ -137,3 +137,7 @@ export interface CheckKioskPermissionResponse {
   member: Member;
   riderOptions: Rider[];
 }
+
+export interface GetKioskActingRiderOptionsResponse {
+  riderOptions: Rider[];
+}

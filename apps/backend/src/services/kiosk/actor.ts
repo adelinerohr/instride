@@ -50,7 +50,7 @@ export async function resolveKioskActor(
       throw APIError.failedPrecondition("Member has not set a PIN");
     }
     if (!result.ok) {
-      throw APIError.permissionDenied("Invalid PIN");
+      throw APIError.unauthenticated("Invalid PIN");
     }
 
     const member = result.member;
@@ -72,11 +72,10 @@ export async function resolveKioskActor(
     };
   }
 
-  // No one-shot verification -> fall back to active acting state
-  const session = toKioskSession(
-    await kioskRepo.findOne(input.sessionId, input.organizationId)
-  );
-
+  // No one-shot verification — fall back to active acting state.
+  const session = await kioskRepo
+    .findOne(input.sessionId, input.organizationId)
+    .then(toKioskSession);
   const acting = {
     actingMemberId: session.actingMemberId,
     scope: session.scope,

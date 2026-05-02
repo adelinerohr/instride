@@ -21,7 +21,7 @@ export const verifyKioskIdentity = api(
   ): Promise<KioskSessionResponse> => {
     const { organizationId } = requireOrganizationAuth();
 
-    // Confirm session exists and belongs to this org
+    // Confirm session exists and belongs to this org.
     await kioskRepo.findOneScalar(request.sessionId, organizationId);
 
     const verification = await verifyKioskPin({
@@ -44,8 +44,9 @@ export const verifyKioskIdentity = api(
       member.roles.includes(MembershipRole.TRAINER);
     const scope = isStaff ? KioskScope.STAFF : KioskScope.SELF;
 
-    // Set expiry so subsequent operations (like markAttendance) can enforce it.
-    // Without this, sessions silently never expire and expiry checks always fail.
+    // Set expiry so subsequent operations gated by assertActiveActing can
+    // enforce it. Without this, sessions never expire and the expiry check
+    // always passes.
     const expiresAt = addHours(new Date(), KIOSK_SESSION_DURATION_HOURS);
 
     const updated = await kioskRepo.setActing({

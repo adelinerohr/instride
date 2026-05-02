@@ -100,6 +100,14 @@ export const quickCreateLessonSchema = z
     }),
     isServiceGroup: z.boolean(),
     acknowledgePrivateLesson: z.boolean().nullable(),
+    details: z
+      .object({
+        name: z.string().nullable(),
+        levelId: z.string().nullable(),
+        notes: z.string().nullable(),
+        isRecurring: z.boolean().nullable(),
+      })
+      .nullable(),
     riderIds: z.array(z.string()),
   })
   .superRefine((data, ctx) => {
@@ -108,6 +116,14 @@ export const quickCreateLessonSchema = z
         code: "custom",
         path: ["riderIds"],
         message: "You must select at least one rider",
+      });
+    }
+
+    if (data.type === "rider" && data.details !== null) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["details"],
+        message: "You cannot change the details as a rider",
       });
     }
 

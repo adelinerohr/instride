@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-router";
 import { AlertCircleIcon } from "lucide-react";
 
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { AppLayout } from "@/shared/components/layout/app-layout";
 import { Page, PageBody } from "@/shared/components/layout/page";
 import { buttonVariants } from "@/shared/components/ui/button";
@@ -24,6 +25,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
+import { ModalScope } from "@/shared/lib/stores/modal.store";
 
 type OnlyGuardianContext = {
   isGuardian: true;
@@ -231,7 +233,9 @@ function RouteComponent() {
           </PageBody>
         </Page>
       ) : (
-        <Outlet />
+        <ModalScope modals={[ViewLessonSheet]}>
+          <Outlet />
+        </ModalScope>
       )}
     </AppLayout>
   );

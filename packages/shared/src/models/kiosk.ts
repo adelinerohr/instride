@@ -1,7 +1,7 @@
 import { KioskActions, KioskScope } from "./enums";
 
 export type KioskActionContext =
-  | { action: typeof KioskActions.ENROLL; targetMemberId: string }
+  | { action: typeof KioskActions.ENROLL }
   | { action: typeof KioskActions.UNENROLL; targetMemberId: string }
   | { action: typeof KioskActions.LESSON_CREATE; boardId: string }
   | {
