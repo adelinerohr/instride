@@ -3,7 +3,7 @@ import type { Row, Table } from "@tanstack/react-table";
 import { DownloadIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { DataTableActionBar } from "@/shared/components/data-table/action-bar";
+import { DataTableActionBar } from "@/shared/components/complex-data-table/action-bar";
 import { Button } from "@/shared/components/ui/button";
 import { downloadCSV } from "@/shared/lib/utils/export";
 

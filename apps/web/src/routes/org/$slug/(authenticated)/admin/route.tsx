@@ -5,6 +5,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
 import { EventModal } from "@/features/organization/components/availability/events/modal";
 import { CreateTimeBlockModal } from "@/features/organization/components/availability/time-blocks/modal";
+import { EmergencyContactModal } from "@/features/organization/components/members/modals/emergency-contact";
 import { AppLayout } from "@/shared/components/layout/app-layout";
 import { ModalScope } from "@/shared/lib/stores/modal.store";
 
@@ -65,7 +66,14 @@ export const Route = createFileRoute("/org/$slug/(authenticated)/admin")({
 
 function RouteComponent() {
   return (
-    <ModalScope modals={[CreateTimeBlockModal, EventModal, ViewLessonSheet]}>
+    <ModalScope
+      modals={[
+        CreateTimeBlockModal,
+        EventModal,
+        ViewLessonSheet,
+        EmergencyContactModal,
+      ]}
+    >
       <AppLayout type="admin" isAdmin={true}>
         <Outlet />
       </AppLayout>

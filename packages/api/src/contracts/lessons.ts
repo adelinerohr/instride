@@ -368,6 +368,10 @@ export interface ListMyEnrollmentsResponse {
   enrollments: LessonInstanceEnrollmentWithInstance[];
 }
 
+export interface ListRiderEnrollmentsResponse {
+  enrollments: LessonInstanceEnrollmentWithInstance[];
+}
+
 // ============================================================================
 // Scheduler
 // ============================================================================

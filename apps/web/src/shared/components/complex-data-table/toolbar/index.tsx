@@ -6,9 +6,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 
+import { InputSearch } from "../../fragments/input-search";
 import { DataTableDateFilter } from "./date-filter";
 import { DataTableFacetedFilter } from "./faceted-filter";
-import { DataTableViewOptions } from "./view-options";
 
 interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>;
@@ -44,9 +44,10 @@ export function DataTableToolbar<TData>({
       {...props}
     >
       <div className="flex flex-1 flex-wrap items-center gap-2">
-        <DataTableToolbarSearch
+        <InputSearch
           placeholder={searchPlaceholder}
-          className="h-8 w-40 lg:w-56"
+          className="h-8 w-40 lg:w-56 bg-card"
+          debounceTime={500}
           value={table.getState().globalFilter}
           onChange={(value) => table.setGlobalFilter(String(value))}
         />
@@ -66,49 +67,8 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        {children}
-        <DataTableViewOptions table={table} align="end" />
-      </div>
+      <div className="flex items-center gap-2">{children}</div>
     </div>
-  );
-}
-
-interface DataTableToolbarSearchProps extends Omit<
-  React.ComponentProps<"input">,
-  "onChange"
-> {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  debounce?: number;
-}
-
-export function DataTableToolbarSearch({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: DataTableToolbarSearchProps) {
-  const [value, setValue] = React.useState(initialValue);
-
-  React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-
-    return () => clearTimeout(timeout);
-  }, [value, debounce, onChange]);
-
-  return (
-    <Input
-      {...props}
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
-    />
   );
 }
 

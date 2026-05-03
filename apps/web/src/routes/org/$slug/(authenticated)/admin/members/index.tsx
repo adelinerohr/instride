@@ -6,10 +6,10 @@ import { CopyIcon } from "lucide-react";
 import * as React from "react";
 
 import { MemberList } from "@/features/organization/components/members/list";
-import { DataTable } from "@/shared/components/data-table";
-import { DataTableActionBar } from "@/shared/components/data-table/action-bar";
-import { DataTableToolbar } from "@/shared/components/data-table/toolbar";
-import { DataTableSortList } from "@/shared/components/data-table/toolbar/sort-list";
+import { DataTable } from "@/shared/components/complex-data-table";
+import { DataTableActionBar } from "@/shared/components/complex-data-table/action-bar";
+import { DataTableToolbar } from "@/shared/components/complex-data-table/toolbar";
+import { Page, PageHeader } from "@/shared/components/layout/page";
 import { Button } from "@/shared/components/ui/button";
 import { useDataTable } from "@/shared/hooks/use-data-table";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -52,17 +52,16 @@ function RouteComponent() {
   }
 
   return (
-    <>
+    <Page>
+      <PageHeader title="Members" backButton={false} />
       <DataTable
         table={table}
         className="p-4"
         actionBar={<MembersActionBar table={table} />}
       >
-        <DataTableToolbar table={table} searchPlaceholder="Search members...">
-          <DataTableSortList table={table} align="end" />
-        </DataTableToolbar>
+        <DataTableToolbar table={table} searchPlaceholder="Search members..." />
       </DataTable>
-    </>
+    </Page>
   );
 }
 

@@ -16,6 +16,8 @@ export const lessonKeys = {
     [...lessonKeys.instanceLists(), "range", { from, to }] as const,
   instanceById: (id: string) =>
     [...lessonKeys.instances(), "detail", id] as const,
+  instancesByTrainer: (trainerId: string) =>
+    [...lessonKeys.instances(), "trainer", trainerId] as const,
 
   // Stats — sibling of instances so enrollment invalidation doesn't refetch it
   // (move under instances if stats should refetch on enrollment changes)
@@ -30,4 +32,6 @@ export const lessonKeys = {
   myEnrollments: () => [...lessonKeys.enrollments(), "my"] as const,
   myEnrollmentsInRange: (from: string, to: string) =>
     [...lessonKeys.myEnrollments(), "range", { from, to }] as const,
+  byRiderId: (riderId: string) =>
+    [...lessonKeys.enrollments(), "rider", riderId] as const,
 };

@@ -2,6 +2,7 @@ import type {
   ListInstanceEnrollmentsResponse,
   ListMyEnrollmentsRequest,
   ListMyEnrollmentsResponse,
+  ListRiderEnrollmentsResponse,
   ListSeriesEnrollmentsResponse,
 } from "@instride/api/contracts";
 import { api } from "encore.dev/api";
@@ -50,6 +51,29 @@ export const listInstanceEnrollments = api(
     });
 
     return { enrollments: enrollments.map(toInstanceEnrollment) };
+  }
+);
+
+export const listRiderEnrollments = api(
+  {
+    expose: true,
+    method: "GET",
+    path: "/lessons/instances/enrollments/rider/:riderId",
+    auth: true,
+  },
+  async ({
+    riderId,
+  }: {
+    riderId: string;
+  }): Promise<ListRiderEnrollmentsResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+
+    const enrollments = await instanceEnrollmentRepo.findManyForRiders({
+      riderIds: [riderId],
+      organizationId,
+    });
+
+    return { enrollments: enrollments.map(toInstanceEnrollmentWithInstance) };
   }
 );
 

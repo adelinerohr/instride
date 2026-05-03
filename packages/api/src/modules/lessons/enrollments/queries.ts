@@ -28,6 +28,13 @@ export const enrollmentOptions = {
         return enrollments;
       },
     }),
+  byRiderId: (riderId: string) =>
+    queryOptions({
+      queryKey: lessonKeys.byRiderId(riderId),
+      queryFn: async () =>
+        await apiClient.lessons.listRiderEnrollments(riderId),
+      select: (data) => data.enrollments,
+    }),
 };
 
 export function useMyEnrollments(from: string, to: string) {
@@ -40,4 +47,8 @@ export function useSeriesEnrollments(seriesId: string) {
 
 export function useInstanceEnrollments(instanceId: string) {
   return useQuery(enrollmentOptions.listInstance(instanceId));
+}
+
+export function useRiderEnrollments(riderId: string) {
+  return useQuery(enrollmentOptions.byRiderId(riderId));
 }

@@ -50,7 +50,7 @@ export function DataTableViewOptions<TData>({
             role="combobox"
             variant="outline"
             size="sm"
-            className="ml-auto hidden h-8 font-normal lg:flex"
+            className="ml-auto hidden font-normal lg:flex bg-card"
             disabled={disabled}
           />
         }

@@ -1,5 +1,5 @@
 import {
-  checkIfValidStrings,
+  isValidStrings,
   createTimeBlockSchema,
   formPartsToIso,
   isoToFormParts,
@@ -45,7 +45,7 @@ export function validateEndAfterStart(input: {
   timezone: string;
 }) {
   const { start, end, timezone } = input;
-  if (!checkIfValidStrings([start.date, start.time, end.date, end.time]))
+  if (!isValidStrings([start.date, start.time, end.date, end.time]))
     return undefined;
 
   const startMs = new Date(formPartsToIso(start, timezone)).getTime();

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { editRiderModalHandler } from "@/features/organization/components/members/modals/edit-rider";
-import { DataTableColumnHeader } from "@/shared/components/data-table/column-header";
+import { DataTableColumnHeader } from "@/shared/components/complex-data-table/column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";

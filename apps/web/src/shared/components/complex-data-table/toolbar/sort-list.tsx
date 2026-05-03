@@ -170,7 +170,7 @@ export function DataTableSortList<TData>({
             <Button
               variant="outline"
               size="sm"
-              className="font-normal"
+              className="font-normal bg-card"
               onKeyDown={onTriggerKeyDown}
               disabled={disabled}
             />

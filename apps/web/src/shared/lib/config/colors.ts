@@ -40,6 +40,14 @@ export function getTrainerColor(trainerId: string): CategoryColor {
   return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
 }
 
+export function getBoardColor(boardId: string): CategoryColor {
+  let hash = 0;
+  for (let i = 0; i < boardId.length; i++) {
+    hash = boardId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+}
+
 export function getRoleColor(role: MembershipRole): CategoryColor {
   switch (role) {
     case MembershipRole.ADMIN:

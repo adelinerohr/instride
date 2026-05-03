@@ -169,7 +169,6 @@ export const createInstanceEnrollmentRepo = (
             : undefined
         )
       );
-    console.log({ rows: rows.map((row) => row.lesson_instance_enrollments) });
     const enrollmentIds = rows
       .map((row) => row.lesson_instance_enrollments.id)
       .filter(Boolean);
@@ -186,9 +185,6 @@ export const createInstanceEnrollmentRepo = (
           with: lessonInstanceExpansion,
         },
       },
-    });
-    console.log({
-      enrollments: enrollments.map((enrollment) => enrollment.id),
     });
     return enrollments;
   },

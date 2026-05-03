@@ -4,7 +4,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { RepeatIcon } from "lucide-react";
 import type React from "react";
 
-import { LevelBadge } from "@/features/organization/components/levels/level-badge";
+import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Progress, ProgressLabel } from "@/shared/components/ui/progress";

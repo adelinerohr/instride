@@ -50,3 +50,24 @@ export const getLessonInstance = api(
     return { instance: toLessonInstance(instance) };
   }
 );
+
+export const listInstancesByTrainer = api(
+  {
+    expose: true,
+    method: "GET",
+    path: "/lessons/instances/trainer/:trainerId",
+    auth: true,
+  },
+  async ({
+    trainerId,
+  }: {
+    trainerId: string;
+  }): Promise<ListLessonInstancesResponse> => {
+    const { organizationId } = requireOrganizationAuth();
+    const rows = await lessonInstanceRepo.findMany({
+      organizationId,
+      filters: { trainerId },
+    });
+    return { instances: rows.map(toLessonInstance) };
+  }
+);

@@ -92,3 +92,12 @@ export function formatTime(date: Date): string {
     minute: "2-digit",
   });
 }
+
+export function pluralize(count: number, word: string): string {
+  return count === 1 ? word : `${word}s`;
+}
+
+export function formatUSPhone(input: string): string {
+  const match = input.match(/^\+?1?(\d{3})(\d{3})(\d{4})$/);
+  return match ? `(${match[1]}) ${match[2]}-${match[3]}` : input;
+}

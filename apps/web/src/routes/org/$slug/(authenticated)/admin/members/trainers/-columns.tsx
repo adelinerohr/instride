@@ -8,7 +8,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/column-header";
+import { DataTableColumnHeader } from "@/shared/components/complex-data-table/column-header";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {

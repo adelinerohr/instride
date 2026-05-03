@@ -1,5 +1,5 @@
 import { useCreateTimeBlock, useTrainers } from "@instride/api";
-import { checkIfValidStrings, formPartsToIso } from "@instride/shared";
+import { isValidStrings, formPartsToIso } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { AlertCircleIcon, CalendarIcon } from "lucide-react";
@@ -155,12 +155,7 @@ export function CreateTimeBlockForm({
           >
             {([start, end]) => {
               if (
-                !checkIfValidStrings([
-                  start.date,
-                  start.time,
-                  end.date,
-                  end.time,
-                ])
+                !isValidStrings([start.date, start.time, end.date, end.time])
               ) {
                 return null;
               }

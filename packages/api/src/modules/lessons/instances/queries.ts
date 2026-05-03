@@ -33,6 +33,15 @@ export const instanceOptions = {
     });
   },
 
+  byTrainer: (trainerId: string) => {
+    return queryOptions({
+      queryKey: lessonKeys.instancesByTrainer(trainerId),
+      queryFn: async () =>
+        await apiClient.lessons.listInstancesByTrainer(trainerId),
+      select: (data) => data.instances,
+    });
+  },
+
   stats: () => {
     return queryOptions({
       queryKey: lessonKeys.instanceStats(),
@@ -81,4 +90,8 @@ export function useLessonInstance(instanceId: string) {
 
 export function useGetLessonStats() {
   return useQuery(instanceOptions.stats());
+}
+
+export function useListLessonInstancesByTrainer(trainerId: string) {
+  return useQuery(instanceOptions.byTrainer(trainerId));
 }

@@ -5,10 +5,7 @@ import { addDays } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import * as React from "react";
 
-import {
-  LessonCard,
-  LessonCardVariant,
-} from "@/features/lessons/components/fragments/lesson-card";
+import { LessonCardList } from "@/features/lessons/components/card";
 import {
   Empty,
   EmptyHeader,
@@ -67,24 +64,24 @@ export function LessonPicker() {
             Upcoming lessons
           </span>
           <div className="flex flex-col">
-            {filteredLessons.length > 0 ? (
-              filteredLessons.map((lesson) => (
-                <LessonCard
-                  key={lesson.id}
-                  lesson={lesson}
-                  variant={LessonCardVariant.DATE_CHIP}
-                />
-              ))
-            ) : (
-              <Empty className="border border-dashed">
-                <EmptyHeader>
-                  <EmptyTitle>No upcoming lessons</EmptyTitle>
-                  <EmptyDescription>
-                    Please propose a new lesson.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            )}
+            <LessonCardList
+              variant="compact"
+              items={filteredLessons.map((lesson) => ({
+                lesson,
+                perspective: { kind: "admin" },
+                onClick: () => console.log(lesson),
+              }))}
+              emptyState={
+                <Empty className="border border-dashed">
+                  <EmptyHeader>
+                    <EmptyTitle>No upcoming lessons</EmptyTitle>
+                    <EmptyDescription>
+                      Please propose a new lesson.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              }
+            />
           </div>
         </div>
       </PopoverContent>

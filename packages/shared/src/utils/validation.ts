@@ -1,10 +1,10 @@
-export function checkIfValidString(value: string): boolean {
+export function isValidString(value: string): boolean {
   return value.trim().length > 0;
 }
 
-export function checkIfValidStrings(values: string[]): boolean {
+export function isValidStrings(values: string[]): boolean {
   for (const value of values) {
-    if (!checkIfValidString(value)) return false;
+    if (!isValidString(value)) return false;
   }
   return true;
 }
@@ -12,7 +12,7 @@ export function checkIfValidStrings(values: string[]): boolean {
 export function returnStringOrNull(
   value: string | null | undefined
 ): string | null {
-  if (value && checkIfValidString(value)) {
+  if (value && isValidString(value)) {
     return value;
   }
   return null;

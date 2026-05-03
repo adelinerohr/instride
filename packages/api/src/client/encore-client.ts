@@ -1131,9 +1131,11 @@ export namespace lessons {
             this.getLessonSeries = this.getLessonSeries.bind(this)
             this.getLessonStats = this.getLessonStats.bind(this)
             this.listInstanceEnrollments = this.listInstanceEnrollments.bind(this)
+            this.listInstancesByTrainer = this.listInstancesByTrainer.bind(this)
             this.listLessonInstances = this.listLessonInstances.bind(this)
             this.listLessonSeries = this.listLessonSeries.bind(this)
             this.listMyEnrollments = this.listMyEnrollments.bind(this)
+            this.listRiderEnrollments = this.listRiderEnrollments.bind(this)
             this.listSeriesEnrollments = this.listSeriesEnrollments.bind(this)
             this.markAttendance = this.markAttendance.bind(this)
             this.unenrollFromInstance = this.unenrollFromInstance.bind(this)
@@ -1200,6 +1202,12 @@ export namespace lessons {
             return await resp.json() as contracts.ListInstanceEnrollmentsResponse
         }
 
+        public async listInstancesByTrainer(trainerId: string): Promise<contracts.ListLessonInstancesResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/trainer/${encodeURIComponent(trainerId)}`)
+            return await resp.json() as contracts.ListLessonInstancesResponse
+        }
+
         public async listLessonInstances(params: contracts.ListLessonInstancesRequest): Promise<contracts.ListLessonInstancesResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
@@ -1235,6 +1243,12 @@ export namespace lessons {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/enrollments/me`, undefined, {query})
             return await resp.json() as contracts.ListMyEnrollmentsResponse
+        }
+
+        public async listRiderEnrollments(riderId: string): Promise<contracts.ListRiderEnrollmentsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/lessons/instances/enrollments/rider/${encodeURIComponent(riderId)}`)
+            return await resp.json() as contracts.ListRiderEnrollmentsResponse
         }
 
         public async listSeriesEnrollments(id: string): Promise<contracts.ListSeriesEnrollmentsResponse> {
@@ -3234,6 +3248,10 @@ export namespace contracts {
 
     export interface ListQuestionnairesResponse {
         questionnaires: Questionnaire[]
+    }
+
+    export interface ListRiderEnrollmentsResponse {
+        enrollments: LessonInstanceEnrollmentWithInstance[]
     }
 
     export interface ListRidersResponse {

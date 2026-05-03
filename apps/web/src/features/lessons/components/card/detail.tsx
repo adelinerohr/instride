@@ -1,4 +1,16 @@
-import { isAfter, isBefore } from "date-fns";
+import {
+  getLessonName,
+  getUser,
+  isPrivateLesson,
+  type AuthUser,
+} from "@instride/api";
+import {
+  formatDuration,
+  differenceInMinutes,
+  isAfter,
+  isBefore,
+  format,
+} from "date-fns";
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -11,36 +23,47 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-import { LevelBadge } from "@/features/organization/components/levels/level-badge";
+import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { Tag, TagGroup } from "@/shared/components/ui/tag";
 
-import type { LessonCardVariantProps } from ".";
-import { ViewLessonSheet } from "../../modals/view/sheet";
+import type { LessonCardListItem } from ".";
 
-export function LessonCardDetail({ data }: LessonCardVariantProps) {
-  const viewLessonSheet = ViewLessonSheet.useModal();
-  const {
-    lesson,
-    startTime,
-    endTime,
-    duration,
-    lessonTitle,
-    isPrivate,
-    trainerUser,
-    riderUser,
-    openSlots,
-    rosterStatus,
-  } = data;
-
+export function LessonCardDetail({
+  lesson,
+  perspective,
+  onClick,
+}: LessonCardListItem) {
   const isLessonOngoing =
     isAfter(new Date(), lesson.start) && isBefore(new Date(), lesson.end);
 
-  const showRiderPanel = riderUser != null;
-  const showRosterPanel = !showRiderPanel;
+  const startTime = format(lesson.start, "hh:mm a");
+  const endTime = format(lesson.end, "hh:mm a");
+  const duration = formatDuration({
+    minutes: differenceInMinutes(lesson.end, lesson.start),
+  });
+
+  const openSlots = lesson.maxRiders - (lesson.enrollments?.length ?? 0);
+  const isPrivate = isPrivateLesson(lesson);
+  const trainerUser = getUser({ trainer: lesson.trainer });
+  const riderUser =
+    perspective.kind === "rider" ? getUser({ rider: perspective.rider }) : null;
+
+  const checkedIn: AuthUser[] = [];
+  const notCheckedIn: AuthUser[] = [];
+
+  for (const enrollment of lesson.enrollments ?? []) {
+    if (!enrollment.rider) continue;
+    const user = getUser({ rider: enrollment.rider });
+    if (enrollment.attended) {
+      checkedIn.push(user);
+    } else {
+      notCheckedIn.push(user);
+    }
+  }
 
   return (
     <div className="flex flex-col p-4 gap-4 border rounded-lg bg-card">
@@ -60,7 +83,7 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
 
       <div className="flex flex-col gap-2">
         <div className="font-display text-2xl">
-          {isPrivate ? "Private" : "Group"} &mdash; {lessonTitle}
+          {isPrivate ? "Private" : "Group"} &mdash; {getLessonName(lesson)}
         </div>
         <div className="flex items-center gap-1">
           <LevelBadge level={lesson.level} />
@@ -79,7 +102,7 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
         <Tag icon={MapPinIcon}>{lesson.board?.name}</Tag>
       </TagGroup>
 
-      {showRiderPanel && (
+      {perspective.kind === "rider" && riderUser && (
         <div className="flex items-center gap-2 w-full border rounded-md p-2">
           <UserAvatar user={riderUser} />
           <div className="flex flex-col">
@@ -91,7 +114,7 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
         </div>
       )}
 
-      {showRosterPanel && (
+      {perspective.kind === "admin" && (
         <div className="space-y-2">
           <div className="flex items-center gap-2 justify-between">
             <span className="text-xs text-primary font-medium">
@@ -99,11 +122,11 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
               {lesson.maxRiders}
             </span>
             <span className="text-muted-foreground font-medium text-xs">
-              {rosterStatus.checkedIn.length} of {lesson.maxRiders} checked in
+              {checkedIn.length} of {lesson.maxRiders} checked in
             </span>
           </div>
           <div className="flex gap-2">
-            {rosterStatus.checkedIn.map((user) => (
+            {checkedIn.map((user) => (
               <div
                 key={user.id}
                 className="rounded-full border p-1 pr-2 flex items-center gap-2"
@@ -113,7 +136,7 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
                 <CheckIcon className="size-3 text-muted-foreground" />
               </div>
             ))}
-            {rosterStatus.notCheckedIn.map((user) => (
+            {notCheckedIn.map((user) => (
               <div
                 key={user.id}
                 className="rounded-full border p-1 pr-2 flex items-center gap-2"
@@ -137,15 +160,12 @@ export function LessonCardDetail({ data }: LessonCardVariantProps) {
       <div className="flex items-center justify-between gap-2">
         <Button>
           <CircleCheckIcon />
-          Check in{!showRiderPanel && " riders"}
+          Check in{perspective.kind === "rider" && " riders"}
         </Button>
-        {showRiderPanel ? (
+        {perspective.kind === "rider" ? (
           <Button variant="ghost">Unenroll</Button>
         ) : (
-          <Button
-            variant="ghost"
-            onClick={() => viewLessonSheet.open({ lesson })}
-          >
+          <Button variant="ghost" onClick={onClick}>
             <EditIcon />
             Edit
           </Button>

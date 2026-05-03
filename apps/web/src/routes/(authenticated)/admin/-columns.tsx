@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { DataTableColumnHeader } from "@/shared/components/complex-data-table/column-header";
 import { ConfirmationModal } from "@/shared/components/confirmation-modal";
-import { DataTableColumnHeader } from "@/shared/components/data-table/column-header";
 import {
   Avatar,
   AvatarFallback,

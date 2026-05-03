@@ -4,9 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
 import z from "zod";
 
-import { DataTable } from "@/shared/components/data-table";
-import { DataTableToolbar } from "@/shared/components/data-table/toolbar";
-import { DataTableSortList } from "@/shared/components/data-table/toolbar/sort-list";
+import { DataTable } from "@/shared/components/complex-data-table";
+import { DataTableToolbar } from "@/shared/components/complex-data-table/toolbar";
+import { DataTableSortList } from "@/shared/components/complex-data-table/toolbar/sort-list";
 import { useDataTable } from "@/shared/hooks/use-data-table";
 
 import { UsersActionBar } from "./-action-bar";

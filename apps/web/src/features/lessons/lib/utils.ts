@@ -7,10 +7,52 @@ import { isBefore, setHours, startOfDay } from "date-fns";
 
 import type { PortalRouteContext } from "@/routes/org/$slug/(authenticated)/portal/route";
 
+import type { LessonCardListItem } from "../components/card";
+
 export function getPhaseOfDay(now: Date) {
   if (isBefore(now, setHours(now, 12))) return "morning";
   if (isBefore(now, setHours(now, 18))) return "afternoon";
   return "evening";
+}
+
+/**
+ * Given a list of days and a list of items, group the items by the day.
+ * If an item's start date is not in the list of days, it will not be grouped.
+ * Each day will have a list of items that started on that day, if there's no
+ * items for a day, the list will be empty.
+ * @param days - The days to group by.
+ * @param items - The items to group.
+ * @returns
+ */
+export function groupByDay(days: Date[], items: LessonInstance[]) {
+  const groups = new Map<Date, LessonInstance[]>();
+  for (const item of items) {
+    const day = startOfDay(new Date(item.start));
+    if (!days.includes(day)) continue;
+    const existing = groups.get(day) ?? [];
+    existing.push(item);
+    groups.set(day, existing);
+  }
+  return Array.from(groups, ([day, items]) => ({
+    day,
+    items,
+  }));
+}
+
+export function groupLessonsByDay(items: LessonCardListItem[]) {
+  const groups = new Map<Date, LessonCardListItem[]>();
+
+  for (const item of items) {
+    const key = startOfDay(new Date(item.lesson.start));
+    const existing = groups.get(key) ?? [];
+    existing.push(item);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups, ([day, items]) => ({
+    day,
+    items,
+  }));
 }
 
 export function groupEnrollmentsByDay(
@@ -33,25 +75,6 @@ export function groupEnrollmentsByDay(
   return Array.from(groups, ([dayKey, enrollments]) => ({
     day: new Date(dayKey),
     enrollments,
-  }));
-}
-
-export function groupByDay(lessons: LessonInstance[]) {
-  const sorted = [...lessons].sort(
-    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
-  );
-
-  const groups = new Map<string, LessonInstance[]>();
-  for (const lesson of sorted) {
-    const key = startOfDay(new Date(lesson.start)).toISOString();
-    const existing = groups.get(key) ?? [];
-    existing.push(lesson);
-    groups.set(key, existing);
-  }
-
-  return Array.from(groups, ([dayKey, lessons]) => ({
-    day: new Date(dayKey),
-    lessons,
   }));
 }
 

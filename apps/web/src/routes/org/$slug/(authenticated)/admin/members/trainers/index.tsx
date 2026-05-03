@@ -5,10 +5,10 @@ import type { Table } from "@tanstack/react-table";
 import { CopyIcon } from "lucide-react";
 import * as React from "react";
 
-import { DataTable } from "@/shared/components/data-table";
-import { DataTableActionBar } from "@/shared/components/data-table/action-bar";
-import { DataTableToolbar } from "@/shared/components/data-table/toolbar";
-import { DataTableSortList } from "@/shared/components/data-table/toolbar/sort-list";
+import { DataTable } from "@/shared/components/complex-data-table";
+import { DataTableActionBar } from "@/shared/components/complex-data-table/action-bar";
+import { DataTableToolbar } from "@/shared/components/complex-data-table/toolbar";
+import { Page, PageHeader } from "@/shared/components/layout/page";
 import { Button } from "@/shared/components/ui/button";
 import { useDataTable } from "@/shared/hooks/use-data-table";
 
@@ -42,17 +42,19 @@ function RouteComponent() {
   }
 
   return (
-    <>
+    <Page>
+      <PageHeader title="Trainers" backButton={false} />
       <DataTable
         table={table}
         className="p-4"
         actionBar={<TrainersActionBar table={table} />}
       >
-        <DataTableToolbar table={table} searchPlaceholder="Search trainers...">
-          <DataTableSortList table={table} align="end" />
-        </DataTableToolbar>
+        <DataTableToolbar
+          table={table}
+          searchPlaceholder="Search trainers..."
+        />
       </DataTable>
-    </>
+    </Page>
   );
 }
 

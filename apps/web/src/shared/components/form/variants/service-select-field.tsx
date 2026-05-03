@@ -1,6 +1,6 @@
 import type { Service } from "@instride/api";
 
-import { LevelBadge } from "@/features/organization/components/levels/level-badge";
+import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import {
   Select,

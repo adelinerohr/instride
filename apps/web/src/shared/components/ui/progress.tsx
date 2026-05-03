@@ -10,9 +10,9 @@ function Progress({
   className,
   children,
   value,
-  color,
+  color = "clay",
   ...props
-}: ProgressPrimitive.Root.Props & { color?: CategoryColor }) {
+}: ProgressPrimitive.Root.Props & { color?: CategoryColor | string }) {
   const colorClass = color ? categoryColorClasses(color) : undefined;
   return (
     <ProgressPrimitive.Root

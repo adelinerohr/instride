@@ -18,6 +18,7 @@ import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 
 import { PersonalDetails } from "./-details";
+import { EmergencyContact } from "./-emergency";
 import { SetPinDialog, setPinDialogHandler } from "./-pin";
 
 export const Route = createFileRoute(
@@ -46,7 +47,7 @@ function RouteComponent() {
       >
         <Item
           variant="outline"
-          className={cn(!hasKioskPin && "border-destructive")}
+          className={cn(!hasKioskPin && "border-destructive", "bg-card")}
         >
           <ItemMedia>
             {hasKioskPin ? (
@@ -67,6 +68,15 @@ function RouteComponent() {
           </ItemActions>
         </Item>
       </AnnotatedSection>
+      <Separator />
+      {member.rider && (
+        <AnnotatedSection
+          title="Emergency contact"
+          description="Set your emergency contact information."
+        >
+          <EmergencyContact />
+        </AnnotatedSection>
+      )}
       <SetPinDialog />
     </AnnotatedLayout>
   );

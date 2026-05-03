@@ -3,7 +3,7 @@ import { useStore } from "@tanstack/react-form";
 import { UsersIcon } from "lucide-react";
 
 import { quickCreateLessonFormOpts } from "@/features/lessons/lib/quick-create.form";
-import { LevelBadge } from "@/features/organization/components/levels/level-badge";
+import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";
 import {
   Field,

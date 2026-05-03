@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import type { LessonView } from "@/features/chat/lib/types";
-import { LevelBadge } from "@/features/organization/components/levels/level-badge";
+import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tag, TagGroup } from "@/shared/components/ui/tag";

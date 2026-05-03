@@ -13,17 +13,11 @@ import {
 import * as React from "react";
 import z from "zod";
 
-import {
-  LessonCard,
-  LessonCardVariant,
-} from "@/features/lessons/components/fragments/lesson-card";
-import { DateChip } from "@/features/lessons/components/fragments/lesson-card/date-chip";
+import { LessonCardList } from "@/features/lessons/components/card";
+import { LessonCardDetail } from "@/features/lessons/components/card/detail";
 import { lessonModalHandler } from "@/features/lessons/components/modals/new-lesson";
-import {
-  findNearestLesson,
-  getPhaseOfDay,
-  groupByDay,
-} from "@/features/lessons/lib/utils";
+import { ViewLessonSheet } from "@/features/lessons/components/modals/view/sheet";
+import { findNearestLesson, getPhaseOfDay } from "@/features/lessons/lib/utils";
 import { Page, PageBody, PageHeader } from "@/shared/components/layout/page";
 import {
   Alert,
@@ -86,6 +80,7 @@ function RouteComponent() {
   const { slug } = Route.useParams();
   const { view } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const viewLessonSheet = ViewLessonSheet.useModal();
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -129,9 +124,10 @@ function RouteComponent() {
     () => findNearestLesson(todayLessons, now),
     [todayLessons, now]
   );
-  const lessonsByDay = React.useMemo(
-    () => groupByDay(weekLessons),
-    [weekLessons]
+
+  const otherLessonsToday = React.useMemo(
+    () => todayLessons.filter((lesson) => lesson.id !== nearestLesson?.id),
+    [todayLessons, nearestLesson]
   );
 
   const hasPin = member.kioskPin !== null;
@@ -249,34 +245,47 @@ function RouteComponent() {
           ) : (
             <>
               {nearestLesson && (
-                <LessonCard
-                  variant={LessonCardVariant.DETAIL}
+                <LessonCardDetail
                   lesson={nearestLesson}
+                  perspective={{ kind: "admin" }}
+                  onClick={() =>
+                    viewLessonSheet.open({ instanceId: nearestLesson.id })
+                  }
                 />
               )}
-              {todayLessons.length > 1 && (
-                <div className="flex flex-col gap-4">
-                  <h2 className="font-semibold font-display uppercase text-muted-foreground">
+              <div className="flex flex-col gap-4">
+                {nearestLesson && (
+                  <h2 className="font-medium text-xs font-display uppercase text-muted-foreground">
                     Also today
                   </h2>
-                  {todayLessons
-                    .filter((l) => l.id !== nearestLesson?.id)
-                    .map((lesson) => (
-                      <LessonCard
-                        key={lesson.id}
-                        variant={LessonCardVariant.DATE_CHIP}
-                        lesson={lesson}
-                      />
-                    ))}
-                </div>
-              )}
+                )}
+                <LessonCardList
+                  variant="compact"
+                  items={otherLessonsToday.map((lesson) => ({
+                    lesson,
+                    perspective: { kind: "admin" },
+                    onClick: () =>
+                      viewLessonSheet.open({ instanceId: lesson.id }),
+                  }))}
+                  emptyState={
+                    <Empty className="border border-dashed w-full">
+                      <EmptyHeader>
+                        <EmptyTitle>No lessons today</EmptyTitle>
+                        <EmptyDescription>
+                          You don't have any lessons scheduled for today.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  }
+                />
+              </div>
             </>
           )}
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-semibold">Upcoming this week</CardTitle>
+            <CardTitle className="font-semibold">Lessons this week</CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
               {format(weekStart, "MMMM d")} - {format(weekEnd, "MMMM d")} ·{" "}
               {weekLessons.length} lesson{weekLessons.length === 1 ? "" : "s"}
@@ -292,39 +301,27 @@ function RouteComponent() {
             </CardAction>
           </CardHeader>
           <CardContent className="space-y-4">
-            {lessonsByDay.map(({ day, lessons }) => (
-              <div
-                key={day.toISOString()}
-                className="flex flex-col sm:grid sm:grid-cols-10 gap-2 sm:gap-4"
-              >
-                {/* Date chip as section header, col-span-1 */}
-                <div className="col-span-1 hidden sm:flex items-start justify-center">
-                  <DateChip day={day} />
-                </div>
-                <span className="block sm:hidden text-lg font-medium font-display">
-                  {format(day, "EEEE")}
-                </span>
-                {/* Lessons stacked, col-span-9 */}
-                <div className="hidden sm:col-span-9 sm:flex flex-col gap-4 w-full">
-                  {lessons.map((lesson) => (
-                    <LessonCard
-                      key={lesson.id}
-                      variant={LessonCardVariant.DATE_CHIP}
-                      lesson={lesson}
-                    />
-                  ))}
-                </div>
-                <div className="sm:hidden flex flex-col gap-4 w-full">
-                  {lessons.map((lesson) => (
-                    <LessonCard
-                      key={lesson.id}
-                      variant={LessonCardVariant.AGENDA}
-                      lesson={lesson}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+            <LessonCardList
+              variant="date-chip"
+              items={weekLessons.map((lesson) => ({
+                lesson,
+                perspective: { kind: "admin" },
+                onClick: () => viewLessonSheet.open({ instanceId: lesson.id }),
+              }))}
+              emptyState={
+                <Empty className="border border-dashed w-full">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <ClipboardIcon className="size-6" />
+                    </EmptyMedia>
+                    <EmptyTitle>No lessons this week</EmptyTitle>
+                    <EmptyDescription>
+                      You don't have any lessons scheduled for this week.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              }
+            />
           </CardContent>
         </Card>
       </PageBody>

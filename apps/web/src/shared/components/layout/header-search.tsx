@@ -1,13 +1,18 @@
-import { getUser, useBoards, useMembers, useServices } from "@instride/api";
+import {
+  getUser,
+  useBoards,
+  useRiders,
+  useServices,
+  useTrainers,
+} from "@instride/api";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
+import { BoardBadge } from "@/features/organization/components/fragments/badges";
 import { getPortalNavItems } from "@/shared/lib/navigation/app";
 
-import { RoleList } from "../fragments/role-list";
 import { UserAvatar } from "../fragments/user-avatar";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Command,
@@ -21,10 +26,10 @@ import {
 } from "../ui/command";
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemMedia,
   ItemTitle,
-  ItemActions,
 } from "../ui/item";
 import { Kbd } from "../ui/kbd";
 import { Skeleton } from "../ui/skeleton";
@@ -40,7 +45,8 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
     from: "/org/$slug/(authenticated)",
   });
 
-  const { data: members, isPending: isPendingMembers } = useMembers();
+  const { data: trainers, isPending: isPendingTrainers } = useTrainers();
+  const { data: riders, isPending: isPendingRiders } = useRiders();
   const { data: boards, isPending: isPendingBoards } = useBoards();
   const { data: services, isPending: isPendingServices } = useServices();
 
@@ -71,61 +77,170 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
   const renderBoardGroup = () =>
     boards && (
       <CommandGroup heading="Boards">
-        {boards.map((board) => (
-          <CommandItem key={board.id} disableCheck>
-            <span>{board.name}</span>
+        {isPendingBoards ? (
+          <CommandItem>
+            <Skeleton className="w-full h-4" />
           </CommandItem>
-        ))}
+        ) : (
+          boards.map((board) => (
+            <CommandItem
+              key={board.id}
+              disableCheck
+              keywords={[board.name]}
+              value={board.id}
+              onSelect={() => {
+                router.navigate({
+                  to: "/org/$slug/admin/boards/$id",
+                  params: { slug: organization.slug, id: board.id },
+                });
+                setOpen(false);
+              }}
+            >
+              <span>{board.name}</span>
+            </CommandItem>
+          ))
+        )}
       </CommandGroup>
     );
 
   const renderServiceGroup = () =>
     services && (
       <CommandGroup heading="Services">
-        {services.map((service) => {
-          const boardIds = (service.boardAssignments ?? []).map(
-            (a) => a.boardId
-          );
-          const boardNames = (boards ?? [])
-            .filter((b) => boardIds.includes(b.id))
-            .map((b) => b.name);
-          return (
-            <CommandItem key={service.id} disableCheck>
-              <span>{service.name}</span>
-              <div className="ml-auto flex items-center gap-2">
-                {boardNames.map((name) => (
-                  <Badge key={name} variant="outline">
-                    {name}
-                  </Badge>
-                ))}
-              </div>
-            </CommandItem>
-          );
-        })}
-      </CommandGroup>
-    );
-
-  const renderMemberGroup = () =>
-    members && (
-      <CommandGroup heading="Members">
-        {isPendingMembers ? (
+        {isPendingServices ? (
           <CommandItem>
             <Skeleton className="w-full h-4" />
           </CommandItem>
         ) : (
-          members.map((member) => {
-            const user = getUser({ member });
+          services.map((service) => {
+            const serviceBoards = boards?.filter((b) =>
+              service.boardAssignments?.some((a) => a.boardId === b.id)
+            );
             return (
-              <CommandItem key={member.id} disableCheck>
+              <CommandItem
+                key={service.id}
+                disableCheck
+                keywords={[
+                  service.name,
+                  ...(serviceBoards?.map((b) => b.name) ?? []),
+                ]}
+                value={service.id}
+                onSelect={() => {
+                  router.navigate({
+                    to: "/org/$slug/admin/services/$id",
+                    params: { slug: organization.slug, id: service.id },
+                  });
+                  setOpen(false);
+                }}
+              >
+                <span>{service.name}</span>
+                <div className="ml-auto flex items-center gap-2">
+                  {serviceBoards?.map((board) => (
+                    <BoardBadge key={board.id} board={board} />
+                  ))}
+                </div>
+              </CommandItem>
+            );
+          })
+        )}
+      </CommandGroup>
+    );
+
+  const renderTrainerGroup = () =>
+    trainers && (
+      <CommandGroup heading="Trainers">
+        {isPendingTrainers ? (
+          <CommandItem>
+            <Skeleton className="w-full h-4" />
+          </CommandItem>
+        ) : (
+          trainers.map((trainer) => {
+            const user = getUser({ trainer });
+            return (
+              <CommandItem
+                key={trainer.id}
+                disableCheck
+                value={trainer.id}
+                keywords={[
+                  user.name,
+                  ...(trainer.boardAssignments?.map(
+                    (assignment) => assignment.board.name
+                  ) ?? []),
+                ]}
+                onSelect={() => {
+                  router.navigate({
+                    to: "/org/$slug/admin/members/trainers/$trainerId",
+                    params: { slug: organization.slug, trainerId: trainer.id },
+                  });
+                  setOpen(false);
+                }}
+              >
                 <Item size="xs" className="p-0">
                   <ItemMedia>
-                    <UserAvatar user={user} />
+                    <UserAvatar size="xs" user={user} />
                   </ItemMedia>
                   <ItemContent>
                     <ItemTitle>{user.name}</ItemTitle>
                   </ItemContent>
-                  <ItemActions className="pr-0">
-                    <RoleList roles={member.roles} memberId={member.id} />
+                  <ItemActions>
+                    {trainer.boardAssignments.map((assignment) => (
+                      <BoardBadge
+                        key={assignment.boardId}
+                        board={assignment.board}
+                      />
+                    ))}
+                  </ItemActions>
+                </Item>
+              </CommandItem>
+            );
+          })
+        )}
+      </CommandGroup>
+    );
+
+  const renderRiderGroup = () =>
+    riders && (
+      <CommandGroup heading="Riders">
+        {isPendingRiders ? (
+          <CommandItem>
+            <Skeleton className="w-full h-4" />
+          </CommandItem>
+        ) : (
+          riders.map((rider) => {
+            const user = getUser({ rider });
+            return (
+              <CommandItem
+                key={rider.id}
+                disableCheck
+                value={rider.id}
+                keywords={[
+                  user.name,
+                  rider.level?.name ?? "Unrestricted",
+                  ...(rider.boardAssignments?.map(
+                    (assignment) => assignment.board.name
+                  ) ?? []),
+                ]}
+                onSelect={() => {
+                  router.navigate({
+                    to: "/org/$slug/admin/members/riders/$riderId",
+                    params: { slug: organization.slug, riderId: rider.id },
+                  });
+                  setOpen(false);
+                }}
+              >
+                <Item size="xs" className="p-0">
+                  <ItemMedia>
+                    <UserAvatar size="xs" user={user} />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>{user.name}</ItemTitle>
+                  </ItemContent>
+                  <ItemActions>
+                    {rider.boardAssignments.map((assignment) => (
+                      <BoardBadge
+                        key={assignment.boardId}
+                        board={assignment.board}
+                      />
+                    ))}
                   </ItemActions>
                 </Item>
               </CommandItem>
@@ -137,7 +252,9 @@ export default function HeaderSearch({ type }: HeaderSearchProps) {
 
   const renderAdminNavItems = () => (
     <>
-      {renderMemberGroup()}
+      {renderTrainerGroup()}
+      <CommandSeparator />
+      {renderRiderGroup()}
       <CommandSeparator />
       {renderBoardGroup()}
       <CommandSeparator />
