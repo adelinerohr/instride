@@ -12,7 +12,10 @@
   "dependencies": {
     "@instride/auth": "workspace:*",
     "@instride/db": "workspace:*",
+    "@orpc/client": "^1.16.1",
     "@orpc/server": "^1.16.1",
+    "@orpc/tanstack-query": "^1.16.1",
+    "@tanstack/query-core": "^5.95.2",
     "drizzle-orm": "1.0.0-beta.20",
     "zod": "catalog:"
   },

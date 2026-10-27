@@ -527,9 +527,18 @@ importers:
       '@instride/db':
         specifier: workspace:*
         version: link:../db
+      '@orpc/client':
+        specifier: ^1.16.1
+        version: 1.16.1
       '@orpc/server':
         specifier: ^1.16.1
         version: 1.16.1(crossws@0.3.5)(ws@8.20.0)
+      '@orpc/tanstack-query':
+        specifier: ^1.16.1
+        version: 1.16.1(@orpc/client@1.16.1)(@tanstack/query-core@5.100.1)
+      '@tanstack/query-core':
+        specifier: ^5.95.2
+        version: 5.100.1
       drizzle-orm:
         specifier: 1.0.0-beta.20
         version: 1.0.0-beta.20(@types/mssql@9.1.11(@azure/core-client@1.10.1))(@types/pg@8.20.0)(mssql@11.0.1(@azure/core-client@1.10.1))(pg@8.20.0)(zod@4.3.6)
@@ -2732,6 +2741,12 @@ packages:
 
   '@orpc/standard-server@1.16.1':
     resolution: {integrity: sha512-f8Ejzey83F/EXA1kugCyuPcE0TFJyUtxopEZ3vr/aqAOFdr45tIFlQl/v1VkpZAKmt3RP9KiAZGyesv5rhJltA==}
+
+  '@orpc/tanstack-query@1.16.1':
+    resolution: {integrity: sha512-fMl+DVGqCwxqg4U1WBt6EtdVNhZ4ODQlNBaTSiCCIBcAaePJZD1pBDTJ1epMJ67zG62KHEH10frKuLIwBMngjQ==}
+    peerDependencies:
+      '@orpc/client': 1.16.1
+      '@tanstack/query-core': '>=5.80.2'
 
   '@oslojs/encoding@1.1.0':
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
@@ -11470,6 +11485,14 @@ snapshots:
   '@orpc/standard-server@1.16.1':
     dependencies:
       '@orpc/shared': 1.16.1
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
+  '@orpc/tanstack-query@1.16.1(@orpc/client@1.16.1)(@tanstack/query-core@5.100.1)':
+    dependencies:
+      '@orpc/client': 1.16.1
+      '@orpc/shared': 1.16.1
+      '@tanstack/query-core': 5.100.1
     transitivePeerDependencies:
       - '@opentelemetry/api'
 

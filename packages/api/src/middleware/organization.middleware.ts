@@ -2,10 +2,8 @@ import { members, organizations } from "@instride/db/schema/organizations";
 import { ORPCError, os } from "@orpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 
+import { ORGANIZATION_HEADER } from "../constants";
 import type { Context } from "../context";
-
-/** Same header the existing frontends already send. */
-export const ORGANIZATION_HEADER = "x-organization-id";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

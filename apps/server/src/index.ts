@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { ORGANIZATION_HEADER } from "@instride/api/middleware/organization.middleware";
+import { ORGANIZATION_HEADER } from "@instride/api/constants";
 import { appRouter } from "@instride/api/routers/index";
 import { getTrustedOrigins } from "@instride/auth";
 import { onError } from "@orpc/server";
