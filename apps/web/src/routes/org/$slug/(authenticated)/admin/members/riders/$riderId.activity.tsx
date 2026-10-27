@@ -1,4 +1,4 @@
-import { activityQueries } from "@instride/api";
+import { activityQueries } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 

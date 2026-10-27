@@ -1,4 +1,4 @@
-import { guardianOptions, useSignOut } from "@instride/api";
+import { guardianOptions, useSignOut } from "@instride/client";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
 

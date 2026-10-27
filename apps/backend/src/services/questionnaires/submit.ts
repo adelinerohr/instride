@@ -2,7 +2,7 @@ import {
   Questionnaire,
   QuestionnaireQuestion,
   QuestionnaireQuestionResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import {
   GuardianRelationshipStatus,
   MembershipRole,

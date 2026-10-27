@@ -1,7 +1,7 @@
 import type {
   KioskSession,
   KioskSessionListItem,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskScope } from "@instride/shared";
 
 import type { BoardRow } from "@/services/boards/schema";

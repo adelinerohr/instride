@@ -3,7 +3,7 @@ import {
   useSendMessage,
   useServices,
   useTrainers,
-} from "@instride/api";
+} from "@instride/client";
 import { MessageAttachmentType } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useRouteContext } from "@tanstack/react-router";

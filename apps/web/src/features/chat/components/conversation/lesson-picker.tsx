@@ -1,4 +1,4 @@
-import { hasRole, useListLessonInstances } from "@instride/api";
+import { hasRole, useListLessonInstances } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { addDays } from "date-fns";

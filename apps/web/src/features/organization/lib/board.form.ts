@@ -1,4 +1,4 @@
-import type { Board } from "@instride/api";
+import type { Board } from "@instride/client";
 import { createBoardInputSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import { z } from "zod";

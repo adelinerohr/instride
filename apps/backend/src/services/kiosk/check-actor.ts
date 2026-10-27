@@ -2,7 +2,7 @@ import type {
   CheckKioskPermissionRequest,
   CheckKioskPermissionResponse,
   GetKioskActingRiderOptionsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskScope } from "@instride/shared";
 import { api } from "encore.dev/api";
 

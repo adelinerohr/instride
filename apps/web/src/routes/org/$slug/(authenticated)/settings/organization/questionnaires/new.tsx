@@ -1,4 +1,4 @@
-import { boardsOptions, useCreateQuestionnaire } from "@instride/api";
+import { boardsOptions, useCreateQuestionnaire } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";

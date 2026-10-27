@@ -1,4 +1,4 @@
-import { hasOnlyRole, type Member } from "@instride/api";
+import { hasOnlyRole, type Member } from "@instride/client";
 import { KioskScope, MembershipRole } from "@instride/shared";
 import { Link, useParams, useRouteContext } from "@tanstack/react-router";
 import {

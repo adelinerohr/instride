@@ -1,4 +1,4 @@
-import { organizationOptions, useSignOut } from "@instride/api";
+import { organizationOptions, useSignOut } from "@instride/client";
 import { ROLE_VARIANTS } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";

@@ -1,4 +1,4 @@
-import { levelOptions, useDeleteLevel } from "@instride/api";
+import { levelOptions, useDeleteLevel } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChartAreaIcon, MoreHorizontalIcon, SearchIcon } from "lucide-react";
 import * as React from "react";

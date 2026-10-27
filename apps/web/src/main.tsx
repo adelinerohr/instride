@@ -1,4 +1,4 @@
-import { APIError, ErrCode } from "@instride/api";
+import { APIError, ErrCode } from "@instride/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";

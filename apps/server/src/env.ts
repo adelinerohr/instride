@@ -10,6 +10,4 @@ const envSchema = z.object({
     .default("development"),
 });
 
-export const env = envSchema.parse(process.env);
-
-export const isProd = env.NODE_ENV === "production";
+export const ENV = envSchema.parse(process.env);

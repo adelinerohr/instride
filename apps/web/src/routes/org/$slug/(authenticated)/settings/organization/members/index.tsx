@@ -1,4 +1,4 @@
-import { invitationOptions, membersOptions } from "@instride/api";
+import { invitationOptions, membersOptions } from "@instride/client";
 import { createFileRoute } from "@tanstack/react-router";
 
 import {

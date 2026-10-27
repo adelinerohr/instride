@@ -3,7 +3,7 @@ import {
   useUpdateRider,
   type Level,
   type Member,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Field, FieldLabel } from "@/shared/components/ui/field";

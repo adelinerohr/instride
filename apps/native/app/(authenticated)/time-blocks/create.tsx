@@ -1,4 +1,4 @@
-import { useCreateTimeBlock, useTrainers } from "@instride/api";
+import { useCreateTimeBlock, useTrainers } from "@instride/client";
 import { useRouter } from "expo-router";
 import { useToast } from "heroui-native";
 import * as React from "react";

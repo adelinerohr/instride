@@ -1,4 +1,4 @@
-import { getUser, type Rider } from "@instride/api";
+import { getUser, type Rider } from "@instride/client";
 import * as React from "react";
 
 import { Button } from "@/shared/components/ui/button";

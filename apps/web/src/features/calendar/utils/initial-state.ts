@@ -1,4 +1,4 @@
-import { useRiderAssignments, type Board } from "@instride/api";
+import { useRiderAssignments, type Board } from "@instride/client";
 
 export async function getInitialPortalState(boards: Board[], riderId: string) {
   const { data: assignments } = useRiderAssignments(riderId);

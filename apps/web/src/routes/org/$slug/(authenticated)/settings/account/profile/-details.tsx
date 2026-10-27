@@ -1,4 +1,4 @@
-import { useUploadAvatar, useDeleteAvatar, useUpdateUser } from "@instride/api";
+import { useUploadAvatar, useDeleteAvatar, useUpdateUser } from "@instride/client";
 import { FileUploadAction } from "@instride/shared";
 import { toast } from "sonner";
 import { z } from "zod";

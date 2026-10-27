@@ -1,4 +1,4 @@
-import { LessonInstanceEnrollment, useLessonInstance } from "@instride/api";
+import { LessonInstanceEnrollment, useLessonInstance } from "@instride/client";
 import {
   LessonInstanceEnrollmentStatus,
   LessonInstanceStatus,

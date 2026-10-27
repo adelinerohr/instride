@@ -1,4 +1,4 @@
-import { type Member } from "@instride/api";
+import { type Member } from "@instride/client";
 import { format } from "date-fns";
 import { CalendarIcon, MailIcon, PencilIcon, PhoneIcon } from "lucide-react";
 

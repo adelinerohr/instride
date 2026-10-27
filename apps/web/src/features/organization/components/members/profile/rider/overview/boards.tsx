@@ -5,7 +5,7 @@ import {
   useRemoveFromBoard,
   type Board,
   type Member,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
 

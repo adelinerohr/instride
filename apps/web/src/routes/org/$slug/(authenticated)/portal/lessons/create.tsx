@@ -4,7 +4,7 @@ import {
   membersOptions,
   servicesOptions,
   useCreateLessonSeries,
-} from "@instride/api";
+} from "@instride/client";
 import { canDependentPerform, DependentAction } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";

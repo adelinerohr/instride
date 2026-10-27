@@ -1,4 +1,4 @@
-import { useUpdateOrganization } from "@instride/api";
+import { useUpdateOrganization } from "@instride/client";
 import { z } from "zod";
 
 import {

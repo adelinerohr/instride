@@ -1,4 +1,4 @@
-import { type Board } from "@instride/api";
+import { type Board } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import * as React from "react";
 

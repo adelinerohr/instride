@@ -3,7 +3,7 @@ import type {
   GetBoardAssignmentResponse,
   ListBoardAssignmentsRequest,
   ListBoardAssignmentsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api, APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

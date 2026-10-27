@@ -1,4 +1,4 @@
-import type { Board, Trainer } from "@instride/api";
+import type { Board, Trainer } from "@instride/client";
 import {
   riderCreateLessonInputSchema,
   type RiderCreateLessonInputSchema,

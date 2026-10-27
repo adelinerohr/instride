@@ -1,4 +1,4 @@
-import type { Rider } from "@instride/api";
+import type { Rider } from "@instride/client";
 import { UsersIcon } from "lucide-react";
 
 import { riderCreateLessonFormOpts } from "@/features/lessons/lib/rider.form";

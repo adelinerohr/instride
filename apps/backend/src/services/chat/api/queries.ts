@@ -4,7 +4,7 @@ import type {
   ListConversationsResponse,
   ListMessagesRequest,
   ListMessagesResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 import { organizations } from "~encore/clients";
 

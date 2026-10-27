@@ -3,7 +3,7 @@ import {
   useUpdateComment,
   type FeedComment,
   type Member,
-} from "@instride/api";
+} from "@instride/client";
 import { useRouteContext } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
 import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";

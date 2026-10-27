@@ -1,4 +1,4 @@
-import { Organization } from "@instride/api/contracts";
+import { Organization } from "@instride/client/contracts";
 import { MembershipRole } from "@instride/shared";
 import type { InvitationStatus } from "@instride/shared";
 

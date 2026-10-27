@@ -1,4 +1,4 @@
-import { getUser, type Board, type Level, type Rider } from "@instride/api";
+import { getUser, type Board, type Level, type Rider } from "@instride/client";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {

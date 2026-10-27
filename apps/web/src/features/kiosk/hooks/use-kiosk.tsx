@@ -6,7 +6,7 @@ import {
   useVerifyKioskIdentity,
   type Member,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { KioskScope } from "@instride/shared";
 import * as React from "react";
 

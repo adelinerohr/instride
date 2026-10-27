@@ -1,4 +1,4 @@
-import { connectChatStream } from "@instride/api";
+import { connectChatStream } from "@instride/client";
 import * as React from "react";
 
 export function useChatStream() {

@@ -3,7 +3,7 @@ import type {
   FeedComment,
   FeedLike,
   FeedPost,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import { AuthUserRow } from "@/services/auth/schema";
 import { toMemberSummary } from "@/services/organizations/mappers";

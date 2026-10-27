@@ -1,7 +1,7 @@
 import {
   QuestionnaireBoardAssignmentRule,
   QuestionnaireQuestion,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import * as p from "drizzle-orm/pg-core";
 
 import { organizations, members, boards } from "@/database/schema";

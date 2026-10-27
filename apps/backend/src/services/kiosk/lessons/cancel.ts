@@ -1,7 +1,7 @@
 import type {
   GetLessonInstanceResponse,
   KioskCancelLessonInstanceRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskActions } from "@instride/shared";
 import { api } from "encore.dev/api";
 

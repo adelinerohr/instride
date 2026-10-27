@@ -1,4 +1,4 @@
-import type { Message } from "@instride/api";
+import type { Message } from "@instride/client";
 import { MessageAttachmentType } from "@instride/shared";
 import * as React from "react";
 

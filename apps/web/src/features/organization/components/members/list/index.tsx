@@ -1,4 +1,4 @@
-import { getUser, type Member } from "@instride/api";
+import { getUser, type Member } from "@instride/client";
 import { MembershipRole, ROLE_LABELS } from "@instride/shared";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";

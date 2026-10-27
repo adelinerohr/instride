@@ -10,7 +10,7 @@ import type {
   Trainer,
   TrainerProfile,
   TrainerSummary,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { InvitationStatus } from "@instride/shared";
 
 import { toISO, toISOOrNull, toTimestamps } from "@/shared/utils/mappers";

@@ -1,4 +1,4 @@
-import { questionnaireOptions } from "@instride/api";
+import { questionnaireOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {

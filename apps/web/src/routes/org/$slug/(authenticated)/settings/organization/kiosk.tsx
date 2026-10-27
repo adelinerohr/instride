@@ -6,7 +6,7 @@ import {
   useDeleteKioskSession,
   useUpdateKioskSession,
   type KioskSession,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ComputerIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";

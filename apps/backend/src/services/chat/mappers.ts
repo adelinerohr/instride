@@ -4,7 +4,7 @@ import type {
   ConversationSummary,
   Message,
   MessageResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import type { LessonInstanceRow } from "@/services/lessons/schema";
 import {

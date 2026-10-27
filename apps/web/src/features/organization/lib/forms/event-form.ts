@@ -1,4 +1,4 @@
-import type { Event } from "@instride/api";
+import type { Event } from "@instride/client";
 import {
   eventInputSchema,
   EventScope,

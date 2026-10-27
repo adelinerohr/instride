@@ -1,4 +1,4 @@
-import { kioskOptions } from "@instride/api";
+import { kioskOptions } from "@instride/client";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { KioskHeader } from "@/features/kiosk/components/header";

@@ -3,7 +3,7 @@ import {
   getUser,
   instanceOptions,
   membersOptions,
-} from "@instride/api";
+} from "@instride/client";
 import {
   formatUSPhone,
   isTrainerWorkingOnDay,

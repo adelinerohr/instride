@@ -1,4 +1,4 @@
-import { defaultPermissions } from "@instride/api/contracts";
+import { defaultPermissions } from "@instride/client/contracts";
 import {
   GuardianPermissions,
   GuardianRelationshipStatus,

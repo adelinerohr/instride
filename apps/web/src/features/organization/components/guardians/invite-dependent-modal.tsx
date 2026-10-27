@@ -1,4 +1,4 @@
-import { APIError, useSendDependentInvitation } from "@instride/api";
+import { APIError, useSendDependentInvitation } from "@instride/client";
 import { toast } from "sonner";
 import z from "zod";
 

@@ -4,7 +4,7 @@ import type {
   ListMyEnrollmentsResponse,
   ListRiderEnrollmentsResponse,
   ListSeriesEnrollmentsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 import { guardians, organizations } from "~encore/clients";
 

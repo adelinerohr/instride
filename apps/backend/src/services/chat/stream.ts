@@ -2,7 +2,7 @@ import {
   Conversation,
   Message,
   MessageResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api, StreamInOut } from "encore.dev/api";
 import log from "encore.dev/log";
 import { Subscription } from "encore.dev/pubsub";

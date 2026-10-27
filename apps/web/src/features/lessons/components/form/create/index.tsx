@@ -5,7 +5,7 @@ import {
   useRiderAssignments,
   useServices,
   useTrainers,
-} from "@instride/api";
+} from "@instride/client";
 import { lessonSeriesSchema } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { AlertCircleIcon } from "lucide-react";

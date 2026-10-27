@@ -1,4 +1,4 @@
-import type { BusinessHoursDay } from "@instride/api/contracts";
+import type { BusinessHoursDay } from "@instride/client/contracts";
 import { DayHours, DayOfWeek, TimeSlot, timeToMinutes } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 

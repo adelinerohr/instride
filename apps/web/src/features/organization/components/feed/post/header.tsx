@@ -1,4 +1,4 @@
-import type { FeedPost } from "@instride/api";
+import type { FeedPost } from "@instride/client";
 import { formatDistanceToNow } from "date-fns";
 import {
   MoreHorizontalIcon,

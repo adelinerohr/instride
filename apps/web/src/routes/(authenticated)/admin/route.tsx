@@ -1,4 +1,4 @@
-import { adminOptions } from "@instride/api";
+import { adminOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";

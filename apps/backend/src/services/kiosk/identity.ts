@@ -2,7 +2,7 @@ import type {
   ClearKioskIdentityRequest,
   KioskSessionResponse,
   VerifyKioskIdentityRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskScope, MembershipRole } from "@instride/shared";
 import { addHours } from "date-fns";
 import { api, APIError } from "encore.dev/api";

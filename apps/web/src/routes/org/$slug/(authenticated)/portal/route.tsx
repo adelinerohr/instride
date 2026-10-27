@@ -4,7 +4,7 @@ import {
   type GuardianPermissions,
   type MyDependent,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import {
   createFileRoute,

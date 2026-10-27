@@ -4,7 +4,7 @@ import {
   useUnenrollFromInstance,
   type LessonInstance,
   type LessonInstanceEnrollment,
-} from "@instride/api";
+} from "@instride/client";
 import { KioskActions } from "@instride/shared";
 import { isBefore } from "date-fns";
 import { toast } from "sonner";

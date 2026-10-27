@@ -1,4 +1,4 @@
-import { getUser, type MyDependent } from "@instride/api";
+import { getUser, type MyDependent } from "@instride/client";
 import { FileUploadAction } from "@instride/shared";
 import { z } from "zod";
 

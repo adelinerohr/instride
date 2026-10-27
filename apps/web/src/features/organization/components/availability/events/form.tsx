@@ -4,7 +4,7 @@ import {
   useCreateEvent,
   useTrainers,
   useUpdateEvent,
-} from "@instride/api";
+} from "@instride/client";
 import { EventScope } from "@instride/shared";
 import {
   BanIcon,

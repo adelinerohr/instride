@@ -1,4 +1,4 @@
-import type { Service } from "@instride/api";
+import type { Service } from "@instride/client";
 import { serviceInputSchema, type ServiceInputSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 

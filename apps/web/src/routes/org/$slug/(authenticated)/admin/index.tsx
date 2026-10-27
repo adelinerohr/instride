@@ -1,4 +1,4 @@
-import { instanceOptions, type LessonInstance } from "@instride/api";
+import { instanceOptions, type LessonInstance } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { endOfDay, endOfWeek, format, startOfDay, startOfWeek } from "date-fns";

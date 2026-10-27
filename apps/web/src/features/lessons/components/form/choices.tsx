@@ -4,7 +4,7 @@ import {
   servicesOptions,
   levelOptions,
   getUser,
-} from "@instride/api";
+} from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PencilIcon, XIcon, CircleIcon } from "lucide-react";

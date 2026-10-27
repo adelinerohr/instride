@@ -1,4 +1,4 @@
-import { LessonProposalPayload } from "@instride/api/contracts";
+import { LessonProposalPayload } from "@instride/client/contracts";
 import { MessageAttachmentType, MessageResponseStatus } from "@instride/shared";
 import { sql } from "drizzle-orm";
 import * as p from "drizzle-orm/pg-core";

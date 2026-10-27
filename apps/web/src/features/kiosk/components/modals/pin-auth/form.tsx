@@ -3,7 +3,7 @@ import {
   ErrCode,
   useCheckKioskPermission,
   useMembers,
-} from "@instride/api";
+} from "@instride/client";
 import * as React from "react";
 import z from "zod";
 

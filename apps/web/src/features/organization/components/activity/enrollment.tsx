@@ -3,7 +3,7 @@ import {
   useLessonInstance,
   useMember,
   type Activity,
-} from "@instride/api";
+} from "@instride/client";
 import { useLoaderData } from "@tanstack/react-router";
 import { format } from "date-fns";
 

@@ -1,0 +1,30 @@
+{
+  "name": "@instride/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "migrate:users": "tsx --env-file-if-exists=.env scripts/migrate-users.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "1.0.0-beta.20",
+    "pg": "^8.20.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@instride/config": "workspace:*",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.15.0",
+    "drizzle-kit": "1.0.0-beta.20",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}

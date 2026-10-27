@@ -1,4 +1,4 @@
-import { useUpdateRider } from "@instride/api";
+import { useUpdateRider } from "@instride/client";
 import { returnStringOrNull } from "@instride/shared";
 import { toast } from "sonner";
 

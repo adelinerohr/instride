@@ -1,7 +1,7 @@
 import {
   SubmitQuestionnaireResponseRequest,
   SubmitQuestionnaireResponseResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api, APIError, ErrCode } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

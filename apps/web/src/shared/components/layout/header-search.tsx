@@ -4,7 +4,7 @@ import {
   useRiders,
   useServices,
   useTrainers,
-} from "@instride/api";
+} from "@instride/client";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";

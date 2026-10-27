@@ -1,4 +1,4 @@
-import { useCreateOrganization, useUpdateUser } from "@instride/api";
+import { useCreateOrganization, useUpdateUser } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeftIcon } from "lucide-react";

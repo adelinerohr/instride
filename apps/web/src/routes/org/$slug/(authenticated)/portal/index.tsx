@@ -1,4 +1,4 @@
-import { enrollmentOptions } from "@instride/api";
+import { enrollmentOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {

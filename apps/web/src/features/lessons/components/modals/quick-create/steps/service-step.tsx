@@ -6,7 +6,7 @@ import {
   type LessonInstance,
   type Service,
   type TimeBlock,
-} from "@instride/api";
+} from "@instride/client";
 import {
   type EffectiveBusinessHours,
   type TrainerEffectiveBusinessHours,

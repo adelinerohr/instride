@@ -1,4 +1,4 @@
-import { organizationOptions } from "@instride/api";
+import { organizationOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";

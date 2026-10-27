@@ -1,4 +1,4 @@
-import { hasOnlyRole } from "@instride/api";
+import { hasOnlyRole } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LaptopIcon, ShieldIcon, UserIcon } from "lucide-react";

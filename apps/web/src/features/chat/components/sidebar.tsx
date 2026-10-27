@@ -1,4 +1,4 @@
-import { type ConversationSummary } from "@instride/api";
+import { type ConversationSummary } from "@instride/client";
 import {
   isAfter,
   isSameDay,

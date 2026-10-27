@@ -1,4 +1,4 @@
-import { APIError, useExportUsers, type types } from "@instride/api";
+import { APIError, useExportUsers, type types } from "@instride/client";
 import type { Row, Table } from "@tanstack/react-table";
 import { DownloadIcon } from "lucide-react";
 import { toast } from "sonner";

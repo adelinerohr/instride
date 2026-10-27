@@ -1,4 +1,4 @@
-import type { Member } from "@instride/api";
+import type { Member } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";

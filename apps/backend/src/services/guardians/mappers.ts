@@ -5,7 +5,7 @@ import type {
   GuardianRelationshipWithGuardian,
   GuardianRelationshipWithMembers,
   MyDependent,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import { AuthUserRow } from "@/services/auth/schema";
 import {

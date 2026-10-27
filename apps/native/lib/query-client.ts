@@ -1,4 +1,4 @@
-import { APIError, ErrCode } from "@instride/api";
+import { APIError, ErrCode } from "@instride/client";
 import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({

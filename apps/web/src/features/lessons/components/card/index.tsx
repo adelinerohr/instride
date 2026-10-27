@@ -4,7 +4,7 @@ import {
   isPrivateLesson,
   type LessonInstance,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { cva, type VariantProps } from "class-variance-authority";
 import { format, isBefore, startOfDay } from "date-fns";
 import {

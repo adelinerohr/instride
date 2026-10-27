@@ -1,4 +1,4 @@
-import type { Member } from "@instride/api/contracts";
+import type { Member } from "@instride/client/contracts";
 import {
   canDependentPerform,
   DependentAction,

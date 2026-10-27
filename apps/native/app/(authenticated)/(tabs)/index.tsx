@@ -1,4 +1,4 @@
-import { useListLessonInstances } from "@instride/api";
+import { useListLessonInstances } from "@instride/client";
 import { endOfDay, isSameDay, startOfDay } from "date-fns";
 import { useRouter } from "expo-router";
 import * as React from "react";

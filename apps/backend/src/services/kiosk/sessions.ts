@@ -4,7 +4,7 @@ import type {
   ListKioskSessionsResponse,
   UpdateKioskSessionRequest,
   UpsertKioskSessionResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskScope } from "@instride/shared";
 import { api } from "encore.dev/api";
 

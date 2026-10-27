@@ -1,7 +1,7 @@
 import type {
   GetAffectedInstancesRequest,
   UpsertEventRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { EventScope, LessonInstanceStatus } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 

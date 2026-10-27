@@ -3,7 +3,7 @@ import {
   type AuthUser,
   type LessonInstance,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { differenceInMinutes, format, formatDuration } from "date-fns";
 
 export interface LessonRosterStatus {

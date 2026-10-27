@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@better-auth/expo": "catalog:",
-    "@instride/api": "workspace:*",
+    "@instride/client": "workspace:*",
     "@instride/shared": "workspace:*",
     "better-auth": "catalog:",
     "busboy": "^1.6.0",

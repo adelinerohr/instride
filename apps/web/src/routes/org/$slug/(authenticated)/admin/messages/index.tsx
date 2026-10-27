@@ -1,4 +1,4 @@
-import { chatOptions } from "@instride/api";
+import { chatOptions } from "@instride/client";
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircleIcon } from "lucide-react";
 

@@ -3,7 +3,7 @@ import type {
   ConversationSummary,
   MemberSummary,
   RiderSummary,
-} from "@instride/api";
+} from "@instride/client";
 import { ConversationParticipantRole } from "@instride/shared/models/enums";
 
 /**

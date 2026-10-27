@@ -1,4 +1,4 @@
-import { getUser, type Trainer } from "@instride/api";
+import { getUser, type Trainer } from "@instride/client";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {

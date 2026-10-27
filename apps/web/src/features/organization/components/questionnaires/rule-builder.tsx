@@ -1,4 +1,4 @@
-import type { Board } from "@instride/api";
+import type { Board } from "@instride/client";
 import { QuestionnaireQuestionOperator } from "@instride/shared";
 import { useStore } from "@tanstack/react-store";
 import { PlusIcon, TrashIcon } from "lucide-react";

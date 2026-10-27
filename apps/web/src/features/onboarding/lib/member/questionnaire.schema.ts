@@ -1,7 +1,7 @@
 import type {
   QuestionnaireQuestion,
   QuestionnaireQuestionResponse,
-} from "@instride/api";
+} from "@instride/client";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { z } from "zod";
 

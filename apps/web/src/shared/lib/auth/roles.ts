@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { types } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 
 export function isAdmin(member: types.Member): boolean {

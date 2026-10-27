@@ -1,7 +1,7 @@
 import type {
   CheckLessonHoursRequest,
   CheckLessonHoursResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { getDayOfWeek, isWithinAnySlot } from "@instride/shared";
 import { api } from "encore.dev/api";
 

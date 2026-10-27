@@ -1,4 +1,4 @@
-import type { LessonInstance } from "@instride/api";
+import type { LessonInstance } from "@instride/client";
 import * as dateFns from "date-fns";
 import { parseISO } from "date-fns";
 

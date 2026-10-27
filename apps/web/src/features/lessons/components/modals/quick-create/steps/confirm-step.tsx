@@ -1,4 +1,4 @@
-import { getUser, type Rider, type Service, type Trainer } from "@instride/api";
+import { getUser, type Rider, type Service, type Trainer } from "@instride/client";
 import { formatInTimeZone } from "date-fns-tz";
 
 import { quickCreateLessonFormOpts } from "@/features/lessons/lib/quick-create.form";

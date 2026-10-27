@@ -1,4 +1,4 @@
-import type { Trainer } from "@instride/api";
+import type { Trainer } from "@instride/client";
 import { isWorkingHour } from "@instride/shared";
 import { areIntervalsOverlapping, isSameDay, parseISO } from "date-fns";
 

@@ -1,4 +1,4 @@
-import { APIError, ErrCode, useMembers } from "@instride/api";
+import { APIError, ErrCode, useMembers } from "@instride/client";
 import { toast } from "sonner";
 import z from "zod";
 

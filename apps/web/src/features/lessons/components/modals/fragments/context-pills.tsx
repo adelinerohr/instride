@@ -1,4 +1,4 @@
-import type { TrainerSummary } from "@instride/api";
+import type { TrainerSummary } from "@instride/client";
 import { formatInTimeZone } from "date-fns-tz";
 import { CalendarIcon, HomeIcon } from "lucide-react";
 

@@ -2,7 +2,7 @@ import {
   type LessonInstance,
   type LessonInstanceEnrollmentWithInstance,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { isBefore, setHours, startOfDay } from "date-fns";
 
 import type { PortalRouteContext } from "@/routes/org/$slug/(authenticated)/portal/route";

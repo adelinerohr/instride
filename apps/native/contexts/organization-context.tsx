@@ -4,7 +4,7 @@ import {
   setOrganizationContext,
   types,
   useMyMembership,
-} from "@instride/api";
+} from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";

@@ -6,7 +6,7 @@ import {
   Service,
   ServiceBoardAssignment,
   ServiceTrainerAssignment,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import { toISO, toTimestamps } from "@/shared/utils/mappers";
 import { assertExists } from "@/shared/utils/validation";

@@ -1,4 +1,4 @@
-import { getUser } from "@instride/api";
+import { getUser } from "@instride/client";
 import { useRouteContext } from "@tanstack/react-router";
 import * as React from "react";
 

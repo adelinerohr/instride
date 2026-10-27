@@ -1,4 +1,4 @@
-import { useCreateLessonSeries } from "@instride/api";
+import { useCreateLessonSeries } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";

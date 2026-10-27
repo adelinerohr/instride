@@ -1,4 +1,4 @@
-import { useCreateLessonSeries, useServices } from "@instride/api";
+import { useCreateLessonSeries, useServices } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useRouteContext } from "@tanstack/react-router";
 import { parseISO } from "date-fns";

@@ -3,7 +3,7 @@ import {
   membersOptions,
   type Board,
   type Trainer,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";

@@ -1,4 +1,4 @@
-import { ActivityMetadata } from "@instride/api/contracts";
+import { ActivityMetadata } from "@instride/client/contracts";
 import { ActivitySubjectType, ActivityType } from "@instride/shared";
 import * as p from "drizzle-orm/pg-core";
 

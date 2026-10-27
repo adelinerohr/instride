@@ -1,4 +1,4 @@
-import type { Rider, Trainer } from "@instride/api";
+import type { Rider, Trainer } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { UsersIcon } from "lucide-react";
 

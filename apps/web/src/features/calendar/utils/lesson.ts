@@ -1,4 +1,4 @@
-import type { LessonInstance, TimeBlock } from "@instride/api";
+import type { LessonInstance, TimeBlock } from "@instride/client";
 import { differenceInMinutes, parseISO } from "date-fns";
 
 import { START_HOUR } from "@/features/calendar/lib/constants";

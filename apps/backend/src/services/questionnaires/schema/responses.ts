@@ -1,4 +1,4 @@
-import { QuestionnaireQuestionResponse } from "@instride/api/contracts";
+import { QuestionnaireQuestionResponse } from "@instride/client/contracts";
 import * as p from "drizzle-orm/pg-core";
 
 import { questionnaires, organizations, members } from "@/database/schema";

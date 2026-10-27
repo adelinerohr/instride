@@ -1,4 +1,4 @@
-import { useDeleteLogo, useUploadLogo } from "@instride/api";
+import { useDeleteLogo, useUploadLogo } from "@instride/client";
 import { FileUploadAction } from "@instride/shared";
 import { toast } from "sonner";
 import { z } from "zod";

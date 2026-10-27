@@ -2,7 +2,7 @@ import type {
   CreateNotificationRequest,
   GetNotificationResponse,
   GetUnreadResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { NotificationChannel } from "@instride/shared";
 import { api } from "encore.dev/api";
 

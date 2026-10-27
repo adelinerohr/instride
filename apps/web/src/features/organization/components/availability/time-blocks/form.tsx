@@ -1,4 +1,4 @@
-import { useCreateTimeBlock, useTrainers } from "@instride/api";
+import { useCreateTimeBlock, useTrainers } from "@instride/client";
 import { isValidStrings, formPartsToIso } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { formatDuration, intervalToDuration } from "date-fns";

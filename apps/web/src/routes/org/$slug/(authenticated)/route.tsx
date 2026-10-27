@@ -1,4 +1,4 @@
-import { authOptions, type AuthUser } from "@instride/api";
+import { authOptions, type AuthUser } from "@instride/client";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { ImpersonationBanner } from "@/shared/components/auth/impersonation-banner";

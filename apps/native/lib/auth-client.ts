@@ -1,5 +1,5 @@
 import { expoClient } from "@better-auth/expo/client";
-import { serverBaseURL } from "@instride/api";
+import { serverBaseURL } from "@instride/client";
 import { createAuthClient } from "better-auth/client";
 import {
   inferAdditionalFields,

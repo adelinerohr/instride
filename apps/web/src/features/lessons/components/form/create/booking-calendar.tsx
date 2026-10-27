@@ -1,4 +1,4 @@
-import { type availability, useAvailableSlots } from "@instride/api";
+import { type availability, useAvailableSlots } from "@instride/client";
 import {
   addDays,
   endOfWeek,

@@ -1,4 +1,4 @@
-import { types } from "@instride/api";
+import { types } from "@instride/client";
 import { LessonInstanceStatus } from "@instride/shared";
 import { format } from "date-fns";
 import { useRouter } from "expo-router";

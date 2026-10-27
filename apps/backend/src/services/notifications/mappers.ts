@@ -1,7 +1,7 @@
 import type {
   Notification,
   NotificationPreference,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import type { NotificationPreferenceRow, NotificationRow } from "./schema";
 

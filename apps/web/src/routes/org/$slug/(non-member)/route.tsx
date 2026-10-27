@@ -1,4 +1,4 @@
-import { authOptions, useSignOut, type AuthUser } from "@instride/api";
+import { authOptions, useSignOut, type AuthUser } from "@instride/client";
 import { createFileRoute, Outlet, useRouter } from "@tanstack/react-router";
 
 import { Button } from "@/shared/components/ui/button";

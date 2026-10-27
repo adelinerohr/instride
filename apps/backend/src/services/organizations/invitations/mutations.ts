@@ -2,7 +2,7 @@ import {
   AcceptInvitationRequest,
   RejectInvitationRequest,
   SendInvitationRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { InvitationStatus } from "@instride/shared";
 import { generateId } from "better-auth";
 import { api, APIError } from "encore.dev/api";

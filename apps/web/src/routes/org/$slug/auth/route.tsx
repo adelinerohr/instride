@@ -1,4 +1,4 @@
-import { organizationOptions } from "@instride/api";
+import { organizationOptions } from "@instride/client";
 import {
   createFileRoute,
   notFound,

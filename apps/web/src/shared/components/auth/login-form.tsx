@@ -1,4 +1,4 @@
-import { useSignInEmail, useSignInSocial } from "@instride/api";
+import { useSignInEmail, useSignInSocial } from "@instride/client";
 import { loginSchema } from "@instride/shared";
 import {
   Link,

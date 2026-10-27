@@ -1,4 +1,4 @@
-import { getUser, type Member } from "@instride/api";
+import { getUser, type Member } from "@instride/client";
 import { ROLE_LABELS, ROLE_VARIANTS } from "@instride/shared";
 import { Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";

@@ -1,4 +1,4 @@
-import { useChangeRole, type Member } from "@instride/api";
+import { useChangeRole, type Member } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { toast } from "sonner";
 import z from "zod";

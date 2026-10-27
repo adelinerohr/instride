@@ -27,7 +27,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@instride/shared": path.resolve(__dirname, "../../packages/shared/src"),
-      "@instride/api": path.resolve(__dirname, "../../packages/api/src"),
+      "@instride/client": path.resolve(__dirname, "../../packages/client/src"),
     },
     dedupe: ["@tanstack/react-query", "react", "react-dom"],
   },
@@ -35,6 +35,6 @@ export default defineConfig({
     port: 3000,
   },
   optimizeDeps: {
-    exclude: ["@instride/shared", "@instride/api"],
+    exclude: ["@instride/shared", "@instride/client"],
   },
 });

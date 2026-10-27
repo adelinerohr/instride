@@ -1,4 +1,4 @@
-import { APIError, useSetPin } from "@instride/api";
+import { APIError, useSetPin } from "@instride/client";
 import { useRouter } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { toast } from "sonner";

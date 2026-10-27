@@ -4,7 +4,7 @@ import {
   useEnrollInInstance,
   useUnenrollFromInstance,
   type LessonInstance,
-} from "@instride/api";
+} from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { useRouteContext } from "@tanstack/react-router";
 import { format, isBefore } from "date-fns";

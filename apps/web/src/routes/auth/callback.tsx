@@ -1,4 +1,4 @@
-import { authOptions } from "@instride/api";
+import { authOptions } from "@instride/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";

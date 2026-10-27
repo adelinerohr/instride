@@ -1,4 +1,4 @@
-import { getUser, useUpdateRider, type Rider } from "@instride/api";
+import { getUser, useUpdateRider, type Rider } from "@instride/client";
 import { returnStringOrNull } from "@instride/shared";
 import { toast } from "sonner";
 

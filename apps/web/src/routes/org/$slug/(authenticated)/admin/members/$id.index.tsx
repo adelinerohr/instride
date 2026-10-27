@@ -1,4 +1,4 @@
-import { membersOptions } from "@instride/api";
+import { membersOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";

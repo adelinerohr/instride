@@ -1,5 +1,5 @@
-import type { MessageResponse, RiderSummary } from "@instride/api";
-import { getUser } from "@instride/api";
+import type { MessageResponse, RiderSummary } from "@instride/client";
+import { getUser } from "@instride/client";
 import { formatTime, MessageResponseStatus } from "@instride/shared";
 import { format } from "date-fns";
 import {

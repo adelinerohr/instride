@@ -2,7 +2,7 @@ import {
   CreateQuestionnaireRequest,
   GetQuestionnaireResponse,
   UpdateQuestionnaireRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

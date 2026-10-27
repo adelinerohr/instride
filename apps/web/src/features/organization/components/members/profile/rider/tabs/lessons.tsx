@@ -1,4 +1,4 @@
-import { enrollmentOptions } from "@instride/api";
+import { enrollmentOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { format, startOfDay, subDays } from "date-fns";
 import { Clock2Icon } from "lucide-react";

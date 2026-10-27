@@ -1,4 +1,4 @@
-import { Message } from "@instride/api/contracts";
+import { Message } from "@instride/client/contracts";
 import { MessageAttachmentType, NotificationType } from "@instride/shared";
 
 import { chatRepo } from "@/services/chat/chat.repo";

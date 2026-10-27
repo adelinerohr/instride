@@ -1,4 +1,4 @@
-import { chatOptions } from "@instride/api";
+import { chatOptions } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import z from "zod";

@@ -3,7 +3,7 @@ import {
   membersOptions,
   servicesOptions,
   useCreateBoard,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";

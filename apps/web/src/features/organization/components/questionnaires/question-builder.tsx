@@ -1,4 +1,4 @@
-import type { QuestionnaireQuestion } from "@instride/api";
+import type { QuestionnaireQuestion } from "@instride/client";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { useStore } from "@tanstack/react-store";
 import { TrashIcon } from "lucide-react";

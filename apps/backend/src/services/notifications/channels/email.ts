@@ -1,4 +1,4 @@
-import { Member } from "@instride/api/contracts";
+import { Member } from "@instride/client/contracts";
 import {
   NotificationChannel,
   NotificationDeliveryStatus,

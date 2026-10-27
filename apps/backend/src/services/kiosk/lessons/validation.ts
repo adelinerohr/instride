@@ -1,4 +1,4 @@
-import type { LessonInstance, Rider } from "@instride/api/contracts";
+import type { LessonInstance, Rider } from "@instride/client/contracts";
 import { KioskScope } from "@instride/shared";
 import { isSameDay } from "date-fns";
 

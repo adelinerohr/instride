@@ -3,7 +3,7 @@ import {
   membersOptions,
   servicesOptions,
   useDeleteBoard,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {

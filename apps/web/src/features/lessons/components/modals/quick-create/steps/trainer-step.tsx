@@ -4,8 +4,8 @@ import type {
   LessonInstance,
   Service,
   TimeBlock,
-} from "@instride/api";
-import { checkTrainerAvailability } from "@instride/api";
+} from "@instride/client";
+import { checkTrainerAvailability } from "@instride/client";
 import type {
   EffectiveBusinessHours,
   TrainerEffectiveBusinessHours,

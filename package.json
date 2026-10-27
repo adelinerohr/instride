@@ -10,11 +10,15 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
-    "dev:web": "turbo dev --filter=web --filter=backend --filter=@instride/shared --filter=@instride/auth --filter=@instride/api",
+    "dev:web": "turbo dev --filter=web --filter=backend --filter=@instride/shared --filter=@instride/legacy-auth --filter=@instride/client",
     "check": "ultracite check",
-    "gen:client": "encore gen client instride-zeai --output=./packages/api/src/client/encore-client.ts --env=local",
-    "postgen:client": "node -e \"const fs=require('fs');const p='./packages/api/src/client/encore-client.ts';const c=fs.readFileSync(p,'utf8');if(!c.startsWith('// @ts-nocheck')){fs.writeFileSync(p,'// @ts-nocheck\\n'+c)}\"",
-    "fix": "ultracite fix"
+    "gen:client": "encore gen client instride-zeai --output=./packages/client/src/client/encore-client.ts --env=local",
+    "postgen:client": "node -e \"const fs=require('fs');const p='./packages/client/src/client/encore-client.ts';const c=fs.readFileSync(p,'utf8');if(!c.startsWith('// @ts-nocheck')){fs.writeFileSync(p,'// @ts-nocheck\\n'+c)}\"",
+    "fix": "ultracite fix",
+    "dev:server": "turbo -F server dev",
+    "db:generate": "pnpm --filter @instride/db db:generate",
+    "db:migrate": "pnpm --filter @instride/db db:migrate",
+    "db:studio": "pnpm --filter @instride/db db:studio"
   },
   "dependencies": {
     "@instride/env": "workspace:*",

@@ -3,7 +3,7 @@ import {
   questionnaireOptions,
   useOnboardMember,
   waiverOptions,
-} from "@instride/api";
+} from "@instride/client";
 import { MembershipRole, WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";

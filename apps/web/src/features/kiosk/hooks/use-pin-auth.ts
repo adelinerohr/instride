@@ -1,5 +1,5 @@
 // apps/web/src/features/kiosk/hooks/use-pin-auth.ts
-import { type Member, type Rider } from "@instride/api";
+import { type Member, type Rider } from "@instride/client";
 import { KioskScope, type KioskActionContext } from "@instride/shared";
 import * as React from "react";
 import { toast } from "sonner";

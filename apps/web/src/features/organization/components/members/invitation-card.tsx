@@ -2,7 +2,7 @@ import {
   membersOptions,
   type AuthUser,
   type Organization,
-} from "@instride/api";
+} from "@instride/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { APIError } from "better-auth";

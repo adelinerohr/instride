@@ -3,7 +3,7 @@ import {
   useRiders,
   useServices,
   type CreateLessonSeriesRequest,
-} from "@instride/api";
+} from "@instride/client";
 import { returnStringOrNull } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useRouteContext } from "@tanstack/react-router";

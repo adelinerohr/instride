@@ -2,7 +2,7 @@ import {
   useUpsertOrganizationBusinessHours,
   useUpsertTrainerBusinessHours,
   type BusinessHours,
-} from "@instride/api";
+} from "@instride/client";
 import {
   availabilityDaysFormSchema,
   buildEmptyWeek,

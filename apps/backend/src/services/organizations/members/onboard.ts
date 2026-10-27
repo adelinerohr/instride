@@ -3,7 +3,7 @@ import type {
   Questionnaire,
   QuestionnaireQuestionResponse,
   Waiver,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { MembershipRole } from "@instride/shared";
 import { generateId } from "better-auth";
 import { api, APIError } from "encore.dev/api";

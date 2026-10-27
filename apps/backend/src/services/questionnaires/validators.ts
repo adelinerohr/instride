@@ -2,7 +2,7 @@ import {
   QuestionnaireBoardAssignmentRule,
   QuestionnaireQuestion,
   QuestionnaireQuestionResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 

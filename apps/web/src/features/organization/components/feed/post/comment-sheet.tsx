@@ -1,4 +1,4 @@
-import { useCreateComment, type FeedPost } from "@instride/api";
+import { useCreateComment, type FeedPost } from "@instride/client";
 import { useRouteContext } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 import * as React from "react";

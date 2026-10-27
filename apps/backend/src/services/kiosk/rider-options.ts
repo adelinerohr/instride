@@ -1,4 +1,4 @@
-import type { Member, Rider } from "@instride/api/contracts";
+import type { Member, Rider } from "@instride/client/contracts";
 // apps/backend/src/services/kiosk/rider-options.ts
 import { MembershipRole } from "@instride/shared";
 

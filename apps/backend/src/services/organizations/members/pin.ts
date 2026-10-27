@@ -1,7 +1,7 @@
 import { randomBytes, scrypt as _scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
-import type { GetMemberResponse, Member } from "@instride/api/contracts";
+import type { GetMemberResponse, Member } from "@instride/client/contracts";
 import { api, APIError } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

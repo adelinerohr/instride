@@ -1,4 +1,4 @@
-import type { Event } from "@instride/api";
+import type { Event } from "@instride/client";
 
 import { Dialog, DialogPortal } from "@/shared/components/ui/dialog";
 import { defineModal } from "@/shared/lib/stores/modal.store";

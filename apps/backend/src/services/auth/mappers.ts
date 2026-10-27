@@ -1,4 +1,4 @@
-import { AuthMember, AuthUser } from "@instride/api/contracts";
+import { AuthMember, AuthUser } from "@instride/client/contracts";
 
 import { toISO, toISOOrNull, toTimestamps } from "@/shared/utils/mappers";
 

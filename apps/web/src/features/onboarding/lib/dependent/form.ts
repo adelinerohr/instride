@@ -1,4 +1,4 @@
-import type { GuardianPermissions } from "@instride/api";
+import type { GuardianPermissions } from "@instride/client";
 import { signWaiverSchema, updateUserSchema } from "@instride/shared";
 import { formOptions } from "@tanstack/react-form";
 import z from "zod";

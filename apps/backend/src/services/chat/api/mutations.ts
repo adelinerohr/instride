@@ -8,7 +8,7 @@ import type {
   SendMessageRequest,
   SendMessageResponse,
   UpdateMessageRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { MessageAttachmentType, MessageResponseStatus } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 import { lessons, organizations } from "~encore/clients";

@@ -6,7 +6,7 @@ import {
   useRemoveFromBoard,
   useUpdateRider,
   type Rider,
-} from "@instride/api";
+} from "@instride/client";
 import { CircleIcon } from "lucide-react";
 import { toast } from "sonner";
 

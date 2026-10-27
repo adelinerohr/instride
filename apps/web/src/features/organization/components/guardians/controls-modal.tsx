@@ -1,7 +1,7 @@
 import {
   useUpdateGuardianRelationship,
   type GuardianRelationshipWithMembers,
-} from "@instride/api";
+} from "@instride/client";
 import { toast } from "sonner";
 
 import { GuardianControlsStep } from "@/features/onboarding/components/steps/guardian-controls";

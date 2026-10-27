@@ -5,7 +5,7 @@ import type {
   ListMembersResponse,
   ListRidersResponse,
   ListTrainersResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api, APIError } from "encore.dev/api";
 
 import { requireAuth, requireOrganizationAuth } from "@/shared/auth";

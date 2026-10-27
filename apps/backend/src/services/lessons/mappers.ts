@@ -5,7 +5,7 @@ import type {
   LessonSeries,
   LessonSeriesEnrollment,
   LessonSeriesSummary,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import {
   BoardWithExpansionRow,

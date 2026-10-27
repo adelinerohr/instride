@@ -1,4 +1,4 @@
-import { type Member, getUser } from "@instride/api";
+import { type Member, getUser } from "@instride/client";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 import { UserAvatarItem } from "@/shared/components/fragments/user-avatar";

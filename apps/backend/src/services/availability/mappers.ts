@@ -3,7 +3,7 @@ import type {
   BusinessHours,
   BusinessHoursDay,
   TimeBlock,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 
 import { toISO, toTimestamps } from "@/shared/utils/mappers";
 

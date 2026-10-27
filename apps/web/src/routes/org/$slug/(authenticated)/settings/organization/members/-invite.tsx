@@ -1,4 +1,4 @@
-import { useSendInvitation } from "@instride/api";
+import { useSendInvitation } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { toast } from "sonner";
 import z from "zod";

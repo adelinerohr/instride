@@ -1,4 +1,4 @@
-import { useSession } from "@instride/api";
+import { useSession } from "@instride/client";
 import { ROLE_LABELS } from "@instride/shared";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";

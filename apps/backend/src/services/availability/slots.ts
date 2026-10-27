@@ -1,7 +1,7 @@
 import {
   AvailableSlotsRequest,
   AvailableSlotsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { JS_WEEKDAY_TO_DAY_OF_WEEK, timeToMinutes } from "@instride/shared";
 import { LessonInstanceStatus } from "@instride/shared/models/enums";
 import { addMinutes, eachDayOfInterval, parseISO } from "date-fns";

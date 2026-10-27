@@ -1,4 +1,4 @@
-import type { Message } from "@instride/api";
+import type { Message } from "@instride/client";
 
 export type MessageRunPosition = "first" | "middle" | "last" | "only";
 

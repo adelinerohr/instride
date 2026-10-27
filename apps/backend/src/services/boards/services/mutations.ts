@@ -6,7 +6,7 @@ import type {
   GetServiceResponse,
   GetServiceTrainerAssignmentResponse,
   UpdateServiceRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { and, eq } from "drizzle-orm";
 import { api } from "encore.dev/api";
 

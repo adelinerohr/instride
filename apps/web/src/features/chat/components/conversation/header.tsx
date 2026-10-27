@@ -1,5 +1,5 @@
-import type { Conversation } from "@instride/api";
-import { getUser } from "@instride/api";
+import type { Conversation } from "@instride/client";
+import { getUser } from "@instride/client";
 import { CalendarIcon, MoreHorizontalIcon } from "lucide-react";
 
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";

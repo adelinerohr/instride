@@ -1,4 +1,4 @@
-import { boardsOptions, feedOptions, membersOptions } from "@instride/api";
+import { boardsOptions, feedOptions, membersOptions } from "@instride/client";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 

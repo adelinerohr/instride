@@ -2,7 +2,7 @@ import type {
   GetOrganizationResponse,
   ListOrganizationsResponse,
   ListMyOrganizationsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 
 import { auth } from "@/services/auth/auth";

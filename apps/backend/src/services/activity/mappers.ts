@@ -1,4 +1,4 @@
-import type { Activity, ActivityMetadata } from "@instride/api/contracts";
+import type { Activity, ActivityMetadata } from "@instride/client/contracts";
 
 import { AuthUserRow } from "@/services/auth/schema";
 import { toMemberSummary } from "@/services/organizations/mappers";

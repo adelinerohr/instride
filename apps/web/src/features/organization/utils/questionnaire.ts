@@ -2,7 +2,7 @@ import type {
   Board,
   QuestionnaireBoardAssignmentRule,
   QuestionnaireQuestion,
-} from "@instride/api";
+} from "@instride/client";
 import { QuestionnaireQuestionType } from "@instride/shared";
 
 export function getErrorMessages(errors: unknown[]): { message: string }[] {

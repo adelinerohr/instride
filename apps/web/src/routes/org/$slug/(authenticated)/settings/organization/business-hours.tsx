@@ -4,7 +4,7 @@ import {
   organizationOptions,
   useResetOrganizationBusinessHours,
   useUpdateOrganization,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";

@@ -3,7 +3,7 @@ import {
   useKioskEnrollInInstance,
   useKioskUnenrollFromInstance,
   type LessonInstance,
-} from "@instride/api";
+} from "@instride/client";
 import { KioskActions, MembershipRole } from "@instride/shared";
 import { isBefore } from "date-fns";
 import { EditIcon, TrashIcon } from "lucide-react";

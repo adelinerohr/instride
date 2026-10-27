@@ -5,7 +5,7 @@ import type {
   UpdateLessonSeriesRequest,
   UpdateLessonSeriesResponse,
   SkippedInstance,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { addWeeks } from "date-fns";
 import { and, eq, gte } from "drizzle-orm";
 import { appMeta } from "encore.dev";

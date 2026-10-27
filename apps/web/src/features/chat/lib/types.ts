@@ -5,7 +5,7 @@ import type {
   Service,
   Trainer,
   Level,
-} from "@instride/api";
+} from "@instride/client";
 
 /**
  * Normalized shape that the card actually renders. Both real lesson

@@ -3,8 +3,8 @@ import {
   questionnaireOptions,
   useCreatePlaceholderRelationship,
   waiverOptions,
-} from "@instride/api";
-import type { Questionnaire } from "@instride/api";
+} from "@instride/client";
+import type { Questionnaire } from "@instride/client";
 import { WaiverStatus } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";

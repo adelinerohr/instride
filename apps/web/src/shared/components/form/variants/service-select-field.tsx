@@ -1,4 +1,4 @@
-import type { Service } from "@instride/api";
+import type { Service } from "@instride/client";
 
 import { LevelBadge } from "@/features/organization/components/fragments/badges";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";

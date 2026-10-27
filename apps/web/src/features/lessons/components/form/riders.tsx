@@ -1,4 +1,4 @@
-import { membersOptions, type types } from "@instride/api";
+import { membersOptions, type types } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CheckIcon, SearchIcon, UsersIcon, XIcon } from "lucide-react";

@@ -1,4 +1,4 @@
-import { GetLevelResponse, ListLevelsResponse } from "@instride/api/contracts";
+import { GetLevelResponse, ListLevelsResponse } from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

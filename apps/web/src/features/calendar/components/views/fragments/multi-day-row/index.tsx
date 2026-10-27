@@ -1,4 +1,4 @@
-import type { Event } from "@instride/api";
+import type { Event } from "@instride/client";
 import { isTrainerWorkingOnDay } from "@instride/shared";
 import {
   parseISO,

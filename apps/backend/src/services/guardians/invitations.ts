@@ -3,7 +3,7 @@ import type {
   GetPendingInvitationResponse,
   SendDependentInvitationResponse,
   SendDependentInvitationRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { GuardianRelationshipStatus, InvitationStatus } from "@instride/shared";
 import { eq } from "drizzle-orm";
 import { api, APIError } from "encore.dev/api";

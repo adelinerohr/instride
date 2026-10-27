@@ -1,5 +1,5 @@
-import type { Message } from "@instride/api";
-import { getUser } from "@instride/api";
+import type { Message } from "@instride/client";
+import { getUser } from "@instride/client";
 import { format } from "date-fns";
 
 import { UserAvatar } from "@/shared/components/fragments/user-avatar";

@@ -2,7 +2,7 @@ import {
   LessonProposalPayload,
   MessageResponse,
   RespondToMessageResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import {
   MessageAttachmentType,
   MessageResponseStatus,

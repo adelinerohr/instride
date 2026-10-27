@@ -1,4 +1,4 @@
-import { Rider } from "@instride/api/contracts";
+import { Rider } from "@instride/client/contracts";
 import { APIError } from "encore.dev/api";
 
 import { AuthUser } from "@/services/auth/types/models";

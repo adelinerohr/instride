@@ -1,4 +1,4 @@
-import type { ListBusinessHoursResponse } from "@instride/api/contracts";
+import type { ListBusinessHoursResponse } from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 
 import { assertAdminOrSelf } from "@/services/auth/gates";

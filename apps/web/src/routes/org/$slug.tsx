@@ -7,7 +7,7 @@ import {
   membersOptions,
   organizationOptions,
   setOrganizationContext,
-} from "@instride/api";
+} from "@instride/client";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 /**

@@ -1,4 +1,4 @@
-import { availabilityOptions, type Organization } from "@instride/api";
+import { availabilityOptions, type Organization } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { endOfMonth, format, parseISO, startOfMonth } from "date-fns";

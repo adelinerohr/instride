@@ -1,7 +1,7 @@
 import type {
   KioskCreateLessonInstanceRequest,
   GetLessonInstanceResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { KioskActions, KioskScope } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 import { lessons } from "~encore/clients";

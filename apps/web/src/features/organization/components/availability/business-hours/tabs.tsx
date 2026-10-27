@@ -3,7 +3,7 @@ import {
   type Board,
   type BoardBusinessHours,
   type BusinessHours,
-} from "@instride/api";
+} from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { RotateCcwIcon } from "lucide-react";
 import * as React from "react";

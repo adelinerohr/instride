@@ -5,7 +5,7 @@ import {
   instanceOptions,
   membersOptions,
   timeBlockOptions,
-} from "@instride/api";
+} from "@instride/client";
 import {
   keepPreviousData,
   useQuery,

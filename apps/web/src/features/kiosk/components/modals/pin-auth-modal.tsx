@@ -4,7 +4,7 @@ import {
   useCheckKioskPermission,
   useMembers,
   type Member,
-} from "@instride/api";
+} from "@instride/client";
 import { type KioskActionContext } from "@instride/shared";
 import * as React from "react";
 import z from "zod";

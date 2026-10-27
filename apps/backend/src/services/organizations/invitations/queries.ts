@@ -1,7 +1,7 @@
 import {
   GetInvitationResponse,
   ListInvitationsResponse,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { MembershipRole } from "@instride/shared";
 import { api, APIError } from "encore.dev/api";
 

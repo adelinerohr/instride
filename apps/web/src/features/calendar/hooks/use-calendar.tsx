@@ -5,7 +5,7 @@ import {
   type LessonInstance,
   type TimeBlock,
   type Trainer,
-} from "@instride/api";
+} from "@instride/client";
 import {
   EventScope,
   resolveEffectiveBusinessHours,

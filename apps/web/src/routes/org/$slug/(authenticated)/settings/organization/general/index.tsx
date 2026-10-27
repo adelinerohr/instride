@@ -1,4 +1,4 @@
-import { levelOptions, useUpdateOrganization } from "@instride/api";
+import { levelOptions, useUpdateOrganization } from "@instride/client";
 import { createFileRoute } from "@tanstack/react-router";
 
 import {

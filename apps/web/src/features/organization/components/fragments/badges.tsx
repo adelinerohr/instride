@@ -1,4 +1,4 @@
-import type { Board, Level } from "@instride/api";
+import type { Board, Level } from "@instride/client";
 
 import { CategoryDot } from "@/shared/components/fragments/category-dot";
 import { Badge } from "@/shared/components/ui/badge";

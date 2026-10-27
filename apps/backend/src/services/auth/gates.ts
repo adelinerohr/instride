@@ -1,4 +1,4 @@
-import { Member } from "@instride/api/contracts";
+import { Member } from "@instride/client/contracts";
 import { MembershipRole } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 import { organizations } from "~encore/clients";

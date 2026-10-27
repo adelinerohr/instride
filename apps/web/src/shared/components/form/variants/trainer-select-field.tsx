@@ -1,4 +1,4 @@
-import { getUser, type Trainer } from "@instride/api";
+import { getUser, type Trainer } from "@instride/client";
 import * as React from "react";
 
 import {

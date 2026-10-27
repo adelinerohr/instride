@@ -1,4 +1,4 @@
-import type { AuthUser } from "@instride/api";
+import type { AuthUser } from "@instride/client";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {

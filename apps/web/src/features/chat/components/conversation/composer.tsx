@@ -1,4 +1,4 @@
-import { getUser, useSendMessage, type Conversation } from "@instride/api";
+import { getUser, useSendMessage, type Conversation } from "@instride/client";
 import { ConversationParticipantRole } from "@instride/shared";
 import { CalendarPlusIcon, SendIcon, TicketIcon } from "lucide-react";
 import * as React from "react";

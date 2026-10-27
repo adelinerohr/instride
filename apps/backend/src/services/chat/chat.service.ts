@@ -1,4 +1,4 @@
-import { CreateConversationRequest } from "@instride/api/contracts";
+import { CreateConversationRequest } from "@instride/client/contracts";
 import { ConversationType, MessageResponseStatus } from "@instride/shared";
 import { APIError } from "encore.dev/api";
 

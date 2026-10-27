@@ -1,4 +1,4 @@
-import { membersOptions, type Member } from "@instride/api";
+import { membersOptions, type Member } from "@instride/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Table } from "@tanstack/react-table";

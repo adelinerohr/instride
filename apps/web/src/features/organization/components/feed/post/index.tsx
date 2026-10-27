@@ -1,4 +1,4 @@
-import { useLikePost, useUnlikePost, type FeedPost } from "@instride/api";
+import { useLikePost, useUnlikePost, type FeedPost } from "@instride/client";
 import { useRouteContext } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
 import * as React from "react";

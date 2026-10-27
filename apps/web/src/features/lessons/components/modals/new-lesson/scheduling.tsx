@@ -1,4 +1,4 @@
-import { getUser, type Board, type Service, type Trainer } from "@instride/api";
+import { getUser, type Board, type Service, type Trainer } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { CalendarIcon, CheckCircle2Icon, ChevronDownIcon } from "lucide-react";
 

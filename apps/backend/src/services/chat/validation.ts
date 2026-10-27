@@ -1,4 +1,4 @@
-import { SendMessageBody } from "@instride/api/contracts";
+import { SendMessageBody } from "@instride/client/contracts";
 import {
   MessageAttachmentType,
   riderCreateLessonInputSchema,

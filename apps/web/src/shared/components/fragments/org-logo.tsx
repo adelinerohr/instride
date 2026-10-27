@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { types } from "@instride/client";
 
 import { cn } from "@/shared/lib/utils";
 

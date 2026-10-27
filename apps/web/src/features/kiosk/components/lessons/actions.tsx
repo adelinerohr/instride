@@ -3,7 +3,7 @@ import {
   useKioskMarkAttendance,
   useKioskUnenrollFromInstance,
   type LessonInstance,
-} from "@instride/api";
+} from "@instride/client";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";

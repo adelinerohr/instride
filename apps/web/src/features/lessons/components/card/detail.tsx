@@ -3,7 +3,7 @@ import {
   getUser,
   isPrivateLesson,
   type AuthUser,
-} from "@instride/api";
+} from "@instride/client";
 import {
   formatDuration,
   differenceInMinutes,

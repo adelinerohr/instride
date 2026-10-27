@@ -3,7 +3,7 @@ import {
   enrollmentOptions,
   getUser,
   membersOptions,
-} from "@instride/api";
+} from "@instride/client";
 import { formatUSPhone } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";

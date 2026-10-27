@@ -1,4 +1,4 @@
-import { useCreateWaiver, useUpdateWaiver, type Waiver } from "@instride/api";
+import { useCreateWaiver, useUpdateWaiver, type Waiver } from "@instride/client";
 import { toast } from "sonner";
 import { z } from "zod";
 

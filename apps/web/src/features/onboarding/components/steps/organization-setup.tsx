@@ -1,4 +1,4 @@
-import { useCheckSlug } from "@instride/api";
+import { useCheckSlug } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import * as React from "react";
 

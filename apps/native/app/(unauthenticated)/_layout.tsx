@@ -1,4 +1,4 @@
-import { useSession } from "@instride/api";
+import { useSession } from "@instride/client";
 import { Redirect, Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 

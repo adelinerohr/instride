@@ -9,7 +9,7 @@ import {
   useUpdateLessonInstance,
   useUpdateLessonSeries,
   type LessonInstance,
-} from "@instride/api";
+} from "@instride/client";
 import {
   adminCreateLessonInputSchema,
   RecurrenceFrequency,

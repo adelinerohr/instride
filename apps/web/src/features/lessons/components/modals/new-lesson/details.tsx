@@ -1,4 +1,4 @@
-import type { Level } from "@instride/api";
+import type { Level } from "@instride/client";
 import { RecurrenceFrequency } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";

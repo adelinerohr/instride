@@ -1,10 +1,10 @@
-import type { LessonProposalPayload, MessageResponse } from "@instride/api";
+import type { LessonProposalPayload, MessageResponse } from "@instride/client";
 import {
   useBoard,
   useRespondToMessage,
   useService,
   useTrainer,
-} from "@instride/api";
+} from "@instride/client";
 
 import { normalizeProposal } from "@/features/chat/lib/types";
 

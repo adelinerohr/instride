@@ -1,4 +1,4 @@
-import type { GetLessonStatsResponse } from "@instride/api/contracts";
+import type { GetLessonStatsResponse } from "@instride/client/contracts";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { api } from "encore.dev/api";
 

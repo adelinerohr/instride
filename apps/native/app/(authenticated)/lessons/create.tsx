@@ -5,7 +5,7 @@ import {
   useLevels,
   useServices,
   useTrainers,
-} from "@instride/api";
+} from "@instride/client";
 import {
   adminCreateLessonInputSchema,
   AdminCreateLessonInputSchema,

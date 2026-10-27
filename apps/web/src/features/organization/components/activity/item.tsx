@@ -1,4 +1,4 @@
-import type { Activity } from "@instride/api";
+import type { Activity } from "@instride/client";
 
 import { EnrollmentActivity } from "./enrollment";
 

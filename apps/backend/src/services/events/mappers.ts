@@ -1,4 +1,4 @@
-import type { Event, EventSchedulingBlock } from "@instride/api/contracts";
+import type { Event, EventSchedulingBlock } from "@instride/client/contracts";
 import { EventScope } from "@instride/shared";
 
 import type { EventRow, EventSchedulingBlockRow } from "./schema";

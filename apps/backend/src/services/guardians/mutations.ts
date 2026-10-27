@@ -4,7 +4,7 @@ import {
   type GuardianPermissions,
   type MutateGuardianRelationshipResponse,
   type UpdateGuardianRelationshipRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { GuardianRelationshipStatus } from "@instride/shared";
 import { api } from "encore.dev/api";
 

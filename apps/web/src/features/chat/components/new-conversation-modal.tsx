@@ -1,4 +1,4 @@
-import { useCreateConversation, useRiders } from "@instride/api";
+import { useCreateConversation, useRiders } from "@instride/client";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { toast } from "sonner";
 

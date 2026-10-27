@@ -3,7 +3,7 @@ import {
   membersOptions,
   type Invitation,
   type Member,
-} from "@instride/api";
+} from "@instride/client";
 import { InvitationStatus, MembershipRole } from "@instride/shared";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {

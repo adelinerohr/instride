@@ -5,7 +5,7 @@ import {
   questionnaireOptions,
   useChangeRole,
   waiverOptions,
-} from "@instride/api";
+} from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";

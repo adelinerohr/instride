@@ -1,0 +1,42 @@
+{
+  "name": "@instride/client",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "imports": {
+    "#client": "./src/client/index.ts",
+    "#_internal": "./src/_internal/index.ts",
+    "#_internal/*": "./src/_internal/*.ts",
+    "#modules/*": "./src/modules/*.ts",
+    "#contracts": "./src/contracts/index.ts",
+    "#contracts/*": "./src/contracts/*.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts/index.d.ts",
+      "default": "./dist/contracts/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@instride/legacy-auth": "workspace:*",
+    "@instride/shared": "workspace:*",
+    "@tanstack/react-query": "^5.95.2",
+    "better-auth": "catalog:",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@instride/config": "workspace:*",
+    "typescript": "^5"
+  }
+}

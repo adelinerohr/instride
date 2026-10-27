@@ -1,4 +1,4 @@
-import type { Questionnaire } from "@instride/api";
+import type { Questionnaire } from "@instride/client";
 import {
   questionnaireInputSchema,
   type QuestionnaireInputSchema,

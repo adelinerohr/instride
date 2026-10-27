@@ -4,7 +4,7 @@ import {
   type CreatePlaceholderRelationshipRequest,
   type MutateGuardianRelationshipResponse,
   type Questionnaire,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import {
   GuardianRelationshipStatus,
   MembershipRole,

@@ -1,7 +1,7 @@
 import type {
   Questionnaire,
   QuestionnaireQuestionResponse,
-} from "@instride/api";
+} from "@instride/client";
 import { QuestionnaireQuestionType } from "@instride/shared";
 import { replaceYouWithThey } from "@instride/shared";
 import { useStore } from "@tanstack/react-form";

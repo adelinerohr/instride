@@ -3,7 +3,7 @@ import {
   useAcceptGuardianInvitation,
   type AuthUser,
   type GuardianInvitationWithContext,
-} from "@instride/api";
+} from "@instride/client";
 import { useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { toast } from "sonner";

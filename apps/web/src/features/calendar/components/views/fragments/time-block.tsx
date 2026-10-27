@@ -1,4 +1,4 @@
-import { getUser, type TimeBlock } from "@instride/api";
+import { getUser, type TimeBlock } from "@instride/client";
 import { cva } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
 import { AlertCircleIcon, ClockIcon, UserIcon } from "lucide-react";

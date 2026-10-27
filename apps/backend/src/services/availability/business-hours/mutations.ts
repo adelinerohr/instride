@@ -2,7 +2,7 @@ import type {
   ListBusinessHoursResponse,
   UpdateOrganizationBusinessHoursRequest,
   UpdateTrainerBusinessHoursRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import { DayOfWeek } from "@instride/shared";
 import { api } from "encore.dev/api";
 

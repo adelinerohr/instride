@@ -1,4 +1,4 @@
-import { chatOptions, type Conversation } from "@instride/api";
+import { chatOptions, type Conversation } from "@instride/client";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import * as React from "react";
 

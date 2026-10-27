@@ -1,4 +1,4 @@
-import type { AuthUser } from "@instride/api";
+import type { AuthUser } from "@instride/client";
 import { XIcon } from "lucide-react";
 
 import { categoryColorClasses, getUserColor } from "@/shared/lib/config/colors";

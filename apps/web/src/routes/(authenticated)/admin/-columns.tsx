@@ -1,4 +1,4 @@
-import type { types } from "@instride/api";
+import type { types } from "@instride/client";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";

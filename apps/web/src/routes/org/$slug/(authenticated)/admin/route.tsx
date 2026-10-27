@@ -1,4 +1,4 @@
-import { hasAnyRole, hasOnlyRole } from "@instride/api";
+import { hasAnyRole, hasOnlyRole } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 

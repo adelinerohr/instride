@@ -1,5 +1,5 @@
-import type { LessonInstance, MessageResponse } from "@instride/api";
-import { useRespondToMessage } from "@instride/api";
+import type { LessonInstance, MessageResponse } from "@instride/client";
+import { useRespondToMessage } from "@instride/client";
 
 import { normalizeLesson } from "@/features/chat/lib/types";
 

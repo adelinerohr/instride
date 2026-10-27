@@ -1,5 +1,5 @@
-import type { ListLessonSeriesResponse } from "@instride/api/contracts";
-import type { GetLessonSeriesResponse } from "@instride/api/contracts";
+import type { ListLessonSeriesResponse } from "@instride/client/contracts";
+import type { GetLessonSeriesResponse } from "@instride/client/contracts";
 import { api } from "encore.dev/api";
 
 import { requireOrganizationAuth } from "@/shared/auth";

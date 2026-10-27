@@ -1,4 +1,4 @@
-import { authOptions } from "@instride/api";
+import { authOptions } from "@instride/client";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 

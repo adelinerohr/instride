@@ -6,7 +6,7 @@ import {
   SeriesEnrollmentFailure,
   UnenrollFromInstanceRequest,
   UnenrollRiderFromSeriesRequest,
-} from "@instride/api/contracts";
+} from "@instride/client/contracts";
 import {
   LessonInstanceStatus,
   LessonSeriesEnrollmentStatus,

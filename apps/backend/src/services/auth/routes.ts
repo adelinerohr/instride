@@ -1,4 +1,4 @@
-import { AuthUser } from "@instride/api/contracts";
+import { AuthUser } from "@instride/client/contracts";
 import { eq } from "drizzle-orm";
 import { appMeta } from "encore.dev";
 import { api, APIError, Cookie } from "encore.dev/api";

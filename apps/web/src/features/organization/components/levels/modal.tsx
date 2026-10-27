@@ -1,4 +1,4 @@
-import { useCreateLevel, useUpdateLevel, type Level } from "@instride/api";
+import { useCreateLevel, useUpdateLevel, type Level } from "@instride/client";
 import { toast } from "sonner";
 import { z } from "zod";
 

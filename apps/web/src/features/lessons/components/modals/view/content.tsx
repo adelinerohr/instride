@@ -1,4 +1,4 @@
-import { getUser, useLessonInstance } from "@instride/api";
+import { getUser, useLessonInstance } from "@instride/client";
 import { useRouteContext } from "@tanstack/react-router";
 import { formatInTimeZone } from "date-fns-tz";
 import { RepeatIcon } from "lucide-react";

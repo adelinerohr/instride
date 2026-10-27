@@ -1,4 +1,4 @@
-import { serverBaseURL } from "@instride/api";
+import { serverBaseURL } from "@instride/client";
 import {
   adminClient,
   inferAdditionalFields,

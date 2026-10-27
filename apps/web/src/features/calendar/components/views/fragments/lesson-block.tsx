@@ -1,4 +1,4 @@
-import { getUser, type LessonInstance } from "@instride/api";
+import { getUser, type LessonInstance } from "@instride/client";
 import { cva, type VariantProps } from "class-variance-authority";
 import { differenceInMinutes, format, parseISO } from "date-fns";
 import { ClipboardListIcon, ClockIcon, UserIcon } from "lucide-react";

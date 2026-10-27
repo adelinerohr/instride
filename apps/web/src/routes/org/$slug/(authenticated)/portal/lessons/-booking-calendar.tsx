@@ -1,4 +1,4 @@
-import { availabilityOptions, type AvailableSlot } from "@instride/api";
+import { availabilityOptions, type AvailableSlot } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import {

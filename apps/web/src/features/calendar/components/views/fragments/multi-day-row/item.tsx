@@ -1,4 +1,4 @@
-import type { Event } from "@instride/api";
+import type { Event } from "@instride/client";
 import { cva } from "class-variance-authority";
 import { format, parseISO, startOfDay } from "date-fns";
 

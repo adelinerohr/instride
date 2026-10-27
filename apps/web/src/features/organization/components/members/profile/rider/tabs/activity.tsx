@@ -1,4 +1,4 @@
-import type { Member } from "@instride/api";
+import type { Member } from "@instride/client";
 import { formatDistanceToNow } from "date-fns";
 import { Clock2Icon } from "lucide-react";
 

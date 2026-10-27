@@ -3,7 +3,7 @@ import {
   useCreatePost,
   useUpdatePost,
   type FeedPost,
-} from "@instride/api";
+} from "@instride/client";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";

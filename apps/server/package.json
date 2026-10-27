@@ -3,37 +3,24 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./src/router.ts"
-    }
-  },
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
     "start": "tsx src/index.ts",
-    "check-types": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "migrate:users": "tsx --env-file=.env scripts/migrate-users.ts"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@better-auth/expo": "catalog:",
     "@hono/node-server": "^2.1.5",
-    "@instride/shared": "workspace:*",
+    "@instride/api": "workspace:*",
+    "@instride/auth": "workspace:*",
+    "@instride/db": "workspace:*",
     "@orpc/server": "^1.16.1",
-    "better-auth": "catalog:",
-    "drizzle-orm": "1.0.0-beta.20",
     "hono": "^4.13.14",
-    "pg": "^8.20.0",
-    "zod": "catalog:",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@instride/config": "workspace:*",
     "@types/node": "^25.5.0",
-    "@types/pg": "^8.15.0",
-    "drizzle-kit": "1.0.0-beta.20",
     "typescript": "^5"
   }
 }

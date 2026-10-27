@@ -3,28 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "default": "./dist/*.js"
-    }
+    ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@better-auth/expo": "catalog:",
+    "@instride/db": "workspace:*",
     "better-auth": "catalog:"
   },
   "devDependencies": {
     "@instride/config": "workspace:*",
-    "typescript": "^5.2.2"
+    "@types/node": "^25.5.0",
+    "typescript": "^5"
   }
 }

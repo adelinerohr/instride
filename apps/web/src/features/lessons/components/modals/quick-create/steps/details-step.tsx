@@ -1,4 +1,4 @@
-import { useLevels, type Service } from "@instride/api";
+import { useLevels, type Service } from "@instride/client";
 import { useStore } from "@tanstack/react-form";
 import { RepeatIcon } from "lucide-react";
 

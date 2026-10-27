@@ -1,4 +1,4 @@
-import { useSignOut } from "@instride/api";
+import { useSignOut } from "@instride/client";
 import { MembershipRole } from "@instride/shared";
 import {
   Link,
