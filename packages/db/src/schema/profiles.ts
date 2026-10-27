@@ -58,7 +58,6 @@ export const riders = p.pgTable(
       .uuid("organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
-    isRestricted: p.boolean("is_restricted").notNull().default(false),
     emergencyContactName: p.text("emergency_contact_name"),
     emergencyContactPhone: p.text("emergency_contact_phone"),
     ridingLevelId: p

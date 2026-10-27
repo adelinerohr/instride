@@ -10,6 +10,11 @@ import {
 import type { z } from "zod";
 
 import { users } from "./schema/auth";
+import {
+  dependentControls,
+  guardianRelationships,
+  pendingActions,
+} from "./schema/guardianship";
 import { invitations, members, organizations } from "./schema/organizations";
 import { levels, riders, trainers } from "./schema/profiles";
 
@@ -35,3 +40,14 @@ export type Trainer = z.infer<typeof TrainerSchema>;
 
 export const RiderSchema = createSelectSchema(riders);
 export type Rider = z.infer<typeof RiderSchema>;
+
+export const GuardianRelationshipSchema = createSelectSchema(
+  guardianRelationships
+);
+export type GuardianRelationship = z.infer<typeof GuardianRelationshipSchema>;
+
+export const DependentControlsSchema = createSelectSchema(dependentControls);
+export type DependentControls = z.infer<typeof DependentControlsSchema>;
+
+export const PendingActionSchema = createSelectSchema(pendingActions);
+export type PendingAction = z.infer<typeof PendingActionSchema>;

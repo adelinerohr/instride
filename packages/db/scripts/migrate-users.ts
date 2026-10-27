@@ -3,6 +3,10 @@
  * Encore database into the new one. Safe to run more than once: existing rows
  * are skipped.
  *
+ * Placeholder dependents from the old guardian flow (fake
+ * "@placeholder.instride.local" emails) are skipped: in the new model a
+ * dependent is a member with no login, not a user.
+ *
  * Organizations and memberships are NOT copied. Recreate the barn(s) in the
  * new app and invite people, or add them with the new members API.
  *
@@ -36,6 +40,8 @@ const USER_COLUMNS = [
   "created_at",
   "updated_at",
 ] as const;
+
+const PLACEHOLDER_EMAIL = "%@placeholder.instride.local";
 
 const ACCOUNT_COLUMNS = [
   "id",
@@ -107,10 +113,12 @@ async function main(): Promise<void> {
     );
 
     const users = await source.query<Row>(
-      `select ${userColumns.join(", ")} from auth_users order by created_at`
+      `select ${userColumns.join(", ")} from auth_users where email not like $1 order by created_at`,
+      [PLACEHOLDER_EMAIL]
     );
     const accounts = await source.query<Row>(
-      `select ${accountColumns.join(", ")} from auth_accounts where user_id is not null`
+      `select ${accountColumns.map((column) => `a.${column}`).join(", ")} from auth_accounts a join auth_users u on u.id = a.user_id where u.email not like $1`,
+      [PLACEHOLDER_EMAIL]
     );
 
     console.info(

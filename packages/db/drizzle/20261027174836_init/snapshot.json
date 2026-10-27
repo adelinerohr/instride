@@ -1,9 +1,15 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "ac6a29ce-003d-488b-b83a-7be8685e105b",
+  "id": "6bee2c3a-48c1-4868-9e33-00497203bb9f",
   "prevIds": ["00000000-0000-0000-0000-000000000000"],
   "ddl": [
+    {
+      "values": ["member", "guardian_link", "dependent_account"],
+      "name": "invitation_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
     {
       "values": ["pending", "accepted", "revoked"],
       "name": "invitation_status",
@@ -11,8 +17,27 @@
       "schema": "public"
     },
     {
-      "values": ["admin", "trainer", "rider", "guardian"],
+      "values": ["admin", "trainer", "rider"],
       "name": "membership_role",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "book_lesson",
+        "join_event",
+        "cancel_booking",
+        "post",
+        "comment",
+        "edit_profile"
+      ],
+      "name": "dependent_action",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": ["pending", "approved", "rejected", "cancelled"],
+      "name": "pending_action_status",
       "entityType": "enums",
       "schema": "public"
     },
@@ -73,6 +98,24 @@
     {
       "isRlsEnabled": false,
       "name": "trainers",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "dependent_controls",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "guardian_relationships",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "pending_actions",
       "entityType": "tables",
       "schema": "public"
     },
@@ -649,6 +692,19 @@
       "table": "invitations"
     },
     {
+      "type": "invitation_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'member'",
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "invitations"
+    },
+    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -666,10 +722,23 @@
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 1,
-      "default": null,
+      "default": "'{}'",
       "generated": null,
       "identity": null,
       "name": "roles",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "invitations"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "dependent_member_id",
       "entityType": "columns",
       "schema": "public",
       "table": "invitations"
@@ -781,7 +850,7 @@
     {
       "type": "text",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -796,10 +865,36 @@
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 1,
-      "default": "'{rider}'",
+      "default": "'{}'",
       "generated": null,
       "identity": null,
       "name": "roles",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "members"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "members"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date_of_birth",
       "entityType": "columns",
       "schema": "public",
       "table": "members"
@@ -826,19 +921,6 @@
       "generated": null,
       "identity": null,
       "name": "onboarding_complete",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "members"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_placeholder",
       "entityType": "columns",
       "schema": "public",
       "table": "members"
@@ -1299,19 +1381,6 @@
       "table": "riders"
     },
     {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_restricted",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "riders"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": false,
@@ -1492,6 +1561,344 @@
       "entityType": "columns",
       "schema": "public",
       "table": "trainers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'{\"bookings\":{\"canBookLessons\":true,\"canJoinEvents\":true,\"canCancel\":true,\"requiresApproval\":true},\"communication\":{\"canPost\":true,\"canComment\":true},\"profile\":{\"canEdit\":true}}'",
+      "generated": null,
+      "identity": null,
+      "name": "permissions",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "consent_given_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "consent_given_by_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "updated_by_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "guardian_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "dependent_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "revoked_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "revoked_by_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "dependent_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "dependent_action",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "action",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "payload",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "pending_action_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'pending'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "decided_by_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "decided_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "pending_actions"
     },
     {
       "nameExplicit": true,
@@ -1711,6 +2118,125 @@
       "table": "trainers"
     },
     {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "guardian_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "dependent_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": "\"revoked_at\" IS NULL",
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "guardian_rel_active_pair_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "guardian_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "guardian_rel_guardian_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "dependent_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "guardian_rel_dependent_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "organization_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "guardian_rel_organization_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "dependent_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "status",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "pending_actions_dependent_status_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
       "nameExplicit": false,
       "columns": ["user_id"],
       "schemaTo": "public",
@@ -1745,6 +2271,19 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "invitations_organization_id_organizations_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "invitations"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["dependent_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "invitations_dependent_member_id_members_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "invitations"
@@ -1867,6 +2406,149 @@
       "table": "trainers"
     },
     {
+      "nameExplicit": false,
+      "columns": ["member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "dependent_controls_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["organization_id"],
+      "schemaTo": "public",
+      "tableTo": "organizations",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "dependent_controls_organization_id_organizations_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["consent_given_by_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "dependent_controls_consent_given_by_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["updated_by_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "dependent_controls_updated_by_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dependent_controls"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["organization_id"],
+      "schemaTo": "public",
+      "tableTo": "organizations",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "guardian_relationships_organization_id_organizations_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["guardian_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "guardian_relationships_guardian_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["dependent_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "guardian_relationships_dependent_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["revoked_by_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "guardian_relationships_revoked_by_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "guardian_relationships"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["organization_id"],
+      "schemaTo": "public",
+      "tableTo": "organizations",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "pending_actions_organization_id_organizations_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["dependent_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "pending_actions_dependent_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["decided_by_member_id"],
+      "schemaTo": "public",
+      "tableTo": "members",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "pending_actions_decided_by_member_id_members_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "pending_actions"
+    },
+    {
       "columns": ["id"],
       "nameExplicit": false,
       "name": "accounts_pkey",
@@ -1947,6 +2629,30 @@
       "entityType": "pks"
     },
     {
+      "columns": ["member_id"],
+      "nameExplicit": false,
+      "name": "dependent_controls_pkey",
+      "schema": "public",
+      "table": "dependent_controls",
+      "entityType": "pks"
+    },
+    {
+      "columns": ["id"],
+      "nameExplicit": false,
+      "name": "guardian_relationships_pkey",
+      "schema": "public",
+      "table": "guardian_relationships",
+      "entityType": "pks"
+    },
+    {
+      "columns": ["id"],
+      "nameExplicit": false,
+      "name": "pending_actions_pkey",
+      "schema": "public",
+      "table": "pending_actions",
+      "entityType": "pks"
+    },
+    {
       "nameExplicit": false,
       "columns": ["token"],
       "nullsNotDistinct": false,
@@ -1999,6 +2705,27 @@
       "schema": "public",
       "table": "trainers",
       "entityType": "uniques"
+    },
+    {
+      "value": "(\"kind\" = 'member') = (\"dependent_member_id\" IS NULL)",
+      "name": "invitations_dependent_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "invitations"
+    },
+    {
+      "value": "\"user_id\" IS NOT NULL OR \"name\" IS NOT NULL",
+      "name": "members_identity_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "members"
+    },
+    {
+      "value": "\"guardian_member_id\" <> \"dependent_member_id\"",
+      "name": "guardian_rel_not_self",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "guardian_relationships"
     }
   ],
   "renames": []

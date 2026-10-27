@@ -1,6 +1,7 @@
+import { sql } from "drizzle-orm";
 import * as p from "drizzle-orm/pg-core";
 
-import { InvitationStatus, MembershipRole } from "../enums";
+import { InvitationKind, InvitationStatus, MembershipRole } from "../enums";
 import { timestamps } from "./_columns";
 import { users } from "./auth";
 
@@ -45,9 +46,16 @@ export const organizations = p.pgTable("organizations", {
 });
 
 /**
- * One row per (organization, user). Placeholder members (e.g. a dependent a
- * guardian created before they have their own login) still need a user row;
- * `isPlaceholder` marks them.
+ * A person at a barn.
+ *
+ * `userId` is null for dependents who don't have their own login (a guardian
+ * created them). Those members carry their own `name` / `dateOfBirth`; members
+ * with a login get those from `users`. When a dependent later gets a login
+ * (a `dependent_account` invitation), `userId` is filled in on this same row,
+ * so their lessons, history and guardians stay attached.
+ *
+ * `roles` can be empty: a parent who doesn't ride is just a member who has
+ * dependents.
  */
 export const members = p.pgTable(
   "members",
@@ -59,26 +67,30 @@ export const members = p.pgTable(
       .references(() => organizations.id, { onDelete: "cascade" }),
     userId: p
       .text("user_id")
-      .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    roles: membershipRoleEnum("roles")
-      .array()
-      .notNull()
-      .default([MembershipRole.RIDER]),
+    roles: membershipRoleEnum("roles").array().notNull().default([]),
+
+    /** Only for members without a login. */
+    name: p.text("name"),
+    dateOfBirth: p.date("date_of_birth"),
 
     kioskPin: p.text("kiosk_pin"),
     onboardingComplete: p
       .boolean("onboarding_complete")
       .notNull()
       .default(false),
-    isPlaceholder: p.boolean("is_placeholder").notNull().default(false),
     deletedAt: p.timestamp("deleted_at"),
 
     ...timestamps,
   },
   (t) => [
+    // NULL user ids are distinct, so any number of login-less dependents is fine
     p.uniqueIndex("members_org_user_idx").on(t.organizationId, t.userId),
     p.index("members_user_id_idx").on(t.userId),
+    p.check(
+      "members_identity_check",
+      sql`${t.userId} IS NOT NULL OR ${t.name} IS NOT NULL`
+    ),
   ]
 );
 
@@ -87,9 +99,13 @@ export const invitationStatusEnum = p.pgEnum(
   InvitationStatus
 );
 
+export const invitationKindEnum = p.pgEnum("invitation_kind", InvitationKind);
+
 /**
- * Invite someone (by email) into an organization with one or more roles.
- * Accepting creates the member row. The token goes in the invite link.
+ * Every invite link, whatever it does (see InvitationKind).
+ * - member:            `roles` set, `dependentMemberId` null
+ * - guardian_link:     `dependentMemberId` set; acceptor becomes their guardian
+ * - dependent_account: `dependentMemberId` set; acceptor's login is attached to that member
  */
 export const invitations = p.pgTable(
   "invitations",
@@ -99,8 +115,12 @@ export const invitations = p.pgTable(
       .uuid("organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
+    kind: invitationKindEnum("kind").notNull().default(InvitationKind.MEMBER),
     email: p.text("email").notNull(),
-    roles: membershipRoleEnum("roles").array().notNull(),
+    roles: membershipRoleEnum("roles").array().notNull().default([]),
+    dependentMemberId: p
+      .uuid("dependent_member_id")
+      .references(() => members.id, { onDelete: "cascade" }),
     token: p.text("token").notNull().unique(),
     status: invitationStatusEnum("status")
       .notNull()
@@ -116,5 +136,9 @@ export const invitations = p.pgTable(
   (t) => [
     p.index("invitations_organization_id_idx").on(t.organizationId),
     p.index("invitations_email_idx").on(t.email),
+    p.check(
+      "invitations_dependent_check",
+      sql`(${t.kind} = 'member') = (${t.dependentMemberId} IS NULL)`
+    ),
   ]
 );
